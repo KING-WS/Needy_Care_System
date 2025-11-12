@@ -1,0 +1,55 @@
+server:
+  port: 8087
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: ENC(idIWCdznEM3ggslDeTmLJw==)
+    key-store-type: PKCS12
+spring:
+  config:
+    import: optional:file:.env[.properties]  # .env import
+  messages:
+    basename: message
+    encoding: utf-8
+    cache-duration: 10
+    fallback-to-system-locale: false
+  mvc:
+    view:
+      prefix: /views/
+      suffix: .jsp
+  web:
+    resources:
+      static-locations: classpath:/static/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/public/
+  datasource:
+    #url: jdbc:mysql://127.0.0.1:3306/shopdb?serverTimezone=Asia/Seoul
+    #    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    #    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/shopdb?characterEncoding=utf8
+    #    username: smuser
+    #    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+
+mybatis:
+  type-aliases-package: edu.sm.app.dto
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info
+
+app:
+  url:
+    websocketurl: https://192.168.1.11:8443/
+  dir:
+    imgsdir: file:///C:/Needy-Care_System/imgs/     # 화면 출력 용
+    uploadimgsdir: C:/Needy-Care_System/imgs/    # 파일 Write 용
+    logsdir: file:///C:/Needy-Care_System/logs/    # logs 화면 출력용
+    logsdirRead : C:/Needy-Care_System/logs/ #
+  key:
+    skey: ${MY_KEY}
+    algo: PBEWithMD5AndDES
+    wkey: ENC(KpenOyMjgFsfI5Y63m7CO843NZ1e3rD/qFoI4ac76xcGcyFgzGi1lv128RRgkaY4lbwmKXJnH086MRn/OqV1iN4tR7FSVOVyOhrqjDHW57A226jVu9Q2oq+VjFBCurrdQF2ECJ+XlWESrLtT8BzUzA==)
+    owkey: ENC(1n0CubQdrW/QjB/ed6/Y348zgr3A0CgdIGr546KvjqzbQapHn8dt3GMRT8KZxn+q)
