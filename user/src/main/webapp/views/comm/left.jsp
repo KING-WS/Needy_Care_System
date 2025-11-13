@@ -31,18 +31,18 @@
     <h5><i class="fas fa-comments"></i> 통신 메뉴</h5>
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value="/schedule"/>">
-                <i class="fas fa-home"></i> 일정메인
+            <a class="nav-link" href="<c:url value="/comm"/>">
+                <i class="fas fa-home"></i> 통신 메인
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="<c:url value="/comm/chat"/>">
-                <i class="fas fa-comment-dots"></i> 일정2
+                <i class="fas fa-comment-dots"></i> 채팅
             </a>
         </li>
         <li class="nav-item">
             <a class="nav-link" href="<c:url value="/comm/video"/>">
-                <i class="fas fa-video"></i> 일정3
+                <i class="fas fa-video"></i> 화상통화
             </a>
         </li>
     </ul>
