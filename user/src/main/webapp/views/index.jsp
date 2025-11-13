@@ -45,21 +45,113 @@
             padding: 15px 0;
         }
 
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            padding: 0 30px;
+            position: relative;
+        }
+
+        /* 왼쪽: 로고 */
         .navbar-brand {
             font-size: 28px;
             font-weight: bold;
             color: var(--primary-color) !important;
+            text-decoration: none;
+            order: 1;
+        }
+
+        /* 중앙: 메뉴 */
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .nav-item {
+            margin: 0;
         }
 
         .nav-link {
             color: var(--secondary-color) !important;
             font-weight: 500;
-            margin: 0 15px;
             transition: color 0.3s;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
         .nav-link:hover {
             color: var(--primary-color) !important;
+        }
+
+        /* 오른쪽: 로그인 버튼 */
+        .btn-login-nav {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            order: 3;
+        }
+
+        .btn-login-nav:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 반응형 토글 숨김 */
+        .navbar-toggler {
+            display: none;
+        }
+
+        .navbar-collapse {
+            display: flex !important;
+            flex-basis: auto;
+        }
+
+        /* 사용 안 하는 스타일 (나중에 필요할 수 있음) */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 20px;
+        }
+
+        .user-name {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         /* Hero Section */
@@ -703,20 +795,21 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">Aventro</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                </ul>
-            </div>
+            <!-- 왼쪽: 로고 -->
+            <a class="navbar-brand" href="/">Aventro</a>
+            
+            <!-- 중앙: 메뉴 -->
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+            </ul>
+            
+            <!-- 오른쪽: 로그인 버튼 -->
+            <a href="/login" class="btn-login-nav">로그인</a>
         </div>
     </nav>
 </header>
@@ -1014,7 +1107,7 @@
                 <div class="contact-info-card">
                     <h3>Contact Info</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.</p>
-                    
+
                     <!-- Location -->
                     <div class="contact-detail">
                         <div class="contact-icon">
@@ -1055,7 +1148,7 @@
                 <div class="contact-form-card">
                     <h3>Get In Touch</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl. Vestibulum ante ipsum primis.</p>
-                    
+
                     <form>
                         <div class="row">
                             <div class="col-md-6">
