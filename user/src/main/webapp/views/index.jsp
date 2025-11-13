@@ -62,6 +62,54 @@
             color: var(--primary-color) !important;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 20px;
+        }
+
+        .user-name {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .btn-login-nav {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-login-nav:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
         /* Hero Section */
         #hero {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
@@ -703,18 +751,21 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">Aventro</a>
+            <a class="navbar-brand" href="/">Aventro</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
                     <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
                     <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+                    <li class="nav-item">
+                        <a href="/login" class="btn-login-nav">로그인</a>
+                    </li>
                 </ul>
             </div>
         </div>
@@ -1014,7 +1065,7 @@
                 <div class="contact-info-card">
                     <h3>Contact Info</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.</p>
-                    
+
                     <!-- Location -->
                     <div class="contact-detail">
                         <div class="contact-icon">
@@ -1055,7 +1106,7 @@
                 <div class="contact-form-card">
                     <h3>Get In Touch</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl. Vestibulum ante ipsum primis.</p>
-                    
+
                     <form>
                         <div class="row">
                             <div class="col-md-6">
