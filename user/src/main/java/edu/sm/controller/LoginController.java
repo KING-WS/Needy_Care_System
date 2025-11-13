@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class LoginController {
-    
+    //로그인
     @GetMapping("/login")
     public String loginPage(Model model) {
         return "login";
