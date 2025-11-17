@@ -31,14 +31,14 @@ public class LoginController {
     
     @PostMapping("/login")
     public String login(
-            @RequestParam("custId") String custId,
+            @RequestParam("custEmail") String custEmail,
             @RequestParam("password") String password,
             HttpSession session,
             Model model) {
         
         try {
-            // DB에서 사용자 조회
-            Cust cust = custService.get(custId);
+            // DB에서 사용자 조회 (이메일로)
+            Cust cust = custService.getByEmail(custEmail);
             
             if (cust == null) {
                 model.addAttribute("error", "아이디 또는 비밀번호가 일치하지 않습니다.");

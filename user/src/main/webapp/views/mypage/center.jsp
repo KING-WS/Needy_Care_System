@@ -22,21 +22,21 @@
                     </h4>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label style="font-weight: 600; color: #666; margin-bottom: 8px;">아이디</label>
-                            <p style="font-size: 16px; color: var(--secondary-color); background: #f8f9fa; padding: 12px; border-radius: 8px;">
-                                ${sessionScope.loginUser.custId}
-                            </p>
-                        </div>
-                        <div class="col-md-6 mb-3">
                             <label style="font-weight: 600; color: #666; margin-bottom: 8px;">이름</label>
                             <p style="font-size: 16px; color: var(--secondary-color); background: #f8f9fa; padding: 12px; border-radius: 8px;">
                                 ${sessionScope.loginUser.custName}
                             </p>
                         </div>
+                        <div class="col-md-6 mb-3">
+                            <label style="font-weight: 600; color: #666; margin-bottom: 8px;">전화번호</label>
+                            <p style="font-size: 16px; color: var(--secondary-color); background: #f8f9fa; padding: 12px; border-radius: 8px;">
+                                ${sessionScope.loginUser.custPhone}
+                            </p>
+                        </div>
                         <div class="col-12 mb-3">
                             <label style="font-weight: 600; color: #666; margin-bottom: 8px;">이메일</label>
                             <p style="font-size: 16px; color: var(--secondary-color); background: #f8f9fa; padding: 12px; border-radius: 8px;">
-                                ${sessionScope.loginUser.custId}@example.com
+                                ${sessionScope.loginUser.custEmail}
                             </p>
                         </div>
                         <div class="col-12 mb-3">
