@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -64,10 +65,12 @@ public class LoginController {
         }
     }
     
-    @GetMapping("/logout")
+    @RequestMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
-        log.info("로그아웃 성공");
+        if (session != null) {
+            session.invalidate();
+        }
+        log.info("로그아웃 성공 - index 페이지로 이동");
         return "redirect:/";
     }
 }
