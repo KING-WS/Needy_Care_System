@@ -27,16 +27,6 @@
                             </div>
                         </div>
                         
-                        <!-- 아이디 (수정 불가) -->
-                        <div class="mb-4">
-                            <label class="form-label" style="font-weight: 600; color: #666;">
-                                <i class="fas fa-id-badge"></i> 아이디
-                            </label>
-                            <input type="text" class="form-control" value="${sessionScope.loginUser.custId}" 
-                                   disabled style="background: #f8f9fa; border-radius: 8px; padding: 12px;">
-                            <small class="text-muted">아이디는 변경할 수 없습니다.</small>
-                        </div>
-                        
                         <!-- 이름 -->
                         <div class="mb-4">
                             <label class="form-label" style="font-weight: 600; color: #666;">
@@ -52,8 +42,8 @@
                             <label class="form-label" style="font-weight: 600; color: #666;">
                                 <i class="fas fa-envelope"></i> 이메일
                             </label>
-                            <input type="email" name="email" class="form-control" 
-                                   value="${sessionScope.loginUser.custId}@example.com" 
+                            <input type="email" name="custEmail" class="form-control" 
+                                   value="${sessionScope.loginUser.custEmail}" 
                                    style="border-radius: 8px; padding: 12px;">
                         </div>
                         
@@ -62,21 +52,9 @@
                             <label class="form-label" style="font-weight: 600; color: #666;">
                                 <i class="fas fa-phone"></i> 전화번호
                             </label>
-                            <input type="tel" name="phone" class="form-control" 
+                            <input type="tel" name="custPhone" class="form-control" 
+                                   value="${sessionScope.loginUser.custPhone}"
                                    placeholder="010-0000-0000" 
-                                   style="border-radius: 8px; padding: 12px;">
-                        </div>
-                        
-                        <!-- 주소 -->
-                        <div class="mb-4">
-                            <label class="form-label" style="font-weight: 600; color: #666;">
-                                <i class="fas fa-map-marker-alt"></i> 주소
-                            </label>
-                            <input type="text" name="address" class="form-control mb-2" 
-                                   placeholder="주소를 입력하세요" 
-                                   style="border-radius: 8px; padding: 12px;">
-                            <input type="text" name="addressDetail" class="form-control" 
-                                   placeholder="상세주소를 입력하세요" 
                                    style="border-radius: 8px; padding: 12px;">
                         </div>
                         

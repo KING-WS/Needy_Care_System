@@ -214,11 +214,11 @@
         </c:if>
 
         <form action="/login" method="post" id="loginForm">
-            <!-- 아이디 -->
+            <!-- 이메일 -->
             <div class="form-group">
-                <label class="form-label">아이디</label>
-                <input type="text" name="custId" class="form-control" 
-                       placeholder="아이디를 입력하세요" required>
+                <label class="form-label">이메일</label>
+                <input type="email" name="custEmail" class="form-control" 
+                       placeholder="이메일을 입력하세요" required>
             </div>
 
             <!-- 비밀번호 -->
