@@ -321,12 +321,19 @@
             </ul>
             
             <!-- 오른쪽: 사용자 정보 -->
-            <div class="user-info">
-                <a href="<c:url value="/mypage"/>" class="user-name">
-                    <i class="fas fa-user-circle"></i> ${sessionScope.loginUser.custName}님
-                </a>
-                <a href="/logout" class="btn-logout">로그아웃</a>
-            </div>
+            <c:choose>
+                <c:when test="${sessionScope.loginUser != null}">
+                    <div class="user-info">
+                        <a href="<c:url value="/mypage"/>" class="user-name">
+                            <i class="fas fa-user-circle"></i> ${sessionScope.loginUser.custName}님
+                        </a>
+                        <a href="/logout" class="btn-logout">로그아웃</a>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <a href="/login" class="btn-login-nav">로그인</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </nav>
 </header>

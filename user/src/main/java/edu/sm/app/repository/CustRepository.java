@@ -8,12 +8,11 @@ import edu.sm.common.frame.SmRepository;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 @Mapper
-public interface CustRepository extends SmRepository<Cust, String> {
+public interface CustRepository extends SmRepository<Cust, Integer> {
     Page<Cust> getpage() throws Exception;
+    Cust selectByEmail(String custEmail) throws Exception;
 //    Page<Cust> getpageSearch(CustSearch custSearch) throws Exception;
 //    List<Cust> searchCustList(CustSearch custSearch) throws Exception;
 }
