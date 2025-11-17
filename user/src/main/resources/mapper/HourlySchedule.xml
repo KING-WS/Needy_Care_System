@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.HourlyScheduleRepository">
+
+    <!-- HourlySchedule CRUD -->
+    <select id="selectHourlySchedulesBySchedId" resultType="edu.sm.app.dto.HourlySchedule">
+        SELECT * FROM Hourly_Schedule
+        WHERE sched_id = #{schedId} AND is_deleted = 'N'
+        ORDER BY hourly_sched_start_time
+    </select>
+
+    <select id="selectHourlyScheduleById" resultType="edu.sm.app.dto.HourlySchedule">
+        SELECT * FROM Hourly_Schedule
+        WHERE hourly_sched_id = #{hourlySchedId} AND is_deleted = 'N'
+    </select>
+
+    <insert id="insertHourlySchedule" useGeneratedKeys="true" keyProperty="hourlySchedId">
+        INSERT INTO Hourly_Schedule (sched_id, hourly_sched_start_time, hourly_sched_end_time,
+                                     hourly_sched_name, hourly_sched_content, is_deleted)
+        VALUES (#{schedId}, #{hourlySchedStartTime}, #{hourlySchedEndTime},
+                #{hourlySchedName}, #{hourlySchedContent}, 'N')
+    </insert>
+
+    <update id="updateHourlySchedule">
+        UPDATE Hourly_Schedule
+        SET hourly_sched_start_time = #{hourlySchedStartTime},
+            hourly_sched_end_time = #{hourlySchedEndTime},
+            hourly_sched_name = #{hourlySchedName},
+            hourly_sched_content = #{hourlySchedContent},
+            hourly_sched_update = CURRENT_TIMESTAMP
+        WHERE hourly_sched_id = #{hourlySchedId}
+    </update>
+
+    <update id="deleteHourlySchedule">
+        UPDATE Hourly_Schedule
+        SET is_deleted = 'Y',
+            hourly_sched_update = CURRENT_TIMESTAMP
+        WHERE hourly_sched_id = #{hourlySchedId}
+    </update>
+
+    <update id="deleteHourlySchedulesBySchedId">
+        UPDATE Hourly_Schedule
+        SET is_deleted = 'Y',
+            hourly_sched_update = CURRENT_TIMESTAMP
+        WHERE sched_id = #{schedId}
+    </update>
+
+</mapper>
