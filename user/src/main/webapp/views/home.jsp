@@ -202,7 +202,7 @@
             padding: 0 1rem 0 90px;
             margin-top: 80px;
             flex: 1;
-            min-height: calc(100vh - 80px - 100px);
+            min-height: auto;
         }
 
         .main-content.sidebar-active {
@@ -646,7 +646,7 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const mainContent = document.getElementById('mainContent');
-        
+
         if (sidebarToggle && sidebar) {
             // Toggle sidebar on button click
             sidebarToggle.addEventListener('click', function() {

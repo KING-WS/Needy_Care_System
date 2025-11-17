@@ -819,8 +819,8 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
-                <h1>Welcome to Aventro</h1>
-                <p>We are team of talented designers making websites with Bootstrap</p>
+                <h1>Needy care</h1>
+                <p>케어가 필요하신 분들에게 희망을 안겨드립니다</p>
                 <div class="hero-buttons">
                     <a href="#pricing" class="btn-hero">가입하기</a>
                     <a href="/login" class="btn-hero-secondary">로그인</a>
@@ -838,19 +838,19 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>About Us</h2>
-            <p>Learn more about our company and what we do</p>
+            <p>yea</p>
         </div>
         <div class="row align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
                 <img src="/img/sinear.jpg" class="img-fluid about-img" alt="About">
             </div>
             <div class="col-lg-6" data-aos="fade-left">
-                <h3>Voluptatem dignissimos provident quasi</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <h3>도움이 필요하신 분들에게 즐거움을 Have Enjoy~</h3>
+                <p>AI를 활용해 도움이 필요하신 분들에게 최상의 기능을 제공해드립니다</p>
                 <ul>
-                    <li><i class="fas fa-check-circle text-primary"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat</li>
-                    <li><i class="fas fa-check-circle text-primary"></i> Duis aute irure dolor in reprehenderit in voluptate velit</li>
-                    <li><i class="fas fa-check-circle text-primary"></i> Ullamco laboris nisi ut aliquip ex ea commodo consequat</li>
+                    <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 날씨와 코스를 분석해서 추천해주는 산책경로 추천 시스템</li>
+                    <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 노약자분들의 건강 상태에 따른 최적의 식단 추천 시스템</li>
+                    <li><i class="fas fa-check-circle text-primary"></i> AI가 실시간으로 화면을 분석해 낙상,이상행동 등의 위기신호 감지 시스템</li>
                 </ul>
             </div>
         </div>
@@ -862,237 +862,117 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>Our Services</h2>
-            <p>Check out the great services we offer</p>
+            <p>저희의 서비스를 한번 탐색해보세요</p>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="service-box">
                     <i class="fas fa-laptop-code"></i>
-                    <h3>Web Development</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>산책 추천 시스템</h3>
+                    <p>.ㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="service-box">
                     <i class="fas fa-mobile-alt"></i>
-                    <h3>Mobile Apps</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>식단 추천 시스템</h3>
+                    <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㄴㅁㅇㄴㅁ</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="service-box">
                     <i class="fas fa-paint-brush"></i>
-                    <h3>Design</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>실시간 노약자 모니터링 시스템</h3>
+                    <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁ</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="service-box">
                     <i class="fas fa-chart-line"></i>
-                    <h3>Marketing</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>AI를 통한 요양사 추천 시스템</h3>
+                    <p>ㄹㅇㅁㅇㄴㅇㅁㄴㅇㅁㄴ.</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="service-box">
                     <i class="fas fa-camera"></i>
-                    <h3>Photography</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>AI챗봇 시스템</h3>
+                    <p>ㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
                 </div>
             </div>
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                 <div class="service-box">
                     <i class="fas fa-bullhorn"></i>
-                    <h3>Consulting</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                    <h3>AI 건강진단서 분석 시스템</h3>
+                    <p>ㄻㅇㄴㅁㅁㄴㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴ</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Portfolio Section -->
-<section id="portfolio">
-    <div class="container">
-        <div class="section-title" data-aos="fade-up">
-            <h2>Portfolio</h2>
-            <p>Check out our beautiful portfolio</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-                <div class="portfolio-item">
-                    <img src="https://via.placeholder.com/400x300/3498db/ffffff?text=Project+1" alt="Portfolio 1">
-                    <div class="portfolio-overlay">
-                        <h4>Project 1</h4>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="200">
-                <div class="portfolio-item">
-                    <img src="https://via.placeholder.com/400x300/e74c3c/ffffff?text=Project+2" alt="Portfolio 2">
-                    <div class="portfolio-overlay">
-                        <h4>Project 2</h4>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="300">
-                <div class="portfolio-item">
-                    <img src="https://via.placeholder.com/400x300/2c3e50/ffffff?text=Project+3" alt="Portfolio 3">
-                    <div class="portfolio-overlay">
-                        <h4>Project 3</h4>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Team Section -->
-<section id="team">
-    <div class="container">
-        <div class="section-title" data-aos="fade-up">
-            <h2>Our Team</h2>
-            <p>Meet our awesome team members</p>
-        </div>
-        <div class="row">
-            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="team-member">
-                    <img src="/img/user.jpg" alt="Team 1">
-                    <h4>John Doe</h4>
-                    <span>CEO & Founder</span>
-                    <div class="team-social">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
-                <div class="team-member">
-                    <img src="/img/user.jpg" alt="Team 2">
-                    <h4>Jane Smith</h4>
-                    <span>Product Manager</span>
-                    <div class="team-social">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="team-member">
-                    <img src="/img/user.jpg" alt="Team 3">
-                    <h4>Mike Brown</h4>
-                    <span>CTO</span>
-                    <div class="team-social">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="400">
-                <div class="team-member">
-                    <img src="/img/user.jpg" alt="Team 4">
-                    <h4>Sarah Davis</h4>
-                    <span>Designer</span>
-                    <div class="team-social">
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-linkedin"></i></a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- Pricing Section -->
 <section id="pricing">
     <div class="container">
         <div class="section-title" data-aos="fade-up">
-            <h2>Pricing</h2>
-            <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+            <h2>구독</h2>
+            <p>최상의 서비스를 월 구독제를 통해 만나보세요</p>
         </div>
         <div class="row">
             <!-- Starter Plan -->
-            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <h3>Starter</h3>
-                        <p class="subtitle">For small teams getting started</p>
-                    </div>
-                    <div class="pricing-price">
-                        <span class="currency">$</span>
-                        <span class="amount">29</span>
-                        <span class="period">/user/month</span>
-                    </div>
-                    <p class="billing-info">Billed monthly</p>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check-circle"></i> Up to 10 team members</li>
-                        <li><i class="fas fa-check-circle"></i> 5 GB storage per user</li>
-                        <li><i class="fas fa-check-circle"></i> Basic reporting and analytics</li>
-                        <li><i class="fas fa-check-circle"></i> Email support</li>
-                        <li><i class="fas fa-check-circle"></i> Mobile app access</li>
-                    </ul>
-                    <a href="/register" class="btn-pricing">Start Free Trial</a>
-                    <p class="trial-info">14-day free trial, no credit card required</p>
-                </div>
-            </div>
+<%--            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="100">--%>
+<%--                <div class="pricing-card">--%>
+<%--                    <div class="pricing-header">--%>
+<%--                        <h3>Starter</h3>--%>
+<%--                        <p class="subtitle">For small teams getting started</p>--%>
+<%--                    </div>--%>
+<%--                    <div class="pricing-price">--%>
+<%--                        <span class="currency">$</span>--%>
+<%--                        <span class="amount">29</span>--%>
+<%--                        <span class="period">/user/month</span>--%>
+<%--                    </div>--%>
+<%--                    <p class="billing-info">Billed monthly</p>--%>
+<%--                    <ul class="pricing-features">--%>
+<%--                        <li><i class="fas fa-check-circle"></i> Up to 10 team members</li>--%>
+<%--                        <li><i class="fas fa-check-circle"></i> 5 GB storage per user</li>--%>
+<%--                        <li><i class="fas fa-check-circle"></i> Basic reporting and analytics</li>--%>
+<%--                        <li><i class="fas fa-check-circle"></i> Email support</li>--%>
+<%--                        <li><i class="fas fa-check-circle"></i> Mobile app access</li>--%>
+<%--                    </ul>--%>
+<%--                    <a href="/register" class="btn-pricing">Start Free Trial</a>--%>
+<%--                    <p class="trial-info">14-day free trial, no credit card required</p>--%>
+<%--                </div>--%>
+<%--            </div>--%>
 
             <!-- Professional Plan -->
             <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="pricing-card featured">
                     <div class="popular-badge">MOST POPULAR</div>
                     <div class="pricing-header">
-                        <h3>Professional</h3>
-                        <p class="subtitle">For growing businesses</p>
+                        <h3>천사 요금제</h3>
+                        <p class="subtitle">모든 서비스 이용가능</p>
                     </div>
                     <div class="pricing-price">
-                        <span class="currency">$</span>
-                        <span class="amount">59</span>
-                        <span class="period">/user/month</span>
+                        <span class="currency">☠️☠️</span>
+                        <span class="amount">590,000원</span>
+                        <span class="period">월</span>
                     </div>
-                    <p class="billing-info">Billed monthly</p>
+                    <p class="billing-info">월 가격</p>
                     <ul class="pricing-features">
-                        <li><i class="fas fa-check-circle"></i> Unlimited team members</li>
-                        <li><i class="fas fa-check-circle"></i> 50 GB storage per user</li>
-                        <li><i class="fas fa-check-circle"></i> Advanced analytics and reporting</li>
-                        <li><i class="fas fa-check-circle"></i> Priority email and chat support</li>
-                        <li><i class="fas fa-check-circle"></i> Custom integrations</li>
-                        <li><i class="fas fa-check-circle"></i> API access</li>
+                        <li><i class="fas fa-check-circle"></i> 무제한 산책 경로 추천</li>
+                        <li><i class="fas fa-check-circle"></i> 무제한 식단 추천</li>
+                        <li><i class="fas fa-check-circle"></i> 실시간 모니터링 무제한 지원</li>
+                        <li><i class="fas fa-check-circle"></i> 무제한 건강 PDF 분석 AI 지원</li>
+                        <li><i class="fas fa-check-circle"></i> 프로페셔널한 요양사 추천 자유 이용</li>
+                        <li><i class="fas fa-check-circle"></i> 명예 보호자 칭호 지급</li>
                     </ul>
-                    <a href="/register" class="btn-pricing btn-pricing-featured">Start Free Trial</a>
-                    <p class="trial-info">14-day free trial, no credit card required</p>
+                    <a href="/register" class="btn-pricing btn-pricing-featured">구독하기</a>
+                    <p class="trial-info">구매일 기준으로 30일마다 정기결제</p>
                 </div>
             </div>
 
-            <!-- Enterprise Plan -->
-            <div class="col-lg-4 mb-4" data-aos="fade-up" data-aos-delay="300">
-                <div class="pricing-card">
-                    <div class="pricing-header">
-                        <h3>Enterprise</h3>
-                        <p class="subtitle">For large organizations</p>
-                    </div>
-                    <div class="pricing-price">
-                        <h4 class="custom-pricing">Custom Pricing</h4>
-                        <p class="custom-subtitle">Tailored to your needs</p>
-                    </div>
-                    <ul class="pricing-features">
-                        <li><i class="fas fa-check-circle"></i> Everything in Professional</li>
-                        <li><i class="fas fa-check-circle"></i> Unlimited storage</li>
-                        <li><i class="fas fa-check-circle"></i> Dedicated account manager</li>
-                        <li><i class="fas fa-check-circle"></i> 24/7 phone support</li>
-                        <li><i class="fas fa-check-circle"></i> Advanced security and compliance</li>
-                        <li><i class="fas fa-check-circle"></i> Custom SLA and contracts</li>
-                    </ul>
-                    <a href="/register" class="btn-pricing btn-pricing-contact">Contact Sales</a>
-                    <p class="trial-info">Schedule a consultation with our team</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+
 
 <!-- Contact Section -->
 <section id="contact">
@@ -1115,7 +995,7 @@
                         </div>
                         <div class="contact-text">
                             <h4>Our Location</h4>
-                            <p>A108 Adam Street<br>New York, NY 535022</p>
+                            <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>
                         </div>
                     </div>
 
@@ -1126,7 +1006,7 @@
                         </div>
                         <div class="contact-text">
                             <h4>Phone Number</h4>
-                            <p>+1 5589 55488 55<br>+1 6678 254445 41</p>
+                            <p>+82 10-8920-3471<br>+82 10-5734-7072</p>
                         </div>
                     </div>
 
@@ -1137,7 +1017,7 @@
                         </div>
                         <div class="contact-text">
                             <h4>Email Address</h4>
-                            <p>info@example.com<br>contact@example.com</p>
+                            <p>rnalsdn100@gmail.com<br>shinchagyoung@gmail.com</p>
                         </div>
                     </div>
                 </div>
