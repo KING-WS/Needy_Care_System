@@ -3,3 +3,7 @@
 
 # Ignore shop directory
 shop/
+
+# YML 파일
+application-dev.yml
+application-pro.yml
