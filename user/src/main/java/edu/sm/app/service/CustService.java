@@ -1,7 +1,5 @@
 package edu.sm.app.service;
 
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import edu.sm.app.dto.Cust;
 //import edu.sm.app.dto.CustSearch;
 import edu.sm.app.repository.CustRepository;
@@ -13,7 +11,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CustService implements SmService<Cust, String> {
+public class CustService implements SmService<Cust, Integer> {
 
     final CustRepository custRepository;
 
@@ -29,7 +27,7 @@ public class CustService implements SmService<Cust, String> {
     }
 
     @Override
-    public void remove(String s) throws Exception {
+    public void remove(Integer s) throws Exception {
         custRepository.delete(s);
     }
 
@@ -39,8 +37,12 @@ public class CustService implements SmService<Cust, String> {
     }
 
     @Override
-    public Cust get(String s) throws Exception {
+    public Cust get(Integer s) throws Exception {
         return custRepository.select(s);
+    }
+
+    public Cust getByEmail(String custEmail) throws Exception {
+        return custRepository.selectByEmail(custEmail);
     }
 
 //    public List<Cust> searchCustList(CustSearch custSearch) throws Exception {
