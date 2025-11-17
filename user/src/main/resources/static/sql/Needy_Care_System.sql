@@ -61,7 +61,6 @@ CREATE TABLE Care_Recipient (
                                 rec_regdate DATETIME NOT NULL,
                                 rec_update DATETIME NOT NULL,
                                 rec_health_needs TEXT,
-                                Field VARCHAR(255),
                                 PRIMARY KEY (rec_id)
 );
 

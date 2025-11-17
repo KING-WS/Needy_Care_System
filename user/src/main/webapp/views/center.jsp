@@ -16,7 +16,7 @@
         height: 100%;
         text-align: center;
         transition: all 0.3s ease;
-        background: #ffffff;
+        background: #e0e0e0;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -76,25 +76,16 @@
 
     #user-dashboard .container-fluid {
         width: 100%;
-        padding-left: 60px;
-        padding-right: 60px;
     }
 
     #user-dashboard .row {
         height: 100%;
-        margin-left: 0;
-        margin-right: 0;
-    }
-    
-    #user-dashboard .row > [class*="col-"] {
-        padding-left: 10px;
-        padding-right: 10px;
     }
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
-<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #ffffff;">
-    <div class="container-fluid">
+<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #f8f9fa;">
+    <div class="container-fluid px-4">
         <div class="row">
             <!-- 왼쪽 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
