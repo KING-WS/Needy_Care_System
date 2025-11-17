@@ -36,6 +36,8 @@ public class SecurityConfig  {
         http.csrf((csrf) -> csrf.disable());
         //http.cors(Customizer.withDefaults());
 
+        // Spring Security의 기본 로그아웃 비활성화 (커스텀 로그아웃 사용)
+        http.logout((logout) -> logout.disable());
 
         // 권한 규칙 작성
         http.authorizeHttpRequests(authorize -> authorize
