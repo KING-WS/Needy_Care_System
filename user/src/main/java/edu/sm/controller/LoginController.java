@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -31,14 +32,14 @@ public class LoginController {
     
     @PostMapping("/login")
     public String login(
-            @RequestParam("custId") String custId,
+            @RequestParam("custEmail") String custEmail,
             @RequestParam("password") String password,
             HttpSession session,
             Model model) {
         
         try {
-            // DB에서 사용자 조회
-            Cust cust = custService.get(custId);
+            // DB에서 사용자 조회 (이메일로)
+            Cust cust = custService.getByEmail(custEmail);
             
             if (cust == null) {
                 model.addAttribute("error", "아이디 또는 비밀번호가 일치하지 않습니다.");
@@ -64,10 +65,12 @@ public class LoginController {
         }
     }
     
-    @GetMapping("/logout")
+    @RequestMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate();
-        log.info("로그아웃 성공");
+        if (session != null) {
+            session.invalidate();
+        }
+        log.info("로그아웃 성공 - index 페이지로 이동");
         return "redirect:/";
     }
 }

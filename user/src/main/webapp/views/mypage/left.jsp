@@ -5,7 +5,7 @@
     <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px;">
         <i class="fas fa-user-circle" style="font-size: 60px; color: var(--primary-color);"></i>
         <h5 style="margin-top: 15px; color: var(--secondary-color);">${sessionScope.loginUser.custName}님</h5>
-        <p style="color: #999; font-size: 14px; margin: 0;">${sessionScope.loginUser.custId}</p>
+        <p style="color: #999; font-size: 14px; margin: 0;">${sessionScope.loginUser.custEmail}</p>
     </div>
     
     <h5 style="padding: 10px 0; border-bottom: 2px solid var(--primary-color); margin-bottom: 15px;">
