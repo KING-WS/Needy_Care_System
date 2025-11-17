@@ -1,3 +1,6 @@
+-- 데이터베이스 추가
+CREATE DATABASE Needy_Care_System;
+
 -- Cust 테이블 생성
 CREATE TABLE Cust (
                       cust_id INT NOT NULL AUTO_INCREMENT,
