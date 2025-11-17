@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>노도's - Business Bootstrap Template</title>
+    <title>Aventro - Business Bootstrap Template</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
@@ -45,21 +45,113 @@
             padding: 15px 0;
         }
 
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 100%;
+            padding: 0 30px;
+            position: relative;
+        }
+
+        /* 왼쪽: 로고 */
         .navbar-brand {
             font-size: 28px;
             font-weight: bold;
             color: var(--primary-color) !important;
+            text-decoration: none;
+            order: 1;
+        }
+
+        /* 중앙: 메뉴 */
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .nav-item {
+            margin: 0;
         }
 
         .nav-link {
             color: var(--secondary-color) !important;
             font-weight: 500;
-            margin: 0 15px;
             transition: color 0.3s;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
         .nav-link:hover {
             color: var(--primary-color) !important;
+        }
+
+        /* 오른쪽: 로그인 버튼 */
+        .btn-login-nav {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            order: 3;
+        }
+
+        .btn-login-nav:hover {
+            background: var(--secondary-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* 반응형 토글 숨김 */
+        .navbar-toggler {
+            display: none;
+        }
+
+        .navbar-collapse {
+            display: flex !important;
+            flex-basis: auto;
+        }
+
+        /* 사용 안 하는 스타일 (나중에 필요할 수 있음) */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-left: 20px;
+        }
+
+        .user-name {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .btn-logout {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-logout:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         /* Hero Section */
@@ -703,20 +795,21 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">노도's</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-                </ul>
-            </div>
+            <!-- 왼쪽: 로고 -->
+            <a class="navbar-brand" href="/">Aventro</a>
+            
+            <!-- 중앙: 메뉴 -->
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+                <li class="nav-item"><a class="nav-link" href="#portfolio">Portfolio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
+                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+            </ul>
+            
+            <!-- 오른쪽: 로그인 버튼 -->
+            <a href="/login" class="btn-login-nav">로그인</a>
         </div>
     </nav>
 </header>
@@ -726,8 +819,8 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
-                <h1>Welcome to 노도's</h1>
-                <p>도움이 필요한 노약자/장애인분들에게 희망이 되어드립니다 ☠️</p>
+                <h1>Welcome to Aventro</h1>
+                <p>We are team of talented designers making websites with Bootstrap</p>
                 <div class="hero-buttons">
                     <a href="#pricing" class="btn-hero">가입하기</a>
                     <a href="/login" class="btn-hero-secondary">로그인</a>
@@ -769,7 +862,7 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>Our Services</h2>
-            <p>제공하는 최상의 서비스를 확인하세요</p>
+            <p>Check out the great services we offer</p>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
@@ -1014,7 +1107,7 @@
                 <div class="contact-info-card">
                     <h3>Contact Info</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis.</p>
-                    
+
                     <!-- Location -->
                     <div class="contact-detail">
                         <div class="contact-icon">
@@ -1055,7 +1148,7 @@
                 <div class="contact-form-card">
                     <h3>Get In Touch</h3>
                     <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl. Vestibulum ante ipsum primis.</p>
-                    
+
                     <form>
                         <div class="row">
                             <div class="col-md-6">
@@ -1086,7 +1179,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2024 노도's. All Rights Reserved.</p>
+        <p>&copy; 2024 Aventro. All Rights Reserved.</p>
     </div>
 </footer>
 
