@@ -29,6 +29,17 @@ spring:
 #    url: jdbc:postgresql://localhost:5432/postgres
 #    username: postgres
 #    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+    openai:
+      api-key: ENC(DIrd78xrB30lc2q7A5pW1OwT8+V5LbMcVryz5BbtbHMWa1zwwF6oDzxZGvWb/USsdjDccGQJV+Mx1IOfWiPO5rVG4TYWUuLDXM3U6h08yyAOAy3P2tas2v9yTLZvd9obwh3zcuT6gedYUhugwCdL/EoBq/Hsg01M9ENgrKPIfAeuFHOTu9eqEWMEAzNiPuD9l+4yU8WjNqff698QGXOfHd/nT6yKrVvgXtgaZtbBehs=)
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.1
+          max-tokens: 1000
 
 mybatis:
   type-aliases-package: edu.sm.app.dto
