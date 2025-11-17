@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aventro - Business Bootstrap Template</title>
+    <title>노도's - Business Bootstrap Template</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
@@ -703,7 +703,7 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="#">Aventro</a>
+            <a class="navbar-brand" href="#">노도's</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -726,8 +726,8 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
-                <h1>Welcome to Aventro</h1>
-                <p>We are team of talented designers making websites with Bootstrap</p>
+                <h1>Welcome to 노도's</h1>
+                <p>도움이 필요한 노약자/장애인분들에게 희망이 되어드립니다 ☠️</p>
                 <div class="hero-buttons">
                     <a href="#pricing" class="btn-hero">가입하기</a>
                     <a href="/login" class="btn-hero-secondary">로그인</a>
@@ -769,7 +769,7 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>Our Services</h2>
-            <p>Check out the great services we offer</p>
+            <p>제공하는 최상의 서비스를 확인하세요</p>
         </div>
         <div class="row">
             <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
@@ -1086,7 +1086,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2024 Aventro. All Rights Reserved.</p>
+        <p>&copy; 2024 노도's. All Rights Reserved.</p>
     </div>
 </footer>
 
