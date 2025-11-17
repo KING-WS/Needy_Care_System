@@ -383,7 +383,7 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const mainContent = document.getElementById('mainContent');
-        
+
         if (sidebarToggle && sidebar) {
             // Toggle sidebar on button click
             sidebarToggle.addEventListener('click', function() {
