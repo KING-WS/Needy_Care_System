@@ -12,10 +12,12 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class Cust {
-    private String custId;
+    private Integer custId;
+    private String custEmail;
     private String custPwd;
     private String custName;
-    private String custAddr;
+    private String custPhone;
+    private String isDeleted;
     private LocalDateTime custRegdate;
     private LocalDateTime custUpdate;
 }

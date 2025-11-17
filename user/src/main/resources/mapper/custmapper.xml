@@ -7,69 +7,88 @@
     <select id="searchCustList" parameterType="CustSearch" resultType="Cust">
         select * from cust
         <where>
+            is_deleted = 'N'
             <if test="custName != null and !custName.equals('')">
-                cust_name like concat('%',#{custName},'%')
+                AND cust_name like concat('%',#{custName},'%')
             </if>
             <if test="startDate != null and !startDate.equals('')">
                 <!--and cust_regdate &gt;= #{startDate} -->
                 <![CDATA[
-                  and cust_regdate  >=  #{startDate}
+                  AND cust_regdate  >=  #{startDate}
 
                  ]]>
             </if>
             <if test="endDate != null and !endDate.equals('')">
                 <!--and date(cust_regdate) &lt;= #{endDate} -->
-                <![CDATA[ and date(cust_regdate) <=  #{endDate} ]]>
+                <![CDATA[ AND date(cust_regdate) <=  #{endDate} ]]>
             </if>
         </where>
     </select>
     <select id="getpage" resultType="Cust">
         SELECT *
         FROM cust
+        WHERE is_deleted = 'N'
     </select>
     <select id="getpageSearch" parameterType="CustSearch" resultType="Cust">
         select * from cust
         <where>
+            is_deleted = 'N'
             <if test="custName != null and !custName.equals('')">
-                cust_name like concat('%',#{custName},'%')
+                AND cust_name like concat('%',#{custName},'%')
             </if>
             <if test="startDate != null and !startDate.equals('')">
                 <!--and cust_regdate &gt;= #{startDate} -->
                 <![CDATA[
-                  and cust_regdate  >=  #{startDate}
+                  AND cust_regdate  >=  #{startDate}
 
                  ]]>
             </if>
             <if test="endDate != null and !endDate.equals('')">
                 <!--and date(cust_regdate) &lt;= #{endDate} -->
-                <![CDATA[ and date(cust_regdate) <=  #{endDate} ]]>
+                <![CDATA[ AND date(cust_regdate) <=  #{endDate} ]]>
             </if>
         </where>
     </select>
-    <select id="select" parameterType="String" resultType="Cust">
+    <select id="select" parameterType="Integer" resultType="Cust">
         SELECT *
         FROM cust
-        WHERE cust_id = #{custId}
+        WHERE cust_id = #{custId} AND is_deleted = 'N'
     </select>
     <select id="selectAll" resultType="Cust">
         SELECT *
         FROM cust
+        WHERE is_deleted = 'N'
     </select>
-    <insert id="insert" parameterType="Cust">
-        INSERT INTO cust
-        VALUES (#{custId}, #{custPwd}, #{custName}, #{custAddr}, NOW(), NOW())
+    <select id="selectByEmail" parameterType="String" resultType="Cust">
+        SELECT *
+        FROM cust
+        WHERE cust_email = #{custEmail} AND is_deleted = 'N'
+    </select>
+    <insert id="insert" parameterType="Cust" useGeneratedKeys="true" keyProperty="custId">
+        INSERT INTO cust (cust_email, cust_pwd, cust_name, cust_phone, is_deleted, cust_regdate, cust_update)
+        VALUES (#{custEmail}, #{custPwd}, #{custName}, #{custPhone}, 'N', NOW(), NOW())
     </insert>
     <update id="update" parameterType="Cust">
         UPDATE cust SET
+        <if test="custEmail != null and !custEmail.equals('')">
+            cust_email=#{custEmail},
+        </if>
         <if test="custPwd != null and !custPwd.equals('')">
             cust_pwd=#{custPwd},
         </if>
-        cust_name=#{custName},cust_addr=#{custAddr}, cust_update=NOW() WHERE cust_id=#{custId}
+        <if test="custName != null and !custName.equals('')">
+            cust_name=#{custName},
+        </if>
+        <if test="custPhone != null and !custPhone.equals('')">
+            cust_phone=#{custPhone},
+        </if>
+        <if test="isDeleted != null and !isDeleted.equals('')">
+            is_deleted=#{isDeleted},
+        </if>
+        cust_update=NOW() WHERE cust_id=#{custId}
     </update>
-    <delete id="delete" parameterType="String">
-        DELETE
-        FROM cust
-        WHERE cust_id = #{custId}
+    <delete id="delete" parameterType="Integer">
+        UPDATE cust SET is_deleted='Y', cust_update=NOW() WHERE cust_id=#{custId}
     </delete>
 
 </mapper>
