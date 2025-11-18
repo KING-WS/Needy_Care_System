@@ -69,41 +69,43 @@
 
     <!-- 돌봄 대상자 수정 -->
     <update id="updateRecipient" parameterType="edu.sm.app.dto.Recipient">
-        UPDATE Care_Recipient SET
-        <if test="recTypeCode != null and !recTypeCode.equals('')">
-            rec_type_code = #{recTypeCode},
-        </if>
-        <if test="recName != null and !recName.equals('')">
-            rec_name = #{recName},
-        </if>
-        <if test="recBirthday != null">
-            rec_birthday = #{recBirthday},
-        </if>
-        <if test="recGender != null and !recGender.equals('')">
-            rec_gender = #{recGender},
-        </if>
-        <if test="recKioskCode != null">
-            rec_kiosk_code = #{recKioskCode},
-        </if>
-        <if test="recAddress != null and !recAddress.equals('')">
-            rec_address = #{recAddress},
-        </if>
-        <if test="recPhotoUrl != null">
-            rec_photo_url = #{recPhotoUrl},
-        </if>
-        <if test="recMedHistory != null">
-            rec_med_history = #{recMedHistory},
-        </if>
-        <if test="recAllergies != null">
-            rec_allergies = #{recAllergies},
-        </if>
-        <if test="recSpecNotes != null">
-            rec_spec_notes = #{recSpecNotes},
-        </if>
-        <if test="recHealthNeeds != null">
-            rec_health_needs = #{recHealthNeeds},
-        </if>
-        rec_update = NOW()
+        UPDATE Care_Recipient
+        <set>
+            <if test="recTypeCode != null and recTypeCode != ''">
+                rec_type_code = #{recTypeCode},
+            </if>
+            <if test="recName != null and recName != ''">
+                rec_name = #{recName},
+            </if>
+            <if test="recBirthday != null">
+                rec_birthday = #{recBirthday},
+            </if>
+            <if test="recGender != null and recGender != ''">
+                rec_gender = #{recGender},
+            </if>
+            <if test="recKioskCode != null">
+                rec_kiosk_code = #{recKioskCode},
+            </if>
+            <if test="recAddress != null and recAddress != ''">
+                rec_address = #{recAddress},
+            </if>
+            <if test="recPhotoUrl != null">
+                rec_photo_url = #{recPhotoUrl},
+            </if>
+            <if test="recMedHistory != null">
+                rec_med_history = #{recMedHistory},
+            </if>
+            <if test="recAllergies != null">
+                rec_allergies = #{recAllergies},
+            </if>
+            <if test="recSpecNotes != null">
+                rec_spec_notes = #{recSpecNotes},
+            </if>
+            <if test="recHealthNeeds != null">
+                rec_health_needs = #{recHealthNeeds},
+            </if>
+            rec_update = NOW()
+        </set>
         WHERE rec_id = #{recId}
     </update>
 
