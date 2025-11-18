@@ -3,6 +3,7 @@ package edu.sm.controller;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Cust;
 import edu.sm.app.service.RecipientService;
+import edu.sm.app.service.FileUploadService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CareRecipientController {
 
     private final RecipientService recipientService;
+    private final FileUploadService fileUploadService;
     private final String dir = "recipient/";
 
     /**
@@ -84,6 +86,22 @@ public class CareRecipientController {
         }
         
         try {
+            // 프로필 사진 업로드 처리
+            String photoUrl = null;
+            if (photo != null && !photo.isEmpty()) {
+                try {
+                    photoUrl = fileUploadService.uploadProfileImage(photo, "profiles");
+                    log.info("프로필 사진 업로드 성공: {}", photoUrl);
+                } catch (Exception e) {
+                    log.error("프로필 사진 업로드 실패", e);
+                    model.addAttribute("error", "사진 업로드 실패: " + e.getMessage());
+                    model.addAttribute("loginUser", loginUser);
+                    model.addAttribute("left", dir + "left");
+                    model.addAttribute("center", dir + "register");
+                    return "home";
+                }
+            }
+            
             // Recipient 객체 생성
             Recipient recipient = Recipient.builder()
                     .custId(loginUser.getCustId())
@@ -92,18 +110,13 @@ public class CareRecipientController {
                     .recBirthday(LocalDate.parse(recBirthday, DateTimeFormatter.ISO_LOCAL_DATE))
                     .recGender(recGender)
                     .recAddress(recAddress)
+                    .recPhotoUrl(photoUrl)  // 업로드된 사진 URL 설정
                     .recMedHistory(recMedHistory)
                     .recAllergies(recAllergies)
                     .recSpecNotes(recSpecNotes)
                     .recHealthNeeds(recHealthNeeds)
                     .isDeleted("N")
                     .build();
-            
-            // TODO: 사진 업로드 처리 (추후 구현)
-            if (photo != null && !photo.isEmpty()) {
-                // 파일 업로드 로직 추가
-                log.info("사진 업로드: {}", photo.getOriginalFilename());
-            }
             
             // DB에 저장
             recipientService.registerRecipient(recipient);
@@ -116,6 +129,7 @@ public class CareRecipientController {
         } catch (Exception e) {
             log.error("노약자 등록 실패", e);
             model.addAttribute("error", "등록 중 오류가 발생했습니다.");
+            model.addAttribute("left", dir + "left");
             model.addAttribute("center", dir + "register");
             return "home";
         }
@@ -273,6 +287,23 @@ public class CareRecipientController {
                 return "redirect:/recipient/list";
             }
             
+            // 프로필 사진 업로드 처리
+            String photoUrl = existingRecipient.getRecPhotoUrl(); // 기존 사진 URL 유지
+            if (photo != null && !photo.isEmpty()) {
+                try {
+                    // 기존 파일 삭제
+                    if (existingRecipient.getRecPhotoUrl() != null) {
+                        fileUploadService.deleteFile(existingRecipient.getRecPhotoUrl());
+                    }
+                    // 새 파일 업로드
+                    photoUrl = fileUploadService.uploadProfileImage(photo, "profiles");
+                    log.info("프로필 사진 업데이트 성공: {}", photoUrl);
+                } catch (Exception e) {
+                    log.error("프로필 사진 업로드 실패", e);
+                    // 사진 업로드 실패해도 다른 정보는 업데이트하도록 계속 진행
+                }
+            }
+            
             // Recipient 객체 업데이트
             Recipient recipient = Recipient.builder()
                     .recId(recId)
@@ -282,17 +313,13 @@ public class CareRecipientController {
                     .recBirthday(LocalDate.parse(recBirthday, DateTimeFormatter.ISO_LOCAL_DATE))
                     .recGender(recGender)
                     .recAddress(recAddress)
+                    .recPhotoUrl(photoUrl)  // 업데이트된 사진 URL 설정
                     .recMedHistory(recMedHistory)
                     .recAllergies(recAllergies)
                     .recSpecNotes(recSpecNotes)
                     .recHealthNeeds(recHealthNeeds)
                     .isDeleted(existingRecipient.getIsDeleted())
                     .build();
-            
-            // TODO: 사진 업로드 처리 (추후 구현)
-            if (photo != null && !photo.isEmpty()) {
-                log.info("사진 업로드: {}", photo.getOriginalFilename());
-            }
             
             // DB 업데이트
             recipientService.updateRecipient(recipient);

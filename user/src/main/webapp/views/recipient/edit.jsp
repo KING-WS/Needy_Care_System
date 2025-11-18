@@ -162,6 +162,51 @@
     .info-banner i {
         font-size: 24px;
     }
+    
+    .photo-upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 3px dashed #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f8f9fa;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .photo-preview i {
+        font-size: 60px;
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+    
+    .photo-preview p {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+    
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    
+    .photo-preview.has-image {
+        border-style: solid;
+        border-color: #667eea;
+    }
 </style>
 
 <div class="edit-container">
@@ -202,6 +247,31 @@
                 </label>
                 <input type="text" name="recName" class="form-input" required 
                        value="${recipient.recName}" placeholder="돌봄 대상자의 이름을 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    프로필 사진
+                </label>
+                <div class="photo-upload-container">
+                    <div class="photo-preview ${not empty recipient.recPhotoUrl ? 'has-image' : ''}" id="photoPreview">
+                        <c:choose>
+                            <c:when test="${not empty recipient.recPhotoUrl}">
+                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="Current Photo">
+                            </c:when>
+                            <c:otherwise>
+                                <i class="bi bi-person-circle"></i>
+                                <p>사진을 선택하세요</p>
+                            </c:otherwise>
+                        </c:choose>
+                    </div>
+                    <input type="file" name="recPhotoUrl" id="photoInput" class="form-input" 
+                           accept="image/jpeg,image/jpg,image/png,image/gif"
+                           onchange="previewPhoto(event)">
+                    <small style="color: #999; font-size: 12px; display: block; margin-top: 5px;">
+                        * 새 사진을 선택하면 기존 사진이 교체됩니다
+                    </small>
+                </div>
             </div>
             
             <div class="form-group">
@@ -309,6 +379,35 @@
 </div>
 
 <script>
+    // 사진 미리보기
+    function previewPhoto(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('photoPreview');
+        
+        if (file) {
+            // 파일 크기 체크 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('파일 크기는 5MB 이하여야 합니다.');
+                event.target.value = '';
+                return;
+            }
+            
+            // 이미지 파일인지 확인
+            if (!file.type.match('image.*')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                preview.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
     // 폼 유효성 검사
     document.querySelector('.edit-form').addEventListener('submit', function(e) {
         const recName = document.querySelector('input[name="recName"]').value.trim();

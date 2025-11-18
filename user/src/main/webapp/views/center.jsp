@@ -66,7 +66,7 @@
 
     /* 카드 높이 설정 */
     .card-small {
-        min-height: 250px;
+        min-height: 150px;
     }
     .card-medium {
         min-height: 395px;
@@ -288,6 +288,181 @@
         display: flex;
         flex-direction: column;
     }
+
+    /* 건강 카드 스타일 */
+    .health-card {
+        background: white;
+        color: #333;
+        text-align: left;
+        padding: 20px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .health-card-left {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding-right: 15px;
+        border-right: 2px solid #f0f0f0;
+        min-width: 100px;
+    }
+
+    .recipient-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 35px;
+        color: white;
+        flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .avatar-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+
+    .recipient-info {
+        text-align: center;
+    }
+
+    .recipient-name {
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0 0 6px 0;
+        color: #2c3e50;
+    }
+
+    .recipient-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-elderly {
+        background: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .badge-pregnant {
+        background: #fce4ec;
+        color: #c2185b;
+    }
+
+    .badge-disabled {
+        background: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .health-card-right {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        flex: 1;
+    }
+
+    .health-info-row {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        border-left: 3px solid #667eea;
+    }
+
+    .health-info-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: #667eea;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .health-info-value {
+        font-size: 14px;
+        color: #2c3e50;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .health-info-subtext {
+        font-size: 10px;
+        color: #999;
+        margin-top: 2px;
+    }
+
+    .bp-values-inline {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bp-value-inline {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 3px;
+    }
+
+    .value-number-inline {
+        font-size: 20px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+
+    .value-unit-inline {
+        font-size: 10px;
+        color: #666;
+    }
+
+    .value-label-inline {
+        font-size: 10px;
+        color: #999;
+        margin-left: 2px;
+    }
+
+    .bp-divider-inline {
+        font-size: 16px;
+        color: #ccc;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 20px;
+        font-size: 13px;
+        color: #999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .no-data i {
+        font-size: 32px;
+        color: #ccc;
+    }
+
+    .health-card:hover {
+        background: #fafbfc;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
@@ -296,12 +471,89 @@
         <div class="row">
             <!-- 왼쪽 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
-                <!-- 작은 카드 (위) -->
+                <!-- 작은 카드 (위) - 노약자 건강 정보 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/comm"/>" class="dashboard-card-link">
+                    <c:if test="${not empty recipient}">
+                        <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
+                            <div class="dashboard-card card-small health-card">
+                                <!-- 왼쪽: 프로필 -->
+                                <div class="health-card-header">
+                                    <div class="recipient-avatar">
+                                        <c:choose>
+                                            <c:when test="${not empty recipient.recPhotoUrl}">
+                                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="${recipient.recName}" class="avatar-image">
+                                            </c:when>
+                                            <c:otherwise>
+                                                <i class="bi bi-person-fill"></i>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </div>
+                                    <div class="recipient-info">
+                                        <div class="recipient-name">${recipient.recName}</div>
+                                        <c:choose>
+                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                <span class="recipient-badge badge-elderly">노인</span>
+                                            </c:when>
+                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                <span class="recipient-badge badge-pregnant">임산부</span>
+                                            </c:when>
+                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                <span class="recipient-badge badge-disabled">장애인</span>
+                                            </c:when>
+                                        </c:choose>
+                                    </div>
+                                </div>
+
+                                <!-- 구분선 -->
+                                <div class="health-divider"></div>
+
+                                <!-- 오른쪽: 건강 데이터 -->
+                                <div class="health-data-section">
+                                    <c:choose>
+                                        <c:when test="${not empty bloodPressure}">
+                                            <div class="health-data-label">
+                                                <i class="bi bi-heart-pulse"></i> 혈압
+                                            </div>
+                                            <div class="health-data-values">
+                                                <div class="bp-value">
+                                                    <span class="value-number">${bloodPressure.healthValue1}</span>
+                                                    <span class="value-unit">mmHg</span>
+                                                    <span class="value-label">수축기</span>
+                                                </div>
+                                                <div class="bp-divider">/</div>
+                                                <div class="bp-value">
+                                                    <span class="value-number">${bloodPressure.healthValue2}</span>
+                                                    <span class="value-unit">mmHg</span>
+                                                    <span class="value-label">이완기</span>
+                                                </div>
+                                            </div>
+                                            <div class="health-data-time">
+                                                <i class="bi bi-clock"></i>
+                                                <c:if test="${not empty bloodPressure.healthMeasuredAt}">
+                                                    ${bloodPressure.healthMeasuredAt.toLocalDate()}
+                                                    ${String.format('%02d:%02d', bloodPressure.healthMeasuredAt.hour, bloodPressure.healthMeasuredAt.minute)}
+                                                </c:if>
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="no-data">
+                                                <i class="bi bi-exclamation-circle"></i>
+                                                <span>건강 데이터 없음</span>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </a>
+                    </c:if>
+                    <c:if test="${empty recipient}">
                         <div class="dashboard-card card-small">
+                            <div class="no-data">
+                                <i class="bi bi-person-x"></i>
+                                <span>등록된 노약자가 없습니다</span>
+                            </div>
                         </div>
-                    </a>
+                    </c:if>
                 </div>
 
                 <!-- 큰 카드 (아래) -->
