@@ -1,10 +1,8 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<!-- FullCalendar CSS -->
-<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css' rel='stylesheet' />
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar/main.min.css' rel='stylesheet' />
 
-<!-- 병원 일정 페이지 -->
 <section style="padding: 20px 20px 100px 20px; background: #f8f9fc; min-height: calc(100vh - 200px);">
     <div class="container-fluid">
         <div class="row">
@@ -20,45 +18,57 @@
             </div>
         </div>
 
+        <!-- 노약자 선택 영역 추가 -->
+        <c:if test="${not empty recipientList}">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="card" style="border-radius: 12px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div class="card-body" style="padding: 20px;">
+                            <label style="font-weight: 600; color: #2d3748; margin-bottom: 10px;">
+                                <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
+                            </label>
+                            <select id="recipientSelect" class="form-select" style="font-size: 15px; padding: 10px;" onchange="changeRecipient()">
+                                <c:forEach items="${recipientList}" var="rec">
+                                    <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
+                                            ${rec.recName}
+                                    </option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </c:if>
+
         <div class="row">
-            <!-- 왼쪽: 일정 통계 -->
             <div class="col-lg-3 mb-4">
                 <div class="stats-card">
                     <div class="stat-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                         <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                         <div class="stat-content">
-                            <div class="stat-label">오늘 산책 횟수</div>
+                            <div class="stat-label">오늘 일정</div>
                             <div class="stat-value" id="todayCount">0</div>
                         </div>
                     </div>
 
                     <div class="stat-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                        <div class="stat-icon"><i class="fas fa-procedures"></i></div>
+                        <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
                         <div class="stat-content">
-                            <div class="stat-label">오늘 식사 횟수</div>
-                            <div class="stat-value" id="surgeryCount">0</div>
+                            <div class="stat-label">이번 주 일정</div>
+                            <div class="stat-value" id="weekCount">0</div>
                         </div>
                     </div>
 
                     <div class="stat-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                        <div class="stat-icon"><i class="fas fa-stethoscope"></i></div>
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                         <div class="stat-content">
-                            <div class="stat-label">?????</div>
-                            <div class="stat-value" id="checkupCount">0</div>
-                        </div>
-                    </div>
-
-                    <div class="stat-item" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                        <div class="stat-icon"><i class="fas fa-user-friends"></i></div>
-                        <div class="stat-content">
-                            <div class="stat-label">?????</div>
+                            <div class="stat-label">이번 달 일정</div>
                             <div class="stat-value" id="monthCount">0</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 오른쪽: 캘린더 -->
             <div class="col-lg-9">
                 <div class="calendar-card">
                     <div id="calendar"></div>
@@ -68,9 +78,9 @@
     </div>
 </section>
 
-<!-- 날짜별 상세 일정 모달 -->
+<!-- 날짜별 일정 상세 모달 -->
 <div class="modal fade" id="dayDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content day-detail-modal">
             <div class="modal-header">
                 <h5 class="modal-title" id="dayDetailTitle">
@@ -78,10 +88,20 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="dayDetailBody"></div>
+            <div class="modal-body" id="dayDetailBody">
+                <div class="day-schedule-info">
+                    <h6 id="scheduleTitle">일정 제목</h6>
+                    <p id="scheduleTime"><i class="fas fa-clock"></i> 시간</p>
+                </div>
+                <hr>
+                <div id="hourlySchedulesContainer"></div>
+            </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="openAddEventModal()">
-                    <i class="fas fa-plus"></i> 일정 추가
+                <button type="button" class="btn btn-primary" id="addHourlyBtn">
+                    <i class="fas fa-plus"></i> 시간대별 일정 추가
+                </button>
+                <button type="button" class="btn btn-secondary" id="editScheduleBtn">
+                    <i class="fas fa-edit"></i> 일정 수정
                 </button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 닫기
@@ -92,57 +112,34 @@
 </div>
 
 <!-- 일정 등록/수정 모달 -->
-<div class="modal fade" id="eventModal" tabindex="-1">
+<div class="modal fade" id="scheduleModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content medical-modal">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">
+                <h5 class="modal-title" id="scheduleModalTitle">
                     <i class="fas fa-plus-circle"></i> 일정 등록
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="eventForm">
-                    <input type="hidden" id="eventId">
+                <form id="scheduleForm">
+                    <input type="hidden" id="schedId">
                     <input type="hidden" id="selectedDate">
 
                     <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-clipboard-list"></i> 일정 유형</label>
-                        <select class="form-select" id="eventType" required>
-                            <option value="">선택하세요</option>
-                            <option value="outpatient">외래 진료</option>
-                            <option value="surgery">수술</option>
-                            <option value="checkup">건강 검진</option>
-                            <option value="rounds">회진</option>
-                            <option value="conference">컨퍼런스</option>
-                            <option value="emergency">응급</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-user"></i> 환자명 / 제목</label>
-                        <input type="text" class="form-control" id="eventTitle" placeholder="환자명 또는 일정 제목" required>
+                        <label class="form-label"><i class="fas fa-heading"></i> 일정 제목</label>
+                        <input type="text" class="form-control" id="schedName" placeholder="예: 오늘의 일정" required>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
-                            <input type="time" class="form-control" id="eventStartTime" required>
+                            <input type="time" class="form-control" id="schedStartTime">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
-                            <input type="time" class="form-control" id="eventEndTime" required>
+                            <input type="time" class="form-control" id="schedEndTime">
                         </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-notes-medical"></i> 상세 내용</label>
-                        <textarea class="form-control" id="eventDescription" rows="3" placeholder="증상, 처치 내용, 특이사항 등"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-map-marker-alt"></i> 진료실 / 장소</label>
-                        <input type="text" class="form-control" id="eventLocation" placeholder="예: 1층 내과 진료실">
                     </div>
                 </form>
             </div>
@@ -150,10 +147,10 @@
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     <i class="fas fa-times"></i> 취소
                 </button>
-                <button type="button" class="btn btn-danger" id="deleteBtn" style="display:none;">
+                <button type="button" class="btn btn-danger" id="deleteScheduleBtn" style="display:none;">
                     <i class="fas fa-trash"></i> 삭제
                 </button>
-                <button type="button" class="btn btn-primary" id="saveBtn">
+                <button type="button" class="btn btn-primary" id="saveScheduleBtn">
                     <i class="fas fa-save"></i> 저장
                 </button>
             </div>
@@ -161,35 +158,87 @@
     </div>
 </div>
 
-<!-- FullCalendar JS -->
+<!-- 시간대별 일정 등록/수정 모달 -->
+<div class="modal fade" id="hourlyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content medical-modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="hourlyModalTitle">
+                    <i class="fas fa-plus-circle"></i> 시간대별 일정 추가
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="hourlyForm">
+                    <input type="hidden" id="hourlySchedId">
+                    <input type="hidden" id="parentSchedId">
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-heading"></i> 제목</label>
+                        <input type="text" class="form-control" id="hourlySchedName" placeholder="예: 점심 식사" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
+                            <input type="time" class="form-control" id="hourlyStartTime" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
+                            <input type="time" class="form-control" id="hourlyEndTime" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label"><i class="fas fa-align-left"></i> 상세 내용</label>
+                        <textarea class="form-control" id="hourlySchedContent" rows="3" placeholder="상세 내용을 입력하세요"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> 취소
+                </button>
+                <button type="button" class="btn btn-danger" id="deleteHourlyBtn" style="display:none;">
+                    <i class="fas fa-trash"></i> 삭제
+                </button>
+                <button type="button" class="btn btn-primary" id="saveHourlyBtn">
+                    <i class="fas fa-save"></i> 저장
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ko.global.min.js'></script>
 
 <script>
-    let calendar, dayDetailModal, eventModal, currentSelectedDate;
+    let calendar, dayDetailModal, scheduleModal, hourlyModal;
+    let currentSchedule = null;
+
+    // ✅ 수정: Controller에서 model로 전달받은 selectedRecipient 사용
+    let currentRecId = ${not empty selectedRecipient ? selectedRecipient.recId : 0};
+
+    // 노약자 변경 함수 추가
+    function changeRecipient() {
+        const recId = document.getElementById('recipientSelect').value;
+        if (recId) {
+            location.href = '/schedule/center?recId=' + recId;
+        }
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // recId가 없으면 경고
+        if (currentRecId === 0) {
+            alert('등록된 돌봄 대상자가 없습니다.');
+            return;
+        }
+
         const calendarEl = document.getElementById('calendar');
         dayDetailModal = new bootstrap.Modal(document.getElementById('dayDetailModal'));
-        eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-
-        const eventColors = {
-            'outpatient': '#667eea',
-            'surgery': '#f5576c',
-            'checkup': '#4facfe',
-            'rounds': '#43e97b',
-            'conference': '#feca57',
-            'emergency': '#ff6b6b'
-        };
-
-        const eventTypeNames = {
-            'outpatient': '외래 진료',
-            'surgery': '수술',
-            'checkup': '건강 검진',
-            'rounds': '회진',
-            'conference': '컨퍼런스',
-            'emergency': '응급'
-        };
+        scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+        hourlyModal = new bootstrap.Modal(document.getElementById('hourlyModal'));
 
         calendar = new FullCalendar.Calendar(calendarEl, {
             locale: 'ko',
@@ -207,232 +256,311 @@
             dayMaxEvents: 3,
 
             dateClick: function(info) {
-                showDayDetail(info.date);
+                openScheduleModal('create', info.date);
             },
 
             eventClick: function(info) {
                 info.jsEvent.preventDefault();
-                const event = info.event;
-                openEventModal('edit', event);
+                loadScheduleDetail(info.event.id);
             },
 
-            events: [
-                {
-                    id: '1',
-                    title: '김철수 - 정기검진',
-                    start: '2025-11-18T10:00:00',
-                    end: '2025-11-18T10:30:00',
-                    backgroundColor: eventColors.outpatient,
-                    extendedProps: {
-                        type: 'outpatient',
-                        description: '혈압 및 당뇨 정기 체크',
-                        location: '1층 내과 진료실'
-                    }
-                }
-            ]
+            datesSet: function(dateInfo) {
+                loadMonthlySchedules(dateInfo.start);
+            },
+
+            events: []
         });
 
         calendar.render();
-        updateStats();
 
-        function updateStats() {
-            const events = calendar.getEvents();
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const weekEnd = new Date(today);
-            weekEnd.setDate(weekEnd.getDate() + 7);
+        // 일정 등록 버튼
+        document.getElementById('saveScheduleBtn').addEventListener('click', saveSchedule);
+        document.getElementById('deleteScheduleBtn').addEventListener('click', deleteSchedule);
 
-            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-            const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-
-            let todayCount = 0;
-            let surgeryCount = 0;
-            let checkupCount = 0;
-            let monthCount = 0;
-
-            events.forEach(event => {
-                const eventDate = new Date(event.start);
-                eventDate.setHours(0, 0, 0, 0);
-
-                if (eventDate.getTime() === today.getTime()) {
-                    todayCount++;
-                }
-
-                if (event.start >= today && event.start <= weekEnd) {
-                    if (event.extendedProps.type === 'surgery') surgeryCount++;
-                    if (event.extendedProps.type === 'checkup') checkupCount++;
-                }
-
-                if (event.start >= monthStart && event.start <= monthEnd) {
-                    monthCount++;
-                }
-            });
-
-            document.getElementById('todayCount').textContent = todayCount;
-            document.getElementById('surgeryCount').textContent = surgeryCount;
-            document.getElementById('checkupCount').textContent = checkupCount;
-            document.getElementById('monthCount').textContent = monthCount;
-        }
-
-        function showDayDetail(date) {
-            currentSelectedDate = date;
-            const events = calendar.getEvents().filter(event => {
-                const eventDate = new Date(event.start);
-                return eventDate.toDateString() === date.toDateString();
-            });
-
-            const dateStr = formatDateKorean(date);
-            document.getElementById('dayDetailTitle').innerHTML = '<i class="fas fa-calendar-day"></i> ' + dateStr;
-
-            const bodyEl = document.getElementById('dayDetailBody');
-
-            if (events.length === 0) {
-                bodyEl.innerHTML = '<div class="text-center py-4"><p>등록된 일정이 없습니다.</p></div>';
-            } else {
-                events.sort((a, b) => a.start - b.start);
-
-                let html = '<div class="timeline-container">';
-                events.forEach(event => {
-                    const startTime = formatTime(event.start);
-                    const endTime = formatTime(event.end);
-                    const typeName = eventTypeNames[event.extendedProps.type] || '일정';
-
-                    html += `
-                    <div class="timeline-item" onclick="editEvent('${event.id}')" style="cursor:pointer; border-left:4px solid ${event.backgroundColor}; padding:15px; margin-bottom:15px; background:#f8f9fa; border-radius:8px;">
-                        <div><strong>${startTime} - ${endTime}</strong></div>
-                        <div><span style="background:${event.backgroundColor}; color:white; padding:2px 8px; border-radius:4px; font-size:12px;">${typeName}</span> ${event.title}</div>
-                        ${event.extendedProps.location ? '<div><i class="fas fa-map-marker-alt"></i> ' + event.extendedProps.location + '</div>' : ''}
-                    </div>
-                `;
-                });
-                html += '</div>';
-                bodyEl.innerHTML = html;
-            }
-
-            dayDetailModal.show();
-        }
-
-        window.openAddEventModal = function() {
+        // 시간대별 일정 버튼
+        document.getElementById('addHourlyBtn').addEventListener('click', () => openHourlyModal('create'));
+        document.getElementById('editScheduleBtn').addEventListener('click', () => {
             dayDetailModal.hide();
-            setTimeout(() => openEventModal('create', null, currentSelectedDate), 300);
-        };
-
-        window.editEvent = function(eventId) {
-            const event = calendar.getEventById(eventId);
-            if (event) {
-                dayDetailModal.hide();
-                setTimeout(() => openEventModal('edit', event), 300);
-            }
-        };
-
-        function openEventModal(mode, event, date) {
-            if (mode === 'create') {
-                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> 일정 등록';
-                document.getElementById('deleteBtn').style.display = 'none';
-                document.getElementById('eventId').value = '';
-                document.getElementById('eventType').value = '';
-                document.getElementById('eventTitle').value = '';
-                document.getElementById('eventStartTime').value = '09:00';
-                document.getElementById('eventEndTime').value = '10:00';
-                document.getElementById('eventDescription').value = '';
-                document.getElementById('eventLocation').value = '';
-
-                if (date) {
-                    document.getElementById('selectedDate').value = formatDate(date);
-                }
-            } else {
-                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> 일정 수정';
-                document.getElementById('deleteBtn').style.display = 'block';
-                document.getElementById('eventId').value = event.id;
-                document.getElementById('eventType').value = event.extendedProps.type || '';
-                document.getElementById('eventTitle').value = event.title;
-                document.getElementById('eventStartTime').value = formatTimeInput(event.start);
-                document.getElementById('eventEndTime').value = formatTimeInput(event.end);
-                document.getElementById('eventDescription').value = event.extendedProps.description || '';
-                document.getElementById('eventLocation').value = event.extendedProps.location || '';
-                document.getElementById('selectedDate').value = formatDate(event.start);
-            }
-            eventModal.show();
-        }
-
-        document.getElementById('saveBtn').addEventListener('click', function() {
-            const id = document.getElementById('eventId').value;
-            const type = document.getElementById('eventType').value;
-            const title = document.getElementById('eventTitle').value;
-            const dateStr = document.getElementById('selectedDate').value;
-            const startTime = document.getElementById('eventStartTime').value;
-            const endTime = document.getElementById('eventEndTime').value;
-            const description = document.getElementById('eventDescription').value;
-            const location = document.getElementById('eventLocation').value;
-
-            if (!type || !title || !startTime || !endTime) {
-                alert('필수 항목을 입력해주세요.');
-                return;
-            }
-
-            const start = dateStr + 'T' + startTime + ':00';
-            const end = dateStr + 'T' + endTime + ':00';
-            const color = eventColors[type];
-
-            const eventData = {
-                title: title,
-                start: start,
-                end: end,
-                backgroundColor: color,
-                extendedProps: {
-                    type: type,
-                    description: description,
-                    location: location
-                }
-            };
-
-            if (id) {
-                const event = calendar.getEventById(id);
-                event.setProp('title', title);
-                event.setStart(start);
-                event.setEnd(end);
-                event.setProp('backgroundColor', color);
-                event.setExtendedProp('type', type);
-                event.setExtendedProp('description', description);
-                event.setExtendedProp('location', location);
-            } else {
-                eventData.id = Date.now().toString();
-                calendar.addEvent(eventData);
-            }
-
-            updateStats();
-            eventModal.hide();
+            setTimeout(() => openScheduleModal('edit', null, currentSchedule), 300);
         });
-
-        document.getElementById('deleteBtn').addEventListener('click', function() {
-            if (confirm('일정을 삭제하시겠습니까?')) {
-                const id = document.getElementById('eventId').value;
-                calendar.getEventById(id).remove();
-                updateStats();
-                eventModal.hide();
-            }
-        });
-
-        function formatDateKorean(date) {
-            const days = ['일', '월', '화', '수', '목', '금', '토'];
-            return date.getFullYear() + '년 ' + (date.getMonth() + 1) + '월 ' + date.getDate() + '일 (' + days[date.getDay()] + ')';
-        }
-
-        function formatDate(date) {
-            const d = new Date(date);
-            return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-        }
-
-        function formatTime(date) {
-            const d = new Date(date);
-            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-        }
-
-        function formatTimeInput(date) {
-            if (!date) return '';
-            return formatTime(date);
-        }
+        document.getElementById('saveHourlyBtn').addEventListener('click', saveHourlySchedule);
+        document.getElementById('deleteHourlyBtn').addEventListener('click', deleteHourlySchedule);
     });
+
+    // 월별 일정 로드
+    function loadMonthlySchedules(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+
+        fetch(`/schedule/api/monthly?recId=${currentRecId}&year=${year}&month=${month}`)
+            .then(res => res.json())
+            .then(data => {
+                calendar.removeAllEvents();
+                data.forEach(schedule => {
+                    calendar.addEvent({
+                        id: schedule.schedId,
+                        title: schedule.schedName,
+                        start: schedule.schedDate,
+                        backgroundColor: '#667eea',
+                        borderColor: '#667eea'
+                    });
+                });
+                updateStats();
+            });
+    }
+
+    // 일정 상세 로드
+    function loadScheduleDetail(schedId) {
+        fetch(`/schedule/api/schedule/${schedId}`)
+            .then(res => res.json())
+            .then(schedule => {
+                currentSchedule = schedule;
+                document.getElementById('dayDetailTitle').innerHTML =
+                    '<i class="fas fa-calendar-day"></i> ' + formatDateKorean(schedule.schedDate);
+                document.getElementById('scheduleTitle').textContent = schedule.schedName;
+                document.getElementById('scheduleTime').innerHTML =
+                    `<i class="fas fa-clock"></i> ${schedule.schedStartTime || '시간 미정'} - ${schedule.schedEndTime || ''}`;
+
+                loadHourlySchedules(schedId);
+                dayDetailModal.show();
+            });
+    }
+
+    // 시간대별 일정 로드
+    function loadHourlySchedules(schedId) {
+        fetch(`/schedule/api/hourly/${schedId}`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('hourlySchedulesContainer');
+                if (data.length === 0) {
+                    container.innerHTML = '<p class="text-center text-muted">등록된 시간대별 일정이 없습니다.</p>';
+                } else {
+                    let html = '<div class="hourly-list">';
+                    data.forEach(hourly => {
+                        html += `
+                        <div class="hourly-item" onclick="editHourlySchedule(${hourly.hourlySchedId})">
+                            <div class="hourly-time">
+                                <i class="fas fa-clock"></i>
+                                ${hourly.hourlySchedStartTime} - ${hourly.hourlySchedEndTime}
+                            </div>
+                            <div class="hourly-content">
+                                <h6>${hourly.hourlySchedName}</h6>
+                                <p>${hourly.hourlySchedContent || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            });
+    }
+
+    // 일정 등록/수정 모달 열기
+    function openScheduleModal(mode, date, schedule) {
+        if (mode === 'create') {
+            document.getElementById('scheduleModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> 일정 등록';
+            document.getElementById('deleteScheduleBtn').style.display = 'none';
+            document.getElementById('schedId').value = '';
+            document.getElementById('schedName').value = '';
+            document.getElementById('schedStartTime').value = '';
+            document.getElementById('schedEndTime').value = '';
+            document.getElementById('selectedDate').value = formatDate(date);
+        } else {
+            document.getElementById('scheduleModalTitle').innerHTML = '<i class="fas fa-edit"></i> 일정 수정';
+            document.getElementById('deleteScheduleBtn').style.display = 'block';
+            document.getElementById('schedId').value = schedule.schedId;
+            document.getElementById('schedName').value = schedule.schedName;
+            document.getElementById('schedStartTime').value = schedule.schedStartTime || '';
+            document.getElementById('schedEndTime').value = schedule.schedEndTime || '';
+            document.getElementById('selectedDate').value = schedule.schedDate;
+        }
+        scheduleModal.show();
+    }
+
+    // 일정 저장
+    function saveSchedule() {
+        const schedId = document.getElementById('schedId').value;
+        const schedName = document.getElementById('schedName').value;
+        const schedDate = document.getElementById('selectedDate').value;
+        const schedStartTime = document.getElementById('schedStartTime').value || null;
+        const schedEndTime = document.getElementById('schedEndTime').value || null;
+
+        if (!schedName) {
+            alert('일정 제목을 입력하세요.');
+            return;
+        }
+
+        const data = {
+            recId: currentRecId,
+            schedName: schedName,
+            schedDate: schedDate,
+            schedStartTime: schedStartTime,
+            schedEndTime: schedEndTime
+        };
+
+        const url = schedId ? '/schedule/api/schedule' : '/schedule/api/schedule';
+        const method = schedId ? 'PUT' : 'POST';
+
+        if (schedId) data.schedId = schedId;
+
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    alert(schedId ? '수정되었습니다.' : '등록되었습니다.');
+                    scheduleModal.hide();
+                    loadMonthlySchedules(calendar.getDate());
+                }
+            });
+    }
+
+    // 일정 삭제
+    function deleteSchedule() {
+        if (!confirm('일정을 삭제하시겠습니까?')) return;
+
+        const schedId = document.getElementById('schedId').value;
+        fetch(`/schedule/api/schedule/${schedId}`, {method: 'DELETE'})
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    alert('삭제되었습니다.');
+                    scheduleModal.hide();
+                    loadMonthlySchedules(calendar.getDate());
+                }
+            });
+    }
+
+    // 시간대별 일정 모달 열기
+    function openHourlyModal(mode, hourlySchedId) {
+        if (mode === 'create') {
+            document.getElementById('hourlyModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> 시간대별 일정 추가';
+            document.getElementById('deleteHourlyBtn').style.display = 'none';
+            document.getElementById('hourlySchedId').value = '';
+            document.getElementById('hourlySchedName').value = '';
+            document.getElementById('hourlyStartTime').value = '';
+            document.getElementById('hourlyEndTime').value = '';
+            document.getElementById('hourlySchedContent').value = '';
+            document.getElementById('parentSchedId').value = currentSchedule.schedId;
+        }
+        hourlyModal.show();
+    }
+
+    // 시간대별 일정 수정
+    function editHourlySchedule(hourlySchedId) {
+        fetch(`/schedule/api/hourly/${hourlySchedId}`)
+            .then(res => res.json())
+            .then(hourly => {
+                document.getElementById('hourlyModalTitle').innerHTML = '<i class="fas fa-edit"></i> 시간대별 일정 수정';
+                document.getElementById('deleteHourlyBtn').style.display = 'block';
+                document.getElementById('hourlySchedId').value = hourly.hourlySchedId;
+                document.getElementById('hourlySchedName').value = hourly.hourlySchedName;
+                document.getElementById('hourlyStartTime').value = hourly.hourlySchedStartTime;
+                document.getElementById('hourlyEndTime').value = hourly.hourlySchedEndTime;
+                document.getElementById('hourlySchedContent').value = hourly.hourlySchedContent || '';
+                document.getElementById('parentSchedId').value = hourly.schedId;
+                dayDetailModal.hide();
+                hourlyModal.show();
+            });
+    }
+
+    // 시간대별 일정 저장
+    function saveHourlySchedule() {
+        const hourlySchedId = document.getElementById('hourlySchedId').value;
+        const schedId = document.getElementById('parentSchedId').value;
+        const name = document.getElementById('hourlySchedName').value;
+        const startTime = document.getElementById('hourlyStartTime').value;
+        const endTime = document.getElementById('hourlyEndTime').value;
+        const content = document.getElementById('hourlySchedContent').value;
+
+        if (!name || !startTime || !endTime) {
+            alert('필수 항목을 입력하세요.');
+            return;
+        }
+
+        const data = {
+            schedId: schedId,
+            hourlySchedName: name,
+            hourlySchedStartTime: startTime,
+            hourlySchedEndTime: endTime,
+            hourlySchedContent: content
+        };
+
+        const url = '/schedule/api/hourly';
+        const method = hourlySchedId ? 'PUT' : 'POST';
+
+        if (hourlySchedId) data.hourlySchedId = hourlySchedId;
+
+        fetch(url, {
+            method: method,
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    alert(hourlySchedId ? '수정되었습니다.' : '등록되었습니다.');
+                    hourlyModal.hide();
+                    loadScheduleDetail(schedId);
+                }
+            });
+    }
+
+    // 시간대별 일정 삭제
+    function deleteHourlySchedule() {
+        if (!confirm('시간대별 일정을 삭제하시겠습니까?')) return;
+
+        const hourlySchedId = document.getElementById('hourlySchedId').value;
+        const schedId = document.getElementById('parentSchedId').value;
+
+        fetch(`/schedule/api/hourly/${hourlySchedId}`, {method: 'DELETE'})
+            .then(res => res.json())
+            .then(result => {
+                if (result.success) {
+                    alert('삭제되었습니다.');
+                    hourlyModal.hide();
+                    loadScheduleDetail(schedId);
+                }
+            });
+    }
+
+    // 통계 업데이트
+    function updateStats() {
+        const events = calendar.getEvents();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+
+        let todayCount = 0, weekCount = 0, monthCount = events.length;
+
+        events.forEach(event => {
+            const eventDate = new Date(event.start);
+            eventDate.setHours(0, 0, 0, 0);
+
+            if (eventDate.getTime() === today.getTime()) todayCount++;
+            if (event.start >= today && event.start <= weekEnd) weekCount++;
+        });
+
+        document.getElementById('todayCount').textContent = todayCount;
+        document.getElementById('weekCount').textContent = weekCount;
+        document.getElementById('monthCount').textContent = monthCount;
+    }
+
+    function formatDateKorean(dateStr) {
+        const days = ['일', '월', '화', '수', '목', '금', '토'];
+        const date = new Date(dateStr);
+        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
+    }
+
+    function formatDate(date) {
+        const d = new Date(date);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
 </script>
 
 <style>
@@ -445,7 +573,6 @@
         min-height: 100vh;
     }
 
-    /* 통계 카드 */
     .stats-card {
         display: flex;
         flex-direction: column;
@@ -539,22 +666,7 @@
         opacity: 0.8;
     }
 
-    .day-detail-modal .modal-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 20px 25px;
-    }
-
-    .day-detail-modal .modal-title {
-        font-weight: 600;
-        font-size: 18px;
-    }
-
-    .day-detail-modal .btn-close {
-        filter: brightness(0) invert(1);
-    }
-
+    .day-detail-modal .modal-header,
     .medical-modal .modal-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -562,13 +674,67 @@
         padding: 20px 25px;
     }
 
+    .day-detail-modal .modal-title,
     .medical-modal .modal-title {
         font-weight: 600;
         font-size: 18px;
     }
 
+    .day-detail-modal .btn-close,
     .medical-modal .btn-close {
         filter: brightness(0) invert(1);
+    }
+
+    .day-schedule-info h6 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 10px;
+    }
+
+    .day-schedule-info p {
+        color: #64748b;
+        margin: 0;
+    }
+
+    .hourly-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hourly-item {
+        background: #f8f9fc;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .hourly-item:hover {
+        background: #eef2ff;
+        transform: translateX(5px);
+    }
+
+    .hourly-time {
+        font-weight: 600;
+        color: #667eea;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .hourly-content h6 {
+        font-size: 16px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 5px;
+    }
+
+    .hourly-content p {
+        font-size: 14px;
+        color: #64748b;
+        margin: 0;
     }
 
     .medical-modal .form-label {
@@ -602,7 +768,6 @@
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
-    /* 반응형 */
     @media (max-width: 991px) {
         .stats-card {
             flex-direction: row;

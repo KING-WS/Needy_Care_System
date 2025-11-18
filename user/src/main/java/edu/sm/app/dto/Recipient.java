@@ -1,17 +1,17 @@
 package edu.sm.app.dto;
 
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@Getter
-@Setter
-@Builder
-public class CareRecipient {
+public class Recipient {
     private Integer recId;
     private String recTypeCode;
     private Integer custId;
@@ -29,4 +29,3 @@ public class CareRecipient {
     private LocalDateTime recUpdate;
     private String recHealthNeeds;
 }
-
