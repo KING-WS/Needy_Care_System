@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -34,6 +36,16 @@ public class ScheduleService {
     public List<Schedule> getSchedulesByMonth(Integer recId, int year, int month) {
         log.debug("월별 일정 조회 - recId: {}, year: {}, month: {}", recId, year, month);
         List<Schedule> schedules = scheduleRepository.selectSchedulesByRecIdAndMonth(recId, year, month);
+        log.debug("조회된 일정 개수: {}", schedules != null ? schedules.size() : 0);
+        return schedules;
+    }
+
+    /**
+     * 특정 돌봄 대상자의 날짜 범위 일정 조회
+     */
+    public List<Schedule> getSchedulesByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) {
+        log.debug("날짜 범위 일정 조회 - recId: {}, startDate: {}, endDate: {}", recId, startDate, endDate);
+        List<Schedule> schedules = scheduleRepository.selectSchedulesByDateRange(recId, startDate, endDate);
         log.debug("조회된 일정 개수: {}", schedules != null ? schedules.size() : 0);
         return schedules;
     }

@@ -1,19 +1,21 @@
 package edu.sm.controller;
 
 import edu.sm.app.dto.Cust;
+import edu.sm.app.dto.HourlySchedule;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Schedule;
-import edu.sm.app.dto.HourlySchedule;
-import edu.sm.app.service.ScheduleService;
 import edu.sm.app.service.RecipientService;
+import edu.sm.app.service.ScheduleService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,16 +77,22 @@ public class ScheduleController {
     @GetMapping("/api/monthly")
     @ResponseBody
     public ResponseEntity<?> getMonthlySchedules(
-            @RequestParam Integer recId,
-            @RequestParam Integer year,
-            @RequestParam Integer month) {
+            @RequestParam(required = false) Integer recId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+
+        if (recId == null || startDate == null || endDate == null) {
+            return ResponseEntity.badRequest().body(
+                    Map.of("success", false, "message", "recId, startDate, and endDate are required.")
+            );
+        }
 
         try {
-            List<Schedule> schedules = scheduleService.getSchedulesByMonth(recId, year, month);
-            log.info("월별 일정 조회 - recId: {}, {}/{}, 개수: {}", recId, year, month, schedules.size());
+            List<Schedule> schedules = scheduleService.getSchedulesByDateRange(recId, startDate, endDate);
+            log.info("날짜 범위 일정 조회 - recId: {}, {} ~ {}, 개수: {}", recId, startDate, endDate, schedules.size());
             return ResponseEntity.ok(schedules);
         } catch (Exception e) {
-            log.error("월별 일정 조회 실패 - recId: {}", recId, e);
+            log.error("날짜 범위 일정 조회 실패 - recId: {}", recId, e);
             return ResponseEntity.badRequest().body(
                     Map.of("success", false, "message", "일정 조회 실패: " + e.getMessage())
             );
@@ -151,8 +159,16 @@ public class ScheduleController {
             log.info("일정 등록 - recId: {}, schedName: {}", schedule.getRecId(), schedule.getSchedName());
 
             int count = scheduleService.createSchedule(schedule);
-            result.put("success", count > 0);
-            result.put("schedId", schedule.getSchedId());
+
+            if (count > 0) {
+                // Fetch the full schedule object to return it
+                Schedule newSchedule = scheduleService.getScheduleById(schedule.getSchedId());
+                result.put("success", true);
+                result.put("schedule", newSchedule);
+            } else {
+                result.put("success", false);
+                result.put("message", "일정 등록에 실패했습니다.");
+            }
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -171,7 +187,15 @@ public class ScheduleController {
             log.info("일정 수정 - schedId: {}", schedule.getSchedId());
 
             int count = scheduleService.updateSchedule(schedule);
-            result.put("success", count > 0);
+
+            if (count > 0) {
+                Schedule updatedSchedule = scheduleService.getScheduleById(schedule.getSchedId());
+                result.put("success", true);
+                result.put("schedule", updatedSchedule);
+            } else {
+                result.put("success", false);
+                result.put("message", "일정 수정에 실패했거나 변경된 내용이 없습니다.");
+            }
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
