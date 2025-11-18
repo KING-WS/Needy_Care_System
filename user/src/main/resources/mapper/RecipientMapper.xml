@@ -4,7 +4,7 @@
 
 <mapper namespace="edu.sm.app.repository.RecipientRepository">
 
-    <!-- custId로 돌봄 대상자 목록 조회 (삭제되지 않은 것만) -->
+    <!-- custId로 돌봄 대상자 목록 조회 -->
     <select id="selectRecipientsByCustId" resultType="edu.sm.app.dto.Recipient">
         SELECT
             rec_id AS recId,
@@ -23,7 +23,7 @@
             rec_regdate AS recRegdate,
             rec_update AS recUpdate,
             rec_health_needs AS recHealthNeeds
-        FROM Care_Recipient
+        FROM care_recipient
         WHERE cust_id = #{custId}
           AND is_deleted = 'N'
         ORDER BY rec_regdate DESC
@@ -48,7 +48,7 @@
             rec_regdate AS recRegdate,
             rec_update AS recUpdate,
             rec_health_needs AS recHealthNeeds
-        FROM Care_Recipient
+        FROM care_recipient
         WHERE rec_id = #{recId}
           AND is_deleted = 'N'
     </select>
