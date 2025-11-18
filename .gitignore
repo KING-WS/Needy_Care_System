@@ -3,6 +3,7 @@
 
 # Ignore shop directory
 shop/
+img/
 
 # YML 파일
 application-dev.yml
