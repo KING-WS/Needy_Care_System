@@ -1,12 +1,18 @@
 package edu.sm.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.aiservice.AiImageService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -19,6 +25,7 @@ import java.util.Map;
 public class CCTVController {
 
     private final AiImageService aiImageService;
+    private final ObjectMapper objectMapper; // JSON 파싱을 위해 ObjectMapper 주입
     String dir = "cctv/";
 
     @RequestMapping("")
@@ -27,7 +34,6 @@ public class CCTVController {
         model.addAttribute("left", dir + "left");
         return "home";
     }
-
 
     @ResponseBody
     @PostMapping("/analyze")
@@ -38,37 +44,64 @@ public class CCTVController {
             return Map.of("activity", "이미지 없음", "alert", "없음");
         }
 
+        // AI에게 JSON 형식의 구체적인 답변을 요청하는 프롬프트
         String prompt = """
-                Analyze the attached image for any potential dangers to the person in it.
-                Look for signs of falls, medical emergencies, fire, intruders, or other hazards.
-                Your response MUST start with one of two keywords: 'DANGER' or 'SAFE'.
-                If danger is detected, briefly describe the danger after the keyword.
-                Example for danger: 'DANGER: The person appears to have fallen.'
-                Example for safe: 'SAFE: The person is sitting on a chair and appears to be fine.'
-                """;
+            You are a safety monitoring AI expert. Analyze the image for any potential dangers to the person in it.
+            Your response MUST be a JSON object and nothing else.
+            The JSON object must contain these three fields:
+            1. "status": Must be either "DANGER" or "SAFE".
+            2. "description": A detailed description, in Korean, of what you see in the image.
+            3. "confidence": Your confidence level in this analysis, from 0.0 to 1.0.
+
+            Example for a dangerous situation:
+            {
+              "status": "DANGER",
+              "description": "노인이 바닥에 쓰러져 움직이지 않습니다. 즉각적인 조치가 필요해 보입니다.",
+              "confidence": 0.95
+            }
+            
+            Example for a safe situation:
+            {
+              "status": "SAFE",
+              "description": "사람이 의자에 앉아 TV를 보고 있으며, 특이사항은 없습니다.",
+              "confidence": 0.98
+            }
+            """;
         String analysisResult = aiImageService.imageAnalysis2(prompt, attach.getContentType(), attach.getBytes());
-        log.info("AI Response: {}", analysisResult);
+        log.info("AI Raw Response: {}", analysisResult);
 
         String activity = "상태 분석 중...";
         String alert = "없음";
 
-        if (analysisResult != null) {
-            analysisResult = analysisResult.trim();
-            if (analysisResult.startsWith("DANGER")) {
-                activity = "위험 감지!";
-                alert = analysisResult; // 'DANGER: The person appears to have fallen.'
-            } else if (analysisResult.startsWith("SAFE")) {
-                activity = "안전 상태";
-                // 'SAFE: ...' 에서 'SAFE: ' 부분을 제거하고 설명만 남김
+        // AI 응답에서 JSON 부분만 추출하는 전처리 로직 추가
+        String cleanedJson = analysisResult;
+        int firstBrace = cleanedJson.indexOf('{');
+        int lastBrace = cleanedJson.lastIndexOf('}');
+
+        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+            cleanedJson = cleanedJson.substring(firstBrace, lastBrace + 1);
+        }
+        log.info("Cleaned JSON for parsing: {}", cleanedJson);
+
+        try {
+            JsonNode rootNode = objectMapper.readTree(cleanedJson);
+            String status = rootNode.path("status").asText();
+            String description = rootNode.path("description").asText("분석 내용 없음");
+
+            if ("DANGER".equals(status)) {
+                activity = "!!! 위험 감지 !!!";
+                alert = description; // AI가 생성한 구체적인 한글 설명
+            } else if ("SAFE".equals(status)) {
+                activity = description; // AI가 생성한 구체적인 한글 설명
                 alert = "없음";
-                activity = analysisResult.substring(5).trim();
             } else {
-                activity = "분석 결과 불명확";
-                alert = "없음";
+                activity = "분석 상태 불명확";
+                alert = description;
             }
-        } else {
-            activity = "AI 서버 응답 없음";
-            alert = "없음";
+        } catch (JsonProcessingException e) {
+            log.error("Failed to parse AI response JSON", e);
+            activity = "AI 응답 파싱 실패";
+            alert = analysisResult; // 파싱 실패 시 원본 응답을 보여줌
         }
 
         return Map.of("activity", activity, "alert", alert);
