@@ -224,9 +224,16 @@
 
 <div class="detail-container">
     <div class="detail-header">
-        <div class="detail-avatar">
-            <i class="bi bi-person-fill"></i>
-        </div>
+    <div class="detail-avatar">
+        <c:choose>
+            <c:when test="${not empty recipient.recPhotoUrl}">
+                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="${recipient.recName}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+            </c:when>
+            <c:otherwise>
+                <i class="bi bi-person-fill"></i>
+            </c:otherwise>
+        </c:choose>
+    </div>
         <h1 class="detail-name">${recipient.recName}</h1>
         <c:choose>
             <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
