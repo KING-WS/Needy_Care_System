@@ -55,10 +55,10 @@ app:
   url:
     websocketurl: https://192.168.1.6:8443/
   dir:
-    imgsdir: file:///C:/Needy_Care_System/imgs/     # 화면 출력 용
-    uploadimgsdir: C:/Needy_Care_System/imgs/    # 파일 Write 용
-    logsdir: file:///C:/Needy_Care_System/logs/    # logs 화면 출력용
-    logsdirRead : C:/Needy_Care_System/logs/ #
+    imgsdir: file:///C:/smjava/Needy_Care_System/imgs/     # 화면 출력 용
+    uploadimgsdir: C:/smjava/Needy_Care_System/imgs/    # 파일 Write 용
+    logsdir: file:///C:/smjava/Needy_Care_System/logs/    # logs 화면 출력용
+    logsdirRead : C:/smjava/Needy_Care_System/logs/ #
   key:
     skey: ${MY_KEY}
     algo: PBEWithMD5AndDES
