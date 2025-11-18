@@ -220,18 +220,19 @@
     // ✅ 수정: Controller에서 model로 전달받은 selectedRecipient 사용
     let currentRecId = ${not empty selectedRecipient ? selectedRecipient.recId : 0};
 
-    // 노약자 변경 함수 추가
+    // 노약자 변경 함수 (URL 수정)
     function changeRecipient() {
         const recId = document.getElementById('recipientSelect').value;
         if (recId) {
-            location.href = '/schedule/center?recId=' + recId;
+            // BUG FIX: Controller 경로에 맞게 '/schedule'로 수정
+            location.href = '/schedule?recId=' + recId;
         }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        // recId가 없으면 경고
-        if (currentRecId === 0) {
-            alert('등록된 돌봄 대상자가 없습니다.');
+        // recId가 없으면 경고 후, 캘린더 로드를 막음
+        if (!currentRecId || currentRecId === 0) {
+            document.getElementById('calendar').innerHTML = '<div style="text-align:center; padding:40px; color:red;">돌봄 대상자 정보를 불러오는 데 실패했습니다. 관리자에게 문의하세요.</div>';
             return;
         }
 
@@ -264,11 +265,73 @@
                 loadScheduleDetail(info.event.id);
             },
 
-            datesSet: function(dateInfo) {
-                loadMonthlySchedules(dateInfo.start);
+            events: function(fetchInfo, successCallback, failureCallback) {
+                const selectedRecId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId;
+
+                if (!selectedRecId || selectedRecId === 0 || selectedRecId === "0") {
+                    const error = new Error("돌봄 대상자 ID가 없습니다. ID: " + selectedRecId);
+                    failureCallback(error);
+                    return;
+                }
+
+                if (!fetchInfo || !fetchInfo.start || !fetchInfo.end) {
+                    const error = new Error("날짜 정보(fetchInfo)가 올바르지 않습니다.");
+                    failureCallback(error);
+                    return;
+                }
+
+                // FullCalendar의 end 날짜는 exclusive이므로, inclusive 쿼리를 위해 하루를 뺍니다.
+                const endDate = new Date(fetchInfo.end);
+                endDate.setDate(endDate.getDate() - 1);
+
+                const startDateStr = fetchInfo.start.toISOString().split('T')[0];
+                const endDateStr = endDate.toISOString().split('T')[0];
+
+                const url = '/schedule/api/monthly?recId=' + selectedRecId + '&startDate=' + startDateStr + '&endDate=' + endDateStr;
+
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) {
+                            throw new Error(`서버 응답 오류: ${res.status}`);
+                        }
+                        const contentType = res.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            return res.json();
+                        } else {
+                            return []; // JSON이 아니면 빈 배열로 처리
+                        }
+                    })
+                    .then(data => {
+                        if (data && Array.isArray(data)) {
+                            const events = data.map(schedule => ({
+                                id: schedule.schedId,
+                                title: schedule.schedName,
+                                start: schedule.schedDate,
+                                backgroundColor: '#667eea',
+                                borderColor: '#667eea'
+                            }));
+                            successCallback(events);
+                        } else {
+                             // 데이터가 비어있는 경우 (200 OK 이지만 내용이 없는 경우)
+                            successCallback([]);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("월별 일정 로딩 중 오류 발생:", error);
+                        failureCallback(error);
+                    });
             },
 
-            events: []
+            eventDidMount: function() {
+                updateStats();
+            },
+
+            eventSources: [
+                {
+                    id: 'monthlySchedules',
+                    className: 'monthly-schedules'
+                }
+            ]
         });
 
         calendar.render();
@@ -287,31 +350,16 @@
         document.getElementById('deleteHourlyBtn').addEventListener('click', deleteHourlySchedule);
     });
 
-    // 월별 일정 로드
-    function loadMonthlySchedules(date) {
-        const year = date.getFullYear();
-        const month = date.getMonth() + 1;
-
-        fetch(`/schedule/api/monthly?recId=${currentRecId}&year=${year}&month=${month}`)
-            .then(res => res.json())
-            .then(data => {
-                calendar.removeAllEvents();
-                data.forEach(schedule => {
-                    calendar.addEvent({
-                        id: schedule.schedId,
-                        title: schedule.schedName,
-                        start: schedule.schedDate,
-                        backgroundColor: '#667eea',
-                        borderColor: '#667eea'
-                    });
-                });
-                updateStats();
-            });
+    // 월별 일정 다시 로드
+    function loadMonthlySchedules() {
+        if (calendar) {
+            calendar.refetchEvents();
+        }
     }
 
     // 일정 상세 로드
     function loadScheduleDetail(schedId) {
-        fetch(`/schedule/api/schedule/${schedId}`)
+        fetch('/schedule/api/schedule/' + schedId)
             .then(res => res.json())
             .then(schedule => {
                 currentSchedule = schedule;
@@ -328,7 +376,7 @@
 
     // 시간대별 일정 로드
     function loadHourlySchedules(schedId) {
-        fetch(`/schedule/api/hourly/${schedId}`)
+        fetch('/schedule/api/hourly/' + schedId)
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('hourlySchedulesContainer');
@@ -392,7 +440,7 @@
         }
 
         const data = {
-            recId: currentRecId,
+            recId: document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId,
             schedName: schedName,
             schedDate: schedDate,
             schedStartTime: schedStartTime,
@@ -414,8 +462,32 @@
                 if (result.success) {
                     alert(schedId ? '수정되었습니다.' : '등록되었습니다.');
                     scheduleModal.hide();
-                    loadMonthlySchedules(calendar.getDate());
+
+                    const newEvent = {
+                        id: result.schedule.schedId,
+                        title: result.schedule.schedName,
+                        start: result.schedule.schedDate,
+                        backgroundColor: '#667eea',
+                        borderColor: '#667eea'
+                    };
+
+                    if (schedId) {
+                        // 기존 이벤트 업데이트
+                        const existingEvent = calendar.getEventById(schedId);
+                        if (existingEvent) {
+                            existingEvent.remove();
+                        }
+                    }
+                    calendar.addEvent(newEvent);
+                    updateStats(); // 통계 업데이트
+
+                } else {
+                    alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
+            })
+            .catch(error => {
+                console.error("일정 저장 중 오류 발생:", error);
+                alert("일정 저장 중 오류가 발생했습니다.");
             });
     }
 
@@ -424,14 +496,26 @@
         if (!confirm('일정을 삭제하시겠습니까?')) return;
 
         const schedId = document.getElementById('schedId').value;
-        fetch(`/schedule/api/schedule/${schedId}`, {method: 'DELETE'})
+        fetch('/schedule/api/schedule/' + schedId, {method: 'DELETE'})
             .then(res => res.json())
             .then(result => {
                 if (result.success) {
                     alert('삭제되었습니다.');
                     scheduleModal.hide();
-                    loadMonthlySchedules(calendar.getDate());
+                    dayDetailModal.hide(); // 상세 모달도 닫기
+
+                    const eventToRemove = calendar.getEventById(schedId);
+                    if (eventToRemove) {
+                        eventToRemove.remove();
+                    }
+                    updateStats(); // 통계 업데이트
+                } else {
+                    alert('삭제에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
+            })
+            .catch(error => {
+                console.error("일정 삭제 중 오류 발생:", error);
+                alert("일정 삭제 중 오류가 발생했습니다.");
             });
     }
 
@@ -452,7 +536,7 @@
 
     // 시간대별 일정 수정
     function editHourlySchedule(hourlySchedId) {
-        fetch(`/schedule/api/hourly/${hourlySchedId}`)
+        fetch('/schedule/api/hourly/' + hourlySchedId)
             .then(res => res.json())
             .then(hourly => {
                 document.getElementById('hourlyModalTitle').innerHTML = '<i class="fas fa-edit"></i> 시간대별 일정 수정';
@@ -517,7 +601,7 @@
         const hourlySchedId = document.getElementById('hourlySchedId').value;
         const schedId = document.getElementById('parentSchedId').value;
 
-        fetch(`/schedule/api/hourly/${hourlySchedId}`, {method: 'DELETE'})
+        fetch('/schedule/api/hourly/' + hourlySchedId, {method: 'DELETE'})
             .then(res => res.json())
             .then(result => {
                 if (result.success) {

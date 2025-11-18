@@ -17,8 +17,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/imgs/**").addResourceLocations(imgdir);
-        registry.addResourceHandler("/logs/**").addResourceLocations(logdir);
+        // 프로젝트 내부 imgs 폴더를 웹에서 접근 가능하게 설정
+        registry.addResourceHandler("/imgs/**")
+                .addResourceLocations(imgdir);
+        registry.addResourceHandler("/logs/**")
+                .addResourceLocations(logdir);
+        
+        log.info("이미지 저장 경로 설정: {}", imgdir);
     }
 
     @Override

@@ -34,4 +34,22 @@ public class RecipientService {
             throw new RuntimeException("돌봄 대상자 등록 실패");
         }
     }
+
+    // 돌봄 대상자 삭제 (논리 삭제)
+    public void deleteRecipient(Integer recId) {
+        log.info("돌봄 대상자 삭제 - recId: {}", recId);
+        int result = recipientRepository.deleteRecipient(recId);
+        if (result <= 0) {
+            throw new RuntimeException("돌봄 대상자 삭제 실패");
+        }
+    }
+
+    // 돌봄 대상자 수정
+    public void updateRecipient(Recipient recipient) {
+        log.info("돌봄 대상자 수정 - recId: {}, recName: {}", recipient.getRecId(), recipient.getRecName());
+        int result = recipientRepository.updateRecipient(recipient);
+        if (result <= 0) {
+            throw new RuntimeException("돌봄 대상자 수정 실패");
+        }
+    }
 }

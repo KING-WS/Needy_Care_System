@@ -2,7 +2,9 @@ package edu.sm.controller;
 
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Cust;
+import edu.sm.app.dto.HealthData;
 import edu.sm.app.service.RecipientService;
+import edu.sm.app.service.HealthDataService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,7 @@ import java.util.List;
 public class HomeController {
     
     private final RecipientService recipientService;
+    private final HealthDataService healthDataService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -42,6 +45,22 @@ public class HomeController {
                     return "redirect:/recipient/prompt";
                 }
                 log.info("등록된 노약자 수: {}", recipients.size());
+                
+                // 첫 번째 노약자의 정보와 건강 데이터 조회
+                if (!recipients.isEmpty()) {
+                    Recipient firstRecipient = recipients.get(0);
+                    model.addAttribute("recipient", firstRecipient);
+                    
+                    // 최신 혈압 데이터 조회
+                    try {
+                        HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
+                            firstRecipient.getRecId(), "혈압");
+                        model.addAttribute("bloodPressure", latestBloodPressure);
+                        log.info("혈압 데이터 조회 성공 - recId: {}", firstRecipient.getRecId());
+                    } catch (Exception e) {
+                        log.warn("혈압 데이터 조회 실패 - recId: {}", firstRecipient.getRecId());
+                    }
+                }
             } catch (Exception e) {
                 log.error("노약자 조회 중 오류", e);
             }
@@ -71,6 +90,21 @@ public class HomeController {
                 if (recipients == null || recipients.isEmpty()) {
                     log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
                     return "redirect:/recipient/prompt";
+                }
+                
+                // 첫 번째 노약자의 정보와 건강 데이터 조회
+                if (!recipients.isEmpty()) {
+                    Recipient firstRecipient = recipients.get(0);
+                    model.addAttribute("recipient", firstRecipient);
+                    
+                    // 최신 혈압 데이터 조회
+                    try {
+                        HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
+                            firstRecipient.getRecId(), "혈압");
+                        model.addAttribute("bloodPressure", latestBloodPressure);
+                    } catch (Exception e) {
+                        log.warn("혈압 데이터 조회 실패");
+                    }
                 }
             } catch (Exception e) {
                 log.error("노약자 조회 중 오류", e);

@@ -40,6 +40,24 @@
         ORDER BY sched_date
     </select>
 
+    <select id="selectSchedulesByDateRange" resultType="edu.sm.app.dto.Schedule">
+        SELECT
+            sched_id AS schedId,
+            rec_id AS recId,
+            sched_date AS schedDate,
+            sched_name AS schedName,
+            sched_start_time AS schedStartTime,
+            sched_end_time AS schedEndTime,
+            is_deleted AS isDeleted,
+            sched_regdate AS schedRegdate,
+            sched_update AS schedUpdate
+        FROM Schedule
+        WHERE rec_id = #{recId}
+          AND sched_date BETWEEN #{startDate} AND #{endDate}
+          AND is_deleted = 'N'
+        ORDER BY sched_date
+    </select>
+
     <select id="selectScheduleById" resultType="edu.sm.app.dto.Schedule">
         SELECT 
             sched_id AS schedId,
@@ -60,7 +78,7 @@
         VALUES (#{recId}, #{schedDate}, #{schedName}, #{schedStartTime}, #{schedEndTime}, 'N', NOW(), NOW())
     </insert>
 
-    <update id="updateSchedule">
+    <update id="updateSchedule" parameterType="edu.sm.app.dto.Schedule">
         UPDATE Schedule
         SET sched_name = #{schedName},
             sched_start_time = #{schedStartTime},
@@ -69,7 +87,7 @@
         WHERE sched_id = #{schedId}
     </update>
 
-    <update id="deleteSchedule">
+    <update id="deleteSchedule" parameterType="int">
         UPDATE Schedule
         SET is_deleted = 'Y',
             sched_update = CURRENT_TIMESTAMP
