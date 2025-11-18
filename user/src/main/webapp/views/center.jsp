@@ -345,9 +345,6 @@
                                     </span>
                                     <span>내 주변 케어 지도</span>
                                 </div>
-                                <div class="map-desc">
-                                    검색
-                                </div>
                                 <div class="map-address-panel">
                                     지도에서 사용자가 핀찍은 주소 목록
                                 </div>
@@ -370,7 +367,7 @@
                                     </button>
                                     <button type="submit" class="map-tab">
                                         <i class="fas fa-route"></i>
-                                        <span>검색</span>
+                                        <span><input placeholder="위치 검색" type="text" ></span>
                                     </button>
                                 </div>
                                 <div class="map-area">
