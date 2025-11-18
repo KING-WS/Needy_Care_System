@@ -177,6 +177,18 @@
             
             <div class="form-group">
                 <label class="form-label">
+                    대상자 유형<span class="required">*</span>
+                </label>
+                <select name="recTypeCode" class="form-input" required>
+                    <option value="">선택하세요</option>
+                    <option value="ELDERLY">노인/고령자</option>
+                    <option value="PREGNANT">임산부</option>
+                    <option value="DISABLED">장애인</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
                     생년월일<span class="required">*</span>
                 </label>
                 <input type="date" name="recBirthday" class="form-input" required>
@@ -264,11 +276,12 @@
     // 폼 유효성 검사
     document.querySelector('.register-form').addEventListener('submit', function(e) {
         const recName = document.querySelector('input[name="recName"]').value.trim();
+        const recTypeCode = document.querySelector('select[name="recTypeCode"]').value;
         const recBirthday = document.querySelector('input[name="recBirthday"]').value;
         const recGender = document.querySelector('input[name="recGender"]:checked');
         const recAddress = document.querySelector('input[name="recAddress"]').value.trim();
         
-        if (!recName || !recBirthday || !recGender || !recAddress) {
+        if (!recName || !recTypeCode || !recBirthday || !recGender || !recAddress) {
             e.preventDefault();
             alert('필수 항목을 모두 입력해주세요.');
             return false;
