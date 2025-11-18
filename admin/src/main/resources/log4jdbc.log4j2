@@ -3,3 +3,6 @@ log4jdbc.drivers=com.mysql.cj.jdbc.Driver
 
 log4jdbc.spylogdelegator.name=net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
 log4jdbc.dump.sql.maxlinelength=0
+
+# JDBC 호출(Connection.isValid 등)에 대한 감사 로그를 비활성화합니다.
+log4jdbc.audit.driver.class=off
