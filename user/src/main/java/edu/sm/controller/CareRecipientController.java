@@ -64,10 +64,10 @@ public class CareRecipientController {
     @PostMapping("/register")
     public String register(
             @RequestParam("recName") String recName,
+            @RequestParam("recTypeCode") String recTypeCode,
             @RequestParam("recBirthday") String recBirthday,
             @RequestParam("recGender") String recGender,
             @RequestParam("recAddress") String recAddress,
-            @RequestParam(value = "recTypeCode", defaultValue = "TYPE01") String recTypeCode,
             @RequestParam(value = "recMedHistory", required = false) String recMedHistory,
             @RequestParam(value = "recAllergies", required = false) String recAllergies,
             @RequestParam(value = "recSpecNotes", required = false) String recSpecNotes,
