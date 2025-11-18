@@ -6,28 +6,58 @@
 
     <!-- Schedule CRUD -->
     <select id="selectSchedulesByRecId" resultType="edu.sm.app.dto.Schedule">
-        SELECT * FROM Schedule
+        SELECT 
+            sched_id AS schedId,
+            rec_id AS recId,
+            sched_date AS schedDate,
+            sched_name AS schedName,
+            sched_start_time AS schedStartTime,
+            sched_end_time AS schedEndTime,
+            is_deleted AS isDeleted,
+            sched_regdate AS schedRegdate,
+            sched_update AS schedUpdate
+        FROM Schedule
         WHERE rec_id = #{recId} AND is_deleted = 'N'
         ORDER BY sched_date DESC
     </select>
 
     <select id="selectSchedulesByRecIdAndMonth" resultType="edu.sm.app.dto.Schedule">
-        SELECT * FROM Schedule
+        SELECT 
+            sched_id AS schedId,
+            rec_id AS recId,
+            sched_date AS schedDate,
+            sched_name AS schedName,
+            sched_start_time AS schedStartTime,
+            sched_end_time AS schedEndTime,
+            is_deleted AS isDeleted,
+            sched_regdate AS schedRegdate,
+            sched_update AS schedUpdate
+        FROM Schedule
         WHERE rec_id = #{recId}
             AND YEAR(sched_date) = #{year}
-          AND MONTH(sched_date) = #{month}
-          AND is_deleted = 'N'
+            AND MONTH(sched_date) = #{month}
+            AND is_deleted = 'N'
         ORDER BY sched_date
     </select>
 
     <select id="selectScheduleById" resultType="edu.sm.app.dto.Schedule">
-        SELECT * FROM Schedule
+        SELECT 
+            sched_id AS schedId,
+            rec_id AS recId,
+            sched_date AS schedDate,
+            sched_name AS schedName,
+            sched_start_time AS schedStartTime,
+            sched_end_time AS schedEndTime,
+            is_deleted AS isDeleted,
+            sched_regdate AS schedRegdate,
+            sched_update AS schedUpdate
+        FROM Schedule
         WHERE sched_id = #{schedId} AND is_deleted = 'N'
     </select>
 
     <insert id="insertSchedule" useGeneratedKeys="true" keyProperty="schedId">
-        INSERT INTO Schedule (rec_id, sched_date, sched_name, sched_start_time, sched_end_time, is_deleted)
-        VALUES (#{recId}, #{schedDate}, #{schedName}, #{schedStartTime}, #{schedEndTime}, 'N')
+        INSERT INTO Schedule (rec_id, sched_date, sched_name, sched_start_time, sched_end_time, is_deleted, sched_regdate, sched_update)
+        VALUES (#{recId}, #{schedDate}, #{schedName}, #{schedStartTime}, #{schedEndTime}, 'N', NOW(), NOW())
     </insert>
 
     <update id="updateSchedule">

@@ -4,7 +4,7 @@
 
 <mapper namespace="edu.sm.app.repository.RecipientRepository">
 
-    <!-- custId로 돌봄 대상자 목록 조회 -->
+    <!-- custId로 돌봄 대상자 목록 조회 (삭제되지 않은 것만) -->
     <select id="selectRecipientsByCustId" resultType="edu.sm.app.dto.Recipient">
         SELECT
             rec_id AS recId,
@@ -23,7 +23,7 @@
             rec_regdate AS recRegdate,
             rec_update AS recUpdate,
             rec_health_needs AS recHealthNeeds
-        FROM care_recipient
+        FROM Care_Recipient
         WHERE cust_id = #{custId}
           AND is_deleted = 'N'
         ORDER BY rec_regdate DESC
@@ -48,9 +48,70 @@
             rec_regdate AS recRegdate,
             rec_update AS recUpdate,
             rec_health_needs AS recHealthNeeds
-        FROM care_recipient
+        FROM Care_Recipient
         WHERE rec_id = #{recId}
           AND is_deleted = 'N'
     </select>
+
+    <!-- 돌봄 대상자 등록 -->
+    <insert id="insertRecipient" parameterType="edu.sm.app.dto.Recipient" useGeneratedKeys="true" keyProperty="recId">
+        INSERT INTO Care_Recipient (
+            rec_type_code, cust_id, rec_name, rec_birthday, rec_gender,
+            rec_kiosk_code, rec_address, rec_photo_url, rec_med_history,
+            rec_allergies, rec_spec_notes, is_deleted, rec_regdate, rec_update, rec_health_needs
+        )
+        VALUES (
+            #{recTypeCode}, #{custId}, #{recName}, #{recBirthday}, #{recGender},
+            #{recKioskCode}, #{recAddress}, #{recPhotoUrl}, #{recMedHistory},
+            #{recAllergies}, #{recSpecNotes}, 'N', NOW(), NOW(), #{recHealthNeeds}
+        )
+    </insert>
+
+    <!-- 돌봄 대상자 수정 -->
+    <update id="updateRecipient" parameterType="edu.sm.app.dto.Recipient">
+        UPDATE Care_Recipient SET
+        <if test="recTypeCode != null and !recTypeCode.equals('')">
+            rec_type_code = #{recTypeCode},
+        </if>
+        <if test="recName != null and !recName.equals('')">
+            rec_name = #{recName},
+        </if>
+        <if test="recBirthday != null">
+            rec_birthday = #{recBirthday},
+        </if>
+        <if test="recGender != null and !recGender.equals('')">
+            rec_gender = #{recGender},
+        </if>
+        <if test="recKioskCode != null">
+            rec_kiosk_code = #{recKioskCode},
+        </if>
+        <if test="recAddress != null and !recAddress.equals('')">
+            rec_address = #{recAddress},
+        </if>
+        <if test="recPhotoUrl != null">
+            rec_photo_url = #{recPhotoUrl},
+        </if>
+        <if test="recMedHistory != null">
+            rec_med_history = #{recMedHistory},
+        </if>
+        <if test="recAllergies != null">
+            rec_allergies = #{recAllergies},
+        </if>
+        <if test="recSpecNotes != null">
+            rec_spec_notes = #{recSpecNotes},
+        </if>
+        <if test="recHealthNeeds != null">
+            rec_health_needs = #{recHealthNeeds},
+        </if>
+        rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </update>
+
+    <!-- 돌봄 대상자 삭제 (논리 삭제) -->
+    <delete id="deleteRecipient" parameterType="Integer">
+        UPDATE Care_Recipient
+        SET is_deleted = 'Y', rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </delete>
 
 </mapper>

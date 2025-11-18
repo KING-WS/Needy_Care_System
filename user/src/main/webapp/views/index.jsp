@@ -24,10 +24,16 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
@@ -392,8 +398,9 @@
 
         /* Contact Section */
         #contact {
-            padding: 80px 0;
+            padding: 150px 0 150px 0;
             background: var(--light-bg);
+            margin-bottom: 0;
         }
 
         .contact-info-card {
@@ -523,12 +530,19 @@
             box-shadow: 0 8px 20px rgba(30, 136, 229, 0.4);
         }
 
+        /* Main Content Wrapper */
+        main {
+            flex: 1;
+        }
+
         /* Footer */
         footer {
             background: var(--secondary-color);
             color: white;
             padding: 40px 0 20px;
             text-align: center;
+            flex-shrink: 0;
+            margin-top: auto;
         }
 
         .footer-social a {
@@ -544,7 +558,7 @@
 
         /* Pricing Section */
         #pricing {
-            padding: 80px 0;
+            padding: 80px 0 150px 0;
         }
 
         .pricing-card {
@@ -814,6 +828,7 @@
     </nav>
 </header>
 
+<main>
 <!-- Hero Section -->
 <section id="hero">
     <div class="container">
@@ -1049,6 +1064,7 @@
         </div>
     </div>
 </section>
+</main>
 
 <!-- Footer -->
 <footer>

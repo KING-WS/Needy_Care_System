@@ -13,4 +13,13 @@ public interface RecipientRepository {
 
     // recId로 특정 돌봄 대상자 조회
     Recipient selectRecipientById(@Param("recId") Integer recId);
+    
+    // 돌봄 대상자 등록
+    int insertRecipient(Recipient recipient);
+    
+    // 돌봄 대상자 수정
+    int updateRecipient(Recipient recipient);
+    
+    // 돌봄 대상자 삭제 (논리 삭제)
+    int deleteRecipient(@Param("recId") Integer recId);
 }

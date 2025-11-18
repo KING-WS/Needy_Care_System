@@ -1,16 +1,24 @@
 package edu.sm.controller;
 
+import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Cust;
+import edu.sm.app.service.RecipientService;
 import jakarta.servlet.http.HttpSession;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @Slf4j
+@RequiredArgsConstructor
 public class HomeController {
+    
+    private final RecipientService recipientService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -25,6 +33,19 @@ public class HomeController {
         
         if (loginUser != null) {
             log.info("로그인된 사용자 접속: {}", loginUser.getCustName());
+            
+            // 노약자 등록 여부 체크
+            try {
+                List<Recipient> recipients = recipientService.getRecipientsByCustId(loginUser.getCustId());
+                if (recipients == null || recipients.isEmpty()) {
+                    log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
+                    return "redirect:/recipient/prompt";
+                }
+                log.info("등록된 노약자 수: {}", recipients.size());
+            } catch (Exception e) {
+                log.error("노약자 조회 중 오류", e);
+            }
+            
             model.addAttribute("loginUser", loginUser);
             return "home";  // home.jsp로
         }
@@ -41,6 +62,19 @@ public class HomeController {
         if (loginUser == null) {
             log.warn("로그인하지 않은 사용자가 /home 접근 시도");
             return "redirect:/login";
+        }
+        
+        // 노약자 등록 여부 체크 (center 파라미터가 없을 때만)
+        if (center == null) {
+            try {
+                List<Recipient> recipients = recipientService.getRecipientsByCustId(loginUser.getCustId());
+                if (recipients == null || recipients.isEmpty()) {
+                    log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
+                    return "redirect:/recipient/prompt";
+                }
+            } catch (Exception e) {
+                log.error("노약자 조회 중 오류", e);
+            }
         }
         
         model.addAttribute("loginUser", loginUser);

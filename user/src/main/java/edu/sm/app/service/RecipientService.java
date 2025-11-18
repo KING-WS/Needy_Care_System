@@ -25,4 +25,13 @@ public class RecipientService {
         log.info("돌봄 대상자 조회 - recId: {}", recId);
         return recipientRepository.selectRecipientById(recId);
     }
+
+    // 돌봄 대상자 등록
+    public void registerRecipient(Recipient recipient) {
+        log.info("돌봄 대상자 등록 - recName: {}, custId: {}", recipient.getRecName(), recipient.getCustId());
+        int result = recipientRepository.insertRecipient(recipient);
+        if (result <= 0) {
+            throw new RuntimeException("돌봄 대상자 등록 실패");
+        }
+    }
 }

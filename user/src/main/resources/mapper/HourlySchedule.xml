@@ -6,21 +6,42 @@
 
     <!-- HourlySchedule CRUD -->
     <select id="selectHourlySchedulesBySchedId" resultType="edu.sm.app.dto.HourlySchedule">
-        SELECT * FROM Hourly_Schedule
+        SELECT 
+            hourly_sched_id AS hourlySchedId,
+            sched_id AS schedId,
+            hourly_sched_start_time AS hourlySchedStartTime,
+            hourly_sched_end_time AS hourlySchedEndTime,
+            hourly_sched_name AS hourlySchedName,
+            hourly_sched_content AS hourlySchedContent,
+            is_deleted AS isDeleted,
+            hourly_sched_regdate AS hourlySchedRegdate,
+            hourly_sched_update AS hourlySchedUpdate
+        FROM Hourly_Schedule
         WHERE sched_id = #{schedId} AND is_deleted = 'N'
         ORDER BY hourly_sched_start_time
     </select>
 
     <select id="selectHourlyScheduleById" resultType="edu.sm.app.dto.HourlySchedule">
-        SELECT * FROM Hourly_Schedule
+        SELECT 
+            hourly_sched_id AS hourlySchedId,
+            sched_id AS schedId,
+            hourly_sched_start_time AS hourlySchedStartTime,
+            hourly_sched_end_time AS hourlySchedEndTime,
+            hourly_sched_name AS hourlySchedName,
+            hourly_sched_content AS hourlySchedContent,
+            is_deleted AS isDeleted,
+            hourly_sched_regdate AS hourlySchedRegdate,
+            hourly_sched_update AS hourlySchedUpdate
+        FROM Hourly_Schedule
         WHERE hourly_sched_id = #{hourlySchedId} AND is_deleted = 'N'
     </select>
 
     <insert id="insertHourlySchedule" useGeneratedKeys="true" keyProperty="hourlySchedId">
         INSERT INTO Hourly_Schedule (sched_id, hourly_sched_start_time, hourly_sched_end_time,
-                                     hourly_sched_name, hourly_sched_content, is_deleted)
+                                     hourly_sched_name, hourly_sched_content, is_deleted,
+                                     hourly_sched_regdate, hourly_sched_update)
         VALUES (#{schedId}, #{hourlySchedStartTime}, #{hourlySchedEndTime},
-                #{hourlySchedName}, #{hourlySchedContent}, 'N')
+                #{hourlySchedName}, #{hourlySchedContent}, 'N', NOW(), NOW())
     </insert>
 
     <update id="updateHourlySchedule">
