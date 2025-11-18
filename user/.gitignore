@@ -36,4 +36,6 @@ out/
 ### VS Code ###
 .vscode/
 
-.env
+### 개인 개발 환경
+application-dev.yml
+application-pro.yml
