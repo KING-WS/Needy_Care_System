@@ -202,8 +202,8 @@
             transition: margin-left 0.3s ease, padding 0.3s ease;
             padding: 0 1rem 0 90px;
             margin-top: 80px;
-            flex: 1;
-            min-height: calc(100vh - 80px - 100px);
+            flex: 1 0 auto;
+            min-height: calc(100vh - 80px);
         }
 
         .main-content.sidebar-active {
@@ -289,7 +289,8 @@
             padding: 40px 0 20px;
             text-align: center;
             flex-shrink: 0;
-            margin-top: auto;
+            margin-top: 0;
+            width: 100%;
         }
 
         .footer-social a {
