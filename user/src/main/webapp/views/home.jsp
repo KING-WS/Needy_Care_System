@@ -1,4 +1,4 @@
-    <%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!DOCTYPE html>
@@ -9,6 +9,7 @@
     <title>Home - Aventro</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -201,8 +202,8 @@
             transition: margin-left 0.3s ease, padding 0.3s ease;
             padding: 0 1rem 0 90px;
             margin-top: 80px;
-            flex: 1;
-            min-height: calc(100vh - 80px - 100px);
+            flex: 1 0 auto;
+            min-height: calc(100vh - 80px);
         }
 
         .main-content.sidebar-active {
@@ -288,7 +289,8 @@
             padding: 40px 0 20px;
             text-align: center;
             flex-shrink: 0;
-            margin-top: auto;
+            margin-top: 0;
+            width: 100%;
         }
 
         .footer-social a {
@@ -533,7 +535,7 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">Aventro</a>
-            
+
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>">HOME</a></li>
@@ -542,7 +544,7 @@
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>">CCTV</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>">페이지</a></li>
             </ul>
-            
+
             <!-- 오른쪽: 사용자 정보 -->
             <c:choose>
                 <c:when test="${sessionScope.loginUser != null}">
@@ -646,7 +648,7 @@
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const mainContent = document.getElementById('mainContent');
-        
+
         if (sidebarToggle && sidebar) {
             // Toggle sidebar on button click
             sidebarToggle.addEventListener('click', function() {
@@ -654,7 +656,7 @@
                 sidebarOverlay.classList.toggle('active');
                 mainContent.classList.toggle('sidebar-active');
                 this.classList.toggle('active');
-                
+
                 // Change icon
                 const icon = this.querySelector('i');
                 if (sidebar.classList.contains('active')) {
@@ -665,14 +667,14 @@
                     icon.classList.add('fa-bars');
                 }
             });
-            
+
             // Close sidebar when clicking overlay
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
                 sidebarOverlay.classList.remove('active');
                 mainContent.classList.remove('sidebar-active');
                 sidebarToggle.classList.remove('active');
-                
+
                 const icon = sidebarToggle.querySelector('i');
                 icon.classList.remove('fa-times');
                 icon.classList.add('fa-bars');
@@ -708,10 +710,10 @@
 
             // Add sent message
             addMessage(message, 'sent');
-            
+
             // Clear input
             chatInput.value = '';
-            
+
             // Simulate response (실제로는 서버와 통신)
             setTimeout(function() {
                 addMessage('감사합니다. 문의사항을 확인했습니다. 담당자가 곧 답변드리겠습니다.', 'received');
@@ -722,20 +724,20 @@
         function addMessage(text, type) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${type}`;
-            
+
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
-            
+
             const time = document.createElement('div');
             time.className = 'message-time';
             const now = new Date();
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
-            
+
             messageDiv.appendChild(bubble);
             messageDiv.appendChild(time);
             chatMessages.appendChild(messageDiv);
-            
+
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }

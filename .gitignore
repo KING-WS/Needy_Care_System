@@ -3,6 +3,10 @@
 
 # Ignore shop directory
 shop/
+img/
+
+# 업로드된 이미지 파일 제외 (프로필 사진)
+user/src/main/webapp/imgs/profiles/*
 
 # YML 파일
 application-dev.yml

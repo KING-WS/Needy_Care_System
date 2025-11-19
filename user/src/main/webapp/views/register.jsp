@@ -212,7 +212,7 @@
     <div class="register-container">
         <div class="register-header">
             <h2>회원가입</h2>
-            <p>환자 및 보호자 정보를 입력해주세요</p>
+            <p>회원 정보를 입력해주세요</p>
         </div>
 
         <c:if test="${not empty error}">
@@ -228,13 +228,13 @@
         </c:if>
 
         <form action="/register" method="post" id="registerForm">
-            <!-- 로그인 ID -->
+            <!-- 이메일 -->
             <div class="form-group">
                 <label class="form-label">
-                    로그인 ID <span class="required">*</span>
+                    이메일 <span class="required">*</span>
                 </label>
-                <input type="text" name="username" class="form-control" 
-                       placeholder="아이디를 입력하세요" required>
+                <input type="email" name="custEmail" id="custEmail" class="form-control" 
+                       placeholder="이메일을 입력하세요" required>
             </div>
 
             <!-- 비밀번호 -->
@@ -243,10 +243,16 @@
                     비밀번호 <span class="required">*</span>
                 </label>
                 <div class="password-wrapper">
-                    <input type="password" name="password" id="password" 
-                           class="form-control" placeholder="비밀번호를 입력하세요" required>
+                    <input type="password" name="custPwd" id="password" 
+                           class="form-control" placeholder="비밀번호를 입력하세요 (8자 이상, 영문+숫자+특수문자)" 
+                           pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
+                           title="비밀번호는 8자 이상이며 영문, 숫자, 특수문자를 포함해야 합니다."
+                           required>
                     <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
                 </div>
+                <small class="form-text" style="color: #666; font-size: 12px; margin-top: 5px; display: block;">
+                    <i class="fas fa-info-circle"></i> 8자 이상, 영문+숫자+특수문자 조합
+                </small>
             </div>
 
             <!-- 비밀번호 확인 -->
@@ -261,40 +267,24 @@
                 </div>
             </div>
 
-            <!-- 환자명 -->
+            <!-- 이름 -->
             <div class="form-group">
                 <label class="form-label">
-                    환자명 <span class="required">*</span>
+                    이름 <span class="required">*</span>
                 </label>
-                <input type="text" name="patientName" class="form-control" 
-                       placeholder="환자 이름을 입력하세요" required>
+                <input type="text" name="custName" class="form-control" 
+                       placeholder="이름을 입력하세요" required>
             </div>
 
-            <!-- 환자 특징 -->
+            <!-- 전화번호 -->
             <div class="form-group">
                 <label class="form-label">
-                    환자 특징 <span class="required">*</span>
+                    전화번호 <span class="required">*</span>
                 </label>
-                <textarea name="patientFeature" class="form-control" 
-                          placeholder="환자의 특징이나 주의사항을 입력하세요" required></textarea>
-            </div>
-
-            <!-- 보호자명 -->
-            <div class="form-group">
-                <label class="form-label">
-                    보호자명 <span class="required">*</span>
-                </label>
-                <input type="text" name="guardianName" class="form-control" 
-                       placeholder="보호자 이름을 입력하세요" required>
-            </div>
-
-            <!-- 주소 -->
-            <div class="form-group">
-                <label class="form-label">
-                    주소 <span class="required">*</span>
-                </label>
-                <input type="text" name="address" class="form-control" 
-                       placeholder="주소를 입력하세요" required>
+                <input type="tel" name="custPhone" class="form-control" 
+                       placeholder="010-0000-0000" required
+                       pattern="[0-9]{3}-[0-9]{4}-[0-9]{4}"
+                       title="전화번호 형식: 010-0000-0000">
             </div>
 
             <button type="submit" class="btn-register">회원가입</button>
@@ -321,15 +311,47 @@
             }
         }
 
+        // 비밀번호 형식 검증 함수
+        function validatePassword(password) {
+            // 8자 이상, 영문+숫자+특수문자 조합
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+            return passwordRegex.test(password);
+        }
+
+        // 비밀번호 입력 시 실시간 검증
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const passwordField = this;
+            
+            if (password.length > 0 && !validatePassword(password)) {
+                passwordField.classList.add('error');
+                passwordField.setCustomValidity('비밀번호는 8자 이상이며 영문, 숫자, 특수문자를 포함해야 합니다.');
+            } else {
+                passwordField.classList.remove('error');
+                passwordField.setCustomValidity('');
+            }
+        });
+
         // 폼 제출 시 유효성 검사
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const passwordConfirm = document.getElementById('passwordConfirm').value;
             
+            // 비밀번호 형식 검증
+            if (!validatePassword(password)) {
+                e.preventDefault();
+                alert('비밀번호는 8자 이상이며 영문, 숫자, 특수문자를 포함해야 합니다.');
+                document.getElementById('password').classList.add('error');
+                document.getElementById('password').focus();
+                return false;
+            }
+            
+            // 비밀번호 확인 검증
             if (password !== passwordConfirm) {
                 e.preventDefault();
                 alert('비밀번호가 일치하지 않습니다.');
                 document.getElementById('passwordConfirm').classList.add('error');
+                document.getElementById('passwordConfirm').focus();
                 return false;
             }
             
