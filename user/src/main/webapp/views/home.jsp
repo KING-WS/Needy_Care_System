@@ -10,8 +10,9 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=9122c6ed65a3629b19d62bab6d93ffaf&libraries=services"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         :root {
             --primary-color: #3498db;
@@ -204,8 +205,8 @@
             transition: margin-left 0.3s ease, padding 0.3s ease;
             padding: 0 1rem 0 90px;
             margin-top: 80px;
-            flex: 1;
-            min-height: auto;
+            flex: 1 0 auto;
+            min-height: calc(100vh - 80px);
         }
 
         .main-content.sidebar-active {
@@ -291,7 +292,8 @@
             padding: 40px 0 20px;
             text-align: center;
             flex-shrink: 0;
-            margin-top: auto;
+            margin-top: 0;
+            width: 100%;
         }
 
         .footer-social a {
