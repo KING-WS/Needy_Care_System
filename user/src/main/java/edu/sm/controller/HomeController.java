@@ -3,8 +3,12 @@ package edu.sm.controller;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Cust;
 import edu.sm.app.dto.HealthData;
+import edu.sm.app.dto.Schedule;
+import edu.sm.app.dto.MapLocation;
 import edu.sm.app.service.RecipientService;
 import edu.sm.app.service.HealthDataService;
+import edu.sm.app.service.ScheduleService;
+import edu.sm.app.service.MapService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -22,6 +27,8 @@ public class HomeController {
     
     private final RecipientService recipientService;
     private final HealthDataService healthDataService;
+    private final ScheduleService scheduleService;
+    private final MapService mapService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -59,6 +66,37 @@ public class HomeController {
                         log.info("혈압 데이터 조회 성공 - recId: {}", firstRecipient.getRecId());
                     } catch (Exception e) {
                         log.warn("혈압 데이터 조회 실패 - recId: {}", firstRecipient.getRecId());
+                    }
+                    
+                    // 현재 월의 일정 조회
+                    try {
+                        LocalDate now = LocalDate.now();
+                        List<Schedule> schedules = scheduleService.getSchedulesByMonth(
+                            firstRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                        model.addAttribute("schedules", schedules);
+                        log.info("일정 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), schedules.size());
+                    } catch (Exception e) {
+                        log.warn("일정 조회 실패 - recId: {}", firstRecipient.getRecId());
+                    }
+                    
+                    // 오늘의 일정 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
+                            firstRecipient.getRecId(), today, today);
+                        model.addAttribute("todaySchedules", todaySchedules);
+                        log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), todaySchedules.size());
+                    } catch (Exception e) {
+                        log.warn("오늘의 일정 조회 실패 - recId: {}", firstRecipient.getRecId());
+                    }
+                    
+                    // 지도 장소 조회
+                    try {
+                        List<MapLocation> maps = mapService.getByRecId(firstRecipient.getRecId());
+                        model.addAttribute("maps", maps);
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), maps.size());
+                    } catch (Exception e) {
+                        log.warn("지도 장소 조회 실패 - recId: {}", firstRecipient.getRecId());
                     }
                 }
             } catch (Exception e) {
@@ -104,6 +142,35 @@ public class HomeController {
                         model.addAttribute("bloodPressure", latestBloodPressure);
                     } catch (Exception e) {
                         log.warn("혈압 데이터 조회 실패");
+                    }
+                    
+                    // 현재 월의 일정 조회
+                    try {
+                        LocalDate now = LocalDate.now();
+                        List<Schedule> schedules = scheduleService.getSchedulesByMonth(
+                            firstRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                        model.addAttribute("schedules", schedules);
+                    } catch (Exception e) {
+                        log.warn("일정 조회 실패");
+                    }
+                    
+                    // 오늘의 일정 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
+                            firstRecipient.getRecId(), today, today);
+                        model.addAttribute("todaySchedules", todaySchedules);
+                    } catch (Exception e) {
+                        log.warn("오늘의 일정 조회 실패");
+                    }
+                    
+                    // 지도 장소 조회
+                    try {
+                        List<MapLocation> maps = mapService.getByRecId(firstRecipient.getRecId());
+                        model.addAttribute("maps", maps);
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), maps.size());
+                    } catch (Exception e) {
+                        log.warn("지도 장소 조회 실패 - recId: {}", firstRecipient.getRecId());
                     }
                 }
             } catch (Exception e) {
