@@ -4,34 +4,46 @@
 
 <mapper namespace="edu.sm.app.repository.HourlyScheduleRepository">
 
+    <resultMap id="hourlyScheduleResultMap" type="edu.sm.app.dto.HourlySchedule">
+        <id property="hourlySchedId" column="hourly_sched_id" />
+        <result property="schedId" column="sched_id" />
+        <result property="hourlySchedStartTime" column="hourly_sched_start_time" />
+        <result property="hourlySchedEndTime" column="hourly_sched_end_time" />
+        <result property="hourlySchedName" column="hourly_sched_name" />
+        <result property="hourlySchedContent" column="hourly_sched_content" />
+        <result property="isDeleted" column="is_deleted" />
+        <result property="hourlySchedRegdate" column="hourly_sched_regdate" />
+        <result property="hourlySchedUpdate" column="hourly_sched_update" />
+    </resultMap>
+
     <!-- HourlySchedule CRUD -->
-    <select id="selectHourlySchedulesBySchedId" resultType="edu.sm.app.dto.HourlySchedule">
+    <select id="selectHourlySchedulesBySchedId" resultMap="hourlyScheduleResultMap">
         SELECT 
-            hourly_sched_id AS hourlySchedId,
-            sched_id AS schedId,
-            hourly_sched_start_time AS hourlySchedStartTime,
-            hourly_sched_end_time AS hourlySchedEndTime,
-            hourly_sched_name AS hourlySchedName,
-            hourly_sched_content AS hourlySchedContent,
-            is_deleted AS isDeleted,
-            hourly_sched_regdate AS hourlySchedRegdate,
-            hourly_sched_update AS hourlySchedUpdate
+            hourly_sched_id,
+            sched_id,
+            hourly_sched_start_time,
+            hourly_sched_end_time,
+            hourly_sched_name,
+            hourly_sched_content,
+            is_deleted,
+            hourly_sched_regdate,
+            hourly_sched_update
         FROM Hourly_Schedule
         WHERE sched_id = #{schedId} AND is_deleted = 'N'
         ORDER BY hourly_sched_start_time
     </select>
 
-    <select id="selectHourlyScheduleById" resultType="edu.sm.app.dto.HourlySchedule">
+    <select id="selectHourlyScheduleById" resultMap="hourlyScheduleResultMap">
         SELECT 
-            hourly_sched_id AS hourlySchedId,
-            sched_id AS schedId,
-            hourly_sched_start_time AS hourlySchedStartTime,
-            hourly_sched_end_time AS hourlySchedEndTime,
-            hourly_sched_name AS hourlySchedName,
-            hourly_sched_content AS hourlySchedContent,
-            is_deleted AS isDeleted,
-            hourly_sched_regdate AS hourlySchedRegdate,
-            hourly_sched_update AS hourlySchedUpdate
+            hourly_sched_id,
+            sched_id,
+            hourly_sched_start_time,
+            hourly_sched_end_time,
+            hourly_sched_name,
+            hourly_sched_content,
+            is_deleted,
+            hourly_sched_regdate,
+            hourly_sched_update
         FROM Hourly_Schedule
         WHERE hourly_sched_id = #{hourlySchedId} AND is_deleted = 'N'
     </select>

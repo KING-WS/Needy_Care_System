@@ -7,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aventro - Business Bootstrap Template</title>
+    <link rel="icon" type="image/png" href="/img/favicontitle.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
@@ -67,6 +68,15 @@
             color: var(--primary-color) !important;
             text-decoration: none;
             order: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
         }
 
         /* 중앙: 메뉴 */
@@ -810,7 +820,10 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <!-- 왼쪽: 로고 -->
-            <a class="navbar-brand" href="/">Aventro</a>
+            <a class="navbar-brand" href="/">
+                <img src="/img/favicontitle.png" alt="Aventro Logo">
+                Aventro
+            </a>
             
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
