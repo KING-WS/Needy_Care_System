@@ -19,7 +19,7 @@
         height: 100%;
         text-align: center;
         transition: all 0.3s ease;
-        background: #ffffff;
+        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -291,7 +291,7 @@
 
     /* 건강 카드 스타일 */
     .health-card {
-        background: white;
+        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
         color: #333;
         text-align: left;
         padding: 20px;
@@ -299,6 +299,7 @@
         grid-template-columns: auto 1fr;
         gap: 20px;
         align-items: start;
+        border-radius: 15px;
     }
 
     .health-card-left {
@@ -307,19 +308,24 @@
         align-items: center;
         gap: 10px;
         padding-right: 15px;
-        border-right: 2px solid #f0f0f0;
-        min-width: 100px;
+        border-right: 2px solid #e0e0e0;
+    }
+
+    .health-card-right {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
     }
 
     .recipient-avatar {
-        width: 150px;
-        height: 150px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 35px;
+        font-size: 30px;
         color: white;
         flex-shrink: 0;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
@@ -335,13 +341,17 @@
     }
 
     .recipient-info {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
         text-align: center;
     }
 
     .recipient-name {
         font-size: 16px;
         font-weight: 700;
-        margin: 0 0 6px 0;
+        margin: 0;
         color: #2c3e50;
     }
 
@@ -351,6 +361,7 @@
         border-radius: 12px;
         font-size: 11px;
         font-weight: 600;
+        width: fit-content;
     }
 
     .badge-elderly {
@@ -368,79 +379,53 @@
         color: #7b1fa2;
     }
 
-    .health-card-right {
+    .health-info-item {
         display: flex;
-        flex-direction: column;
-        gap: 12px;
-        flex: 1;
-    }
-
-    .health-info-row {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 10px;
-        background: #f8f9fa;
-        border-radius: 10px;
-        border-left: 3px solid #667eea;
+        align-items: center;
+        gap: 10px;
     }
 
     .health-info-label {
         font-size: 11px;
-        font-weight: 700;
-        color: #667eea;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    .health-info-value {
-        font-size: 14px;
-        color: #2c3e50;
         font-weight: 600;
-        line-height: 1.4;
-    }
-
-    .health-info-subtext {
-        font-size: 10px;
-        color: #999;
-        margin-top: 2px;
-    }
-
-    .bp-values-inline {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .bp-value-inline {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 3px;
-    }
-
-    .value-number-inline {
-        font-size: 20px;
-        font-weight: 700;
-        color: #2c3e50;
-    }
-
-    .value-unit-inline {
-        font-size: 10px;
         color: #666;
+        min-width: 80px;
+        text-align: left;
     }
 
-    .value-label-inline {
-        font-size: 10px;
-        color: #999;
-        margin-left: 2px;
+    .health-value-text {
+        font-size: 13px;
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 50px;
+        text-align: right;
     }
 
-    .bp-divider-inline {
-        font-size: 16px;
-        color: #ccc;
+    .progress-bar-wrapper {
+        flex: 1;
+        background: #e9ecef;
+        border-radius: 10px;
+        height: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-blood-pressure {
+        background: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);
+    }
+
+    .progress-blood-sugar {
+        background: linear-gradient(90deg, #5cb85c 0%, #6fd76f 100%);
+    }
+
+    .progress-brightness {
+        background: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%);
     }
 
     .no-data {
@@ -460,8 +445,194 @@
     }
 
     .health-card:hover {
-        background: #fafbfc;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    }
+
+    /* 캘린더 카드 스타일 */
+    .calendar-card {
+        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
+        padding: 20px;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .calendar-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e0e7ff;
+    }
+
+    .calendar-title {
+        font-size: 17px;
+        font-weight: 700;
+        color: #2c3e50;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .calendar-title i {
+        color: #667eea;
+        font-size: 20px;
+    }
+
+    .calendar-month {
+        font-size: 13px;
+        font-weight: 600;
+        color: #667eea;
+        background: #e0e7ff;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 5px;
+        flex: 1;
+    }
+
+    .calendar-day-header {
+        text-align: center;
+        font-size: 10px;
+        font-weight: 700;
+        color: #667eea;
+        padding: 5px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        border-radius: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        max-height: 45px;
+        color: #666;
+        background: #e0e7ff; /* 일반 날짜 배경색 변경 */
+    }
+
+    .calendar-day:hover {
+        background: #c7d2fe; /* 호버 시 조금 더 진한 색으로 변경 */
+        color: #4338ca;
+        transform: scale(1.05);
+    }
+
+    .calendar-day.empty {
+        cursor: default;
+        background: transparent;
+    }
+
+    .calendar-day.empty:hover {
+        background: transparent;
+        transform: none;
+    }
+
+    .calendar-day.today {
+        background: #4d5eaa; /* 1. 가장 진한 색 */
+        color: #ffffff;
+        font-weight: 700;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .calendar-day.today:hover {
+        background: #4d5eaa;
+        transform: scale(1.1);
+    }
+
+    .calendar-day.has-event {
+        background: #667eea; /* 2. 중간 색 */
+        color: #ffffff;
+        font-weight: 700;
+    }
+
+    .calendar-day.has-event::after {
+        content: '';
+        position: absolute;
+        bottom: 4px;
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #667eea;
+        box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
+    }
+
+    .calendar-day.today.has-event::after {
+        background: #ffffff;
+        box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+    }
+
+    .calendar-footer {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 2px solid #e0e7ff;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .calendar-stats {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .calendar-stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        color: #667eea;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .calendar-stat-item i {
+        font-size: 16px;
+        color: #667eea;
+    }
+
+    .calendar-view-all {
+        color: #667eea;
+        font-size: 12px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 8px;
+        background: #e0e7ff;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .calendar-view-all:hover {
+        background: #667eea;
+        color: #ffffff;
+    }
+
+    .calendar-view-all i {
+        font-size: 14px;
     }
 </style>
 
@@ -476,8 +647,8 @@
                     <c:if test="${not empty recipient}">
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
-                                <!-- 왼쪽: 프로필 -->
-                                <div class="health-card-header">
+                                <!-- 왼쪽: 프로필 정보 -->
+                                <div class="health-card-left">
                                     <div class="recipient-avatar">
                                         <c:choose>
                                             <c:when test="${not empty recipient.recPhotoUrl}">
@@ -504,44 +675,34 @@
                                     </div>
                                 </div>
 
-                                <!-- 구분선 -->
-                                <div class="health-divider"></div>
+                                <!-- 오른쪽: 건강 데이터 섹션 -->
+                                <div class="health-card-right">
+                                    <!-- 혈압 수치 병력 -->
+                                    <div class="health-info-item">
+                                        <div class="health-info-label">혈압 수치</div>
+                                        <div class="health-value-text">15/22</div>
+                                        <div class="progress-bar-wrapper">
+                                            <div class="progress-bar-fill progress-blood-pressure" style="width: 68%;"></div>
+                                        </div>
+                                    </div>
 
-                                <!-- 오른쪽: 건강 데이터 -->
-                                <div class="health-data-section">
-                                    <c:choose>
-                                        <c:when test="${not empty bloodPressure}">
-                                            <div class="health-data-label">
-                                                <i class="bi bi-heart-pulse"></i> 혈압
-                                            </div>
-                                            <div class="health-data-values">
-                                                <div class="bp-value">
-                                                    <span class="value-number">${bloodPressure.healthValue1}</span>
-                                                    <span class="value-unit">mmHg</span>
-                                                    <span class="value-label">수축기</span>
-                                                </div>
-                                                <div class="bp-divider">/</div>
-                                                <div class="bp-value">
-                                                    <span class="value-number">${bloodPressure.healthValue2}</span>
-                                                    <span class="value-unit">mmHg</span>
-                                                    <span class="value-label">이완기</span>
-                                                </div>
-                                            </div>
-                                            <div class="health-data-time">
-                                                <i class="bi bi-clock"></i>
-                                                <c:if test="${not empty bloodPressure.healthMeasuredAt}">
-                                                    ${bloodPressure.healthMeasuredAt.toLocalDate()}
-                                                    ${String.format('%02d:%02d', bloodPressure.healthMeasuredAt.hour, bloodPressure.healthMeasuredAt.minute)}
-                                                </c:if>
-                                            </div>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <div class="no-data">
-                                                <i class="bi bi-exclamation-circle"></i>
-                                                <span>건강 데이터 없음</span>
-                                            </div>
-                                        </c:otherwise>
-                                    </c:choose>
+                                    <!-- 혈당 -->
+                                    <div class="health-info-item">
+                                        <div class="health-info-label">혈당</div>
+                                        <div class="health-value-text">5/19</div>
+                                        <div class="progress-bar-wrapper">
+                                            <div class="progress-bar-fill progress-blood-sugar" style="width: 26%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 조도 -->
+                                    <div class="health-info-item">
+                                        <div class="health-info-label">조도</div>
+                                        <div class="health-value-text">12/08h</div>
+                                        <div class="progress-bar-wrapper">
+                                            <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </a>
@@ -556,12 +717,90 @@
                     </c:if>
                 </div>
 
-                <!-- 큰 카드 (아래) -->
+                <!-- 큰 카드 (아래) - 캘린더 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-large">
+                    <div class="dashboard-card card-large calendar-card" onclick="location.href='${pageContext.request.contextPath}/schedule'">
+                        <%@ page import="java.time.LocalDate, java.time.format.TextStyle, java.util.*, java.util.Locale, java.time.DayOfWeek" %>
+                        <%
+                            LocalDate now = LocalDate.now();
+                            int year = now.getYear();
+                            int month = now.getMonthValue();
+                            LocalDate firstDay = LocalDate.of(year, month, 1);
+                            int daysInMonth = firstDay.lengthOfMonth();
+                            int startDayOfWeek = firstDay.getDayOfWeek().getValue() % 7;
+                            
+                            pageContext.setAttribute("currentYear", year);
+                            pageContext.setAttribute("currentMonth", month);
+                            pageContext.setAttribute("currentDay", now.getDayOfMonth());
+                            pageContext.setAttribute("daysInMonth", daysInMonth);
+                            pageContext.setAttribute("startDayOfWeek", startDayOfWeek);
+                            
+                            // 일정이 있는 날짜를 Set으로 저장
+                            Set<Integer> scheduleDays = new HashSet<>();
+                            List schedules = (List) request.getAttribute("schedules");
+                            if (schedules != null) {
+                                for (Object obj : schedules) {
+                                    edu.sm.app.dto.Schedule schedule = (edu.sm.app.dto.Schedule) obj;
+                                    scheduleDays.add(schedule.getSchedDate().getDayOfMonth());
+                                }
+                            }
+                            pageContext.setAttribute("scheduleDays", scheduleDays);
+                        %>
+                        
+                        <div class="calendar-header">
+                            <div class="calendar-title">
+                                <i class="bi bi-calendar-event"></i>
+                                일정
+                            </div>
+                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>
                         </div>
-                    </a>
+                        
+                        <div class="calendar-grid">
+                            <!-- 요일 헤더 -->
+                            <div class="calendar-day-header">일</div>
+                            <div class="calendar-day-header">월</div>
+                            <div class="calendar-day-header">화</div>
+                            <div class="calendar-day-header">수</div>
+                            <div class="calendar-day-header">목</div>
+                            <div class="calendar-day-header">금</div>
+                            <div class="calendar-day-header">토</div>
+                            
+                            <!-- 빈 칸 -->
+                            <c:forEach begin="1" end="${startDayOfWeek}">
+                                <div class="calendar-day empty"></div>
+                            </c:forEach>
+                            
+                            <!-- 날짜 -->
+                            <c:forEach begin="1" end="${daysInMonth}" var="day">
+                                <div class="calendar-day 
+                                    ${day == currentDay ? 'today' : ''} 
+                                    ${scheduleDays.contains(day) ? 'has-event' : ''}">
+                                    ${day}
+                                </div>
+                            </c:forEach>
+                        </div>
+                        
+                        <div class="calendar-footer">
+                            <div class="calendar-stats">
+                                <div class="calendar-stat-item">
+                                    <i class="bi bi-calendar-day"></i>
+                                    <span>오늘: ${not empty todaySchedules ? todaySchedules.size() : 0}개</span>
+                                </div>
+                                <div class="calendar-stat-item">
+                                    <i class="bi bi-calendar-week"></i>
+                                    <span>이번주: ${not empty schedules ? schedules.size() : 0}개</span>
+                                </div>
+                                <div class="calendar-stat-item">
+                                    <i class="bi bi-calendar-month"></i>
+                                    <span>이번달: ${not empty schedules ? schedules.size() : 0}개</span>
+                                </div>
+                            </div>
+                            <div class="calendar-view-all">
+                                자세히 보기
+                                <i class="bi bi-arrow-right-circle"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
