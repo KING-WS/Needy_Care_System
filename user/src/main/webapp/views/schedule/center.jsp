@@ -91,7 +91,6 @@
             <div class="modal-body" id="dayDetailBody">
                 <div class="day-schedule-info">
                     <h6 id="scheduleTitle">일정 제목</h6>
-                    <p id="scheduleTime"><i class="fas fa-clock"></i> 시간</p>
                 </div>
                 <hr>
                 <div id="hourlySchedulesContainer"></div>
@@ -129,17 +128,6 @@
                     <div class="mb-3">
                         <label class="form-label"><i class="fas fa-heading"></i> 일정 제목</label>
                         <input type="text" class="form-control" id="schedName" placeholder="예: 오늘의 일정" required>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
-                            <input type="time" class="form-control" id="schedStartTime">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
-                            <input type="time" class="form-control" id="schedEndTime">
-                        </div>
                     </div>
                 </form>
             </div>
@@ -289,7 +277,7 @@
 
                 const url = '/schedule/api/monthly?recId=' + selectedRecId + '&startDate=' + startDateStr + '&endDate=' + endDateStr;
 
-                fetch(url)
+                fetch(url, { cache: 'no-cache' })
                     .then(res => {
                         if (!res.ok) {
                             throw new Error(`서버 응답 오류: ${res.status}`);
@@ -325,13 +313,10 @@
             eventDidMount: function() {
                 updateStats();
             },
-
-            eventSources: [
-                {
-                    id: 'monthlySchedules',
-                    className: 'monthly-schedules'
-                }
-            ]
+            
+            eventsSet: function() { // eventsSet is a better hook for this
+                updateStats();
+            }
         });
 
         calendar.render();
@@ -350,58 +335,69 @@
         document.getElementById('deleteHourlyBtn').addEventListener('click', deleteHourlySchedule);
     });
 
-    // 월별 일정 다시 로드
-    function loadMonthlySchedules() {
-        if (calendar) {
-            calendar.refetchEvents();
-        }
-    }
-
     // 일정 상세 로드
     function loadScheduleDetail(schedId) {
-        fetch('/schedule/api/schedule/' + schedId)
+        fetch('/schedule/api/schedule/' + schedId, { cache: 'no-cache' })
             .then(res => res.json())
             .then(schedule => {
+                console.log('서버로부터 받은 메인 일정 데이터:', schedule); // 디버깅용 로그
+                if (schedule.success === false) {
+                    alert(schedule.message || '일정 정보를 불러오지 못했습니다.');
+                    return;
+                }
                 currentSchedule = schedule;
+
+                const dateStr = schedule.schedDate; // e.g., '2025-11-20'
+                let formattedDate = '날짜 정보 없음';
+                if (dateStr && dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    const year = parts[0];
+                    const month = parts[1];
+                    const day = parts[2];
+                    formattedDate = year + '년 ' + month + '월 ' + day + '일';
+                }
                 document.getElementById('dayDetailTitle').innerHTML =
-                    '<i class="fas fa-calendar-day"></i> ' + formatDateKorean(schedule.schedDate);
+                    '<i class="fas fa-calendar-day"></i> ' + formattedDate;
+
                 document.getElementById('scheduleTitle').textContent = schedule.schedName;
-                document.getElementById('scheduleTime').innerHTML =
-                    `<i class="fas fa-clock"></i> ${schedule.schedStartTime || '시간 미정'} - ${schedule.schedEndTime || ''}`;
 
                 loadHourlySchedules(schedId);
                 dayDetailModal.show();
+            })
+            .catch(err => {
+                console.error('Error fetching schedule details:', err);
+                alert('일정 상세 정보를 불러오는 중 오류가 발생했습니다.');
             });
     }
 
     // 시간대별 일정 로드
     function loadHourlySchedules(schedId) {
-        fetch('/schedule/api/hourly/' + schedId)
+        fetch('/schedule/api/hourly/' + schedId, { cache: 'no-cache' })
             .then(res => res.json())
             .then(data => {
+                console.log('서버로부터 받은 시간대별 일정 데이터:', data); // 디버깅용 로그
                 const container = document.getElementById('hourlySchedulesContainer');
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-center text-muted">등록된 시간대별 일정이 없습니다.</p>';
                 } else {
-                    let html = '<div class="hourly-list">';
-                    data.forEach(hourly => {
-                        html += `
-                        <div class="hourly-item" onclick="editHourlySchedule(${hourly.hourlySchedId})">
-                            <div class="hourly-time">
-                                <i class="fas fa-clock"></i>
-                                ${hourly.hourlySchedStartTime} - ${hourly.hourlySchedEndTime}
-                            </div>
-                            <div class="hourly-content">
-                                <h6>${hourly.hourlySchedName}</h6>
-                                <p>${hourly.hourlySchedContent || ''}</p>
-                            </div>
-                        </div>
-                    `;
-                    });
-                    html += '</div>';
-                    container.innerHTML = html;
-                }
-            });
+                                                    let html = '<div class="hourly-list">';
+                                                    data.forEach(function(hourly) {
+                                                        var onclick_handler = hourly.hourlySchedId ? 'onclick="editHourlySchedule(' + hourly.hourlySchedId + ')"' : '';
+                                                        html +=
+                                                            '<div class="hourly-item" ' + onclick_handler + '>' +
+                                                                '<div class="hourly-time">' +
+                                                                    '<i class="fas fa-clock"></i> ' +
+                                                                    (hourly.hourlySchedStartTime || '') + ' - ' + (hourly.hourlySchedEndTime || '') +
+                                                                '</div>' +
+                                                                '<div class="hourly-content">' +
+                                                                    '<h6>' + (hourly.hourlySchedName || '') + '</h6>' +
+                                                                    '<p>' + (hourly.hourlySchedContent || '') + '</p>' +
+                                                                '</div>' +
+                                                            '</div>';
+                                                    });
+                                                    html += '</div>';
+                                                    container.innerHTML = html;
+                                                }            });
     }
 
     // 일정 등록/수정 모달 열기
@@ -411,16 +407,12 @@
             document.getElementById('deleteScheduleBtn').style.display = 'none';
             document.getElementById('schedId').value = '';
             document.getElementById('schedName').value = '';
-            document.getElementById('schedStartTime').value = '';
-            document.getElementById('schedEndTime').value = '';
             document.getElementById('selectedDate').value = formatDate(date);
         } else {
             document.getElementById('scheduleModalTitle').innerHTML = '<i class="fas fa-edit"></i> 일정 수정';
             document.getElementById('deleteScheduleBtn').style.display = 'block';
             document.getElementById('schedId').value = schedule.schedId;
             document.getElementById('schedName').value = schedule.schedName;
-            document.getElementById('schedStartTime').value = schedule.schedStartTime || '';
-            document.getElementById('schedEndTime').value = schedule.schedEndTime || '';
             document.getElementById('selectedDate').value = schedule.schedDate;
         }
         scheduleModal.show();
@@ -431,8 +423,6 @@
         const schedId = document.getElementById('schedId').value;
         const schedName = document.getElementById('schedName').value;
         const schedDate = document.getElementById('selectedDate').value;
-        const schedStartTime = document.getElementById('schedStartTime').value || null;
-        const schedEndTime = document.getElementById('schedEndTime').value || null;
 
         if (!schedName) {
             alert('일정 제목을 입력하세요.');
@@ -442,9 +432,7 @@
         const data = {
             recId: document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId,
             schedName: schedName,
-            schedDate: schedDate,
-            schedStartTime: schedStartTime,
-            schedEndTime: schedEndTime
+            schedDate: schedDate
         };
 
         const url = schedId ? '/schedule/api/schedule' : '/schedule/api/schedule';
@@ -462,25 +450,8 @@
                 if (result.success) {
                     alert(schedId ? '수정되었습니다.' : '등록되었습니다.');
                     scheduleModal.hide();
-
-                    const newEvent = {
-                        id: result.schedule.schedId,
-                        title: result.schedule.schedName,
-                        start: result.schedule.schedDate,
-                        backgroundColor: '#667eea',
-                        borderColor: '#667eea'
-                    };
-
-                    if (schedId) {
-                        // 기존 이벤트 업데이트
-                        const existingEvent = calendar.getEventById(schedId);
-                        if (existingEvent) {
-                            existingEvent.remove();
-                        }
-                    }
-                    calendar.addEvent(newEvent);
-                    updateStats(); // 통계 업데이트
-
+                    // [FIX] Re-fetch events from the server to ensure consistency
+                    calendar.refetchEvents();
                 } else {
                     alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
@@ -493,7 +464,7 @@
 
     // 일정 삭제
     function deleteSchedule() {
-        if (!confirm('일정을 삭제하시겠습니까?')) return;
+        if (!confirm('일정을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) return;
 
         const schedId = document.getElementById('schedId').value;
         fetch('/schedule/api/schedule/' + schedId, {method: 'DELETE'})
@@ -503,12 +474,8 @@
                     alert('삭제되었습니다.');
                     scheduleModal.hide();
                     dayDetailModal.hide(); // 상세 모달도 닫기
-
-                    const eventToRemove = calendar.getEventById(schedId);
-                    if (eventToRemove) {
-                        eventToRemove.remove();
-                    }
-                    updateStats(); // 통계 업데이트
+                    // [FIX] Re-fetch events from the server to ensure consistency
+                    calendar.refetchEvents();
                 } else {
                     alert('삭제에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
@@ -534,11 +501,16 @@
         hourlyModal.show();
     }
 
-    // 시간대별 일정 수정
+    // 시간대별 일정 수정 모달 열기
     function editHourlySchedule(hourlySchedId) {
-        fetch('/schedule/api/hourly/' + hourlySchedId)
+        // [BUG FIX] Use the correct endpoint for fetching a single hourly schedule
+        fetch('/schedule/api/hourly/detail/' + hourlySchedId)
             .then(res => res.json())
             .then(hourly => {
+                if (hourly.success === false) {
+                    alert(hourly.message || '시간대별 일정 정보를 불러오지 못했습니다.');
+                    return;
+                }
                 document.getElementById('hourlyModalTitle').innerHTML = '<i class="fas fa-edit"></i> 시간대별 일정 수정';
                 document.getElementById('deleteHourlyBtn').style.display = 'block';
                 document.getElementById('hourlySchedId').value = hourly.hourlySchedId;
@@ -549,6 +521,10 @@
                 document.getElementById('parentSchedId').value = hourly.schedId;
                 dayDetailModal.hide();
                 hourlyModal.show();
+            })
+            .catch(err => {
+                console.error('Error fetching hourly schedule:', err);
+                alert('시간대별 일정 정보를 불러오는 중 오류가 발생했습니다.');
             });
     }
 
@@ -562,7 +538,7 @@
         const content = document.getElementById('hourlySchedContent').value;
 
         if (!name || !startTime || !endTime) {
-            alert('필수 항목을 입력하세요.');
+            alert('제목과 시작/종료 시간을 모두 입력하세요.');
             return;
         }
 
@@ -589,14 +565,21 @@
                 if (result.success) {
                     alert(hourlySchedId ? '수정되었습니다.' : '등록되었습니다.');
                     hourlyModal.hide();
+                    // Re-open the detail modal with updated hourly schedules
                     loadScheduleDetail(schedId);
+                } else {
+                    alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
+            })
+            .catch(error => {
+                console.error("시간대별 일정 저장 중 오류 발생:", error);
+                alert("시간대별 일정 저장 중 오류가 발생했습니다.");
             });
     }
 
     // 시간대별 일정 삭제
     function deleteHourlySchedule() {
-        if (!confirm('시간대별 일정을 삭제하시겠습니까?')) return;
+        if (!confirm('이 시간대별 일정을 삭제하시겠습니까?')) return;
 
         const hourlySchedId = document.getElementById('hourlySchedId').value;
         const schedId = document.getElementById('parentSchedId').value;
@@ -607,8 +590,15 @@
                 if (result.success) {
                     alert('삭제되었습니다.');
                     hourlyModal.hide();
+                    // Re-open the detail modal with updated hourly schedules
                     loadScheduleDetail(schedId);
+                } else {
+                    alert('삭제에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
                 }
+            })
+            .catch(error => {
+                console.error("시간대별 일정 삭제 중 오류 발생:", error);
+                alert("시간대별 일정 삭제 중 오류가 발생했습니다.");
             });
     }
 
@@ -616,29 +606,35 @@
     function updateStats() {
         const events = calendar.getEvents();
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const weekEnd = new Date(today);
-        weekEnd.setDate(weekEnd.getDate() + 7);
+        const startOfWeek = new Date(today);
+        startOfWeek.setDate(startOfWeek.getDate() - today.getDay()); // Start of week (Sunday)
+        startOfWeek.setHours(0, 0, 0, 0);
 
-        let todayCount = 0, weekCount = 0, monthCount = events.length;
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(endOfWeek.getDate() + 6); // End of week (Saturday)
+        endOfWeek.setHours(23, 59, 59, 999);
+        
+        today.setHours(0, 0, 0, 0);
+
+        let todayCount = 0;
+        let weekCount = 0;
+        const monthCount = events.length;
 
         events.forEach(event => {
             const eventDate = new Date(event.start);
-            eventDate.setHours(0, 0, 0, 0);
+            eventDate.setHours(0,0,0,0); // Ignore time part for date comparison
 
-            if (eventDate.getTime() === today.getTime()) todayCount++;
-            if (event.start >= today && event.start <= weekEnd) weekCount++;
+            if (eventDate.getTime() === today.getTime()) {
+                todayCount++;
+            }
+            if (eventDate >= startOfWeek && eventDate <= endOfWeek) {
+                weekCount++;
+            }
         });
 
         document.getElementById('todayCount').textContent = todayCount;
         document.getElementById('weekCount').textContent = weekCount;
         document.getElementById('monthCount').textContent = monthCount;
-    }
-
-    function formatDateKorean(dateStr) {
-        const days = ['일', '월', '화', '수', '목', '금', '토'];
-        const date = new Date(dateStr);
-        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 (${days[date.getDay()]})`;
     }
 
     function formatDate(date) {
