@@ -19,6 +19,11 @@
             </a>
         </li>
         <li class="nav-item">
+            <a class="nav-link" href="<c:url value="/recipient/list"/>" style="padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;">
+                <i class="fas fa-users"></i> 노약자 관리
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="<c:url value="/mypage/profile"/>" style="padding: 12px 15px; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;">
                 <i class="fas fa-user-edit"></i> 프로필 수정
             </a>

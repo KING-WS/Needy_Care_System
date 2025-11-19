@@ -1,8 +1,9 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <style>
-    .register-container {
+    .edit-container {
         max-width: 800px;
         margin: 0 auto;
         padding: 40px 20px;
@@ -10,24 +11,24 @@
         min-height: calc(100vh - 200px);
     }
     
-    .register-header {
+    .edit-header {
         text-align: center;
         margin-bottom: 40px;
     }
     
-    .register-title {
+    .edit-title {
         font-size: 32px;
         font-weight: 700;
         color: #2c3e50;
         margin-bottom: 10px;
     }
     
-    .register-subtitle {
+    .edit-subtitle {
         font-size: 16px;
         color: #7f8c8d;
     }
     
-    .register-form {
+    .edit-form {
         background: white;
         border-radius: 20px;
         padding: 40px;
@@ -149,6 +150,21 @@
         text-align: center;
     }
     
+    .info-banner {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-banner i {
+        font-size: 24px;
+    }
+    
     .photo-upload-container {
         display: flex;
         flex-direction: column;
@@ -218,10 +234,10 @@
     }
 </style>
 
-<div class="register-container">
-    <div class="register-header">
-        <h1 class="register-title">돌봄 대상자 등록</h1>
-        <p class="register-subtitle">돌봄 대상자의 정보를 입력해주세요</p>
+<div class="edit-container">
+    <div class="edit-header">
+        <h1 class="edit-title">돌봄 대상자 정보 수정</h1>
+        <p class="edit-subtitle">${recipient.recName}님의 정보를 수정합니다</p>
     </div>
     
     <c:if test="${not empty error}">
@@ -230,7 +246,19 @@
         </div>
     </c:if>
     
-    <form class="register-form" method="post" action="<c:url value='/recipient/register'/>" enctype="multipart/form-data">
+    <div class="info-banner">
+        <i class="bi bi-info-circle-fill"></i>
+        <div>
+            <strong>등록번호 #${recipient.recId}</strong><br>
+            <c:if test="${recipient.recRegdate != null}">
+                <small>등록일: ${recipient.recRegdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recRegdate.hour, recipient.recRegdate.minute)}</small>
+            </c:if>
+        </div>
+    </div>
+    
+    <form class="edit-form" method="post" action="<c:url value='/recipient/edit'/>" enctype="multipart/form-data">
+        <!-- Hidden 필드 -->
+        <input type="hidden" name="recId" value="${recipient.recId}">
         
         <!-- 기본 정보 -->
         <div class="form-section">
@@ -242,7 +270,8 @@
                 <label class="form-label">
                     이름<span class="required">*</span>
                 </label>
-                <input type="text" name="recName" class="form-input" required placeholder="돌봄 대상자의 이름을 입력하세요">
+                <input type="text" name="recName" class="form-input" required 
+                       value="${recipient.recName}" placeholder="돌봄 대상자의 이름을 입력하세요">
             </div>
             
             <div class="form-group">
@@ -250,15 +279,22 @@
                     프로필 사진
                 </label>
                 <div class="photo-upload-container">
-                    <div class="photo-preview" id="photoPreview">
-                        <i class="bi bi-person-circle"></i>
-                        <p>사진을 선택하세요</p>
+                    <div class="photo-preview ${not empty recipient.recPhotoUrl ? 'has-image' : ''}" id="photoPreview">
+                        <c:choose>
+                            <c:when test="${not empty recipient.recPhotoUrl}">
+                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="Current Photo">
+                            </c:when>
+                            <c:otherwise>
+                                <i class="bi bi-person-circle"></i>
+                                <p>사진을 선택하세요</p>
+                            </c:otherwise>
+                        </c:choose>
                     </div>
                     <input type="file" name="recPhotoUrl" id="photoInput" class="form-input" 
                            accept="image/jpeg,image/jpg,image/png,image/gif"
                            onchange="previewPhoto(event)">
                     <small style="color: #999; font-size: 12px; display: block; margin-top: 5px;">
-                        * JPG, JPEG, PNG, GIF 파일만 가능합니다
+                        * 새 사진을 선택하면 기존 사진이 교체됩니다
                     </small>
                 </div>
             </div>
@@ -269,9 +305,9 @@
                 </label>
                 <select name="recTypeCode" class="form-input" required>
                     <option value="">선택하세요</option>
-                    <option value="ELDERLY">노인/고령자</option>
-                    <option value="PREGNANT">임산부</option>
-                    <option value="DISABLED">장애인</option>
+                    <option value="ELDERLY" ${recipient.recTypeCode == 'ELDERLY' ? 'selected' : ''}>노인/고령자</option>
+                    <option value="PREGNANT" ${recipient.recTypeCode == 'PREGNANT' ? 'selected' : ''}>임산부</option>
+                    <option value="DISABLED" ${recipient.recTypeCode == 'DISABLED' ? 'selected' : ''}>장애인</option>
                 </select>
             </div>
             
@@ -279,7 +315,9 @@
                 <label class="form-label">
                     생년월일<span class="required">*</span>
                 </label>
-                <input type="date" name="recBirthday" class="form-input" required>
+                <c:set var="birthday" value="${recipient.recBirthday}"/>
+                <input type="date" name="recBirthday" class="form-input" required 
+                       value="${birthday.year}-${String.format('%02d', birthday.monthValue)}-${String.format('%02d', birthday.dayOfMonth)}">
             </div>
             
             <div class="form-group">
@@ -288,11 +326,11 @@
                 </label>
                 <div class="radio-group">
                     <label class="radio-label">
-                        <input type="radio" name="recGender" value="M" required>
+                        <input type="radio" name="recGender" value="M" ${recipient.recGender == 'M' ? 'checked' : ''} required>
                         <span>남성</span>
                     </label>
                     <label class="radio-label">
-                        <input type="radio" name="recGender" value="F" required>
+                        <input type="radio" name="recGender" value="F" ${recipient.recGender == 'F' ? 'checked' : ''} required>
                         <span>여성</span>
                     </label>
                 </div>
@@ -309,7 +347,7 @@
                     </button>
                 </div>
                 <input type="text" id="roadAddress" class="form-input" placeholder="도로명 주소" readonly style="margin-bottom: 10px; background-color: #f8f9fa;">
-                <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px;">
+                <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px;" value="${recipient.recAddress}">
                 <input type="text" id="detailAddress" class="form-input" placeholder="상세 주소 (선택사항)">
                 <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">
                     <i class="bi bi-info-circle"></i> 주소 검색 버튼을 눌러 지번 주소를 선택해주세요
@@ -327,21 +365,24 @@
                 <label class="form-label">
                     병력 (Medical History)
                 </label>
-                <textarea name="recMedHistory" class="form-input form-textarea" placeholder="기존 질병이나 수술 이력 등을 입력하세요"></textarea>
+                <textarea name="recMedHistory" class="form-input form-textarea" 
+                          placeholder="기존 질병이나 수술 이력 등을 입력하세요">${recipient.recMedHistory}</textarea>
             </div>
             
             <div class="form-group">
                 <label class="form-label">
                     알레르기 (Allergies)
                 </label>
-                <textarea name="recAllergies" class="form-input form-textarea" placeholder="약물, 음식 알레르기 등을 입력하세요"></textarea>
+                <textarea name="recAllergies" class="form-input form-textarea" 
+                          placeholder="약물, 음식 알레르기 등을 입력하세요">${recipient.recAllergies}</textarea>
             </div>
             
             <div class="form-group">
                 <label class="form-label">
                     건강 요구사항 (Health Needs)
                 </label>
-                <textarea name="recHealthNeeds" class="form-input form-textarea" placeholder="특별한 건강 관리 요구사항을 입력하세요"></textarea>
+                <textarea name="recHealthNeeds" class="form-input form-textarea" 
+                          placeholder="특별한 건강 관리 요구사항을 입력하세요">${recipient.recHealthNeeds}</textarea>
             </div>
         </div>
         
@@ -355,7 +396,8 @@
                 <label class="form-label">
                     특이사항 (Special Notes)
                 </label>
-                <textarea name="recSpecNotes" class="form-input form-textarea" placeholder="기타 특이사항이나 주의사항을 입력하세요"></textarea>
+                <textarea name="recSpecNotes" class="form-input form-textarea" 
+                          placeholder="기타 특이사항이나 주의사항을 입력하세요">${recipient.recSpecNotes}</textarea>
             </div>
         </div>
         
@@ -365,7 +407,7 @@
                 <i class="bi bi-x-circle"></i> 취소
             </button>
             <button type="submit" class="btn btn-primary">
-                <i class="bi bi-check-circle"></i> 등록하기
+                <i class="bi bi-check-circle"></i> 수정 완료
             </button>
         </div>
     </form>
@@ -402,7 +444,7 @@
     }
     
     // 폼 유효성 검사
-    document.querySelector('.register-form').addEventListener('submit', function(e) {
+    document.querySelector('.edit-form').addEventListener('submit', function(e) {
         const recName = document.querySelector('input[name="recName"]').value.trim();
         const recTypeCode = document.querySelector('select[name="recTypeCode"]').value;
         const recBirthday = document.querySelector('input[name="recBirthday"]').value;
@@ -412,6 +454,12 @@
         if (!recName || !recTypeCode || !recBirthday || !recGender || !recAddress) {
             e.preventDefault();
             alert('필수 항목을 모두 입력해주세요.');
+            return false;
+        }
+        
+        // 수정 확인
+        if (!confirm('정보를 수정하시겠습니까?')) {
+            e.preventDefault();
             return false;
         }
     });
