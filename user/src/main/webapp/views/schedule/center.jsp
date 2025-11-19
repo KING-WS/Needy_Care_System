@@ -167,13 +167,19 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-6 mb-3">
                             <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
-                            <input type="time" class="form-control" id="hourlyStartTime" required>
+                            <div class="d-flex">
+                                <select id="hourlyStartHour" class="form-select me-2"></select>
+                                <select id="hourlyStartMinute" class="form-select"></select>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-6 mb-3">
                             <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
-                            <input type="time" class="form-control" id="hourlyEndTime" required>
+                            <div class="d-flex">
+                                <select id="hourlyEndHour" class="form-select me-2"></select>
+                                <select id="hourlyEndMinute" class="form-select"></select>
+                            </div>
                         </div>
                     </div>
 
@@ -333,7 +339,24 @@
         });
         document.getElementById('saveHourlyBtn').addEventListener('click', saveHourlySchedule);
         document.getElementById('deleteHourlyBtn').addEventListener('click', deleteHourlySchedule);
+
+        populateTimeSelects();
     });
+
+    function populateTimeSelects() {
+        const hourSelects = [document.getElementById('hourlyStartHour'), document.getElementById('hourlyEndHour')];
+        const minuteSelects = [document.getElementById('hourlyStartMinute'), document.getElementById('hourlyEndMinute')];
+
+        for (let i = 0; i < 24; i++) {
+            const hour = String(i).padStart(2, '0');
+            hourSelects.forEach(sel => sel.add(new Option(hour, hour)));
+        }
+        for (let i = 0; i < 60; i++) {
+            const minute = String(i).padStart(2, '0');
+            minuteSelects.forEach(sel => sel.add(new Option(minute, minute)));
+        }
+    }
+
 
     // 일정 상세 로드
     function loadScheduleDetail(schedId) {
@@ -493,8 +516,10 @@
             document.getElementById('deleteHourlyBtn').style.display = 'none';
             document.getElementById('hourlySchedId').value = '';
             document.getElementById('hourlySchedName').value = '';
-            document.getElementById('hourlyStartTime').value = '';
-            document.getElementById('hourlyEndTime').value = '';
+            document.getElementById('hourlyStartHour').value = '00';
+            document.getElementById('hourlyStartMinute').value = '00';
+            document.getElementById('hourlyEndHour').value = '00';
+            document.getElementById('hourlyEndMinute').value = '00';
             document.getElementById('hourlySchedContent').value = '';
             document.getElementById('parentSchedId').value = currentSchedule.schedId;
         }
@@ -515,8 +540,18 @@
                 document.getElementById('deleteHourlyBtn').style.display = 'block';
                 document.getElementById('hourlySchedId').value = hourly.hourlySchedId;
                 document.getElementById('hourlySchedName').value = hourly.hourlySchedName;
-                document.getElementById('hourlyStartTime').value = hourly.hourlySchedStartTime;
-                document.getElementById('hourlyEndTime').value = hourly.hourlySchedEndTime;
+
+                if (hourly.hourlySchedStartTime) {
+                    const startTimeParts = hourly.hourlySchedStartTime.split(':');
+                    document.getElementById('hourlyStartHour').value = startTimeParts[0];
+                    document.getElementById('hourlyStartMinute').value = startTimeParts[1];
+                }
+                if (hourly.hourlySchedEndTime) {
+                    const endTimeParts = hourly.hourlySchedEndTime.split(':');
+                    document.getElementById('hourlyEndHour').value = endTimeParts[0];
+                    document.getElementById('hourlyEndMinute').value = endTimeParts[1];
+                }
+
                 document.getElementById('hourlySchedContent').value = hourly.hourlySchedContent || '';
                 document.getElementById('parentSchedId').value = hourly.schedId;
                 dayDetailModal.hide();
@@ -533,8 +568,8 @@
         const hourlySchedId = document.getElementById('hourlySchedId').value;
         const schedId = document.getElementById('parentSchedId').value;
         const name = document.getElementById('hourlySchedName').value;
-        const startTime = document.getElementById('hourlyStartTime').value;
-        const endTime = document.getElementById('hourlyEndTime').value;
+        const startTime = document.getElementById('hourlyStartHour').value + ':' + document.getElementById('hourlyStartMinute').value;
+        const endTime = document.getElementById('hourlyEndHour').value + ':' + document.getElementById('hourlyEndMinute').value;
         const content = document.getElementById('hourlySchedContent').value;
 
         if (!name || !startTime || !endTime) {
