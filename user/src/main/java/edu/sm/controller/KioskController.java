@@ -73,6 +73,19 @@ public class KioskController {
             // 모델에 노약자 정보 추가
             model.addAttribute("recipient", recipient);
             
+            // 보호자(고객) 정보도 조회하여 모델에 추가
+            if (recipient.getCustId() != null) {
+                try {
+                    Cust cust = custService.get(recipient.getCustId());
+                    if (cust != null) {
+                        model.addAttribute("cust", cust);
+                        log.info("보호자 정보 추가 - custName: {}", cust.getCustName());
+                    }
+                } catch (Exception e) {
+                    log.warn("보호자 정보 조회 실패 - custId: {}", recipient.getCustId(), e);
+                }
+            }
+            
             return "kiosk/home";
             
         } catch (Exception e) {
