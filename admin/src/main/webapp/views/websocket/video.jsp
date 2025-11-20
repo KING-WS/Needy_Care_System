@@ -6,10 +6,10 @@
         <div class="row">
             <div class="col-12 mb-4">
                 <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-video"></i> 화상통화
+                    <i class="fas fa-video"></i> 관리자 화상통화
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
-                    담당자와 화상으로 대면 상담할 수 있습니다.
+                    사용자와 화상으로 대면 상담할 수 있습니다.
                 </p>
             </div>
         </div>
@@ -79,7 +79,8 @@
         joinButton.disabled = true;
         leaveButton.disabled = false;
 
-        // [수정 1] WebSocket 연결 전에 미디어(카메라/마이크)와 PeerConnection을 먼저 준비합니다.
+        // [수정 1] WebSocket 연결 전에 미디어 스트림과 PC를 먼저 준비합니다.
+        // 이렇게 해야 신호(Signal)가 왔을 때 즉시 반응할 수 있습니다.
         const isReady = await prepareMediaAndConnection();
         if (!isReady) {
             joinButton.disabled = false;
@@ -87,11 +88,11 @@
             return;
         }
 
-        // [수정 2] URL 처리 안전성 확보 (끝에 /가 없으면 추가)
+        // [수정 2] URL 처리 안전성 확보
         let baseUrl = "${websocketUrl}";
+        // baseUrl 끝에 '/'가 없으면 추가
         if (!baseUrl.endsWith('/')) baseUrl += '/';
 
-        // Use ws:// for local development, wss:// for production
         const wsUrl = baseUrl.replace(/^http/, 'ws') + "signal";
         console.log("Connecting to WebSocket at:", wsUrl);
 
@@ -109,35 +110,39 @@
 
             switch (signal.type) {
                 case 'join':
-                    console.log('Another peer joined the room. Creating offer...');
-                    // 이미 prepareMediaAndConnection에서 준비했으므로 startCall 중복 호출 제거
+                    console.log('Another peer joined. Creating offer...');
+                    // 이미 prepareMediaAndConnection()에서 peerConnection을 만들었으므로
+                    // 중복 호출 없이 바로 Offer 생성
                     createOffer();
                     break;
+
                 case 'offer':
                     console.log('Received offer');
-                    // 이미 준비됨. startCall 중복 호출 제거
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
                     const answer = await peerConnection.createAnswer();
                     await peerConnection.setLocalDescription(answer);
                     ws.send(JSON.stringify({ type: 'answer', data: peerConnection.localDescription, roomId: roomId }));
                     break;
+
                 case 'answer':
                     console.log('Received answer');
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
                     break;
+
                 case 'ice-candidate':
                     if (signal.data) {
-                        console.log('Received ICE candidate');
                         try {
                             await peerConnection.addIceCandidate(new RTCIceCandidate(signal.data));
                         } catch (e) {
-                            console.error("Error adding ICE candidate", e);
+                            console.error('Error adding received ice candidate', e);
                         }
                     }
                     break;
+
                 case 'bye':
                     console.log('Peer left the room');
-                    // 상대가 나가면 화면 정리 (통화 종료 여부는 선택 사항)
+                    // 상대방이 나가면 내 화면을 끄는 대신, 연결만 리셋하고 대기할지 선택해야 합니다.
+                    // 여기서는 remoteVideo만 비우고 연결은 유지하거나, 아예 통화를 종료할 수 있습니다.
                     handleRemoteHangup();
                     break;
             }
@@ -146,15 +151,9 @@
         ws.onerror = (error) => {
             console.error('WebSocket error:', error);
         };
-
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
-        // await startCall(); <- [수정 3] 맨 끝에 있던 호출 제거 (위에서 이미 함)
     }
 
-    // [수정 4] 미디어 준비 및 PC 생성 로직 분리
+    // [수정 3] 미디어 획득과 PC 초기화를 분리하여 명확하게 관리
     async function prepareMediaAndConnection() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -169,6 +168,7 @@
             };
 
             peerConnection.ontrack = (event) => {
+                console.log("Remote stream received");
                 remoteVideo.srcObject = event.streams[0];
             };
 
@@ -196,15 +196,16 @@
 
     function handleRemoteHangup() {
         remoteVideo.srcObject = null;
-        alert("상담원과의 연결이 종료되었습니다.");
-        leaveRoom();
+        // 필요 시 peerConnection을 리셋하거나 알림 표시
+        alert("상대방이 연결을 종료했습니다.");
+        leaveRoom(); // 같이 종료하려면 호출
     }
 
     function leaveRoom() {
         if (ws) {
+            // 이미 닫힌 상태가 아니라면 bye 메시지 전송
             if(ws.readyState === WebSocket.OPEN) {
-                const leaveMessage = { type: 'bye', roomId: roomId };
-                ws.send(JSON.stringify(leaveMessage));
+                ws.send(JSON.stringify({ type: 'bye', roomId: roomId }));
             }
             ws.close();
             ws = null;
@@ -227,11 +228,9 @@
         leaveButton.disabled = true;
     }
 
-    // 페이지 닫을 때 정리
     window.onbeforeunload = () => {
-        if (ws || localStream) {
+        if(ws || localStream) {
             leaveRoom();
         }
     };
-
 </script>
