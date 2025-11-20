@@ -454,6 +454,10 @@
                 <span id="detailAddress">주소 조회 중...</span>
             </div>
             <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="detailLocationDistance" style="color: #667eea; font-weight: 600; font-size: 16px; margin-bottom: 10px;">-</div>
+            </div>
+            <div class="modal-form-group">
                 <label class="modal-form-label">장소 이름</label>
                 <div class="modal-form-readonly" id="detailLocationName">-</div>
             </div>
@@ -515,10 +519,57 @@
     </div>
 </div>
 
+<!-- 검색 결과 상세 정보 모달 -->
+<div class="map-modal-overlay" id="searchResultDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>검색 장소 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeSearchResultDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-form-group">
+                <label class="modal-form-label">장소 이름</label>
+                <div class="modal-form-readonly" id="searchResultName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">카테고리</label>
+                <div class="modal-form-readonly" id="searchResultCategory">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">주소</label>
+                <div class="modal-form-readonly" id="searchResultAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">집 주소</label>
+                <div class="modal-form-readonly" id="searchResultHomeAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="searchResultDistance" style="color: #667eea; font-weight: 600; font-size: 16px;">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">메모</label>
+                <textarea class="modal-form-input" id="searchResultMemo" 
+                          placeholder="이 장소에 대한 메모를 입력하세요 (선택사항)" 
+                          rows="3" style="resize: vertical;"></textarea>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveSearchResultLocation()">저장</button>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSearchResultDetailModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
 <!-- 카카오맵 API (services 라이브러리 포함) -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
 <!-- Map 관련 JavaScript 파일 -->
-<script src="/js/map/center.js"></script>
+<script src="/js/homecenter/center.js"></script>
 <script>
     // JSP 변수 - 노약자 정보
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
