@@ -3,7 +3,7 @@ package edu.sm.app.dto;
 import lombok.*;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -12,10 +12,12 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 public class User {
-    private String custId;
+    private int custId;
+    private String custEmail;
     private String custPwd;
     private String custName;
-    private String custAddr;
-    private LocalDateTime custRegdate;
-    private LocalDateTime custUpdate;
+    private String custPhone;
+    private String isDeleted;
+    private Date custRegdate;
+    private Date custUpdate;
 }

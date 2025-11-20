@@ -1,34 +1,38 @@
 server:
-  port: 8084
+  port: 8444
   ssl:
     enabled: true
     key-store: classpath:keystore.p12
     key-store-password: ENC(idIWCdznEM3ggslDeTmLJw==)
     key-store-type: PKCS12
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
 spring:
   config:
     import: optional:file:.env[.properties]  # .env import
-  messages:
-    basename: message
-    encoding: utf-8
-    cache-duration: 10
-    fallback-to-system-locale: false
   mvc:
     view:
       prefix: /views/
       suffix: .jsp
-  web:
-    resources:
-      static-locations: classpath:/static/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/public/
+
+  ai:
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+    openai:
+      api-key: ENC(DIrd78xrB30lc2q7A5pW1OwT8+V5LbMcVryz5BbtbHMWa1zwwF6oDzxZGvWb/USsdjDccGQJV+Mx1IOfWiPO5rVG4TYWUuLDXM3U6h08yyAOAy3P2tas2v9yTLZvd9obwh3zcuT6gedYUhugwCdL/EoBq/Hsg01M9ENgrKPIfAeuFHOTu9eqEWMEAzNiPuD9l+4yU8WjNqff698QGXOfHd/nT6yKrVvgXtgaZtbBehs=)
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.1
+          max-tokens: 1000
   datasource:
-    #url: jdbc:mysql://127.0.0.1:3306/shopdb?serverTimezone=Asia/Seoul
-    #    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    #    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/shopdb?characterEncoding=utf8
-    #    username: smuser
-    #    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/needy_care_system?characterEncoding=utf8
+    username: smuser
+    password: ENC(idIWCdznEM3ggslDeTmLJw==)
 
 mybatis:
   type-aliases-package: edu.sm.app.dto
@@ -40,16 +44,20 @@ logging:
   level:
     root: info
 
+# Application Config
+# @Value("${}")
 app:
   url:
-    websocketurl: https://192.168.1.9:8443/
+    sse: https://192.168.1.6:8444/   # admin
+    mainsse: https://192.168.1.6:8443/   #shop
+    websocketurl: https://192.168.1.6:8443/  #shop
   dir:
-    imgsdir: file:///C:/Needy-Care_System/imgs/     # 화면 출력 용
-    uploadimgsdir: C:/Needy-Care_System/imgs/    # 파일 Write 용
-    logsdir: file:///C:/Needy-Care_System/logs/    # logs 화면 출력용
-    logsdirRead : C:/Needy-Care_System/logs/ #
+    imgsdir: file:///C:/smjava/Needy-Care_System/imgs/     # 화면 출력 용
+    uploadimgsdir: C:/smjava/Needy-Care_System/imgs/    # 파일 Write 용
+    logsdir: file:///C:/smjava/Needy-Care_System/logs/    # logs 화면 출력용
+    logsdirRead : C:/smjava/Needy-Care_System/logs/ #
   key:
     skey: ${MY_KEY}
     algo: PBEWithMD5AndDES
-    wkey: ENC(KpenOyMjgFsfI5Y63m7CO843NZ1e3rD/qFoI4ac76xcGcyFgzGi1lv128RRgkaY4lbwmKXJnH086MRn/OqV1iN4tR7FSVOVyOhrqjDHW57A226jVu9Q2oq+VjFBCurrdQF2ECJ+XlWESrLtT8BzUzA==)
-    owkey: ENC(1n0CubQdrW/QjB/ed6/Y348zgr3A0CgdIGr546KvjqzbQapHn8dt3GMRT8KZxn+q)
+    wkey: ENC(2hVNthZA5KlX7Hi6ow3pPTHPbML3w9MiiFjcZC76z1gV/iHPACQMY89q0CfK/knK0F1bFQuQ2tsarrZVbOkvjFbkkVzTOyYtCgo2qza+hu6k9WBQrShR7blvGPohoWQdjRe5ahrC8rbLhrhC7MHZlg==)
+    owkey: ENC(vIqd9CSeOJ2B+RNZB8q8uX2gqVeotK1BVjLTnpvApIu0QKfrK4PIS+zKhZuQbERZ)

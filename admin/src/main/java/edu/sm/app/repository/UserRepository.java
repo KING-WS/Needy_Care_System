@@ -12,8 +12,8 @@ import java.util.List;
 
 @Repository
 @Mapper
-public interface UserRepository extends SmRepository<User, String> {
+public interface UserRepository extends SmRepository<User, Integer> {
     Page<User> getpage() throws Exception;
     Page<User> getpageSearch(UserSearch custSearch) throws Exception;
-    List<User> searchUserList(UserSearch custSearch) throws Exception;
+    List<User> searchCustList(UserSearch custSearch) throws Exception;
 }

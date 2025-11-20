@@ -57,60 +57,44 @@
                                     <th>상태</th>
                                     <th>관리</th>
                                 </tr>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>1</td>
-                                    <td>홍길동</td>
-                                    <td>010-1234-5678</td>
-                                    <td>hong@example.com</td>
-                                    <td>2025-01-15</td>
-                                    <td><span class="badge bg-success customer-badge">활성</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</button>
-                                        <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>2</td>
-                                    <td>김철수</td>
-                                    <td>010-2345-6789</td>
-                                    <td>kim@example.com</td>
-                                    <td>2025-02-20</td>
-                                    <td><span class="badge bg-success customer-badge">활성</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</button>
-                                        <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input type="checkbox"></td>
-                                    <td>3</td>
-                                    <td>이영희</td>
-                                    <td>010-3456-7890</td>
-                                    <td>lee@example.com</td>
-                                    <td>2025-03-10</td>
-                                    <td><span class="badge bg-warning customer-badge">대기</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</button>
-                                        <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
-                                    </td>
-                                </tr>
+                                <c:forEach var="user" items="${users}" varStatus="status">
+                                    <tr>
+                                        <td><input type="checkbox"></td>
+                                        <td>${user.custId}</td>
+                                        <td>${user.custName}</td>
+                                        <td>${user.custPhone}</td>
+                                        <td>${user.custEmail}</td>
+                                        <td><fmt:formatDate value="${user.custRegdate}" pattern="yyyy-MM-dd"/></td>
+                                        <td>
+                                            <c:choose>
+                                                <c:when test="${!user.isDeleted}">
+                                                    <span class="badge bg-success customer-badge">활성</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="badge bg-danger customer-badge">비활성</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</button>
+                                            <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                                <c:if test="${empty users}">
+                                    <tr>
+                                        <td colspan="8" class="text-center">등록된 고객이 없습니다.</td>
+                                    </tr>
+                                </c:if>
                             </tbody>
                         </table>
                     </div>
                     
                     <nav>
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled"><a class="page-link" href="#">이전</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">다음</a></li>
-                        </ul>
-                    </nav>
                 </div>
             </div>
         </div>

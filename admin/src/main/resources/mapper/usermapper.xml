@@ -4,61 +4,80 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="edu.sm.app.repository.UserRepository">
 
-    <select id="searchCustList" parameterType="CustSearch" resultType="Cust">
-        select * from cust
+    <resultMap id="userResultMap" type="edu.sm.app.dto.User">
+        <id property="custId" column="cust_id"/>
+        <result property="custEmail" column="cust_email"/>
+        <result property="custPwd" column="cust_pwd"/>
+        <result property="custName" column="cust_name"/>
+        <result property="custPhone" column="cust_phone"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="custRegdate" column="cust_regdate"/>
+        <result property="custUpdate" column="cust_update"/>
+    </resultMap>
+
+    <sql id="selectColumns">
+        SELECT cust_id, cust_email, cust_pwd, cust_name, cust_phone, is_deleted, cust_regdate, cust_update
+    </sql>
+
+    <sql id="searchConditions">
         <where>
             <if test="custName != null and !custName.equals('')">
-                cust_name like concat('%',#{custName},'%')
+                cust_name LIKE CONCAT('%', #{custName}, '%')
             </if>
             <if test="startDate != null and !startDate.equals('')">
-                <!--and cust_regdate &gt;= #{startDate} -->
-                <![CDATA[
-                  and cust_regdate  >=  #{startDate}
-
-                 ]]>
+                AND cust_regdate >= #{startDate}
             </if>
             <if test="endDate != null and !endDate.equals('')">
-                <!--and date(cust_regdate) &lt;= #{endDate} -->
-                <![CDATA[ and date(cust_regdate) <=  #{endDate} ]]>
+                <![CDATA[ AND DATE(cust_regdate) <= #{endDate} ]]>
             </if>
         </where>
-    </select>
-    <select id="getpage" resultType="Cust">
-        SELECT * FROM cust
-    </select>
-    <select id="getpageSearch" parameterType="CustSearch" resultType="Cust">
-        select * from cust
-        <where>
-            <if test="custName != null and !custName.equals('')">
-                cust_name like concat('%',#{custName},'%')
-            </if>
-            <if test="startDate != null and !startDate.equals('')">
-                <!--and cust_regdate &gt;= #{startDate} -->
-                <![CDATA[
-                  and cust_regdate  >=  #{startDate}
+    </sql>
 
-                 ]]>
-            </if>
-            <if test="endDate != null and !endDate.equals('')">
-                <!--and date(cust_regdate) &lt;= #{endDate} -->
-                <![CDATA[ and date(cust_regdate) <=  #{endDate} ]]>
-            </if>
-        </where>
+    <select id="searchCustList" parameterType="edu.sm.app.dto.UserSearch" resultMap="userResultMap">
+        <include refid="selectColumns"/>
+        FROM cust
+        <include refid="searchConditions"/>
     </select>
-    <select id="select" parameterType="String" resultType="Cust">
-        SELECT * FROM cust WHERE cust_id=#{custId}
+
+    <select id="getpage" resultMap="userResultMap">
+        <include refid="selectColumns"/>
+        FROM cust
     </select>
-    <select id="selectAll" resultType="Cust">
-        SELECT * FROM cust
+
+    <select id="getpageSearch" parameterType="edu.sm.app.dto.UserSearch" resultMap="userResultMap">
+        <include refid="selectColumns"/>
+        FROM cust
+        <include refid="searchConditions"/>
     </select>
-    <insert id="insert" parameterType="Cust">
-        INSERT INTO cust VALUES (#{custId},#{custPwd},#{custName},#{custAddr}, NOW(), NOW())
+
+    <select id="select" parameterType="int" resultMap="userResultMap">
+        <include refid="selectColumns"/>
+        FROM cust WHERE cust_id = #{custId}
+    </select>
+
+    <select id="selectAll" resultMap="userResultMap">
+        <include refid="selectColumns"/>
+        FROM cust
+    </select>
+
+    <insert id="insert" parameterType="edu.sm.app.dto.User" useGeneratedKeys="true" keyProperty="custId">
+        INSERT INTO cust (cust_email, cust_pwd, cust_name, cust_phone, is_deleted, cust_regdate, cust_update)
+        VALUES (#{custEmail}, #{custPwd}, #{custName}, #{custPhone}, #{isDeleted}, NOW(), NOW())
     </insert>
-    <update id="update" parameterType="Cust">
-        UPDATE cust SET cust_pwd=#{custPwd},cust_name=#{custName},cust_addr=#{custAddr}, cust_update=NOW() WHERE cust_id=#{custId}
+
+    <update id="update" parameterType="edu.sm.app.dto.User">
+        UPDATE cust
+        SET cust_email = #{custEmail},
+            cust_pwd = #{custPwd},
+            cust_name = #{custName},
+            cust_phone = #{custPhone},
+            is_deleted = #{isDeleted},
+            cust_update = NOW()
+        WHERE cust_id = #{custId}
     </update>
-    <delete id="delete" parameterType="String">
-        DELETE FROM cust WHERE cust_id=#{custId}
+
+    <delete id="delete" parameterType="int">
+        DELETE FROM cust WHERE cust_id = #{custId}
     </delete>
 
 </mapper>
