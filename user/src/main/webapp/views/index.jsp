@@ -77,6 +77,11 @@
             width: 32px;
             height: 32px;
             object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover img {
+            transform: rotate(360deg) scale(1.2);
         }
 
         /* 중앙: 메뉴 */
@@ -945,7 +950,7 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>구독</h2>
-            <p>최상의 서비스를 월 구독제를 통해 만나보세요</p>
+            <p>최상의 서비스를 월 구독제를 통해 만나보세요 에아~</p>
         </div>
         <div class="row">
             <!-- Starter Plan -->

@@ -1,44 +1,77 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="edu.sm.app.repository.MapCourseRepository">
 
-    <!-- 기본 CRUD 쿼리 -->
-    
-    <!-- 전체 조회 -->
-    <select id="selectAll" resultType="MapCourse">
-        SELECT *
+    <!-- 전체 산책코스 목록 조회 (삭제되지 않은 것만) -->
+    <select id="selectAll" resultType="edu.sm.app.dto.MapCourse">
+        SELECT
+            course_id AS courseId,
+            rec_id AS recId,
+            course_name AS courseName,
+            course_type AS courseType,
+            course_path_data AS coursePathData,
+            is_deleted AS isDeleted,
+            course_regdate AS courseRegdate,
+            course_update AS courseUpdate
         FROM Map_Course
         WHERE is_deleted = 'N'
         ORDER BY course_regdate DESC
     </select>
 
-    <!-- 단건 조회 (course_id로) -->
-    <select id="select" parameterType="Integer" resultType="MapCourse">
-        SELECT *
+    <!-- 특정 산책코스 조회 (course_id로) -->
+    <select id="select" resultType="edu.sm.app.dto.MapCourse">
+        SELECT
+            course_id AS courseId,
+            rec_id AS recId,
+            course_name AS courseName,
+            course_type AS courseType,
+            course_path_data AS coursePathData,
+            is_deleted AS isDeleted,
+            course_regdate AS courseRegdate,
+            course_update AS courseUpdate
         FROM Map_Course
-        WHERE course_id = #{courseId} AND is_deleted = 'N'
+        WHERE course_id = #{courseId}
+          AND is_deleted = 'N'
     </select>
 
-    <!-- rec_id로 코스 목록 조회 -->
-    <select id="selectByRecId" parameterType="Integer" resultType="MapCourse">
-        SELECT *
+    <!-- 노약자별 산책코스 목록 조회 (rec_id로) -->
+    <select id="selectByRecId" resultType="edu.sm.app.dto.MapCourse">
+        SELECT
+            course_id AS courseId,
+            rec_id AS recId,
+            course_name AS courseName,
+            course_type AS courseType,
+            course_path_data AS coursePathData,
+            is_deleted AS isDeleted,
+            course_regdate AS courseRegdate,
+            course_update AS courseUpdate
         FROM Map_Course
-        WHERE rec_id = #{recId} AND is_deleted = 'N'
+        WHERE rec_id = #{recId}
+          AND is_deleted = 'N'
         ORDER BY course_regdate DESC
     </select>
 
-    <!-- 코스 타입별 조회 -->
-    <select id="selectByCourseType" parameterType="String" resultType="MapCourse">
-        SELECT *
+    <!-- 코스 타입별 산책코스 목록 조회 -->
+    <select id="selectByCourseType" resultType="edu.sm.app.dto.MapCourse">
+        SELECT
+            course_id AS courseId,
+            rec_id AS recId,
+            course_name AS courseName,
+            course_type AS courseType,
+            course_path_data AS coursePathData,
+            is_deleted AS isDeleted,
+            course_regdate AS courseRegdate,
+            course_update AS courseUpdate
         FROM Map_Course
-        WHERE course_type = #{courseType} AND is_deleted = 'N'
+        WHERE course_type = #{courseType}
+          AND is_deleted = 'N'
         ORDER BY course_regdate DESC
     </select>
 
-    <!-- 삽입 (등록) -->
-    <insert id="insert" parameterType="MapCourse" useGeneratedKeys="true" keyProperty="courseId">
+    <!-- 산책코스 등록 -->
+    <insert id="insert" parameterType="edu.sm.app.dto.MapCourse" useGeneratedKeys="true" keyProperty="courseId">
         INSERT INTO Map_Course (
             rec_id,
             course_name,
@@ -59,32 +92,34 @@
         )
     </insert>
 
-    <!-- 수정 -->
-    <update id="update" parameterType="MapCourse">
-        UPDATE Map_Course SET
-        <if test="recId != null">
-            rec_id = #{recId},
-        </if>
-        <if test="courseName != null and !courseName.equals('')">
-            course_name = #{courseName},
-        </if>
-        <if test="courseType != null and !courseType.equals('')">
-            course_type = #{courseType},
-        </if>
-        <if test="coursePathData != null and !coursePathData.equals('')">
-            course_path_data = #{coursePathData},
-        </if>
-        <if test="isDeleted != null and !isDeleted.equals('')">
-            is_deleted = #{isDeleted},
-        </if>
-        course_update = NOW()
+    <!-- 산책코스 수정 -->
+    <update id="update" parameterType="edu.sm.app.dto.MapCourse">
+        UPDATE Map_Course
+        <set>
+            <if test="recId != null">
+                rec_id = #{recId},
+            </if>
+            <if test="courseName != null and courseName != ''">
+                course_name = #{courseName},
+            </if>
+            <if test="courseType != null and courseType != ''">
+                course_type = #{courseType},
+            </if>
+            <if test="coursePathData != null">
+                course_path_data = #{coursePathData},
+            </if>
+            <if test="isDeleted != null and isDeleted != ''">
+                is_deleted = #{isDeleted},
+            </if>
+            course_update = NOW()
+        </set>
         WHERE course_id = #{courseId}
     </update>
 
-    <!-- 삭제 (논리 삭제) -->
+    <!-- 산책코스 삭제 (논리 삭제) -->
     <delete id="delete" parameterType="Integer">
-        UPDATE Map_Course 
-        SET is_deleted = 'Y', course_update = NOW() 
+        UPDATE Map_Course
+        SET is_deleted = 'Y', course_update = NOW()
         WHERE course_id = #{courseId}
     </delete>
 

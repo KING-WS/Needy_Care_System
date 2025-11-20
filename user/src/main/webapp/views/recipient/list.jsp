@@ -87,6 +87,15 @@
         font-size: 32px;
         margin-right: 15px;
         flex-shrink: 0;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
     }
     
     .card-info {
@@ -185,6 +194,16 @@
     
     .btn-delete:hover {
         background: #d32f2f;
+        color: white;
+    }
+    
+    .btn-select {
+        background: #e8f5e9;
+        color: #2e7d32;
+    }
+    
+    .btn-select:hover {
+        background: #2e7d32;
         color: white;
     }
     
@@ -287,11 +306,22 @@
             const age = calculateAge(recipient.recBirthday);
             const gender = recipient.recGender === 'M' ? '남성' : '여성';
             
+            // 이미지 URL 처리 (상대 경로인 경우 절대 경로로 변환)
+            let photoUrl = '';
+            if (recipient.recPhotoUrl) {
+                photoUrl = recipient.recPhotoUrl.startsWith('/') 
+                    ? recipient.recPhotoUrl 
+                    : '/' + recipient.recPhotoUrl;
+            }
+            
             html += `
                 <div class="recipient-card">
                     <div class="card-header">
                         <div class="avatar">
-                            <i class="bi bi-person-fill"></i>
+                            \${photoUrl 
+                                ? `<img src="\${photoUrl}" alt="\${recipient.recName}" onerror="this.style.display='none'; this.parentElement.innerHTML='<i class=\\'bi bi-person-fill\\'></i>';" />`
+                                : `<i class="bi bi-person-fill"></i>`
+                            }
                         </div>
                         <div class="card-info">
                             <div class="recipient-name">\${recipient.recName}</div>
@@ -315,6 +345,9 @@
                     </div>
                     
                     <div class="card-actions">
+                        <button class="action-btn btn-select" onclick="selectRecipient(\${recipient.recId})">
+                            <i class="bi bi-check-circle"></i> 선택
+                        </button>
                         <button class="action-btn btn-view" onclick="viewRecipient(\${recipient.recId})">
                             <i class="bi bi-eye"></i> 상세보기
                         </button>
@@ -362,6 +395,11 @@
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `\${year}년 \${month}월 \${day}일`;
+    }
+    
+    // 노약자 선택 (홈 화면으로 이동)
+    function selectRecipient(recId) {
+        location.href = '<c:url value="/home"/>?recId=' + recId;
     }
     
     // 상세보기

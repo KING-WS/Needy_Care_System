@@ -1,19 +1,63 @@
 package edu.sm.app.repository;
 
 import edu.sm.app.dto.MapCourse;
-import edu.sm.common.frame.SmRepository;
 import org.apache.ibatis.annotations.Mapper;
-import org.springframework.stereotype.Repository;
-
+import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
-@Repository
+/**
+ * 산책코스(MapCourse) Repository
+ * 산책코스 데이터베이스 접근 인터페이스
+ */
 @Mapper
-public interface MapCourseRepository extends SmRepository<MapCourse, Integer> {
-    // rec_id로 코스 목록 조회 (돌봄 대상자별 코스)
-    List<MapCourse> selectByRecId(Integer recId) throws Exception;
+public interface MapCourseRepository {
     
-    // 코스 타입별 조회 (예: 산책코스, 병원경로 등)
-    List<MapCourse> selectByCourseType(String courseType) throws Exception;
+    /**
+     * 전체 산책코스 목록 조회
+     * @return 모든 산책코스 목록
+     */
+    List<MapCourse> selectAll();
+    
+    /**
+     * 특정 산책코스 조회
+     * @param courseId 산책코스 ID
+     * @return 산책코스 정보
+     */
+    MapCourse select(@Param("courseId") Integer courseId);
+    
+    /**
+     * 노약자별 산책코스 목록 조회
+     * @param recId 노약자 ID
+     * @return 해당 노약자의 산책코스 목록
+     */
+    List<MapCourse> selectByRecId(@Param("recId") Integer recId);
+    
+    /**
+     * 코스 타입별 산책코스 목록 조회
+     * @param courseType 코스 타입
+     * @return 해당 타입의 산책코스 목록
+     */
+    List<MapCourse> selectByCourseType(@Param("courseType") String courseType);
+    
+    /**
+     * 산책코스 등록
+     * @param mapCourse 산책코스 정보
+     * @return 등록된 행 수
+     */
+    int insert(MapCourse mapCourse);
+    
+    /**
+     * 산책코스 수정
+     * @param mapCourse 수정할 산책코스 정보
+     * @return 수정된 행 수
+     */
+    int update(MapCourse mapCourse);
+    
+    /**
+     * 산책코스 삭제 (논리 삭제)
+     * @param courseId 산책코스 ID
+     * @return 삭제된 행 수
+     */
+    int delete(@Param("courseId") Integer courseId);
 }
 

@@ -340,6 +340,46 @@
             </div>
         </div>
         
+        <!-- 키오스크 접속 정보 -->
+        <c:if test="${not empty recipient.recKioskCode}">
+        <div class="info-section">
+            <h3 class="section-title">
+                <i class="bi bi-tablet"></i> 키오스크 접속 정보
+            </h3>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 15px; color: white;">
+                <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
+                    <i class="bi bi-info-circle"></i> 노약자 전용 간편 접속 링크
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 코드:</div>
+                    <div style="font-size: 24px; font-weight: bold; letter-spacing: 2px; font-family: 'Courier New', monospace;">
+                        ${recipient.recKioskCode}
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin-bottom: 15px; word-break: break-all;">
+                    <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 URL:</div>
+                    <div id="kioskUrl" style="font-size: 14px; font-weight: 500; font-family: 'Courier New', monospace;">
+                        ${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/kiosk/${recipient.recKioskCode}
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button onclick="copyKioskUrl()" style="background: white; color: #667eea; border: none; padding: 12px 24px; border-radius: 25px; font-weight: 600; cursor: pointer; flex: 1; min-width: 150px;">
+                        <i class="bi bi-clipboard"></i> 링크 복사
+                    </button>
+                    <button onclick="showQRCode()" style="background: rgba(255,255,255,0.3); color: white; border: 2px solid white; padding: 12px 24px; border-radius: 25px; font-weight: 600; cursor: pointer; flex: 1; min-width: 150px;">
+                        <i class="bi bi-qr-code"></i> QR코드 보기
+                    </button>
+                </div>
+                <div style="font-size: 13px; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
+                    <i class="bi bi-lightbulb"></i> <strong>사용 방법:</strong><br>
+                    • 위 링크를 노약자 분께 전달하세요<br>
+                    • QR코드를 스캔하면 바로 접속됩니다<br>
+                    • 별도의 로그인 없이 간편하게 이용 가능합니다
+                </div>
+            </div>
+        </div>
+        </c:if>
+        
         <!-- 시스템 정보 -->
         <div class="info-section">
             <h3 class="section-title">
@@ -418,6 +458,54 @@
                 alert('삭제 중 오류가 발생했습니다.');
             });
         }
+    }
+    
+    // 키오스크 URL 복사
+    function copyKioskUrl() {
+        const url = document.getElementById('kioskUrl').textContent.trim();
+        navigator.clipboard.writeText(url).then(() => {
+            alert('✅ 키오스크 링크가 복사되었습니다!\n\n노약자 분께 전달해주세요.');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            alert('링크 복사에 실패했습니다.');
+        });
+    }
+    
+    // QR코드 모달 표시
+    function showQRCode() {
+        const url = document.getElementById('kioskUrl').textContent.trim();
+        const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+        
+        const modal = document.createElement('div');
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        modal.innerHTML = `
+            <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
+                <h3 style="margin-bottom: 20px; color: #2c3e50;">키오스크 접속 QR코드</h3>
+                <img src="\${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid #667eea; border-radius: 15px; margin-bottom: 20px;">
+                <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
+                    노약자 분이 스마트폰으로<br>
+                    위 QR코드를 스캔하면<br>
+                    바로 키오스크 화면으로 이동합니다
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <a href="\${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: #667eea; color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                        <i class="bi bi-download"></i> 다운로드
+                    </a>
+                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: #ecf0f1; color: #7f8c8d; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600;">
+                        닫기
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        document.body.appendChild(modal);
     }
 </script>
 
