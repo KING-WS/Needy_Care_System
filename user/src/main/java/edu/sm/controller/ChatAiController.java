@@ -2,7 +2,7 @@ package edu.sm.controller;
 
 import edu.sm.app.dto.ChatRequest;
 import edu.sm.app.dto.ChatResponse;
-import edu.sm.app.service.AiChatService;
+import edu.sm.app.aiservice.AiChatService;
 import edu.sm.app.service.ChatLogService;
 import edu.sm.app.dto.ChatLog;
 import edu.sm.app.service.RecipientService;

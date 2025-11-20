@@ -41,7 +41,7 @@
     <main class="main-content">
         <section class="ai-companion-area">
             <div class="chat-window" id="chat-window">
-                <div class="chat-message bot-message"><div class="message-bubble">안녕하세요, ${recipient.recName}님! 오늘 기분은 어떠세요?</div><span class="message-time">오전 9:30</span></div>
+
             </div>
             <div class="chat-input-area">
                 <button class="speak-button" onclick="startSpeechRecognition()">
@@ -96,6 +96,9 @@
         }
         setInterval(updateClock, 1000);
         updateClock();
+
+        // 초기 봇 메시지를 동적으로 추가하여 현재 시각이 표시되도록 합니다.
+        addMessageToChat('bot', '안녕하세요, ' + RECIPIENT_NAME + '님! 오늘 기분은 어떠세요?');
 
         // 2. 채팅 기능
         const chatInput = document.getElementById('chat-text-input');
