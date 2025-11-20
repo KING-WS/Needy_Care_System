@@ -36,9 +36,9 @@
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <button class="btn btn-primary customer-btn">
-                            <i class="bi bi-person-plus me-2"  ref="<c:url value="/add"/>"></i>고객 등록
-                        </button>
+                        <a href="<c:url value="/customer/add"/>" class="btn btn-primary customer-btn">
+                            <i class="bi bi-person-plus me-2"></i>고객 등록
+                        </a>
                         <button class="btn btn-outline-secondary ms-2 customer-btn">
                             <i class="bi bi-download me-2"></i>엑셀 다운로드
                         </button>

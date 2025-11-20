@@ -92,7 +92,7 @@
     document.getElementById('customerAddForm').addEventListener('submit', function(e) {
         e.preventDefault();
         alert('고객이 등록되었습니다.');
-        window.location.href = '<c:url value="/customer/list"/>';
+        window.location.href = '<c:url value="/list"/>';
     });
 </script>
 
