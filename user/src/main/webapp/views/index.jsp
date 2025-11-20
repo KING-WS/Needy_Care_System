@@ -77,6 +77,11 @@
             width: 32px;
             height: 32px;
             object-fit: contain;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover img {
+            transform: rotate(360deg) scale(1.2);
         }
 
         /* 중앙: 메뉴 */
