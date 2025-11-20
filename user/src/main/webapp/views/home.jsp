@@ -7,8 +7,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home - Aventro</title>
+    <link rel="icon" type="image/png" href="/img/favicontitle.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
         :root {
@@ -67,6 +70,15 @@
             color: var(--primary-color) !important;
             text-decoration: none;
             order: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-brand img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
         }
 
         /* 중앙: 메뉴 */
@@ -534,15 +546,19 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <!-- 왼쪽: 로고 -->
-            <a class="navbar-brand" href="/">Aventro</a>
+            <a class="navbar-brand" href="/">
+                <img src="/img/favicontitle.png" alt="Aventro Logo">
+                Aventro
+            </a>
 
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>">HOME</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/comm"/>">통신</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>">일정</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>">CCTV</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>">페이지</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/comm"/>"><i class="fas fa-comments"></i> 통신</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>"><i class="fas fa-file-alt"></i> 페이지</a></li>
             </ul>
 
             <!-- 오른쪽: 사용자 정보 -->
