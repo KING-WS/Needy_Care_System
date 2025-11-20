@@ -79,7 +79,7 @@
         const KIOSK_CODE = "${kioskCode}";
         const RECIPIENT_NAME = "${recipient.recName}";
 
-        // 1. [수정됨] 시계 기능: 초 삭제, 오전/오후 한글 표시
+        // 1. 시계 기능 (문자열 결합 방식 사용)
         const clockElement = document.getElementById('clock');
         function updateClock() {
             if (clockElement) {
@@ -87,19 +87,13 @@
                 let hours = now.getHours();
                 const minutes = String(now.getMinutes()).padStart(2, '0');
 
-                // 오전/오후 판단
                 const ampm = hours >= 12 ? '오후' : '오전';
-
-                // 24시간제 -> 12시간제 변환
                 hours = hours % 12;
-                hours = hours ? hours : 12; // 0시는 12시로 표시
+                hours = hours ? hours : 12;
 
-                // 최종 표시 (예: 오후 2:30)
                 clockElement.textContent = ampm + " " + hours + ":" + minutes;
             }
         }
-        // 초가 없으므로 1초마다가 아니라 30초나 1분마다 갱신해도 되지만,
-        // 정확한 분 변경을 위해 1초 간격 유지가 좋습니다.
         setInterval(updateClock, 1000);
         updateClock();
 
@@ -109,15 +103,42 @@
 
         function handleSendMessage() {
             const message = chatInput.value.trim();
-            if (message) {
-                addMessageToChat('user', message);
-                chatInput.value = '';
-                console.log("채팅 메시지 전송: " + message);
+            if (!message) return;
 
-                setTimeout(() => {
-                    addMessageToChat('bot', "네, 알겠습니다. 잠시만 기다려주세요.");
-                }, 1000);
-            }
+            addMessageToChat('user', message);
+            chatInput.value = '';
+
+            const loadingMessageId = 'loading-ai-response';
+            addMessageToChat('bot', 'AI 응답을 생성 중입니다...', loadingMessageId);
+
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: message,
+                    kioskCode: KIOSK_CODE
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.response || '서버 응답 오류');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                removeMessageFromChat(loadingMessageId);
+                addMessageToChat('bot', data.response);
+                console.log("AI 응답 수신: " + data.response);
+            })
+            .catch(error => {
+                removeMessageFromChat(loadingMessageId);
+                addMessageToChat('bot', '오류 발생: ' + error.message);
+                console.error('AI 메시지 전송 중 오류 발생:', error);
+            });
         }
 
         if(sendBtn) {
@@ -162,12 +183,15 @@
     }
 
     // 5. 채팅창 메시지 추가
-    function addMessageToChat(sender, message) {
+    function addMessageToChat(sender, message, messageId = null) {
         const chatWindow = document.getElementById('chat-window');
         const messageType = sender === 'user' ? 'user-message' : 'bot-message';
 
-        const messageElement = document.createElement('div');
-        messageElement.className = 'chat-message ' + messageType;
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ' + messageType;
+        if (messageId) {
+            messageDiv.id = messageId;
+        }
 
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
@@ -176,7 +200,6 @@
         const time = document.createElement('span');
         time.className = 'message-time';
 
-        // [수정됨] 채팅 시간 표시도 동일하게 (오전/오후) 적용
         const now = new Date();
         let hours = now.getHours();
         const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -185,10 +208,18 @@
         hours = hours ? hours : 12;
         time.textContent = ampm + " " + hours + ":" + minutes;
 
-        messageElement.appendChild(bubble);
-        messageElement.appendChild(time);
-        chatWindow.appendChild(messageElement);
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(time);
+        chatWindow.appendChild(messageDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+    
+    // 6. 채팅창에서 특정 메시지 제거 함수 (로딩 메시지 제거용)
+    function removeMessageFromChat(messageId) {
+        const messageElement = document.getElementById(messageId);
+        if (messageElement) {
+            messageElement.remove();
+        }
     }
 </script>
 
