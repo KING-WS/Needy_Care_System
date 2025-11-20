@@ -53,50 +53,66 @@ public class HomeController {
                 }
                 log.info("등록된 노약자 수: {}", recipients.size());
                 
-                // 첫 번째 노약자의 정보와 건강 데이터 조회
-                if (!recipients.isEmpty()) {
-                    Recipient firstRecipient = recipients.get(0);
-                    model.addAttribute("recipient", firstRecipient);
+                // 선택된 노약자 결정
+                Recipient selectedRecipient = null;
+                
+                // 1. 세션에 저장된 노약자가 있으면 사용
+                selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                // 세션의 노약자가 현재 사용자의 노약자인지 확인
+                if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                    selectedRecipient = null;
+                }
+                
+                // 2. 세션에도 없으면 첫 번째 노약자 사용
+                if (selectedRecipient == null && !recipients.isEmpty()) {
+                    selectedRecipient = recipients.get(0);
+                    // 세션에 저장
+                    session.setAttribute("selectedRecipient", selectedRecipient);
+                }
+                
+                // 선택된 노약자의 정보와 건강 데이터 조회
+                if (selectedRecipient != null) {
+                    model.addAttribute("recipient", selectedRecipient);
                     
                     // 최신 혈압 데이터 조회
                     try {
                         HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
-                            firstRecipient.getRecId(), "혈압");
+                            selectedRecipient.getRecId(), "혈압");
                         model.addAttribute("bloodPressure", latestBloodPressure);
-                        log.info("혈압 데이터 조회 성공 - recId: {}", firstRecipient.getRecId());
+                        log.info("혈압 데이터 조회 성공 - recId: {}", selectedRecipient.getRecId());
                     } catch (Exception e) {
-                        log.warn("혈압 데이터 조회 실패 - recId: {}", firstRecipient.getRecId());
+                        log.warn("혈압 데이터 조회 실패 - recId: {}", selectedRecipient.getRecId());
                     }
                     
                     // 현재 월의 일정 조회
                     try {
                         LocalDate now = LocalDate.now();
                         List<Schedule> schedules = scheduleService.getSchedulesByMonth(
-                            firstRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                            selectedRecipient.getRecId(), now.getYear(), now.getMonthValue());
                         model.addAttribute("schedules", schedules);
-                        log.info("일정 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), schedules.size());
+                        log.info("일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), schedules.size());
                     } catch (Exception e) {
-                        log.warn("일정 조회 실패 - recId: {}", firstRecipient.getRecId());
+                        log.warn("일정 조회 실패 - recId: {}", selectedRecipient.getRecId());
                     }
                     
                     // 오늘의 일정 조회
                     try {
                         LocalDate today = LocalDate.now();
                         List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
-                            firstRecipient.getRecId(), today, today);
+                            selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
-                        log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), todaySchedules.size());
+                        log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todaySchedules.size());
                     } catch (Exception e) {
-                        log.warn("오늘의 일정 조회 실패 - recId: {}", firstRecipient.getRecId());
+                        log.warn("오늘의 일정 조회 실패");
                     }
                     
                     // 지도 장소 조회
                     try {
-                        List<MapLocation> maps = mapService.getByRecId(firstRecipient.getRecId());
+                        List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
                         model.addAttribute("maps", maps);
-                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), maps.size());
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), maps.size());
                     } catch (Exception e) {
-                        log.warn("지도 장소 조회 실패 - recId: {}", firstRecipient.getRecId());
+                        log.warn("지도 장소 조회 실패 - recId: {}", selectedRecipient.getRecId());
                     }
                 }
             } catch (Exception e) {
@@ -113,7 +129,8 @@ public class HomeController {
     
     @GetMapping("/home")
     public String home(HttpSession session, Model model,
-                      @RequestParam(value = "center", required = false) String center) {
+                      @RequestParam(value = "center", required = false) String center,
+                      @RequestParam(value = "recId", required = false) Integer recId) {
         Cust loginUser = (Cust) session.getAttribute("loginUser");
         
         if (loginUser == null) {
@@ -130,15 +147,46 @@ public class HomeController {
                     return "redirect:/recipient/prompt";
                 }
                 
-                // 첫 번째 노약자의 정보와 건강 데이터 조회
-                if (!recipients.isEmpty()) {
-                    Recipient firstRecipient = recipients.get(0);
-                    model.addAttribute("recipient", firstRecipient);
+                // 선택된 노약자 결정
+                Recipient selectedRecipient = null;
+                
+                // 1. recId 파라미터가 있으면 해당 노약자 사용
+                if (recId != null && recId > 0) {
+                    selectedRecipient = recipientService.getRecipientById(recId);
+                    // 해당 노약자가 현재 사용자의 노약자인지 확인
+                    if (selectedRecipient != null && selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                        // 세션에 선택된 노약자 저장
+                        session.setAttribute("selectedRecipient", selectedRecipient);
+                        log.info("노약자 선택됨 - recId: {}, recName: {}", selectedRecipient.getRecId(), selectedRecipient.getRecName());
+                    } else {
+                        selectedRecipient = null;
+                    }
+                }
+                
+                // 2. 세션에 저장된 노약자가 있으면 사용
+                if (selectedRecipient == null) {
+                    selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                    // 세션의 노약자가 현재 사용자의 노약자인지 확인
+                    if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                        selectedRecipient = null;
+                    }
+                }
+                
+                // 3. 세션에도 없으면 첫 번째 노약자 사용
+                if (selectedRecipient == null && !recipients.isEmpty()) {
+                    selectedRecipient = recipients.get(0);
+                    // 세션에 저장
+                    session.setAttribute("selectedRecipient", selectedRecipient);
+                }
+                
+                // 선택된 노약자의 정보와 건강 데이터 조회
+                if (selectedRecipient != null) {
+                    model.addAttribute("recipient", selectedRecipient);
                     
                     // 최신 혈압 데이터 조회
                     try {
                         HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
-                            firstRecipient.getRecId(), "혈압");
+                            selectedRecipient.getRecId(), "혈압");
                         model.addAttribute("bloodPressure", latestBloodPressure);
                     } catch (Exception e) {
                         log.warn("혈압 데이터 조회 실패");
@@ -148,7 +196,7 @@ public class HomeController {
                     try {
                         LocalDate now = LocalDate.now();
                         List<Schedule> schedules = scheduleService.getSchedulesByMonth(
-                            firstRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                            selectedRecipient.getRecId(), now.getYear(), now.getMonthValue());
                         model.addAttribute("schedules", schedules);
                     } catch (Exception e) {
                         log.warn("일정 조회 실패");
@@ -158,7 +206,7 @@ public class HomeController {
                     try {
                         LocalDate today = LocalDate.now();
                         List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
-                            firstRecipient.getRecId(), today, today);
+                            selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
                     } catch (Exception e) {
                         log.warn("오늘의 일정 조회 실패");
@@ -166,11 +214,11 @@ public class HomeController {
                     
                     // 지도 장소 조회
                     try {
-                        List<MapLocation> maps = mapService.getByRecId(firstRecipient.getRecId());
+                        List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
                         model.addAttribute("maps", maps);
-                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", firstRecipient.getRecId(), maps.size());
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), maps.size());
                     } catch (Exception e) {
-                        log.warn("지도 장소 조회 실패 - recId: {}", firstRecipient.getRecId());
+                        log.warn("지도 장소 조회 실패 - recId: {}", selectedRecipient.getRecId());
                     }
                 }
             } catch (Exception e) {
