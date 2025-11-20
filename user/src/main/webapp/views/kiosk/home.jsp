@@ -268,8 +268,17 @@
                 </div>
             </c:if>
             
-            <h2>${recipient.recName} 님</h2>
             <p class="greeting">환영합니다! 👋</p>
+            <c:if test="${not empty recipient.recName}">
+                <h2 style="font-size: 48px; color: #333; font-weight: bold; margin-top: 15px; margin-bottom: 15px;">
+                    ${recipient.recName}님
+                </h2>
+            </c:if>
+            <c:if test="${not empty cust.custName}">
+                <p style="font-size: 32px; color: #666; font-weight: 500; margin-bottom: 30px;">
+                    돌봄 담당: ${cust.custName}님
+                </p>
+            </c:if>
             
             <div class="info">
                 <i class="fas fa-birthday-cake"></i>
