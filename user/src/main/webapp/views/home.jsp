@@ -4,8 +4,13 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <title>Needy Care System - 노약자 돌봄 관리 시스템</title>
-    <%@ include file="common/head.jsp" %>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Aventro</title>
+    <link rel="icon" type="image/png" href="/img/favicontitle.png">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
@@ -70,14 +75,15 @@
             gap: 10px;
         }
 
-        .navbar-logo {
-            height: 40px;
-            width: auto;
-            transition: transform 0.3s ease;
+        .navbar-brand img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            transition: all 0.3s ease;
         }
 
-        .navbar-brand:hover .navbar-logo {
-            transform: scale(1.1);
+        .navbar-brand:hover img {
+            transform: rotate(360deg) scale(1.2);
         }
 
         /* 중앙: 메뉴 */
@@ -546,7 +552,7 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
-                <img src="<c:url value='/img/favicontitle.png'/>" alt="Logo" class="navbar-logo">
+                <img src="/img/favicontitle.png" alt="Aventro Logo">
                 Aventro
             </a>
 
