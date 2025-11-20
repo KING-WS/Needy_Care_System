@@ -6,20 +6,20 @@
         border-radius: 15px;
         overflow: hidden;
     }
-    
+
     .ws-card .card-header {
         border-radius: 15px 15px 0 0;
     }
-    
+
     .ws-alert {
         border-radius: 12px;
     }
-    
+
     .ws-btn {
         border-radius: 10px;
         padding: 10px 20px;
     }
-    
+
     .ws-messages {
         border-radius: 12px;
     }
@@ -61,31 +61,31 @@
 
 <script>
     let ws = null;
-    
+
     function connectWebSocket() {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         ws = new WebSocket(protocol + '//' + window.location.host + '/ws');
-        
+
         ws.onopen = function() {
-            document.getElementById('websocket-messages').innerHTML = 
+            document.getElementById('websocket-messages').innerHTML =
                 '<p class="text-success">Connected to WebSocket server!</p>';
         };
-        
+
         ws.onmessage = function(event) {
             const messagesDiv = document.getElementById('websocket-messages');
             messagesDiv.innerHTML += '<p>' + event.data + '</p>';
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         };
-        
+
         ws.onerror = function(error) {
             console.error('WebSocket error:', error);
         };
     }
-    
+
     function disconnectWebSocket() {
         if (ws) {
             ws.close();
-            document.getElementById('websocket-messages').innerHTML = 
+            document.getElementById('websocket-messages').innerHTML =
                 '<p class="text-danger">Disconnected from WebSocket server!</p>';
         }
     }
