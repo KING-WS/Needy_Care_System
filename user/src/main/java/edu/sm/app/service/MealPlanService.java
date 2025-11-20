@@ -1,5 +1,6 @@
 package edu.sm.app.service;
 
+import edu.sm.app.aiservice.AiMealService;
 import edu.sm.app.dto.MealPlan;
 import edu.sm.app.repository.MealPlanRepository;
 import edu.sm.common.frame.SmService;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MealPlan(식단 관리) Service
@@ -149,6 +151,18 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         log.debug("일일 총 칼로리 조회 - recId: {}, date: {}", recId, mealDate);
         Integer totalCalories = mealPlanRepository.selectTotalCaloriesByDate(recId, mealDate);
         return totalCalories != null ? totalCalories : 0;
+    }
+
+    private final AiMealService aiMealService;
+
+    /**
+     * AI 기반 식단 추천
+     * @param preferences 식단 추천을 위한 사용자 선호도 (예: 저염식, 고단백 등)
+     * @return AI가 추천하는 식단 정보
+     */
+    public Map<String, String> getRecommendedMeal(String preferences) {
+        log.info("AI 식단 추천 요청 - 선호도: {}", preferences);
+        return aiMealService.getMealRecommendation(preferences);
     }
 }
 

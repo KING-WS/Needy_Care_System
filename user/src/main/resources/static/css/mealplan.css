@@ -653,6 +653,67 @@ textarea.form-control {
     box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
+/* AI 식단 추천 관련 스타일 */
+.quick-add-btn.ai-btn {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+.quick-add-btn.ai-btn:hover {
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+.ai-recommendation-details {
+    background-color: #f7fafc;
+    border-radius: 10px;
+    padding: 20px;
+    border: 2px dashed #e2e8f0;
+}
+
+.ai-recommendation-details p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.ai-recommendation-details p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-recommendation-details strong {
+    color: #2d3748;
+    margin-right: 8px;
+}
+
+#getAiRecommendationBtn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+}
+
+#getAiRecommendationBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+}
+
+#getAiRecommendationBtn:disabled {
+    background: #e2e8f0;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+.btn-success {
+    background-color: #48bb78;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #38a169;
+}
+
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
     .page-title {

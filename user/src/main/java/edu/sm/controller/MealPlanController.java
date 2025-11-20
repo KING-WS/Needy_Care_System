@@ -256,5 +256,28 @@ public class MealPlanController {
             );
         }
     }
+
+    /**
+     * AI 식단 추천 (API)
+     */
+    @PostMapping("/api/recommend")
+    @ResponseBody
+    public ResponseEntity<?> getRecommendedMeal(@RequestBody Map<String, String> requestBody) {
+        try {
+            String preferences = requestBody.get("preferences");
+            if (preferences == null || preferences.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "선호도 정보가 필요합니다.")
+                );
+            }
+            Map<String, String> recommendation = mealPlanService.getRecommendedMeal(preferences);
+            return ResponseEntity.ok(Map.of("success", true, "recommendation", recommendation));
+        } catch (Exception e) {
+            log.error("AI 식단 추천 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "AI 식단 추천 실패: " + e.getMessage())
+            );
+        }
+    }
 }
 
