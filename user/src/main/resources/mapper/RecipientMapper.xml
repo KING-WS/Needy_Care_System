@@ -53,6 +53,30 @@
           AND is_deleted = 'N'
     </select>
 
+    <!-- 키오스크 코드로 돌봄 대상자 조회 -->
+    <select id="selectRecipientByKioskCode" resultType="edu.sm.app.dto.Recipient">
+        SELECT
+            rec_id AS recId,
+            rec_type_code AS recTypeCode,
+            cust_id AS custId,
+            rec_name AS recName,
+            rec_birthday AS recBirthday,
+            rec_gender AS recGender,
+            rec_kiosk_code AS recKioskCode,
+            rec_address AS recAddress,
+            rec_photo_url AS recPhotoUrl,
+            rec_med_history AS recMedHistory,
+            rec_allergies AS recAllergies,
+            rec_spec_notes AS recSpecNotes,
+            is_deleted AS isDeleted,
+            rec_regdate AS recRegdate,
+            rec_update AS recUpdate,
+            rec_health_needs AS recHealthNeeds
+        FROM Care_Recipient
+        WHERE rec_kiosk_code = #{kioskCode}
+          AND is_deleted = 'N'
+    </select>
+
     <!-- 돌봄 대상자 등록 -->
     <insert id="insertRecipient" parameterType="edu.sm.app.dto.Recipient" useGeneratedKeys="true" keyProperty="recId">
         INSERT INTO Care_Recipient (
