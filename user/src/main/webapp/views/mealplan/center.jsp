@@ -102,7 +102,18 @@
                         <i class="fas fa-plus-circle"></i>
                         <span>식단 빠른 추가</span>
                     </button>
-                </div>
+
+                                        <!-- AI 식단 추천 버튼 -->
+
+                                        <button class="quick-add-btn ai-btn" onclick="openAiRecommendationModal()">
+
+                                            <i class="fas fa-magic"></i>
+
+                                            <span>AI 식단 추천</span>
+
+                                        </button>
+
+                                    </div>
 
                 <!-- 오른쪽 영역: 캘린더 + 식단 목록 -->
                 <div class="col-lg-9">
@@ -248,6 +259,52 @@
         </div>
     </div>
 </div>
+
+<!-- AI 식단 추천 모달 -->
+<div class="modal-overlay" id="aiRecommendationModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-magic"></i> AI 식단 추천
+            </h3>
+            <button class="modal-close-btn" onclick="closeAiRecommendationModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="aiRecommendationForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-list-alt"></i> 추천 선호도
+                    </label>
+                    <textarea id="aiPreferences" class="form-control" rows="4" 
+                              placeholder="예: 저염식, 고단백, 당뇨 환자용, 체중 감량식, 비건, 알러지 정보 등을 입력해주세요."></textarea>
+                    <small class="form-hint">AI가 식단을 추천하는 데 참고할 정보를 입력해주세요.</small>
+                </div>
+                <div id="aiRecommendationResult" class="form-group" style="display: none;">
+                    <label class="form-label">
+                        <i class="fas fa-lightbulb"></i> AI 추천 식단
+                    </label>
+                    <div id="aiRecommendedMealDetails" class="ai-recommendation-details">
+                        <!-- AI 추천 결과가 여기에 표시됩니다. -->
+                    </div>
+                    <button type="button" class="btn btn-success mt-3" onclick="applyAiRecommendation()">
+                        <i class="fas fa-check-circle"></i> 이 식단 적용하기
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeAiRecommendationModal()">
+                <i class="fas fa-times"></i> 닫기
+            </button>
+            <button class="btn btn-primary" id="getAiRecommendationBtn" onclick="getAiRecommendation()">
+                <i class="fas fa-robot"></i> 추천받기
+            </button>
+        </div>
+    </div>
+</div>
+
 
 <!-- JavaScript 파일 링크 -->
 <script src="<c:url value='/js/mealplan.js'/>"></script>

@@ -158,12 +158,34 @@
                             </a>
                         </li>
                         
-                        <!-- Web Socket -->
+                        <!-- Web Socket (Collapsible Menu) -->
                         <li class="nav-item">
-                            <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">
+                            <a class="nav-link collapsed" 
+                               data-bs-toggle="collapse" 
+                               href="#websocketSubmenu" 
+                               role="button" 
+                               aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}" 
+                               aria-controls="websocketSubmenu">
                                 <i class="bi bi-wifi"></i>
                                 <span>Web Socket</span>
+                                <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>
                             </a>
+                            <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">
+                                <ul class="nav flex-column ms-3">
+                                    <li class="nav-item">
+                                        <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">
+                                            <i class="bi bi-chat-dots"></i>
+                                            <span>Web Socket Chat</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link ${center == 'websocket/video' ? 'active' : ''}" href="<c:url value='/websocket/video'/>">
+                                            <i class="bi bi-camera-video"></i>
+                                            <span>화상 통화</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </li>
                         
                         <!-- Q&A -->
