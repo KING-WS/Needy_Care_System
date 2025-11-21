@@ -5,6 +5,7 @@
 SET FOREIGN_KEY_CHECKS = 0; -- 외래키 검사 일시 해제
 
 -- 자식 테이블부터 삭제 (FK 의존성 고려)
+DROP TABLE IF EXISTS Alert_Log;
 DROP TABLE IF EXISTS Chat_Log;
 DROP TABLE IF EXISTS QnA_Answers;
 DROP TABLE IF EXISTS QnA_Questions;
@@ -335,6 +336,17 @@ CREATE TABLE Chat_Log (
                           PRIMARY KEY (log_id)
 );
 
+-- [21] Alert_Log (긴급 호출 및 알림 기록)
+CREATE TABLE Alert_Log (
+                           alert_id INT NOT NULL AUTO_INCREMENT,
+                           rec_id INT NOT NULL COMMENT '호출한 노약자',
+                           alert_type VARCHAR(20) NOT NULL COMMENT '유형: EMERGENCY(긴급), CONTACT(연락)',
+                           alert_msg TEXT COMMENT '전달 메시지 (예: 화장실에서 긴급 호출)',
+                           check_status CHAR(1) NOT NULL DEFAULT 'N' COMMENT '관리자/보호자 확인 여부 (Y/N)',
+                           alert_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           PRIMARY KEY (alert_id)
+);
+
 
 -- ==========================================================
 -- 3. 외래키(Foreign Key) 연결
@@ -379,3 +391,6 @@ ALTER TABLE Manual ADD CONSTRAINT FK_Care_Recipient_TO_Manual FOREIGN KEY (rec_i
 
 -- Chat_Log 외래키 연결
 ALTER TABLE Chat_Log ADD CONSTRAINT FK_Care_Recipient_TO_Chat_Log FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
+
+-- Alert_Log 외래키 연결
+ALTER TABLE Alert_Log ADD CONSTRAINT FK_Care_Recipient_TO_Alert_Log FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
