@@ -23,7 +23,9 @@
                                     <div class="recipient-avatar">
                                         <c:choose>
                                             <c:when test="${not empty recipient.recPhotoUrl}">
-                                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="${recipient.recName}" class="avatar-image">
+                                                <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
+                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
                                             </c:when>
                                             <c:otherwise>
                                                 <i class="bi bi-person-fill"></i>
