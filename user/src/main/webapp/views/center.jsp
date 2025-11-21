@@ -166,10 +166,6 @@
                                     <span>이번달: ${not empty schedules ? schedules.size() : 0}개</span>
                                 </div>
                             </div>
-                            <div class="calendar-view-all">
-                                자세히 보기
-                                <i class="bi bi-arrow-right-circle"></i>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -177,18 +173,137 @@
 
             <!-- 가운데 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
-                <!-- 중간 카드 (위) -->
+                <!-- 중간 카드 (위) - 오늘의 식단 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/cctv"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/mealplan"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium meal-card">
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    <i class="bi bi-egg-fried"></i>
+                                    오늘의 식단표
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+                            </div>
+                            
+                            <div class="meal-list">
+                                <!-- 아침 -->
+                                <div class="meal-item">
+                                    <div class="meal-type breakfast">
+                                        <span>아침</span>
+                                    </div>
+                                    <div class="meal-content">
+                                        <c:set var="breakfastFound" value="false"/>
+                                        <c:forEach var="meal" items="${todayMeals}">
+                                            <c:if test="${meal.mealType == '아침'}">
+                                                <c:set var="breakfastFound" value="true"/>
+                                                <div class="meal-menu">${meal.mealMenu}</div>
+                                                <c:if test="${not empty meal.mealCalories}">
+                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                </c:if>
+                                            </c:if>
+                                        </c:forEach>
+                                        <c:if test="${!breakfastFound}">
+                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                                
+                                <!-- 점심 -->
+                                <div class="meal-item">
+                                    <div class="meal-type lunch">
+                                        <span>점심</span>
+                                    </div>
+                                    <div class="meal-content">
+                                        <c:set var="lunchFound" value="false"/>
+                                        <c:forEach var="meal" items="${todayMeals}">
+                                            <c:if test="${meal.mealType == '점심'}">
+                                                <c:set var="lunchFound" value="true"/>
+                                                <div class="meal-menu">${meal.mealMenu}</div>
+                                                <c:if test="${not empty meal.mealCalories}">
+                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                </c:if>
+                                            </c:if>
+                                        </c:forEach>
+                                        <c:if test="${!lunchFound}">
+                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                                
+                                <!-- 저녁 -->
+                                <div class="meal-item">
+                                    <div class="meal-type dinner">
+                                        <span>저녁</span>
+                                    </div>
+                                    <div class="meal-content">
+                                        <c:set var="dinnerFound" value="false"/>
+                                        <c:forEach var="meal" items="${todayMeals}">
+                                            <c:if test="${meal.mealType == '저녁'}">
+                                                <c:set var="dinnerFound" value="true"/>
+                                                <div class="meal-menu">${meal.mealMenu}</div>
+                                                <c:if test="${not empty meal.mealCalories}">
+                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                </c:if>
+                                            </c:if>
+                                        </c:forEach>
+                                        <c:if test="${!dinnerFound}">
+                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        </c:if>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </a>
                 </div>
 
-                <!-- 중간 카드 (아래) -->
+                <!-- 중간 카드 (아래) - 오늘의 일정 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/mypage"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium schedule-card">
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    <i class="bi bi-clock-history"></i>
+                                    오늘의 일정
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+                            </div>
+                            
+                            <div class="hourly-schedule-list">
+                                <c:choose>
+                                    <c:when test="${not empty todayHourlySchedules}">
+                                        <c:forEach var="hourly" items="${todayHourlySchedules}">
+                                            <div class="hourly-schedule-item">
+                                                <div class="hourly-time">
+                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                                        ${hourly.hourlySchedStartTime}
+                                                    </c:if>
+                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                        ~ ${hourly.hourlySchedEndTime}
+                                                    </c:if>
+                                                </div>
+                                                <div class="hourly-content">
+                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                    <c:if test="${not empty hourly.hourlySchedContent}">
+                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-calendar-x"></i>
+                                            <span>오늘 등록된 일정이 없습니다</span>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </a>
                 </div>
@@ -602,6 +717,16 @@
             initializeMap(); // 지도 초기화
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
+        }
+        
+        // 일정 제목 길이 제한 적용
+        if (typeof limitScheduleTitleLength === 'function') {
+            limitScheduleTitleLength();
+        }
+        
+        // 일정 목록 스크롤 설정 (5개 이상일 때만)
+        if (typeof setupScheduleScroll === 'function') {
+            setupScheduleScroll();
         }
     });
 </script>
