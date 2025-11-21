@@ -21,6 +21,7 @@
             </div>
 
             <div class="header-section section-center">
+                <!-- 기존 시계 로직 유지 -->
                 <div id="clock" class="info-widget kiosk-clock">오후 12:00</div>
             </div>
 
@@ -41,9 +42,10 @@
     <main class="main-content">
         <section class="ai-companion-area">
             <div class="chat-window" id="chat-window">
-
+                <!-- 스크립트에서 초기 메시지 추가됨 -->
             </div>
             <div class="chat-input-area">
+                <!-- 음성 인식 버튼 -->
                 <button class="speak-button" onclick="startSpeechRecognition()">
                     <span style="font-size: 3rem;">🎤</span>
                     <span>음성으로 말하기</span>
@@ -79,7 +81,7 @@
         const KIOSK_CODE = "${kioskCode}";
         const RECIPIENT_NAME = "${recipient.recName}";
 
-        // 1. 시계 기능 (문자열 결합 방식 사용)
+        // 1. 시계 기능 (기존 로직 유지)
         const clockElement = document.getElementById('clock');
         function updateClock() {
             if (clockElement) {
@@ -97,10 +99,10 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 초기 봇 메시지를 동적으로 추가하여 현재 시각이 표시되도록 합니다.
+        // 초기 봇 메시지 (기존 로직 유지)
         addMessageToChat('bot', '안녕하세요, ' + RECIPIENT_NAME + '님! 오늘 기분은 어떠세요?');
 
-        // 2. 채팅 기능
+        // 2. 채팅 기능 (기존 로직 유지)
         const chatInput = document.getElementById('chat-text-input');
         const sendBtn = document.getElementById('chat-send-btn');
 
@@ -116,32 +118,22 @@
 
             fetch('/api/chat/ai/send', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     message: message,
                     kioskCode: KIOSK_CODE
                 }),
             })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.response || '서버 응답 오류');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                removeMessageFromChat(loadingMessageId);
-                addMessageToChat('bot', data.response);
-                console.log("AI 응답 수신: " + data.response);
-            })
-            .catch(error => {
-                removeMessageFromChat(loadingMessageId);
-                addMessageToChat('bot', '오류 발생: ' + error.message);
-                console.error('AI 메시지 전송 중 오류 발생:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    removeMessageFromChat(loadingMessageId);
+                    addMessageToChat('bot', data.response || data.reply); // DTO 필드명 호환
+                })
+                .catch(error => {
+                    removeMessageFromChat(loadingMessageId);
+                    addMessageToChat('bot', '오류 발생: ' + error.message);
+                    console.error('AI 메시지 전송 중 오류 발생:', error);
+                });
         }
 
         if(sendBtn) {
@@ -157,10 +149,9 @@
         }
     });
 
-    // 3. 호출 버튼 기능
+    // 3. 호출 버튼 기능 (기존 로직 유지)
     function sendRequest(button, type, text) {
         console.log("호출 요청 발생: 타입=" + type);
-
         const content = button.querySelector('.button-content');
         const feedback = button.querySelector('.button-feedback');
 
@@ -169,10 +160,7 @@
         feedback.style.opacity = '1';
         button.disabled = true;
 
-        setTimeout(() => {
-            feedback.textContent = '전송 완료 ✓';
-        }, 2000);
-
+        setTimeout(() => { feedback.textContent = '전송 완료 ✓'; }, 2000);
         setTimeout(() => {
             content.style.opacity = '1';
             feedback.style.opacity = '0';
@@ -180,21 +168,71 @@
         }, 4000);
     }
 
-    // 4. 음성 인식 버튼
+    // 4. [수정됨] 음성 인식 (STT) 기능 구현
     function startSpeechRecognition() {
-        alert("음성 인식 기능을 시작합니다.");
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다. (크롬 권장)");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        const speakBtn = document.querySelector('.speak-button');
+        const speakText = speakBtn.querySelector('span:last-child');
+
+        recognition.lang = 'ko-KR'; // 한국어
+        recognition.interimResults = false; // 최종 결과만
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            console.log("음성 인식 시작...");
+            speakBtn.classList.add('listening'); // CSS 애니메이션
+            speakText.textContent = "듣고 있어요...";
+        };
+
+        recognition.onend = function() {
+            console.log("음성 인식 종료.");
+            speakBtn.classList.remove('listening');
+            speakText.textContent = "음성으로 말하기";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            console.log("인식된 문장: " + transcript);
+
+            const chatInput = document.getElementById('chat-text-input');
+            chatInput.value = transcript;
+
+            // 인식 후 0.5초 뒤 자동 전송 (버튼 클릭 트리거)
+            setTimeout(() => {
+                document.getElementById('chat-send-btn').click();
+            }, 500);
+        };
+
+        recognition.onerror = function(event) {
+            console.error("음성 인식 에러:", event.error);
+            speakBtn.classList.remove('listening');
+            speakText.textContent = "음성으로 말하기";
+
+            if (event.error === 'no-speech') {
+                alert("말씀이 없으셔서 종료되었어요. 다시 버튼을 눌러주세요.");
+            } else {
+                alert("오류가 발생했습니다: " + event.error);
+            }
+        };
+
+        recognition.start();
     }
 
-    // 5. 채팅창 메시지 추가
+    // 5. 채팅창 메시지 추가 (기존 로직 유지)
     function addMessageToChat(sender, message, messageId = null) {
         const chatWindow = document.getElementById('chat-window');
         const messageType = sender === 'user' ? 'user-message' : 'bot-message';
 
         const messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message ' + messageType;
-        if (messageId) {
-            messageDiv.id = messageId;
-        }
+        if (messageId) messageDiv.id = messageId;
 
         const bubble = document.createElement('div');
         bubble.className = 'message-bubble';
@@ -216,13 +254,11 @@
         chatWindow.appendChild(messageDiv);
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
-    
-    // 6. 채팅창에서 특정 메시지 제거 함수 (로딩 메시지 제거용)
+
+    // 6. 로딩 메시지 제거 함수 (기존 로직 유지)
     function removeMessageFromChat(messageId) {
         const messageElement = document.getElementById(messageId);
-        if (messageElement) {
-            messageElement.remove();
-        }
+        if (messageElement) messageElement.remove();
     }
 </script>
 
