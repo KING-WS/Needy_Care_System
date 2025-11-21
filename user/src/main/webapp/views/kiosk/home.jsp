@@ -133,25 +133,54 @@
         recognition.start();
     }
 
-    // [호출 버튼] - 전역 함수로 이동
+    // -------------------------------------------------------
+    // 5. 호출 버튼 (실제 서버 API 호출 로직 추가)
+    // -------------------------------------------------------
     function sendRequest(btn, type, text) {
         const feedback = btn.querySelector('.button-feedback');
         const content = btn.querySelector('.button-content');
 
+        // 버튼 비활성화 및 피드백 표시
         btn.disabled = true;
         content.style.opacity = '0';
         feedback.style.opacity = '1';
         feedback.textContent = '전송 중...';
 
-        // TODO: 실제 API 호출 로직 추가
-        console.log("호출 요청:", type);
+        console.log(`🚨 알림 요청 발생: 타입=${type}, 키오스크 코드=${KIOSK_CODE}`);
 
-        setTimeout(() => { feedback.textContent = '호출 완료!'; }, 1500);
-        setTimeout(() => {
-            content.style.opacity = '1';
-            feedback.style.opacity = '0';
-            btn.disabled = false;
-        }, 3000);
+        fetch('/api/alert/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                kioskCode: KIOSK_CODE,
+                type: type
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === 'success') {
+                feedback.textContent = '요청 완료!';
+                console.log(`✅ 알림 서버 응답: ${data.msg}`);
+            } else {
+                feedback.textContent = '요청 실패! 😥';
+                console.error(`❌ 알림 서버 오류: ${data.message}`);
+                alert("알림 요청에 실패했습니다: " + data.message);
+            }
+        })
+        .catch(err => {
+            feedback.textContent = '연결 오류! 😥';
+            console.error('❌ 알림 서버 연결 오류:', err);
+            alert("알림 서버 연결에 실패했습니다.");
+        })
+        .finally(() => {
+            setTimeout(() => {
+                content.style.opacity = '1';
+                feedback.style.opacity = '0';
+                btn.disabled = false;
+            }, 3000); // 3초 후 버튼 복구
+        });
     }
 
     // [채팅 메시지 추가] - 전역 함수로 이동
