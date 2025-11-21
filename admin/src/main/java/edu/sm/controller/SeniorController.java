@@ -1,9 +1,13 @@
 package edu.sm.controller;
 
+import edu.sm.app.service.SeniorService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 /**
  * 노약자 관리 컨트롤러
@@ -12,11 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @Slf4j
 @RequestMapping("/senior")
+@RequiredArgsConstructor
 public class SeniorController {
+
+    private final SeniorService seniorService;
 
     @RequestMapping("/list")
     public String seniorList(Model model) {
         log.info("Senior list page accessed");
+        model.addAttribute("seniorList", seniorService.getAllSeniors());
         model.addAttribute("center", "senior/senior-list");
         return "index";
     }
@@ -35,4 +43,3 @@ public class SeniorController {
         return "index";
     }
 }
-
