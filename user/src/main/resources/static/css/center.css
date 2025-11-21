@@ -1087,27 +1087,245 @@
     color: #667eea;
 }
 
-.calendar-view-all {
-    color: #667eea;
-    font-size: 12px;
-    font-weight: 600;
+/* ========================================
+   11-1. 식단 카드 스타일
+   ======================================== */
+
+.meal-card {
+    background: radial-gradient(circle at top left, #fff5f5 0, #fff9f5 40%, #fffbf5 100%);
+    padding: 20px;
+    border-radius: 15px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding: 8px;
-    background: #e0e7ff;
-    border-radius: 8px;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.15);
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.calendar-view-all:hover {
-    background: #667eea;
-    color: #ffffff;
+.meal-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(255, 107, 107, 0.2);
 }
 
-.calendar-view-all i {
+.meal-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.meal-item {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid #ff6b6b;
+    transition: all 0.2s ease;
+}
+
+.meal-item:hover {
+    transform: translateX(3px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+}
+
+.meal-type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.meal-type.breakfast {
+    background: linear-gradient(135deg, #ffd89b 0%, #ff9a56 100%);
+}
+
+.meal-type.lunch {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.meal-type.dinner {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+.meal-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.meal-menu {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.meal-calories {
+    font-size: 11px;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.meal-empty {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    padding: 4px 0;
+}
+
+/* ========================================
+   11-2. 오늘의 일정 카드 스타일
+   ======================================== */
+
+.schedule-card {
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.schedule-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+}
+
+.hourly-schedule-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.hourly-schedule-list.scrollable {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.hourly-schedule-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.hourly-schedule-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.hourly-schedule-list::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+.hourly-schedule-item {
+    background: #ffffff;
+    border-left: 4px solid #667eea;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 40px;
+    height: 40px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.hourly-schedule-item:hover {
+    background: #eef2ff;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.hourly-time {
+    font-weight: 600;
+    color: #667eea;
+    font-size: 12px;
+    margin-bottom: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.hourly-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.hourly-name {
     font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hourly-detail {
+    display: none;
+}
+
+.hourly-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    color: #999;
+    gap: 8px;
+}
+
+.hourly-empty i {
+    font-size: 32px;
+    color: #ccc;
+}
+
+.hourly-empty span {
+    font-size: 13px;
+}
+
+.hourly-more {
+    text-align: center;
+    font-size: 12px;
+    color: #667eea;
+    font-weight: 600;
+    padding: 8px;
+    background: #e0e7ff;
+    border-radius: 8px;
 }
 
 /* ========================================

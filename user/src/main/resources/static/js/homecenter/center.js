@@ -1693,6 +1693,44 @@ async function saveCourseToServer() {
     }
 }
 
+// 일정 제목 길이 제한 (17자)
+function limitScheduleTitleLength() {
+    var scheduleItems = document.querySelectorAll('.hourly-schedule-item .hourly-name');
+    
+    scheduleItems.forEach(function(item) {
+        var text = item.textContent || item.innerText;
+        
+        if (text.length > 17) {
+            item.textContent = text.substring(0, 17) + '...';
+        }
+    });
+}
+
+// 일정 목록 스크롤 설정 (5개 이상일 때만)
+function setupScheduleScroll() {
+    var scheduleList = document.querySelector('.hourly-schedule-list');
+    if (!scheduleList) return;
+    
+    var scheduleItems = scheduleList.querySelectorAll('.hourly-schedule-item');
+    var itemCount = scheduleItems.length;
+    
+    // 일정 항목 하나의 높이 계산 (실제 높이 + gap)
+    if (itemCount > 0) {
+        var firstItem = scheduleItems[0];
+        var itemHeight = firstItem.offsetHeight;
+        var gap = 10; // CSS gap 값
+        var maxHeight = (itemHeight * 5) + (gap * 4); // 5개 항목 + 4개 gap
+        
+        if (itemCount > 5) {
+            scheduleList.classList.add('scrollable');
+            scheduleList.style.maxHeight = maxHeight + 'px';
+        } else {
+            scheduleList.classList.remove('scrollable');
+            scheduleList.style.maxHeight = 'none';
+        }
+    }
+}
+
 // 페이지 로드 시 초기화
 document.addEventListener('DOMContentLoaded', function() {
     // 지도 초기화
@@ -1704,6 +1742,12 @@ document.addEventListener('DOMContentLoaded', function() {
             loadHomeMarker();      // 1. 집 마커 먼저 표시
         });
     }
+    
+    // 일정 제목 길이 제한 적용
+    limitScheduleTitleLength();
+    
+    // 일정 목록 스크롤 설정 (5개 이상일 때만)
+    setupScheduleScroll();
 });
 
 // ESC 키로 모달 닫기
