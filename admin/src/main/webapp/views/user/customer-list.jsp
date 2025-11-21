@@ -80,7 +80,6 @@
                                         </td>
                                         <td>
                                             <a href="<c:url value='/customer/detail?id=${user.custId}'/>" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</a>
-                                            <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -92,7 +91,7 @@
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <nav>
                         <ul class="pagination justify-content-center">
                             <c:if test="${page.hasPreviousPage}">

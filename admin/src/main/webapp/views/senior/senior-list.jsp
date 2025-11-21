@@ -88,7 +88,7 @@
                                                     <fmt:formatDate value="${senior.recRegdate}" pattern="yyyy-MM-dd"/>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-sm btn-primary senior-btn" onclick="location.href='<c:url value="/senior/details/${senior.recId}"/>'">
+                                                    <button class="btn btn-sm btn-primary senior-btn" onclick="location.href='<c:url value="/senior/detail/${senior.recId}"/>'">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
                                                     <button class="btn btn-sm btn-warning senior-btn" onclick="location.href='<c:url value="/senior/edit/${senior.recId}"/>'">
@@ -105,15 +105,21 @@
                     
                     <nav aria-label="Page navigation" class="mt-3">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">이전</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">다음</a>
-                            </li>
+                            <c:if test="${page.hasPreviousPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${page.prePage}'/>">이전</a>
+                                </li>
+                            </c:if>
+                            <c:forEach begin="1" end="${page.pages}" var="i">
+                                <li class="page-item <c:if test='${page.pageNum eq i}'>active</c:if>">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${i}'/>">${i}</a>
+                                </li>
+                            </c:forEach>
+                            <c:if test="${page.hasNextPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${page.nextPage}'/>">다음</a>
+                                </li>
+                            </c:if>
                         </ul>
                     </nav>
                 </div>

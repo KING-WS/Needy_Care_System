@@ -31,4 +31,55 @@
         ORDER BY cr.rec_regdate DESC
     </select>
 
+    <select id="select" parameterType="int" resultType="edu.sm.app.dto.Senior">
+        SELECT
+            cr.rec_id AS recId,
+            cr.rec_type_code AS recTypeCode,
+            cr.cust_id AS custId,
+            cr.rec_name AS recName,
+            cr.rec_birthday AS recBirthday,
+            cr.rec_gender AS recGender,
+            cr.rec_kiosk_code AS recKioskCode,
+            cr.rec_address AS recAddress,
+            cr.rec_photo_url AS recPhotoUrl,
+            cr.rec_med_history AS recMedHistory,
+            cr.rec_allergies AS recAllergies,
+            cr.rec_spec_notes AS recSpecNotes,
+            cr.is_deleted AS isDeleted,
+            cr.rec_regdate AS recRegdate,
+            cr.rec_update AS recUpdate,
+            cr.rec_health_needs AS recHealthNeeds,
+            cg.caregiver_name AS caregiverName
+        FROM Care_Recipient cr
+        LEFT JOIN care_matching cm ON cr.rec_id = cm.rec_id AND cm.is_deleted = 'N'
+        LEFT JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id AND cg.is_deleted = 'N'
+        WHERE cr.rec_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="edu.sm.app.dto.Senior" useGeneratedKeys="true" keyProperty="recId">
+        INSERT INTO Care_Recipient
+            (rec_type_code, cust_id, rec_name, rec_birthday, rec_gender, rec_kiosk_code, rec_address,
+             rec_photo_url, rec_med_history, rec_allergies, rec_spec_notes, is_deleted,
+             rec_regdate, rec_update, rec_health_needs)
+        VALUES
+            (#{recTypeCode}, #{custId}, #{recName}, #{recBirthday}, #{recGender}, #{recKioskCode}, #{recAddress},
+             #{recPhotoUrl}, #{recMedHistory}, #{recAllergies}, #{recSpecNotes}, 'N',
+             NOW(), NOW(), #{recHealthNeeds})
+    </insert>
+
+    <update id="update" parameterType="edu.sm.app.dto.Senior">
+        UPDATE Care_Recipient
+        SET
+            rec_name = #{recName},
+            rec_birthday = #{recBirthday},
+            rec_gender = #{recGender},
+            rec_address = #{recAddress},
+            rec_med_history = #{recMedHistory},
+            rec_allergies = #{recAllergies},
+            rec_spec_notes = #{recSpecNotes},
+            rec_health_needs = #{recHealthNeeds},
+            rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </update>
+
 </mapper>

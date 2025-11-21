@@ -7,4 +7,7 @@ import java.util.List;
 @Mapper
 public interface SeniorRepository {
     List<Senior> selectAllSeniors();
+    Senior select(int id);
+    void insert(Senior senior);
+    void update(Senior senior);
 }

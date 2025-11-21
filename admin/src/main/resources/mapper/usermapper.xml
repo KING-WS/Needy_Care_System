@@ -68,7 +68,9 @@
     <update id="update" parameterType="edu.sm.app.dto.User">
         UPDATE cust
         SET cust_email = #{custEmail},
-            cust_pwd = #{custPwd},
+            <if test="custPwd != null and custPwd != ''">
+                cust_pwd = #{custPwd},
+            </if>
             cust_name = #{custName},
             cust_phone = #{custPhone},
             is_deleted = #{isDeleted},

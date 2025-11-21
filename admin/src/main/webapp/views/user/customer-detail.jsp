@@ -36,7 +36,7 @@
                             <a href="<c:url value='/customer/list'/>" class="btn btn-secondary">
                                 <i class="bi bi-list me-1"></i>목록으로
                             </a>
-                            <a href="#" class="btn btn-primary">
+                            <a href="<c:url value='/customer/edit?id=${user.custId}'/>" class="btn btn-primary">
                                 <i class="bi bi-pencil-square me-1"></i>수정
                             </a>
                         </div>

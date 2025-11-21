@@ -1,6 +1,7 @@
 package edu.sm.controller;
 
 import com.github.pagehelper.Page;
+import com.github.pagehelper.PageInfo;
 import edu.sm.app.dto.User;
 import edu.sm.app.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Controller
 @Slf4j
@@ -27,12 +26,12 @@ public class UserController {
         log.info("Customer list page accessed, pageNo: {}", pageNo);
         try {
             Page<User> page = userService.getPage(pageNo);
-            model.addAttribute("page", page);
-            model.addAttribute("users", page.getResult()); // For compatibility with existing view
+            PageInfo<User> pageInfo = new PageInfo<>(page);
+            model.addAttribute("page", pageInfo);
+            model.addAttribute("users", pageInfo.getList());
         } catch (Exception e) {
             log.error("Error fetching customer list", e);
-            // Optionally, add an error message to the model
-            // model.addAttribute("errorMessage", "고객 목록을 불러오는 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "고객 목록을 불러오는 중 오류가 발생했습니다.");
         }
         model.addAttribute("center", "user/customer-list");
         return "index";
@@ -73,6 +72,38 @@ public class UserController {
         }
         model.addAttribute("center", "user/customer-detail");
         return "index";
+    }
+
+    @GetMapping("/edit")
+    public String customerEdit(@RequestParam("id") int id, Model model) {
+        log.info("Customer edit page accessed for id: {}", id);
+        try {
+            User user = userService.get(id);
+            model.addAttribute("user", user);
+        } catch (Exception e) {
+            log.error("Error fetching user details for editing", e);
+            model.addAttribute("errorMessage", "사용자 정보를 불러오는 중 오류가 발생했습니다.");
+        }
+        model.addAttribute("center", "user/customer-edit");
+        return "index";
+    }
+
+    @PostMapping("/editimpl")
+    public String customerEditImpl(User user, Model model) {
+        log.info("Updating user: {}", user);
+        try {
+            userService.modify(user);
+            log.info("User update successful");
+        } catch (Exception e) {
+            log.error("Error updating user", e);
+            model.addAttribute("errorMessage", "사용자 정보 수정 중 오류가 발생했습니다.");
+            // Optionally, return to the edit page to show the error
+            // model.addAttribute("user", user);
+
+            // model.addAttribute("center", "user/customer-edit");
+            // return "index";
+        }
+        return "redirect:/customer/detail?id=" + user.getCustId();
     }
 
     @RequestMapping("/search")
