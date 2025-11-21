@@ -656,7 +656,8 @@
     // JSP 변수 - 노약자 정보
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
-    var defaultRecId = ${recipient.recId};
+    var recipientPhotoUrl = '<c:out value="${recipient.recPhotoUrl}" escapeXml="false"/>';
+    var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     
     // 저장된 마커들 표시 (JSP forEach 사용)
     function loadSavedMarkers() {
@@ -684,6 +685,10 @@
             initializeMap(); // 지도 초기화
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
+            // 집 마커가 로드된 후 노약자 위치 마커 표시
+            setTimeout(function() {
+                loadRecipientLocationMarker();
+            }, 1000); // 집 마커 로드 후 1초 뒤에 실행
         }
         
         // 일정 제목 길이 제한 적용

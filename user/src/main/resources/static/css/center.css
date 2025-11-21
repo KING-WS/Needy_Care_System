@@ -17,7 +17,7 @@
 .dashboard-card {
     border: none;
     border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    box-shadow: none;
     padding: 30px;
     height: 100%;
     text-align: center;
@@ -38,7 +38,7 @@
 
 .dashboard-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+    box-shadow: none;
     cursor: pointer;
 }
 
@@ -69,7 +69,7 @@
 
 /* 지도 큰 카드 호버 효과 */
 .dashboard-card.card-xlarge:hover {
-    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    box-shadow: none;
     cursor: default;
 }
 
@@ -107,7 +107,7 @@
     overflow: hidden;
     background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: none;
     position: relative;
     height: 800px !important;
     min-height: 800px !important;
@@ -770,7 +770,7 @@
     display: flex;
     flex-direction: column;
     border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: none;
     transition: all 0.3s ease;
 }
 
@@ -926,7 +926,7 @@
 
 .health-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    box-shadow: none;
     cursor: pointer;
 }
 
@@ -935,20 +935,20 @@
    ======================================== */
 
 .calendar-card {
-    background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
     padding: 20px;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     height: 100%;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .calendar-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    box-shadow: none;
 }
 
 .calendar-header {
@@ -958,6 +958,7 @@
     margin-bottom: 15px;
     padding-bottom: 12px;
     border-bottom: 2px solid #e0e7ff;
+    gap: 10px;
 }
 
 .calendar-title {
@@ -1101,20 +1102,20 @@
    ======================================== */
 
 .meal-card {
-    background: radial-gradient(circle at top left, #fff5f5 0, #fff9f5 40%, #fffbf5 100%);
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
     padding: 20px;
     border-radius: 15px;
     display: flex;
     flex-direction: column;
     height: 100%;
-    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.15);
+    box-shadow: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .meal-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(255, 107, 107, 0.2);
+    box-shadow: none;
 }
 
 .meal-list {
@@ -1232,14 +1233,14 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    box-shadow: none;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .schedule-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    box-shadow: none;
 }
 
 .hourly-schedule-list {
