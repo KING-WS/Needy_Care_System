@@ -4,34 +4,46 @@
 
 <mapper namespace="edu.sm.app.repository.ScheduleRepository">
 
+    <resultMap id="scheduleResultMap" type="edu.sm.app.dto.Schedule">
+        <id property="schedId" column="sched_id" />
+        <result property="recId" column="rec_id" />
+        <result property="schedDate" column="sched_date" />
+        <result property="schedName" column="sched_name" />
+        <result property="schedStartTime" column="sched_start_time" />
+        <result property="schedEndTime" column="sched_end_time" />
+        <result property="isDeleted" column="is_deleted" />
+        <result property="schedRegdate" column="sched_regdate" />
+        <result property="schedUpdate" column="sched_update" />
+    </resultMap>
+
     <!-- Schedule CRUD -->
-    <select id="selectSchedulesByRecId" resultType="edu.sm.app.dto.Schedule">
+    <select id="selectSchedulesByRecId" resultMap="scheduleResultMap">
         SELECT 
-            sched_id AS schedId,
-            rec_id AS recId,
-            sched_date AS schedDate,
-            sched_name AS schedName,
-            sched_start_time AS schedStartTime,
-            sched_end_time AS schedEndTime,
-            is_deleted AS isDeleted,
-            sched_regdate AS schedRegdate,
-            sched_update AS schedUpdate
+            sched_id,
+            rec_id,
+            sched_date,
+            sched_name,
+            sched_start_time,
+            sched_end_time,
+            is_deleted,
+            sched_regdate,
+            sched_update
         FROM Schedule
         WHERE rec_id = #{recId} AND is_deleted = 'N'
         ORDER BY sched_date DESC
     </select>
 
-    <select id="selectSchedulesByRecIdAndMonth" resultType="edu.sm.app.dto.Schedule">
+    <select id="selectSchedulesByRecIdAndMonth" resultMap="scheduleResultMap">
         SELECT 
-            sched_id AS schedId,
-            rec_id AS recId,
-            sched_date AS schedDate,
-            sched_name AS schedName,
-            sched_start_time AS schedStartTime,
-            sched_end_time AS schedEndTime,
-            is_deleted AS isDeleted,
-            sched_regdate AS schedRegdate,
-            sched_update AS schedUpdate
+            sched_id,
+            rec_id,
+            sched_date,
+            sched_name,
+            sched_start_time,
+            sched_end_time,
+            is_deleted,
+            sched_regdate,
+            sched_update
         FROM Schedule
         WHERE rec_id = #{recId}
             AND YEAR(sched_date) = #{year}
@@ -40,17 +52,35 @@
         ORDER BY sched_date
     </select>
 
-    <select id="selectScheduleById" resultType="edu.sm.app.dto.Schedule">
+    <select id="selectSchedulesByDateRange" resultMap="scheduleResultMap">
+        SELECT
+            sched_id,
+            rec_id,
+            sched_date,
+            sched_name,
+            sched_start_time,
+            sched_end_time,
+            is_deleted,
+            sched_regdate,
+            sched_update
+        FROM Schedule
+        WHERE rec_id = #{recId}
+          AND sched_date BETWEEN #{startDate} AND #{endDate}
+          AND is_deleted = 'N'
+        ORDER BY sched_date
+    </select>
+
+    <select id="selectScheduleById" resultMap="scheduleResultMap">
         SELECT 
-            sched_id AS schedId,
-            rec_id AS recId,
-            sched_date AS schedDate,
-            sched_name AS schedName,
-            sched_start_time AS schedStartTime,
-            sched_end_time AS schedEndTime,
-            is_deleted AS isDeleted,
-            sched_regdate AS schedRegdate,
-            sched_update AS schedUpdate
+            sched_id,
+            rec_id,
+            sched_date,
+            sched_name,
+            sched_start_time,
+            sched_end_time,
+            is_deleted,
+            sched_regdate,
+            sched_update
         FROM Schedule
         WHERE sched_id = #{schedId} AND is_deleted = 'N'
     </select>
@@ -60,7 +90,7 @@
         VALUES (#{recId}, #{schedDate}, #{schedName}, #{schedStartTime}, #{schedEndTime}, 'N', NOW(), NOW())
     </insert>
 
-    <update id="updateSchedule">
+    <update id="updateSchedule" parameterType="edu.sm.app.dto.Schedule">
         UPDATE Schedule
         SET sched_name = #{schedName},
             sched_start_time = #{schedStartTime},
@@ -69,7 +99,7 @@
         WHERE sched_id = #{schedId}
     </update>
 
-    <update id="deleteSchedule">
+    <update id="deleteSchedule" parameterType="int">
         UPDATE Schedule
         SET is_deleted = 'Y',
             sched_update = CURRENT_TIMESTAMP

@@ -2,7 +2,16 @@ package edu.sm.controller;
 
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Cust;
+import edu.sm.app.dto.HealthData;
+import edu.sm.app.dto.Schedule;
+import edu.sm.app.dto.MapLocation;
+import edu.sm.app.dto.MealPlan;
+import edu.sm.app.dto.HourlySchedule;
 import edu.sm.app.service.RecipientService;
+import edu.sm.app.service.HealthDataService;
+import edu.sm.app.service.ScheduleService;
+import edu.sm.app.service.MapService;
+import edu.sm.app.service.MealPlanService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -19,6 +29,10 @@ import java.util.List;
 public class HomeController {
     
     private final RecipientService recipientService;
+    private final HealthDataService healthDataService;
+    private final ScheduleService scheduleService;
+    private final MapService mapService;
+    private final MealPlanService mealPlanService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -42,6 +56,95 @@ public class HomeController {
                     return "redirect:/recipient/prompt";
                 }
                 log.info("등록된 노약자 수: {}", recipients.size());
+                
+                // 선택된 노약자 결정
+                Recipient selectedRecipient = null;
+                
+                // 1. 세션에 저장된 노약자가 있으면 사용
+                selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                // 세션의 노약자가 현재 사용자의 노약자인지 확인
+                if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                    selectedRecipient = null;
+                }
+                
+                // 2. 세션에도 없으면 첫 번째 노약자 사용
+                if (selectedRecipient == null && !recipients.isEmpty()) {
+                    selectedRecipient = recipients.get(0);
+                    // 세션에 저장
+                    session.setAttribute("selectedRecipient", selectedRecipient);
+                }
+                
+                // 선택된 노약자의 정보와 건강 데이터 조회
+                if (selectedRecipient != null) {
+                    model.addAttribute("recipient", selectedRecipient);
+                    
+                    // 최신 혈압 데이터 조회
+                    try {
+                        HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
+                            selectedRecipient.getRecId(), "혈압");
+                        model.addAttribute("bloodPressure", latestBloodPressure);
+                        log.info("혈압 데이터 조회 성공 - recId: {}", selectedRecipient.getRecId());
+                    } catch (Exception e) {
+                        log.warn("혈압 데이터 조회 실패 - recId: {}", selectedRecipient.getRecId());
+                    }
+                    
+                    // 현재 월의 일정 조회
+                    try {
+                        LocalDate now = LocalDate.now();
+                        List<Schedule> schedules = scheduleService.getSchedulesByMonth(
+                            selectedRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                        model.addAttribute("schedules", schedules);
+                        log.info("일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), schedules.size());
+                    } catch (Exception e) {
+                        log.warn("일정 조회 실패 - recId: {}", selectedRecipient.getRecId());
+                    }
+                    
+                    // 오늘의 일정 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
+                            selectedRecipient.getRecId(), today, today);
+                        model.addAttribute("todaySchedules", todaySchedules);
+                        log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todaySchedules.size());
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
+                        log.info("오늘의 시간대별 일정 조회 성공 - 개수: {}", todayHourlySchedules.size());
+                    } catch (Exception e) {
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        model.addAttribute("todayMeals", todayMeals);
+                        log.info("오늘의 식단 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todayMeals.size());
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
+                    }
+                    
+                    // 지도 장소 조회
+                    try {
+                        List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
+                        model.addAttribute("maps", maps);
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), maps.size());
+                    } catch (Exception e) {
+                        log.warn("지도 장소 조회 실패 - recId: {}", selectedRecipient.getRecId());
+                    }
+                }
             } catch (Exception e) {
                 log.error("노약자 조회 중 오류", e);
             }
@@ -56,7 +159,8 @@ public class HomeController {
     
     @GetMapping("/home")
     public String home(HttpSession session, Model model,
-                      @RequestParam(value = "center", required = false) String center) {
+                      @RequestParam(value = "center", required = false) String center,
+                      @RequestParam(value = "recId", required = false) Integer recId) {
         Cust loginUser = (Cust) session.getAttribute("loginUser");
         
         if (loginUser == null) {
@@ -71,6 +175,105 @@ public class HomeController {
                 if (recipients == null || recipients.isEmpty()) {
                     log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
                     return "redirect:/recipient/prompt";
+                }
+                
+                // 선택된 노약자 결정
+                Recipient selectedRecipient = null;
+                
+                // 1. recId 파라미터가 있으면 해당 노약자 사용
+                if (recId != null && recId > 0) {
+                    selectedRecipient = recipientService.getRecipientById(recId);
+                    // 해당 노약자가 현재 사용자의 노약자인지 확인
+                    if (selectedRecipient != null && selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                        // 세션에 선택된 노약자 저장
+                        session.setAttribute("selectedRecipient", selectedRecipient);
+                        log.info("노약자 선택됨 - recId: {}, recName: {}", selectedRecipient.getRecId(), selectedRecipient.getRecName());
+                    } else {
+                        selectedRecipient = null;
+                    }
+                }
+                
+                // 2. 세션에 저장된 노약자가 있으면 사용
+                if (selectedRecipient == null) {
+                    selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                    // 세션의 노약자가 현재 사용자의 노약자인지 확인
+                    if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
+                        selectedRecipient = null;
+                    }
+                }
+                
+                // 3. 세션에도 없으면 첫 번째 노약자 사용
+                if (selectedRecipient == null && !recipients.isEmpty()) {
+                    selectedRecipient = recipients.get(0);
+                    // 세션에 저장
+                    session.setAttribute("selectedRecipient", selectedRecipient);
+                }
+                
+                // 선택된 노약자의 정보와 건강 데이터 조회
+                if (selectedRecipient != null) {
+                    model.addAttribute("recipient", selectedRecipient);
+                    
+                    // 최신 혈압 데이터 조회
+                    try {
+                        HealthData latestBloodPressure = healthDataService.getLatestHealthDataByType(
+                            selectedRecipient.getRecId(), "혈압");
+                        model.addAttribute("bloodPressure", latestBloodPressure);
+                    } catch (Exception e) {
+                        log.warn("혈압 데이터 조회 실패");
+                    }
+                    
+                    // 현재 월의 일정 조회
+                    try {
+                        LocalDate now = LocalDate.now();
+                        List<Schedule> schedules = scheduleService.getSchedulesByMonth(
+                            selectedRecipient.getRecId(), now.getYear(), now.getMonthValue());
+                        model.addAttribute("schedules", schedules);
+                    } catch (Exception e) {
+                        log.warn("일정 조회 실패");
+                    }
+                    
+                    // 오늘의 일정 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
+                            selectedRecipient.getRecId(), today, today);
+                        model.addAttribute("todaySchedules", todaySchedules);
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
+                    } catch (Exception e) {
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        model.addAttribute("todayMeals", todayMeals);
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
+                    }
+                    
+                    // 지도 장소 조회
+                    try {
+                        List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
+                        model.addAttribute("maps", maps);
+                        log.info("지도 장소 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), maps.size());
+                    } catch (Exception e) {
+                        log.warn("지도 장소 조회 실패 - recId: {}", selectedRecipient.getRecId());
+                    }
                 }
             } catch (Exception e) {
                 log.error("노약자 조회 중 오류", e);

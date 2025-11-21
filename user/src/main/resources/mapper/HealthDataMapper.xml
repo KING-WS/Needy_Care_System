@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.HealthDataRepository">
+
+    <!-- recId로 건강 데이터 목록 조회 -->
+    <select id="selectHealthDataByRecId" resultType="edu.sm.app.dto.HealthData">
+        SELECT
+            health_id AS healthId,
+            rec_id AS recId,
+            health_type AS healthType,
+            health_value1 AS healthValue1,
+            health_value2 AS healthValue2,
+            health_measured_at AS healthMeasuredAt,
+            is_deleted AS isDeleted,
+            health_regdate AS healthRegdate,
+            health_update AS healthUpdate
+        FROM Health_Data
+        WHERE rec_id = #{recId}
+          AND is_deleted = 'N'
+        ORDER BY health_measured_at DESC
+    </select>
+
+    <!-- recId와 건강 데이터 타입으로 최신 데이터 조회 -->
+    <select id="selectLatestHealthDataByType" resultType="edu.sm.app.dto.HealthData">
+        SELECT
+            health_id AS healthId,
+            rec_id AS recId,
+            health_type AS healthType,
+            health_value1 AS healthValue1,
+            health_value2 AS healthValue2,
+            health_measured_at AS healthMeasuredAt,
+            is_deleted AS isDeleted,
+            health_regdate AS healthRegdate,
+            health_update AS healthUpdate
+        FROM Health_Data
+        WHERE rec_id = #{recId}
+          AND health_type = #{healthType}
+          AND is_deleted = 'N'
+        ORDER BY health_measured_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- recId와 건강 데이터 타입으로 최근 N개 데이터 조회 -->
+    <select id="selectRecentHealthDataByType" resultType="edu.sm.app.dto.HealthData">
+        SELECT
+            health_id AS healthId,
+            rec_id AS recId,
+            health_type AS healthType,
+            health_value1 AS healthValue1,
+            health_value2 AS healthValue2,
+            health_measured_at AS healthMeasuredAt,
+            is_deleted AS isDeleted,
+            health_regdate AS healthRegdate,
+            health_update AS healthUpdate
+        FROM Health_Data
+        WHERE rec_id = #{recId}
+          AND health_type = #{healthType}
+          AND is_deleted = 'N'
+        ORDER BY health_measured_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 건강 데이터 등록 -->
+    <insert id="insertHealthData" parameterType="edu.sm.app.dto.HealthData" useGeneratedKeys="true" keyProperty="healthId">
+        INSERT INTO Health_Data (
+            rec_id, health_type, health_value1, health_value2,
+            health_measured_at, is_deleted, health_regdate, health_update
+        )
+        VALUES (
+            #{recId}, #{healthType}, #{healthValue1}, #{healthValue2},
+            #{healthMeasuredAt}, 'N', NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 건강 데이터 수정 -->
+    <update id="updateHealthData" parameterType="edu.sm.app.dto.HealthData">
+        UPDATE Health_Data
+        <set>
+            <if test="healthType != null and healthType != ''">
+                health_type = #{healthType},
+            </if>
+            <if test="healthValue1 != null">
+                health_value1 = #{healthValue1},
+            </if>
+            <if test="healthValue2 != null">
+                health_value2 = #{healthValue2},
+            </if>
+            <if test="healthMeasuredAt != null">
+                health_measured_at = #{healthMeasuredAt},
+            </if>
+            health_update = NOW()
+        </set>
+        WHERE health_id = #{healthId}
+    </update>
+
+    <!-- 건강 데이터 삭제 (논리 삭제) -->
+    <delete id="deleteHealthData" parameterType="Integer">
+        UPDATE Health_Data
+        SET is_deleted = 'Y', health_update = NOW()
+        WHERE health_id = #{healthId}
+    </delete>
+
+</mapper>
+
