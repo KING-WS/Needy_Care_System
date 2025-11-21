@@ -6,6 +6,9 @@ var tempMarker = null;
 var clickedPosition = null;
 var homeMarker = null; // 집 마커
 var homeInfowindow = null; // 집 인포윈도우
+var recipientLocationMarker = null; // 노약자 실시간 위치 마커
+var recipientLocationInterval = null; // 노약자 위치 업데이트 인터벌
+var homePosition = null; // 집 위치 (노약자 위치 업데이트용)
 
 // 산책코스 모드 관련 변수
 var currentMapMode = 'mymap'; // 'mymap' 또는 'course'
@@ -386,6 +389,12 @@ function loadHomeMarker() {
             map.setCenter(coords);
             map.setLevel(4); // 적당한 줌 레벨
             
+            // 집 위치 저장 (노약자 위치 업데이트용)
+            homePosition = coords;
+            
+            // IoT 서비스에 집 위치 설정
+            setHomeLocationToIot(result[0].y, result[0].x);
+            
             console.log('✅ 집 마커 표시 완료:', cleanAddress);
         } else {
             console.error('❌ 주소 검색 실패!');
@@ -417,6 +426,12 @@ function loadHomeMarker() {
                     
                     map.setCenter(coords);
                     map.setLevel(4);
+                    
+                    // 집 위치 저장 (노약자 위치 업데이트용)
+                    homePosition = coords;
+                    
+                    // IoT 서비스에 집 위치 설정
+                    setHomeLocationToIot(data[0].y, data[0].x);
                     
                     console.log('✅ 키워드 검색으로 집 마커 표시 완료');
                 } else {
@@ -1766,6 +1781,339 @@ document.addEventListener('DOMContentLoaded', function() {
     setupScheduleScroll();
 });
 
+// 페이지를 떠날 때 인터벌 정리
+window.addEventListener('beforeunload', function() {
+    stopRecipientLocationUpdate();
+});
+
+// IoT 서비스에 집 위치 설정
+async function setHomeLocationToIot(latitude, longitude) {
+    if (!defaultRecId || defaultRecId === null) {
+        console.log('노약자 ID가 없어 집 위치를 설정할 수 없습니다.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/iot/location/' + defaultRecId + '/home', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                latitude: latitude,
+                longitude: longitude
+            })
+        });
+        
+        const result = await response.json();
+        if (result.success) {
+            console.log('✅ IoT 서비스에 집 위치 설정 완료');
+        } else {
+            console.warn('⚠️ IoT 서비스 집 위치 설정 실패:', result.message);
+        }
+    } catch (error) {
+        console.error('❌ IoT 서비스 집 위치 설정 오류:', error);
+    }
+}
+
+// IoT 서비스에서 노약자 위치 가져오기
+async function getRecipientLocationFromIot() {
+    if (!defaultRecId || defaultRecId === null) {
+        return null;
+    }
+    
+    try {
+        const response = await fetch('/api/iot/location/' + defaultRecId);
+        const result = await response.json();
+        
+        if (result.success && result.data) {
+            return {
+                latitude: result.data.latitude,
+                longitude: result.data.longitude
+            };
+        }
+        return null;
+    } catch (error) {
+        console.error('❌ IoT 서비스 위치 조회 오류:', error);
+        return null;
+    }
+}
+
+// 노약자 실시간 위치 마커 표시
+async function loadRecipientLocationMarker() {
+    if (!defaultRecId || defaultRecId === null) {
+        console.log('노약자 ID가 없어 위치 마커를 표시할 수 없습니다.');
+        return;
+    }
+    
+    // IoT 서비스에서 현재 위치 가져오기
+    var locationData = await getRecipientLocationFromIot();
+    
+    if (!locationData) {
+        console.log('IoT 서비스에서 위치 정보를 가져올 수 없습니다. 집 위치를 사용합니다.');
+        if (!homePosition) {
+            console.log('집 위치도 없어 위치 마커를 표시할 수 없습니다.');
+            return;
+        }
+        locationData = {
+            latitude: homePosition.getLat(),
+            longitude: homePosition.getLng()
+        };
+    }
+    
+    // 초기 위치 설정
+    var initialPosition = new kakao.maps.LatLng(locationData.latitude, locationData.longitude);
+    
+    // 노약자 사진 URL이 있으면 커스텀 마커 이미지 생성
+    var markerImage = null;
+    if (typeof recipientPhotoUrl !== 'undefined' && recipientPhotoUrl && recipientPhotoUrl !== '' && recipientPhotoUrl !== 'null') {
+        // Canvas를 사용하여 원형 프로필 이미지 마커 생성
+        createCircularMarkerImage(recipientPhotoUrl, function(dataUrl) {
+            if (dataUrl) {
+                markerImage = new kakao.maps.MarkerImage(
+                    dataUrl,
+                    new kakao.maps.Size(60, 70),
+                    {offset: new kakao.maps.Point(30, 70)}
+                );
+                createRecipientMarkerWithImage(markerImage, initialPosition);
+            } else {
+                // 이미지 로드 실패 시 기본 마커 사용
+                createDefaultRecipientMarker(initialPosition);
+            }
+        });
+        return; // 비동기 처리이므로 여기서 리턴
+    } else {
+        // 기본 마커 이미지 (사람 아이콘)
+        markerImage = new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60" viewBox="0 0 50 60">' +
+                '<circle cx="25" cy="25" r="20" fill="#667eea" stroke="#fff" stroke-width="3"/>' +
+                '<circle cx="25" cy="20" r="7" fill="#fff"/>' +
+                '<path d="M10 45 Q25 35 40 45" fill="#fff"/>' +
+                '<path d="M25 45 L20 55 L30 55 Z" fill="#667eea" stroke="#fff" stroke-width="2"/>' +
+                '</svg>'
+            ),
+            new kakao.maps.Size(50, 60),
+            {offset: new kakao.maps.Point(25, 60)}
+        );
+        createDefaultRecipientMarker(initialPosition);
+    }
+}
+
+// Canvas를 사용하여 원형 프로필 이미지 마커 생성
+function createCircularMarkerImage(photoUrl, callback) {
+    var canvas = document.createElement('canvas');
+    canvas.width = 60;
+    canvas.height = 70;
+    var ctx = canvas.getContext('2d');
+    
+    var img = new Image();
+    img.crossOrigin = 'anonymous'; // CORS 문제 해결 시도
+    
+    img.onload = function() {
+        // 하단 화살표 그리기
+        ctx.fillStyle = '#667eea';
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(30, 55);
+        ctx.lineTo(25, 65);
+        ctx.lineTo(35, 65);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // 원형 프로필 사진 그리기
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(30, 30, 25, 0, 2 * Math.PI);
+        ctx.clip();
+        
+        // 배경색 (이미지 로드 실패 시 대비)
+        ctx.fillStyle = '#667eea';
+        ctx.fillRect(5, 5, 50, 50);
+        
+        // 프로필 사진 그리기
+        ctx.drawImage(img, 5, 5, 50, 50);
+        ctx.restore();
+        
+        // 외곽 테두리
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(30, 30, 25, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        // 그림자 효과
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 5;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 2;
+        ctx.beginPath();
+        ctx.arc(30, 30, 27, 0, 2 * Math.PI);
+        ctx.stroke();
+        
+        var dataUrl = canvas.toDataURL('image/png');
+        callback(dataUrl);
+    };
+    
+    img.onerror = function() {
+        console.warn('프로필 이미지 로드 실패:', photoUrl);
+        callback(null);
+    };
+    
+    img.src = photoUrl;
+}
+
+// 노약자 마커 생성 (이미지가 준비된 후)
+function createRecipientMarkerWithImage(markerImage, position) {
+    var recipientNameDisplay = (typeof recipientName !== 'undefined' && recipientName) ? recipientName : '노약자';
+    
+    // 노약자 위치 마커 생성
+    recipientLocationMarker = new kakao.maps.Marker({
+        position: position,
+        map: map,
+        image: markerImage,
+        title: recipientNameDisplay + '님의 현재 위치',
+        zIndex: 1000 // 다른 마커보다 위에 표시
+    });
+    
+    // 인포윈도우 생성 및 이벤트 리스너 추가
+    setupRecipientMarkerEvents(recipientNameDisplay);
+    
+    console.log('✅ 노약자 위치 마커 표시 완료 (프로필 이미지)');
+    
+    // 10초마다 위치 업데이트 시작
+    startRecipientLocationUpdate();
+}
+
+// 기본 노약자 마커 생성
+function createDefaultRecipientMarker(position) {
+    var recipientNameDisplay = (typeof recipientName !== 'undefined' && recipientName) ? recipientName : '노약자';
+    
+    // 기본 마커 이미지 (사람 아이콘)
+    var markerImage = new kakao.maps.MarkerImage(
+        'data:image/svg+xml;base64,' + btoa(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60" viewBox="0 0 50 60">' +
+            '<circle cx="25" cy="25" r="20" fill="#667eea" stroke="#fff" stroke-width="3"/>' +
+            '<circle cx="25" cy="20" r="7" fill="#fff"/>' +
+            '<path d="M10 45 Q25 35 40 45" fill="#fff"/>' +
+            '<path d="M25 45 L20 55 L30 55 Z" fill="#667eea" stroke="#fff" stroke-width="2"/>' +
+            '</svg>'
+        ),
+        new kakao.maps.Size(50, 60),
+        {offset: new kakao.maps.Point(25, 60)}
+    );
+    
+    // 노약자 위치 마커 생성
+    recipientLocationMarker = new kakao.maps.Marker({
+        position: position,
+        map: map,
+        image: markerImage,
+        title: recipientNameDisplay + '님의 현재 위치',
+        zIndex: 1000 // 다른 마커보다 위에 표시
+    });
+    
+    // 인포윈도우 생성 및 이벤트 리스너 추가
+    setupRecipientMarkerEvents(recipientNameDisplay);
+    
+    console.log('✅ 노약자 위치 마커 표시 완료 (기본 아이콘)');
+    
+    // 10초마다 위치 업데이트 시작
+    startRecipientLocationUpdate();
+}
+
+// 노약자 마커 이벤트 설정
+function setupRecipientMarkerEvents(recipientNameDisplay) {
+    // 인포윈도우 생성
+    var recipientInfowindow = new kakao.maps.InfoWindow({
+        content: '<div style="padding:12px;font-size:13px;min-width:150px;text-align:center;">' +
+                 '<div style="font-weight:700;color:#667eea;margin-bottom:5px;">' +
+                 '<i class="bi bi-person-walking"></i> ' + recipientNameDisplay + '님</div>' +
+                 '<div style="font-size:11px;color:#666;">실시간 위치</div>' +
+                 '</div>',
+        removable: false
+    });
+    
+    // 마커 클릭 시 인포윈도우 표시
+    kakao.maps.event.addListener(recipientLocationMarker, 'click', function() {
+        // 다른 모든 인포윈도우 닫기
+        markers.forEach(function(item) {
+            if (item.infowindow) {
+                item.infowindow.close();
+            }
+        });
+        
+        searchMarkers.forEach(function(item) {
+            if (item.infowindow) {
+                item.infowindow.close();
+            }
+        });
+        
+        if (homeInfowindow) {
+            homeInfowindow.close();
+        }
+        
+        recipientInfowindow.open(map, recipientLocationMarker);
+    });
+}
+
+// 노약자 위치 업데이트 시작 (10초 간격)
+function startRecipientLocationUpdate() {
+    // 기존 인터벌이 있으면 제거
+    if (recipientLocationInterval) {
+        clearInterval(recipientLocationInterval);
+    }
+    
+    // 10초마다 위치 업데이트
+    recipientLocationInterval = setInterval(function() {
+        updateRecipientLocation();
+    }, 10000); // 10초 = 10000ms
+    
+    console.log('✅ 노약자 위치 업데이트 시작 (10초 간격)');
+}
+
+// 노약자 위치 업데이트 (IoT 서비스에서 가져오기)
+async function updateRecipientLocation() {
+    if (!recipientLocationMarker || !defaultRecId || defaultRecId === null) {
+        return;
+    }
+    
+    try {
+        // IoT 서비스에 위치 업데이트 요청 (시뮬레이션)
+        const updateResponse = await fetch('/api/iot/location/' + defaultRecId + '/update', {
+            method: 'POST'
+        });
+        
+        const updateResult = await updateResponse.json();
+        
+        if (updateResult.success && updateResult.data) {
+            var newLat = updateResult.data.latitude;
+            var newLng = updateResult.data.longitude;
+            var newPosition = new kakao.maps.LatLng(newLat, newLng);
+            
+            // 마커 위치 업데이트
+            if (recipientLocationMarker) {
+                recipientLocationMarker.setPosition(newPosition);
+                console.log('📍 노약자 위치 업데이트 (IoT):', newLat.toFixed(6), newLng.toFixed(6));
+            }
+        } else {
+            console.warn('⚠️ IoT 서비스 위치 업데이트 실패:', updateResult.message);
+        }
+    } catch (error) {
+        console.error('❌ IoT 서비스 위치 업데이트 오류:', error);
+    }
+}
+
+// 노약자 위치 업데이트 중지
+function stopRecipientLocationUpdate() {
+    if (recipientLocationInterval) {
+        clearInterval(recipientLocationInterval);
+        recipientLocationInterval = null;
+        console.log('⏹️ 노약자 위치 업데이트 중지');
+    }
+}
+
 // ESC 키로 모달 닫기
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {
@@ -1786,3 +2134,4 @@ document.addEventListener('keydown', function(e) {
         }
     }
 });
+
