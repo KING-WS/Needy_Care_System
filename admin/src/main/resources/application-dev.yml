@@ -22,12 +22,9 @@ spring:
       static-locations: classpath:/static/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/public/
   datasource:
     #url: jdbc:mysql://127.0.0.1:3306/shopdb?serverTimezone=Asia/Seoul
-    #    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    #    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/shopdb?characterEncoding=utf8
-    #    username: smuser
-    #    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/Needy_Care_System?characterEncoding=utf8
+    username: smuser
     password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
 
 mybatis:
