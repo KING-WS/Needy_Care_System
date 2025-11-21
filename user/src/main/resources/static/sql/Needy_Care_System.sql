@@ -76,6 +76,7 @@ INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('DISABLED', '장애
 
 
 -- [3] Care_Recipient (케어 대상자)
+
 CREATE TABLE Care_Recipient (
                                 rec_id INT NOT NULL AUTO_INCREMENT,
                                 rec_type_code VARCHAR(10) NOT NULL,
@@ -93,6 +94,10 @@ CREATE TABLE Care_Recipient (
                                 rec_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                 rec_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                 rec_health_needs TEXT COMMENT '(AI용) 건강 요구사항',
+                                last_connected_at DATETIME COMMENT '최근 접속 시간',
+                                rec_latitude DECIMAL(10, 7) COMMENT '현재 위도',
+                                rec_longitude DECIMAL(10, 7) COMMENT '현재 경도',
+
                                 PRIMARY KEY (rec_id),
                                 UNIQUE KEY UK_rec_kiosk_code (rec_kiosk_code)
 );
