@@ -1706,6 +1706,19 @@ function limitScheduleTitleLength() {
     });
 }
 
+// 식단 메뉴 이름 길이 제한 (17자)
+function limitMealMenuLength() {
+    var mealMenus = document.querySelectorAll('.meal-item .meal-menu');
+    
+    mealMenus.forEach(function(item) {
+        var text = item.textContent || item.innerText;
+        
+        if (text.length > 17) {
+            item.textContent = text.substring(0, 17) + '...';
+        }
+    });
+}
+
 // 일정 목록 스크롤 설정 (5개 이상일 때만)
 function setupScheduleScroll() {
     var scheduleList = document.querySelector('.hourly-schedule-list');
@@ -1745,6 +1758,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 일정 제목 길이 제한 적용
     limitScheduleTitleLength();
+    
+    // 식단 메뉴 이름 길이 제한 적용
+    limitMealMenuLength();
     
     // 일정 목록 스크롤 설정 (5개 이상일 때만)
     setupScheduleScroll();

@@ -191,71 +191,28 @@
                             </div>
                             
                             <div class="meal-list">
-                                <!-- 아침 -->
-                                <div class="meal-item">
-                                    <div class="meal-type breakfast">
-                                        <span>아침</span>
-                                    </div>
-                                    <div class="meal-content">
-                                        <c:set var="breakfastFound" value="false"/>
+                                <c:choose>
+                                    <c:when test="${not empty todayMeals}">
                                         <c:forEach var="meal" items="${todayMeals}">
-                                            <c:if test="${meal.mealType == '아침'}">
-                                                <c:set var="breakfastFound" value="true"/>
-                                                <div class="meal-menu">${meal.mealMenu}</div>
-                                                <c:if test="${not empty meal.mealCalories}">
-                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
-                                                </c:if>
-                                            </c:if>
+                                            <div class="meal-item">
+                                                <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
+                                                    <span>${meal.mealType}</span>
+                                                </div>
+                                                <div class="meal-content">
+                                                    <div class="meal-menu">${meal.mealMenu}</div>
+                                                    <c:if test="${not empty meal.mealCalories}">
+                                                        <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
                                         </c:forEach>
-                                        <c:if test="${!breakfastFound}">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="meal-empty-container">
                                             <div class="meal-empty">등록된 식단이 없습니다</div>
-                                        </c:if>
-                                    </div>
-                                </div>
-                                
-                                <!-- 점심 -->
-                                <div class="meal-item">
-                                    <div class="meal-type lunch">
-                                        <span>점심</span>
-                                    </div>
-                                    <div class="meal-content">
-                                        <c:set var="lunchFound" value="false"/>
-                                        <c:forEach var="meal" items="${todayMeals}">
-                                            <c:if test="${meal.mealType == '점심'}">
-                                                <c:set var="lunchFound" value="true"/>
-                                                <div class="meal-menu">${meal.mealMenu}</div>
-                                                <c:if test="${not empty meal.mealCalories}">
-                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
-                                                </c:if>
-                                            </c:if>
-                                        </c:forEach>
-                                        <c:if test="${!lunchFound}">
-                                            <div class="meal-empty">등록된 식단이 없습니다</div>
-                                        </c:if>
-                                    </div>
-                                </div>
-                                
-                                <!-- 저녁 -->
-                                <div class="meal-item">
-                                    <div class="meal-type dinner">
-                                        <span>저녁</span>
-                                    </div>
-                                    <div class="meal-content">
-                                        <c:set var="dinnerFound" value="false"/>
-                                        <c:forEach var="meal" items="${todayMeals}">
-                                            <c:if test="${meal.mealType == '저녁'}">
-                                                <c:set var="dinnerFound" value="true"/>
-                                                <div class="meal-menu">${meal.mealMenu}</div>
-                                                <c:if test="${not empty meal.mealCalories}">
-                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
-                                                </c:if>
-                                            </c:if>
-                                        </c:forEach>
-                                        <c:if test="${!dinnerFound}">
-                                            <div class="meal-empty">등록된 식단이 없습니다</div>
-                                        </c:if>
-                                    </div>
-                                </div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                         </div>
                     </a>
@@ -724,6 +681,11 @@
         // 일정 제목 길이 제한 적용
         if (typeof limitScheduleTitleLength === 'function') {
             limitScheduleTitleLength();
+        }
+        
+        // 식단 메뉴 이름 길이 제한 적용
+        if (typeof limitMealMenuLength === 'function') {
+            limitMealMenuLength();
         }
         
         // 일정 목록 스크롤 설정 (5개 이상일 때만)

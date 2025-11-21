@@ -130,6 +130,27 @@ public class HomeController {
                         LocalDate today = LocalDate.now();
                         List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
                             selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
                         model.addAttribute("todayMeals", todayMeals);
                         log.info("오늘의 식단 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todayMeals.size());
                     } catch (Exception e) {
@@ -261,6 +282,27 @@ public class HomeController {
                         LocalDate today = LocalDate.now();
                         List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
                             selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
                         model.addAttribute("todayMeals", todayMeals);
                     } catch (Exception e) {
                         log.warn("오늘의 식단 조회 실패", e);
