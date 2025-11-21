@@ -69,7 +69,7 @@ CREATE TABLE Rec_Type_Code (
                                PRIMARY KEY (rec_type_code)
 );
 
--- ★ 필수 기초 데이터 삽입 (이게 있어야 대상자 등록 가능)
+-- ★ 필수 기초 데이터 삽입
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('ELDERLY', '노인/고령자');
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('PREGNANT', '임산부');
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('DISABLED', '장애인');
@@ -143,12 +143,11 @@ CREATE TABLE Caregiver (
 );
 
 
--- [7] Care_Matching (매칭)
+-- [7] Care_Matching (매칭) - 수정됨 (admin_id 삭제)
 CREATE TABLE Care_Matching (
                                matching_id INT NOT NULL AUTO_INCREMENT,
                                caregiver_id INT NOT NULL,
                                rec_id INT NOT NULL,
-                               admin_id INT NOT NULL,
                                is_deleted CHAR(1) NOT NULL DEFAULT 'N',
                                match_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                match_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -362,7 +361,7 @@ ALTER TABLE Health_Data ADD CONSTRAINT FK_Care_Recipient_TO_Health_Data FOREIGN 
 -- Care_Matching 관련
 ALTER TABLE Care_Matching ADD CONSTRAINT FK_Caregiver_TO_Care_Matching FOREIGN KEY (caregiver_id) REFERENCES Caregiver (caregiver_id);
 ALTER TABLE Care_Matching ADD CONSTRAINT FK_Care_Recipient_TO_Care_Matching FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
-ALTER TABLE Care_Matching ADD CONSTRAINT FK_Admin_TO_Care_Matching FOREIGN KEY (admin_id) REFERENCES Admin (admin_id);
+
 
 -- Hourly_Schedule 관련
 ALTER TABLE Hourly_Schedule ADD CONSTRAINT FK_Schedule_TO_Hourly_Schedule FOREIGN KEY (sched_id) REFERENCES Schedule (sched_id);
