@@ -18,38 +18,45 @@
                     <c:if test="${not empty recipient}">
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
-                                <!-- 왼쪽: 프로필 정보 -->
-                                <div class="health-card-left">
-                                    <div class="recipient-avatar">
-                                        <c:choose>
-                                            <c:when test="${not empty recipient.recPhotoUrl}">
-                                                <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
-                                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                                <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <i class="bi bi-person-fill"></i>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <div class="recipient-info">
-                                        <div class="recipient-name">${recipient.recName}</div>
-                                        <c:choose>
-                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
-                                                <span class="recipient-badge badge-elderly">노인</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
-                                                <span class="recipient-badge badge-pregnant">임산부</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
-                                                <span class="recipient-badge badge-disabled">장애인</span>
-                                            </c:when>
-                                        </c:choose>
+                                <div class="calendar-header">
+                                    <div class="calendar-title">
+                                        <i class="bi bi-heart-pulse-fill"></i>
+                                        건강 정보
                                     </div>
                                 </div>
+                                <div class="health-card-content">
+                                    <!-- 왼쪽: 프로필 정보 -->
+                                    <div class="health-card-left">
+                                        <div class="recipient-avatar">
+                                            <c:choose>
+                                                <c:when test="${not empty recipient.recPhotoUrl}">
+                                                    <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-person-fill"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <div class="recipient-info">
+                                            <div class="recipient-name">${recipient.recName}</div>
+                                            <c:choose>
+                                                <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                    <span class="recipient-badge badge-elderly">노인</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                    <span class="recipient-badge badge-pregnant">임산부</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                    <span class="recipient-badge badge-disabled">장애인</span>
+                                                </c:when>
+                                            </c:choose>
+                                        </div>
+                                    </div>
 
-                                <!-- 오른쪽: 건강 데이터 섹션 -->
-                                <div class="health-card-right">
+                                    <!-- 오른쪽: 건강 데이터 섹션 -->
+                                    <div class="health-card-right">
                                     <!-- 혈압 수치 병력 -->
                                     <div class="health-info-item">
                                         <div class="health-info-label">혈압 수치</div>
@@ -75,6 +82,7 @@
                                         <div class="progress-bar-wrapper">
                                             <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>

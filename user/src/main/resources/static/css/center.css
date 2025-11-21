@@ -67,10 +67,9 @@
     line-height: 1.5;
 }
 
-/* 지도 큰 카드에는 호버 애니메이션 제거 */
+/* 지도 큰 카드 호버 효과 */
 .dashboard-card.card-xlarge:hover {
-    transform: none;
-    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
     cursor: default;
 }
 
@@ -103,42 +102,43 @@
 
 /* 지도 카드 스타일 전체 컨테이너 */
 .dashboard-card.card-xlarge {
-    padding: 18px 24px;
+    padding: 20px;
     display: block;
     overflow: hidden;
-    background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
-    border-radius: 24px;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
     position: relative;
     height: 800px !important;
     min-height: 800px !important;
     max-height: 800px !important;
+    transition: all 0.3s ease;
 }
 
-/* 장식용 그라디언트 원 */
+/* 장식용 그라디언트 원 (오늘의 일정/식단표와 유사한 스타일) */
 .dashboard-card.card-xlarge::before,
 .dashboard-card.card-xlarge::after {
     content: "";
     position: absolute;
     border-radius: 999px;
     pointer-events: none;
-    opacity: 0.45;
+    opacity: 0.3;
 }
 
 .dashboard-card.card-xlarge::before {
-    width: 220px;
-    height: 220px;
-    background: radial-gradient(circle, rgba(52, 152, 219, 0.25), transparent 70%);
-    top: -60px;
-    right: -60px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15), transparent 70%);
+    top: -50px;
+    right: -50px;
 }
 
 .dashboard-card.card-xlarge::after {
-    width: 180px;
-    height: 180px;
-    background: radial-gradient(circle, rgba(231, 76, 60, 0.18), transparent 70%);
-    bottom: -40px;
-    left: -40px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.12), transparent 70%);
+    bottom: -30px;
+    left: -30px;
 }
 
 /* ========================================
@@ -316,7 +316,7 @@
 }
 
 .map-location-item:hover .location-delete-btn {
-    opacity: 1; /* 호버 시 표시 */
+    opacity: 1;
 }
 
 .location-delete-btn:hover {
@@ -763,15 +763,23 @@
    ======================================== */
 
 .health-card {
-    background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
     color: #333;
     text-align: left;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
+    transition: all 0.3s ease;
+}
+
+.health-card-content {
     display: grid;
     grid-template-columns: auto 1fr;
     gap: 20px;
     align-items: start;
-    border-radius: 15px;
+    margin-top: 15px;
 }
 
 .health-card-left {
@@ -919,6 +927,7 @@
 .health-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
+    cursor: pointer;
 }
 
 /* ========================================
