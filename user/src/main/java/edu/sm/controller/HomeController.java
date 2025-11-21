@@ -5,10 +5,13 @@ import edu.sm.app.dto.Cust;
 import edu.sm.app.dto.HealthData;
 import edu.sm.app.dto.Schedule;
 import edu.sm.app.dto.MapLocation;
+import edu.sm.app.dto.MealPlan;
+import edu.sm.app.dto.HourlySchedule;
 import edu.sm.app.service.RecipientService;
 import edu.sm.app.service.HealthDataService;
 import edu.sm.app.service.ScheduleService;
 import edu.sm.app.service.MapService;
+import edu.sm.app.service.MealPlanService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ public class HomeController {
     private final HealthDataService healthDataService;
     private final ScheduleService scheduleService;
     private final MapService mapService;
+    private final MealPlanService mealPlanService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -102,8 +106,34 @@ public class HomeController {
                             selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
                         log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todaySchedules.size());
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
+                        log.info("오늘의 시간대별 일정 조회 성공 - 개수: {}", todayHourlySchedules.size());
                     } catch (Exception e) {
-                        log.warn("오늘의 일정 조회 실패");
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        model.addAttribute("todayMeals", todayMeals);
+                        log.info("오늘의 식단 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todayMeals.size());
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
                     }
                     
                     // 지도 장소 조회
@@ -208,8 +238,32 @@ public class HomeController {
                         List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
                             selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
                     } catch (Exception e) {
-                        log.warn("오늘의 일정 조회 실패");
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        model.addAttribute("todayMeals", todayMeals);
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
                     }
                     
                     // 지도 장소 조회
