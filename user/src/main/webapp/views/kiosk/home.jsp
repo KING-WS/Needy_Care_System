@@ -11,21 +11,17 @@
 <body>
 
 <div class="kiosk-wrapper">
-    <!-- 상단 헤더 -->
     <header class="header-info">
         <div class="header-top-row">
-            <!-- 날씨 -->
             <div class="header-section section-left">
                 <div class="info-widget">
                     <span id="weather-icon" class="weather-icon">⏳</span>
                     <span id="weather-text" style="font-size: 0.8em;">위치 확인 중..</span>
                 </div>
             </div>
-            <!-- 시계 -->
             <div class="header-section section-center">
                 <div id="clock" class="info-widget kiosk-clock">--:--</div>
             </div>
-            <!-- 상태 -->
             <div class="header-section section-right">
                 <div class="status-indicator">
                     <div class="status-dot"></div>
@@ -33,20 +29,16 @@
                 </div>
             </div>
         </div>
-        <!-- 인사말 -->
         <div class="header-main-row">
             <h1 class="recipient-name">${recipient.recName} 님</h1>
             <p id="greeting-text" class="welcome-text"></p>
         </div>
     </header>
 
-    <!-- 메인 컨텐츠 -->
     <main class="main-content">
-        <!-- AI 채팅 -->
         <section class="ai-companion-area">
             <div class="chat-window" id="chat-window"></div>
             <div class="chat-input-area">
-                <!-- onclick에서 호출하는 함수는 전역 스코프에 있어야 함 -->
                 <button class="speak-button" onclick="startSpeechRecognition()">
                     <span style="font-size: 3rem;">🎤</span>
                     <span>음성으로 말하기</span>
@@ -58,7 +50,6 @@
             </div>
         </section>
 
-        <!-- 긴급 호출 -->
         <section class="call-button-area">
             <button id="emergency-btn" class="call-button emergency" onclick="sendRequest(this, 'emergency', '긴급 호출')">
                 <div class="button-content">
@@ -87,10 +78,50 @@
     window.weatherState = { temp: null, city: null };
 
     // ============================================================
-    // 1. 전역 유틸리티 함수들 (HTML onclick에서 호출 가능)
+    // 1. 전역 유틸리티 함수들
     // ============================================================
 
-    // [음성 인식 STT] - 전역 함수로 이동
+    // [개선된 기능] Google 목소리를 우선 사용하는 TTS 함수
+    function speakText(text) {
+        if (!window.speechSynthesis) {
+            console.error("이 브라우저는 음성 합성을 지원하지 않습니다.");
+            return;
+        }
+
+        // 말하고 있던 게 있다면 중단
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 1.0; // 속도 (어르신용이면 0.9 추천)
+        utterance.pitch = 1.0;
+
+        // [핵심] 브라우저에 있는 목소리 리스트를 가져옵니다.
+        const voices = window.speechSynthesis.getVoices();
+
+        // 'Google'이 포함된 한국어 목소리를 찾습니다. (이게 훨씬 자연스럽습니다)
+        // 만약 없으면 그냥 아무 한국어 목소리나 씁니다.
+        const googleVoice = voices.find(v => v.lang.includes('ko') && v.name.includes('Google'));
+        const anyKoreanVoice = voices.find(v => v.lang.includes('ko'));
+
+        if (googleVoice) {
+            utterance.voice = googleVoice;
+        } else if (anyKoreanVoice) {
+            utterance.voice = anyKoreanVoice;
+        }
+
+        // 말하기 시작
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // [중요] 크롬은 목소리 리스트를 비동기로 가져오므로 이 이벤트가 필요합니다.
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
+    }
+
+    // [음성 인식 STT]
     function startSpeechRecognition() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
@@ -100,7 +131,7 @@
 
         const recognition = new SpeechRecognition();
         const speakBtn = document.querySelector('.speak-button');
-        const speakText = speakBtn.querySelector('span:last-child');
+        const speakTextElem = speakBtn.querySelector('span:last-child');
 
         recognition.lang = 'ko-KR';
         recognition.interimResults = false;
@@ -108,12 +139,12 @@
 
         recognition.onstart = function() {
             speakBtn.classList.add('listening');
-            speakText.textContent = "듣고 있어요...";
+            speakTextElem.textContent = "듣고 있어요...";
         };
 
         recognition.onend = function() {
             speakBtn.classList.remove('listening');
-            speakText.textContent = "음성으로 말하기";
+            speakTextElem.textContent = "음성으로 말하기";
         };
 
         recognition.onresult = function(event) {
@@ -126,21 +157,18 @@
 
         recognition.onerror = function(event) {
             speakBtn.classList.remove('listening');
-            speakText.textContent = "음성으로 말하기";
+            speakTextElem.textContent = "음성으로 말하기";
             if (event.error !== 'no-speech') alert("오류: " + event.error);
         };
 
         recognition.start();
     }
 
-    // -------------------------------------------------------
-    // 5. 호출 버튼 (실제 서버 API 호출 로직 추가)
-    // -------------------------------------------------------
+    // 5. 호출 버튼 (실제 서버 API 호출 로직)
     function sendRequest(btn, type, text) {
         const feedback = btn.querySelector('.button-feedback');
         const content = btn.querySelector('.button-content');
 
-        // 버튼 비활성화 및 피드백 표시
         btn.disabled = true;
         content.style.opacity = '0';
         feedback.style.opacity = '1';
@@ -150,40 +178,32 @@
 
         fetch('/api/alert/send', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                kioskCode: KIOSK_CODE,
-                type: type
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ kioskCode: KIOSK_CODE, type: type })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    feedback.textContent = '요청 완료!';
+                } else {
+                    feedback.textContent = '요청 실패! 😥';
+                    alert("알림 요청에 실패했습니다: " + data.message);
+                }
             })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.status === 'success') {
-                feedback.textContent = '요청 완료!';
-                console.log(`✅ 알림 서버 응답: ${data.msg}`);
-            } else {
-                feedback.textContent = '요청 실패! 😥';
-                console.error(`❌ 알림 서버 오류: ${data.message}`);
-                alert("알림 요청에 실패했습니다: " + data.message);
-            }
-        })
-        .catch(err => {
-            feedback.textContent = '연결 오류! 😥';
-            console.error('❌ 알림 서버 연결 오류:', err);
-            alert("알림 서버 연결에 실패했습니다.");
-        })
-        .finally(() => {
-            setTimeout(() => {
-                content.style.opacity = '1';
-                feedback.style.opacity = '0';
-                btn.disabled = false;
-            }, 3000); // 3초 후 버튼 복구
-        });
+            .catch(err => {
+                feedback.textContent = '연결 오류! 😥';
+                alert("알림 서버 연결에 실패했습니다.");
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    content.style.opacity = '1';
+                    feedback.style.opacity = '0';
+                    btn.disabled = false;
+                }, 3000);
+            });
     }
 
-    // [채팅 메시지 추가] - 전역 함수로 이동
+    // [채팅 메시지 UI 추가]
     function addMessageToChat(sender, text, id = null) {
         const chatWindow = document.getElementById('chat-window');
         const div = document.createElement('div');
@@ -207,23 +227,21 @@
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    // [로딩 제거] - 전역 함수로 이동
+    // [로딩 제거]
     function removeElement(id) {
         const el = document.getElementById(id);
         if (el) el.remove();
     }
 
-    // [날씨 UI 업데이트] - 전역 함수로 이동
+    // [날씨 UI 업데이트]
     function updateWeatherUI() {
         const textEl = document.getElementById('weather-text');
         const { temp, city } = window.weatherState;
-
         if (city && temp !== null) textEl.textContent = city + ", " + temp + "°C";
         else if (city) textEl.textContent = city;
         else if (temp !== null) textEl.textContent = "현재 위치, " + temp + "°C";
     }
 
-    // [날씨 이모지] - 전역 함수로 이동
     function getWeatherEmoji(code) {
         if (code === 0) return '☀️';
         if (code >= 1 && code <= 3) return '⛅';
@@ -234,7 +252,7 @@
 
 
     // ============================================================
-    // 2. 페이지 로드 후 실행되는 초기화 로직 (DOMContentLoaded)
+    // 2. 페이지 로드 후 실행되는 초기화 로직
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
 
@@ -266,10 +284,8 @@
                         .then(res => res.ok ? res.json() : null)
                         .then(data => {
                             if(!data) return;
-                            // 읍/면/동 우선 -> 없으면 시/군/구
                             let city = data.locality || data.city || data.principalSubdivision || "대한민국";
                             if (!city || city.trim() === "") city = "내 위치";
-
                             window.weatherState.city = city;
                             updateWeatherUI();
                         }).catch(() => {});
@@ -292,9 +308,7 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? '오후' : '오전';
             const displayHours = hours % 12 ? hours % 12 : 12;
-
             if (clockElement) clockElement.textContent = ampm + " " + displayHours + ":" + minutes;
-
             if (greetingElement) {
                 greetingElement.textContent = "안녕하세요! 무엇을 도와드릴까요?";
             }
@@ -302,8 +316,13 @@
         setInterval(updateClockAndGreeting, 1000);
         updateClockAndGreeting();
 
-        // [초기화 3] 채팅 초기 메시지
-        addMessageToChat('bot', '안녕하세요, ' + RECIPIENT_NAME + '님! 말벗 로봇 마음이에요.');
+        // [초기화 3] 초기 메시지 & 음성 출력
+        // *목소리가 로드될 시간을 주기 위해 약간의 지연(500ms) 후 첫 인사 실행
+        setTimeout(() => {
+            const initialMsg = '안녕하세요, ' + RECIPIENT_NAME + '님! 말벗 로봇 마음이에요.';
+            addMessageToChat('bot', initialMsg);
+            speakText(initialMsg);
+        }, 500);
 
         // [초기화 4] 채팅 전송 이벤트 연결
         const chatInput = document.getElementById('chat-text-input');
@@ -328,11 +347,15 @@
                 .then(data => {
                     removeElement(loadingId);
                     const replyText = data.reply || data.response || "응답을 받지 못했습니다.";
+
                     addMessageToChat('bot', replyText);
+                    speakText(replyText); // 답변 읽어주기
                 })
                 .catch(() => {
                     removeElement(loadingId);
-                    addMessageToChat('bot', '죄송해요, 잠시 문제가 생겼어요.');
+                    const errorMsg = '죄송해요, 잠시 문제가 생겼어요.';
+                    addMessageToChat('bot', errorMsg);
+                    speakText(errorMsg);
                 });
         }
 
