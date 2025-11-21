@@ -6,6 +6,8 @@
         max-width: 800px;
         margin: 0 auto;
         padding: 40px 20px;
+        padding-bottom: 100px;
+        min-height: calc(100vh - 200px);
     }
     
     .register-header {
@@ -146,6 +148,74 @@
         margin-bottom: 20px;
         text-align: center;
     }
+    
+    .photo-upload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .photo-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 3px dashed #ddd;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f8f9fa;
+        margin: 0 auto;
+        position: relative;
+    }
+    
+    .photo-preview i {
+        font-size: 60px;
+        color: #ccc;
+        margin-bottom: 10px;
+    }
+    
+    .photo-preview p {
+        font-size: 12px;
+        color: #999;
+        margin: 0;
+    }
+    
+    .photo-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    
+    .photo-preview.has-image {
+        border-style: solid;
+        border-color: #667eea;
+    }
+    
+    .btn-address-search {
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-address-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    }
+    
+    .btn-address-search i {
+        margin-right: 5px;
+    }
 </style>
 
 <div class="register-container">
@@ -173,6 +243,24 @@
                     이름<span class="required">*</span>
                 </label>
                 <input type="text" name="recName" class="form-input" required placeholder="돌봄 대상자의 이름을 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">
+                    프로필 사진
+                </label>
+                <div class="photo-upload-container">
+                    <div class="photo-preview" id="photoPreview">
+                        <i class="bi bi-person-circle"></i>
+                        <p>사진을 선택하세요</p>
+                    </div>
+                    <input type="file" name="recPhotoUrl" id="photoInput" class="form-input" 
+                           accept="image/jpeg,image/jpg,image/png,image/gif"
+                           onchange="previewPhoto(event)">
+                    <small style="color: #999; font-size: 12px; display: block; margin-top: 5px;">
+                        * JPG, JPEG, PNG, GIF 파일만 가능합니다
+                    </small>
+                </div>
             </div>
             
             <div class="form-group">
@@ -214,7 +302,18 @@
                 <label class="form-label">
                     주소<span class="required">*</span>
                 </label>
-                <input type="text" name="recAddress" class="form-input" required placeholder="거주지 주소를 입력하세요">
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="postcode" class="form-input" placeholder="우편번호" readonly style="flex: 0 0 150px;">
+                    <button type="button" onclick="execDaumPostcode()" class="btn-address-search">
+                        <i class="bi bi-search"></i> 주소 검색
+                    </button>
+                </div>
+                <input type="text" id="roadAddress" class="form-input" placeholder="도로명 주소" readonly style="margin-bottom: 10px; background-color: #f8f9fa;">
+                <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px;">
+                <input type="text" id="detailAddress" class="form-input" placeholder="상세 주소 (선택사항)">
+                <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">
+                    <i class="bi bi-info-circle"></i> 주소 검색 버튼을 눌러 지번 주소를 선택해주세요
+                </small>
             </div>
         </div>
         
@@ -273,6 +372,35 @@
 </div>
 
 <script>
+    // 사진 미리보기
+    function previewPhoto(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('photoPreview');
+        
+        if (file) {
+            // 파일 크기 체크 (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('파일 크기는 5MB 이하여야 합니다.');
+                event.target.value = '';
+                return;
+            }
+            
+            // 이미지 파일인지 확인
+            if (!file.type.match('image.*')) {
+                alert('이미지 파일만 업로드 가능합니다.');
+                event.target.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                preview.classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+    
     // 폼 유효성 검사
     document.querySelector('.register-form').addEventListener('submit', function(e) {
         const recName = document.querySelector('input[name="recName"]').value.trim();
@@ -287,5 +415,34 @@
             return false;
         }
     });
+    
+    // Daum 주소 API
+    function execDaumPostcode() {
+        new daum.Postcode({
+            oncomplete: function(data) {
+                // 팝업에서 검색결과 항목을 클릭했을때 실행할 코드
+
+                // 각 주소의 노출 규칙에 따라 주소를 조합한다.
+                var roadAddr = data.roadAddress; // 도로명 주소
+                var jibunAddr = data.jibunAddress; // 지번 주소
+                
+                // 우편번호와 주소 정보를 해당 필드에 넣는다.
+                document.getElementById('postcode').value = data.zonecode;
+                document.getElementById('roadAddress').value = roadAddr;
+                document.getElementById('jibunAddress').value = jibunAddr; // 지번 주소를 메인으로 설정
+                
+                // 상세주소 입력란에 포커스
+                document.getElementById('detailAddress').focus();
+                
+                // 지번 주소가 있으면 표시, 없으면 도로명 주소 사용
+                if (!jibunAddr) {
+                    document.getElementById('jibunAddress').value = roadAddr;
+                }
+            }
+        }).open();
+    }
 </script>
+
+<!-- Daum 우편번호 API -->
+<script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
 

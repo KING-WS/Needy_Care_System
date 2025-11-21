@@ -14,6 +14,9 @@ public interface RecipientRepository {
     // recId로 특정 돌봄 대상자 조회
     Recipient selectRecipientById(@Param("recId") Integer recId);
     
+    // 키오스크 코드로 돌봄 대상자 조회
+    Recipient selectRecipientByKioskCode(@Param("kioskCode") String kioskCode);
+    
     // 돌봄 대상자 등록
     int insertRecipient(Recipient recipient);
     

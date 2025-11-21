@@ -28,10 +28,10 @@ public class InsertTests {
         String addr = "충청도 아산시";
 
         Cust cust = Cust.builder().
-                custId(id).
+                custId(Integer.valueOf(id)).
                 custPwd(encoder.encode(pwd)).
                 custName(name).
-                custAddr(txtEncoder.encrypt(addr)).
+                custId(Integer.valueOf(txtEncoder.encrypt(addr))).
                         build();
 
         custService.register(cust);

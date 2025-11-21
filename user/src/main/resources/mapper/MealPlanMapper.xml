@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.sm.app.repository.MealPlanRepository">
+
+    <!-- ========== 기본 CRUD 쿼리 ========== -->
+    
+    <!-- 전체 식단 조회 (삭제되지 않은 것만) -->
+    <select id="selectAll" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE is_deleted = 'N' OR is_deleted IS NULL
+        ORDER BY meal_date DESC, 
+                 FIELD(meal_type, '아침', '점심', '저녁')
+    </select>
+
+    <!-- 단건 조회 (meal_id로) -->
+    <select id="select" parameterType="Integer" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE meal_id = #{mealId} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- ========== 커스텀 조회 쿼리 ========== -->
+    
+    <!-- 노약자 ID로 식단 목록 조회 -->
+    <select id="selectByRecId" parameterType="Integer" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE rec_id = #{recId} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY meal_date DESC, 
+                 FIELD(meal_type, '아침', '점심', '저녁')
+    </select>
+
+    <!-- 특정 날짜의 식단 조회 -->
+    <select id="selectByDate" parameterType="java.time.LocalDate" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE meal_date = #{mealDate} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY FIELD(meal_type, '아침', '점심', '저녁')
+    </select>
+
+    <!-- 노약자 ID와 날짜로 식단 조회 -->
+    <select id="selectByRecIdAndDate" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date = #{param2}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY FIELD(meal_type, '아침', '점심', '저녁')
+    </select>
+
+    <!-- 식사 구분으로 식단 조회 -->
+    <select id="selectByMealType" parameterType="String" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE meal_type = #{mealType} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY meal_date DESC
+    </select>
+
+    <!-- 노약자 ID, 날짜, 식사 구분으로 특정 식단 조회 -->
+    <select id="selectByRecIdAndDateAndType" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date = #{param2}
+        AND meal_type = #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- 특정 기간의 식단 조회 -->
+    <select id="selectByDateRange" resultType="MealPlan">
+        SELECT 
+            meal_id AS mealId,
+            rec_id AS recId,
+            meal_date AS mealDate,
+            meal_type AS mealType,
+            meal_menu AS mealMenu,
+            meal_calories AS mealCalories,
+            is_deleted AS isDeleted,
+            meal_regdate AS mealRegdate,
+            meal_update AS mealUpdate
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date BETWEEN #{param2} AND #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY meal_date DESC, 
+                 FIELD(meal_type, '아침', '점심', '저녁')
+    </select>
+
+    <!-- 노약자의 총 칼로리 합계 조회 (특정 날짜) -->
+    <select id="selectTotalCaloriesByDate" resultType="Integer">
+        SELECT 
+            COALESCE(SUM(meal_calories), 0) AS totalCalories
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date = #{param2}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- ========== 삽입/수정/삭제 쿼리 ========== -->
+    
+    <!-- 식단 등록 -->
+    <insert id="insert" parameterType="MealPlan" useGeneratedKeys="true" keyProperty="mealId">
+        INSERT INTO Meal_Plan (
+            rec_id,
+            meal_date,
+            meal_type,
+            meal_menu,
+            meal_calories,
+            is_deleted,
+            meal_regdate,
+            meal_update
+        )
+        VALUES (
+            #{recId},
+            #{mealDate},
+            #{mealType},
+            #{mealMenu},
+            #{mealCalories},
+            'N',
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <!-- 식단 정보 수정 -->
+    <update id="update" parameterType="MealPlan">
+        UPDATE Meal_Plan 
+        <set>
+            <if test="recId != null">
+                rec_id = #{recId},
+            </if>
+            <if test="mealDate != null">
+                meal_date = #{mealDate},
+            </if>
+            <if test="mealType != null and mealType != ''">
+                meal_type = #{mealType},
+            </if>
+            <if test="mealMenu != null">
+                meal_menu = #{mealMenu},
+            </if>
+            <if test="mealCalories != null">
+                meal_calories = #{mealCalories},
+            </if>
+            <if test="isDeleted != null and isDeleted != ''">
+                is_deleted = #{isDeleted},
+            </if>
+            meal_update = NOW()
+        </set>
+        WHERE meal_id = #{mealId}
+    </update>
+
+    <!-- 식단 삭제 (논리 삭제) -->
+    <delete id="delete" parameterType="Integer">
+        UPDATE Meal_Plan 
+        SET is_deleted = 'Y', 
+            meal_update = NOW() 
+        WHERE meal_id = #{mealId}
+    </delete>
+
+</mapper>
+
