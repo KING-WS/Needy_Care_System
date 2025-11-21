@@ -204,6 +204,14 @@
                             </a>
                         </li>
                         
+                        <!-- 알림 관리 -->
+                        <li class="nav-item">
+                            <a class="nav-link ${center == 'admin/alerts' ? 'active' : ''}" href="<c:url value='/admin/alerts'/>">
+                                <i class="bi bi-bell"></i>
+                                <span>알림 관리</span>
+                            </a>
+                        </li>
+                        
                         <!-- ADMIN MENU 헤딩 -->
                         <li class="nav-item mt-4">
                             <small class="text-muted px-3 text-uppercase fw-bold">ADMIN MENU</small>
