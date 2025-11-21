@@ -18,36 +18,45 @@
                     <c:if test="${not empty recipient}">
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
-                                <!-- 왼쪽: 프로필 정보 -->
-                                <div class="health-card-left">
-                                    <div class="recipient-avatar">
-                                        <c:choose>
-                                            <c:when test="${not empty recipient.recPhotoUrl}">
-                                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="${recipient.recName}" class="avatar-image">
-                                            </c:when>
-                                            <c:otherwise>
-                                                <i class="bi bi-person-fill"></i>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <div class="recipient-info">
-                                        <div class="recipient-name">${recipient.recName}</div>
-                                        <c:choose>
-                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
-                                                <span class="recipient-badge badge-elderly">노인</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
-                                                <span class="recipient-badge badge-pregnant">임산부</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
-                                                <span class="recipient-badge badge-disabled">장애인</span>
-                                            </c:when>
-                                        </c:choose>
+                                <div class="calendar-header">
+                                    <div class="calendar-title">
+                                        <i class="bi bi-heart-pulse-fill"></i>
+                                        건강 정보
                                     </div>
                                 </div>
+                                <div class="health-card-content">
+                                    <!-- 왼쪽: 프로필 정보 -->
+                                    <div class="health-card-left">
+                                        <div class="recipient-avatar">
+                                            <c:choose>
+                                                <c:when test="${not empty recipient.recPhotoUrl}">
+                                                    <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-person-fill"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <div class="recipient-info">
+                                            <div class="recipient-name">${recipient.recName}</div>
+                                            <c:choose>
+                                                <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                    <span class="recipient-badge badge-elderly">노인</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                    <span class="recipient-badge badge-pregnant">임산부</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                    <span class="recipient-badge badge-disabled">장애인</span>
+                                                </c:when>
+                                            </c:choose>
+                                        </div>
+                                    </div>
 
-                                <!-- 오른쪽: 건강 데이터 섹션 -->
-                                <div class="health-card-right">
+                                    <!-- 오른쪽: 건강 데이터 섹션 -->
+                                    <div class="health-card-right">
                                     <!-- 혈압 수치 병력 -->
                                     <div class="health-info-item">
                                         <div class="health-info-label">혈압 수치</div>
@@ -73,6 +82,7 @@
                                         <div class="progress-bar-wrapper">
                                             <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
                                         </div>
+                                    </div>
                                     </div>
                                 </div>
                             </div>
@@ -166,10 +176,6 @@
                                     <span>이번달: ${not empty schedules ? schedules.size() : 0}개</span>
                                 </div>
                             </div>
-                            <div class="calendar-view-all">
-                                자세히 보기
-                                <i class="bi bi-arrow-right-circle"></i>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -177,18 +183,94 @@
 
             <!-- 가운데 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
-                <!-- 중간 카드 (위) -->
+                <!-- 중간 카드 (위) - 오늘의 식단 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/cctv"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/mealplan"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium meal-card">
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    <i class="bi bi-egg-fried"></i>
+                                    오늘의 식단표
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+                            </div>
+                            
+                            <div class="meal-list">
+                                <c:choose>
+                                    <c:when test="${not empty todayMeals}">
+                                        <c:forEach var="meal" items="${todayMeals}">
+                                            <div class="meal-item">
+                                                <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
+                                                    <span>${meal.mealType}</span>
+                                                </div>
+                                                <div class="meal-content">
+                                                    <div class="meal-menu">${meal.mealMenu}</div>
+                                                    <c:if test="${not empty meal.mealCalories}">
+                                                        <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="meal-empty-container">
+                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </a>
                 </div>
 
-                <!-- 중간 카드 (아래) -->
+                <!-- 중간 카드 (아래) - 오늘의 일정 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/mypage"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium schedule-card">
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    <i class="bi bi-clock-history"></i>
+                                    오늘의 일정
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+                            </div>
+                            
+                            <div class="hourly-schedule-list">
+                                <c:choose>
+                                    <c:when test="${not empty todayHourlySchedules}">
+                                        <c:forEach var="hourly" items="${todayHourlySchedules}">
+                                            <div class="hourly-schedule-item">
+                                                <div class="hourly-time">
+                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                                        ${hourly.hourlySchedStartTime}
+                                                    </c:if>
+                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                        ~ ${hourly.hourlySchedEndTime}
+                                                    </c:if>
+                                                </div>
+                                                <div class="hourly-content">
+                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                    <c:if test="${not empty hourly.hourlySchedContent}">
+                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-calendar-x"></i>
+                                            <span>오늘 등록된 일정이 없습니다</span>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </a>
                 </div>
@@ -602,6 +684,21 @@
             initializeMap(); // 지도 초기화
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
+        }
+        
+        // 일정 제목 길이 제한 적용
+        if (typeof limitScheduleTitleLength === 'function') {
+            limitScheduleTitleLength();
+        }
+        
+        // 식단 메뉴 이름 길이 제한 적용
+        if (typeof limitMealMenuLength === 'function') {
+            limitMealMenuLength();
+        }
+        
+        // 일정 목록 스크롤 설정 (5개 이상일 때만)
+        if (typeof setupScheduleScroll === 'function') {
+            setupScheduleScroll();
         }
     });
 </script>
