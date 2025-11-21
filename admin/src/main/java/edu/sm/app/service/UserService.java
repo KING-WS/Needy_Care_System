@@ -7,6 +7,7 @@ import edu.sm.app.dto.UserSearch;
 import edu.sm.app.repository.UserRepository;
 import edu.sm.common.frame.SmService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,9 +17,12 @@ import java.util.List;
 public class UserService implements SmService<User, Integer> {
 
     final UserRepository custRepository;
+    final PasswordEncoder passwordEncoder;
 
     @Override
     public void register(User cust) throws Exception {
+        cust.setCustPwd(passwordEncoder.encode(cust.getCustPwd()));
+        cust.setIsDeleted("N"); // Set default value
         custRepository.insert(cust);
     }
 

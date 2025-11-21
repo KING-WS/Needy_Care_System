@@ -79,7 +79,7 @@
                                             </c:choose>
                                         </td>
                                         <td>
-                                            <button class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</button>
+                                            <a href="<c:url value='/customer/detail?id=${user.custId}'/>" class="btn btn-sm btn-outline-primary" style="border-radius: 8px;">상세</a>
                                             <button class="btn btn-sm btn-outline-secondary" style="border-radius: 8px;">수정</button>
                                         </td>
                                     </tr>
@@ -95,6 +95,27 @@
                     
                     <nav>
                         <ul class="pagination justify-content-center">
+                            <c:if test="${page.hasPreviousPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/customer/list?pageNo=${page.prePage}'/>" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            </c:if>
+                            <c:forEach begin="1" end="${page.pages}" var="i">
+                                <li class="page-item <c:if test='${page.pageNum eq i}'>active</c:if>">
+                                    <a class="page-link" href="<c:url value='/customer/list?pageNo=${i}'/>">${i}</a>
+                                </li>
+                            </c:forEach>
+                            <c:if test="${page.hasNextPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/customer/list?pageNo=${page.nextPage}'/>" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </c:if>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
