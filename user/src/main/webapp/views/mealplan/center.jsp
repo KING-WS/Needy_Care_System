@@ -4,7 +4,28 @@
 <!-- CSS 파일 링크 -->
 <link rel="stylesheet" href="<c:url value='/css/mealplan.css'/>" />
 
-<section class="mealplan-section">
+<style>
+    /* 컨텐츠 중앙 정렬 및 여백 조정 */
+    .mealplan-section > .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 1200px) {
+        .mealplan-section > .container-fluid {
+            padding: 0 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .mealplan-section > .container-fluid {
+            padding: 0 20px;
+        }
+    }
+</style>
+
+<section class="mealplan-section" style="padding: 20px 0 100px 0; background: #FFFFFF;">
     <div class="container-fluid">
         <!-- 헤더 -->
         <div class="row mb-4">
