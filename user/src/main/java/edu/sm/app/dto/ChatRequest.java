@@ -14,4 +14,5 @@ import lombok.ToString;
 public class ChatRequest {
     private String message;
     private String kioskCode;
+    private Integer recId; // kioskCode 대신 recId를 직접 사용할 수 있도록 추가
 }
