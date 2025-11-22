@@ -679,6 +679,77 @@
         }
     }
     
+    // 태그 active 상태 설정 함수
+    function setActiveTag(buttonElement) {
+        // 모든 버튼에서 active 클래스 제거
+        document.querySelectorAll('.schedule-tag').forEach(function(tag) {
+            tag.classList.remove('active');
+            tag.style.background = '#fff';
+            tag.style.color = '#333';
+        });
+        
+        // 클릭된 버튼에 active 클래스 추가
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+            buttonElement.style.background = '#3498db';
+            buttonElement.style.color = '#fff';
+        }
+    }
+    
+    // 일정 전환 함수
+    function switchSchedule(schedId, buttonElement) {
+        // 태그 active 상태 설정
+        setActiveTag(buttonElement);
+        
+        // 해당 일정의 시간표만 표시
+        var allItems = document.querySelectorAll('.hourly-schedule-item');
+        var hasVisibleItem = false;
+        
+        allItems.forEach(function(item) {
+            var itemSchedId = item.getAttribute('data-sched-id');
+            if (itemSchedId == schedId) {
+                item.style.display = 'flex';
+                hasVisibleItem = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // 일정이 없을 경우 빈 메시지 표시
+        var emptyDiv = document.querySelector('.hourly-empty');
+        if (!hasVisibleItem) {
+            if (!emptyDiv) {
+                var listDiv = document.getElementById('hourlyScheduleList');
+                listDiv.innerHTML = '<div class="hourly-empty"><i class="bi bi-calendar-x"></i><span>선택한 일정에 시간표가 없습니다</span></div>';
+            }
+        } else if (emptyDiv) {
+            emptyDiv.remove();
+        }
+    }
+    
+    // 모든 시간표 표시 함수
+    function showAllSchedules() {
+        var allItems = document.querySelectorAll('.hourly-schedule-item');
+        var hasVisibleItem = false;
+        
+        allItems.forEach(function(item) {
+            item.style.display = 'flex';
+            hasVisibleItem = true;
+        });
+        
+        // 빈 메시지 제거
+        var emptyDiv = document.querySelector('.hourly-empty');
+        if (emptyDiv && hasVisibleItem) {
+            emptyDiv.remove();
+        }
+        
+        // "전체" 태그를 active로 설정
+        var allTag = document.querySelector('.schedule-tag[data-sched-id="all"]');
+        if (allTag) {
+            setActiveTag(allTag);
+        }
+    }
+    
     // 페이지 로드 시 초기화
     window.addEventListener('load', function() {
         if (typeof kakao !== 'undefined' && kakao.maps) {
@@ -705,5 +776,30 @@
         if (typeof setupScheduleScroll === 'function') {
             setupScheduleScroll();
         }
+        
+        // 초기 로드 시 모든 시간표 표시 (필터링하지 않음)
+        showAllSchedules();
+        
+        // 여러 일정이 있을 경우에만 태그 표시 (기본적으로 모든 시간표 보여줌)
+        var scheduleTags = document.querySelectorAll('.schedule-tag');
+        if (scheduleTags.length > 1) {
+            // 여러 일정이 있을 때는 첫 번째 일정 태그를 active로 설정하되, 모든 시간표는 표시
+            var firstScheduleTag = document.querySelector('.schedule-tag.active');
+            if (firstScheduleTag) {
+                // 태그는 active 상태 유지하지만 시간표는 모두 표시
+                showAllSchedules();
+            }
+        }
+        
+        // 디버깅: 시간표 개수 확인
+        var hourlyItems = document.querySelectorAll('.hourly-schedule-item');
+        console.log('시간표 개수:', hourlyItems.length);
+        hourlyItems.forEach(function(item, index) {
+            console.log('시간표 ' + index + ':', {
+                schedId: item.getAttribute('data-sched-id'),
+                name: item.querySelector('.hourly-name') ? item.querySelector('.hourly-name').textContent : 'N/A',
+                display: item.style.display || 'default'
+            });
+        });
     });
 </script>
