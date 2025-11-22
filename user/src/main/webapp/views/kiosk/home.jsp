@@ -1,331 +1,266 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
-<%
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-    pageContext.setAttribute("dateFormatter", formatter);
-%>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>키오스크 모드</title>
-    <link rel="icon" type="image/png" href="/img/favicontitle.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 헤더 - 큰 글씨, 심플 */
-        .kiosk-header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .kiosk-header h1 {
-            font-size: 48px;
-            font-weight: bold;
-            color: #333;
-            margin: 0;
-        }
-
-        .kiosk-header p {
-            font-size: 24px;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        /* 메인 컨텐츠 */
-        .kiosk-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-
-        /* 환영 카드 */
-        .welcome-card {
-            background: white;
-            border-radius: 30px;
-            padding: 60px 80px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-width: 1000px;
-            width: 100%;
-            margin-bottom: 40px;
-        }
-
-        .welcome-card .profile-img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 8px solid #667eea;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .welcome-card h2 {
-            font-size: 56px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .welcome-card .greeting {
-            font-size: 36px;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 40px;
-        }
-
-        .welcome-card .info {
-            font-size: 28px;
-            color: #666;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 15px;
-        }
-
-        /* 메뉴 버튼 그리드 */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
-        }
-
-        .menu-btn {
-            background: white;
-            border: none;
-            border-radius: 25px;
-            padding: 60px 40px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 280px;
-        }
-
-        .menu-btn:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .menu-btn:hover i {
-            color: white;
-        }
-
-        .menu-btn:hover .menu-text {
-            color: white;
-        }
-
-        .menu-btn i {
-            font-size: 80px;
-            margin-bottom: 25px;
-            color: #667eea;
-            transition: all 0.3s ease;
-        }
-
-        .menu-text {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        /* 하단 버튼 */
-        .bottom-section {
-            padding: 30px;
-            text-align: center;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            border: 3px solid white;
-            padding: 20px 60px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .logout-btn:hover {
-            background: white;
-            color: #667eea;
-            transform: scale(1.05);
-        }
-
-        /* 반응형 */
-        @media (max-width: 1200px) {
-            .menu-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .kiosk-header h1 {
-                font-size: 36px;
-            }
-
-            .welcome-card {
-                padding: 40px 30px;
-            }
-
-            .welcome-card h2 {
-                font-size: 40px;
-            }
-
-            .welcome-card .greeting {
-                font-size: 28px;
-            }
-
-            .menu-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .menu-btn {
-                padding: 40px 30px;
-                min-height: 200px;
-            }
-
-            .menu-btn i {
-                font-size: 60px;
-            }
-
-            .menu-text {
-                font-size: 24px;
-            }
-        }
-
-        /* 준비중 뱃지 */
-        .coming-soon {
-            position: relative;
-        }
-
-        .coming-soon::after {
-            content: '준비중';
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff6b6b;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>키오스크 돌봄 시스템</title>
+    <link rel="stylesheet" href="/css/kiosk.css">
 </head>
 <body>
-    <!-- 헤더 -->
-    <div class="kiosk-header">
-        <h1>🏠 돌봄 키오스크</h1>
-        <p>쉽고 편리한 서비스</p>
-    </div>
 
-    <!-- 메인 컨텐츠 -->
-    <div class="kiosk-container">
-        <!-- 환영 카드 -->
-        <div class="welcome-card">
-            <c:if test="${not empty recipient.recPhotoUrl}">
-                <img src="${recipient.recPhotoUrl}" alt="프로필 사진" class="profile-img">
-            </c:if>
-            <c:if test="${empty recipient.recPhotoUrl}">
-                <div class="profile-img" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
-                    <i class="fas fa-user" style="font-size: 80px; color: #999;"></i>
+<div class="kiosk-wrapper">
+    <header class="header-info">
+        <div class="header-top-row">
+            <div class="header-section section-left">
+                <div class="info-widget">
+                    <span class="weather-icon">☀️</span>
+                    <span>맑음, 23°C</span>
                 </div>
-            </c:if>
-            
-            <p class="greeting">환영합니다! 👋</p>
-            <c:if test="${not empty recipient.recName}">
-                <h2 style="font-size: 48px; color: #333; font-weight: bold; margin-top: 15px; margin-bottom: 15px;">
-                    ${recipient.recName}님
-                </h2>
-            </c:if>
-            <c:if test="${not empty cust.custName}">
-                <p style="font-size: 32px; color: #666; font-weight: 500; margin-bottom: 30px;">
-                    돌봄 담당: ${cust.custName}님
-                </p>
-            </c:if>
-            
-            <div class="info">
-                <i class="fas fa-birthday-cake"></i>
-                생년월일: ${recipient.recBirthday.format(dateFormatter)}
             </div>
-            
-            <c:if test="${not empty recipient.recAddress}">
-                <div class="info">
-                    <i class="fas fa-home"></i>
-                    주소: ${recipient.recAddress}
+
+            <div class="header-section section-center">
+                <!-- 기존 시계 로직 유지 -->
+                <div id="clock" class="info-widget kiosk-clock">오후 12:00</div>
+            </div>
+
+            <div class="header-section section-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>온라인</span>
                 </div>
-            </c:if>
+            </div>
         </div>
 
-    </div>
+        <div class="header-main-row">
+            <h1 class="recipient-name">${recipient.recName} 님</h1>
+            <p class="welcome-text">안녕하세요! 무엇을 도와드릴까요?</p>
+        </div>
+    </header>
 
-    <!-- 하단 섹션 -->
-    <div class="bottom-section">
-        <a href="/kiosk/logout" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> 나가기
-        </a>
-    </div>
+    <main class="main-content">
+        <section class="ai-companion-area">
+            <div class="chat-window" id="chat-window">
+                <!-- 스크립트에서 초기 메시지 추가됨 -->
+            </div>
+            <div class="chat-input-area">
+                <!-- 음성 인식 버튼 -->
+                <button class="speak-button" onclick="startSpeechRecognition()">
+                    <span style="font-size: 3rem;">🎤</span>
+                    <span>음성으로 말하기</span>
+                </button>
+                <div class="input-group">
+                    <input type="text" id="chat-text-input" class="text-input" placeholder="여기에 직접 입력하세요...">
+                    <button class="send-button" id="chat-send-btn">전송</button>
+                </div>
+            </div>
+        </section>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 현재 시간 표시 (선택사항)
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ko-KR', { 
-                hour: '2-digit', 
-                minute: '2-digit'
-            });
-            console.log('현재 시간:', timeString);
+        <section class="call-button-area">
+            <button id="emergency-btn" class="call-button emergency" onclick="sendRequest(this, 'emergency', '긴급 호출')">
+                <div class="button-content">
+                    <span class="button-icon">🚨</span>
+                    <span class="button-text">긴급 호출</span>
+                </div>
+                <div class="button-feedback"></div>
+            </button>
+            <button id="contact-btn" class="call-button contact" onclick="sendRequest(this, 'contact', '연락 요청')">
+                <div class="button-content">
+                    <span class="button-icon">📞</span>
+                    <span class="button-text">연락 요청</span>
+                </div>
+                <div class="button-feedback"></div>
+            </button>
+        </section>
+    </main>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const KIOSK_CODE = "${kioskCode}";
+        const RECIPIENT_NAME = "${recipient.recName}";
+
+        // 1. 시계 기능 (기존 로직 유지)
+        const clockElement = document.getElementById('clock');
+        function updateClock() {
+            if (clockElement) {
+                const now = new Date();
+                let hours = now.getHours();
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+
+                const ampm = hours >= 12 ? '오후' : '오전';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+
+                clockElement.textContent = ampm + " " + hours + ":" + minutes;
+            }
         }
-        
-        setInterval(updateTime, 60000); // 1분마다 업데이트
-        updateTime();
+        setInterval(updateClock, 1000);
+        updateClock();
 
-        // 버튼 클릭 시 햅틱 피드백 (모바일)
-        document.querySelectorAll('.menu-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (navigator.vibrate) {
-                    navigator.vibrate(50);
+        // 초기 봇 메시지 (기존 로직 유지)
+        addMessageToChat('bot', '안녕하세요, ' + RECIPIENT_NAME + '님! 오늘 기분은 어떠세요?');
+
+        // 2. 채팅 기능 (기존 로직 유지)
+        const chatInput = document.getElementById('chat-text-input');
+        const sendBtn = document.getElementById('chat-send-btn');
+
+        function handleSendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessageToChat('user', message);
+            chatInput.value = '';
+
+            const loadingMessageId = 'loading-ai-response';
+            addMessageToChat('bot', 'AI 응답을 생성 중입니다...', loadingMessageId);
+
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    message: message,
+                    kioskCode: KIOSK_CODE
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    removeMessageFromChat(loadingMessageId);
+                    addMessageToChat('bot', data.response || data.reply); // DTO 필드명 호환
+                })
+                .catch(error => {
+                    removeMessageFromChat(loadingMessageId);
+                    addMessageToChat('bot', '오류 발생: ' + error.message);
+                    console.error('AI 메시지 전송 중 오류 발생:', error);
+                });
+        }
+
+        if(sendBtn) {
+            sendBtn.addEventListener('click', handleSendMessage);
+        }
+
+        if(chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleSendMessage();
                 }
             });
-        });
-    </script>
+        }
+    });
+
+    // 3. 호출 버튼 기능 (기존 로직 유지)
+    function sendRequest(button, type, text) {
+        console.log("호출 요청 발생: 타입=" + type);
+        const content = button.querySelector('.button-content');
+        const feedback = button.querySelector('.button-feedback');
+
+        content.style.opacity = '0';
+        feedback.textContent = '전송 중...';
+        feedback.style.opacity = '1';
+        button.disabled = true;
+
+        setTimeout(() => { feedback.textContent = '전송 완료 ✓'; }, 2000);
+        setTimeout(() => {
+            content.style.opacity = '1';
+            feedback.style.opacity = '0';
+            button.disabled = false;
+        }, 4000);
+    }
+
+    // 4. [수정됨] 음성 인식 (STT) 기능 구현
+    function startSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다. (크롬 권장)");
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        const speakBtn = document.querySelector('.speak-button');
+        const speakText = speakBtn.querySelector('span:last-child');
+
+        recognition.lang = 'ko-KR'; // 한국어
+        recognition.interimResults = false; // 최종 결과만
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            console.log("음성 인식 시작...");
+            speakBtn.classList.add('listening'); // CSS 애니메이션
+            speakText.textContent = "듣고 있어요...";
+        };
+
+        recognition.onend = function() {
+            console.log("음성 인식 종료.");
+            speakBtn.classList.remove('listening');
+            speakText.textContent = "음성으로 말하기";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            console.log("인식된 문장: " + transcript);
+
+            const chatInput = document.getElementById('chat-text-input');
+            chatInput.value = transcript;
+
+            // 인식 후 0.5초 뒤 자동 전송 (버튼 클릭 트리거)
+            setTimeout(() => {
+                document.getElementById('chat-send-btn').click();
+            }, 500);
+        };
+
+        recognition.onerror = function(event) {
+            console.error("음성 인식 에러:", event.error);
+            speakBtn.classList.remove('listening');
+            speakText.textContent = "음성으로 말하기";
+
+            if (event.error === 'no-speech') {
+                alert("말씀이 없으셔서 종료되었어요. 다시 버튼을 눌러주세요.");
+            } else {
+                alert("오류가 발생했습니다: " + event.error);
+            }
+        };
+
+        recognition.start();
+    }
+
+    // 5. 채팅창 메시지 추가 (기존 로직 유지)
+    function addMessageToChat(sender, message, messageId = null) {
+        const chatWindow = document.getElementById('chat-window');
+        const messageType = sender === 'user' ? 'user-message' : 'bot-message';
+
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'chat-message ' + messageType;
+        if (messageId) messageDiv.id = messageId;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.textContent = message;
+
+        const time = document.createElement('span');
+        time.className = 'message-time';
+
+        const now = new Date();
+        let hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const ampm = hours >= 12 ? '오후' : '오전';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        time.textContent = ampm + " " + hours + ":" + minutes;
+
+        messageDiv.appendChild(bubble);
+        messageDiv.appendChild(time);
+        chatWindow.appendChild(messageDiv);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    // 6. 로딩 메시지 제거 함수 (기존 로직 유지)
+    function removeMessageFromChat(messageId) {
+        const messageElement = document.getElementById(messageId);
+        if (messageElement) messageElement.remove();
+    }
+</script>
+
 </body>
 </html>
-

@@ -1,49 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="postgres@localhost" uuid="888355e8-2be0-4057-bfd8-445294668766">
-      <driver-ref>postgresql</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="Needy_Care_System@localhost" uuid="5dc487d7-48ed-4278-adbb-db073f2cd093">
+    <data-source source="LOCAL" name="Needy_Care_system@localhost" uuid="1a54ca6a-06b5-4f6e-bf42-9670d437225d">
       <driver-ref>mysql_aurora.aws_wrapper</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>software.amazon.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:aws-wrapper:mysql://localhost:3306/Needy_Care_System</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="@localhost" uuid="85aa898c-b650-40b8-9350-aac0cccea80e">
-      <driver-ref>mysql.8</driver-ref>
-      <synchronize>true</synchronize>
-      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
-      <jdbc-url>jdbc:mysql://localhost:3306</jdbc-url>
+      <jdbc-url>jdbc:aws-wrapper:mysql://localhost:3306/Needy_Care_system</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
         <property name="com.intellij.clouds.kubernetes.db.container.port" />
-      </jdbc-additional-properties>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="Needy_Care_System@127.0.0.1" uuid="4f6faf49-246c-4051-a148-15dcc14c89fb">
-      <synchronize>true</synchronize>
-      <imported>true</imported>
-      <remarks>$PROJECT_DIR$/user/src/main/resources/application-dev.yml</remarks>
-      <jdbc-driver>net.sf.log4jdbc.sql.jdbcapi.DriverSpy</jdbc-driver>
-      <jdbc-url>jdbc:log4jdbc:mysql://127.0.0.1:3306/Needy_Care_System?characterEncoding=utf8</jdbc-url>
-      <working-dir>$ProjectFileDir$</working-dir>
-    </data-source>
-    <data-source source="LOCAL" name="Needy_Care_System@127.0.0.1" uuid="f9a9497a-5b54-4171-aaa3-265edd6af521">
-      <synchronize>true</synchronize>
-      <imported>true</imported>
-      <configured-by-url>true</configured-by-url>
-      <remarks>$PROJECT_DIR$/user/src/main/resources/application-dev.yml</remarks>
-      <jdbc-driver>net.sf.log4jdbc.sql.jdbcapi.DriverSpy</jdbc-driver>
-      <jdbc-url>jdbc:log4jdbc:mysql://127.0.0.1:3306/Needy_Care_System?characterEncoding=utf8</jdbc-url>
-      <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>

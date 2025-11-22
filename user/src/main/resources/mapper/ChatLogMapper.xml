@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.ChatLogRepository">
+
+    <insert id="insertChatLog" parameterType="edu.sm.app.dto.ChatLog" useGeneratedKeys="true" keyProperty="logId">
+        INSERT INTO Chat_Log (
+            rec_id, sender_type, message_content, sentiment_type, is_deleted, log_regdate
+        ) VALUES (
+            #{recId}, #{senderType}, #{messageContent}, #{sentimentType}, 'N', NOW()
+        )
+    </insert>
+
+    <select id="selectChatLogsByRecId" resultType="edu.sm.app.dto.ChatLog">
+        SELECT
+            log_id AS logId,
+            rec_id AS recId,
+            sender_type AS senderType,
+            message_content AS messageContent,
+            sentiment_type AS sentimentType,
+            is_deleted AS isDeleted,
+            log_regdate AS logRegdate
+        FROM Chat_Log
+        WHERE rec_id = #{recId}
+          AND is_deleted = 'N'
+        ORDER BY log_regdate DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectAllChatLogsByRecId" resultType="edu.sm.app.dto.ChatLog">
+        SELECT
+            log_id AS logId,
+            rec_id AS recId,
+            sender_type AS senderType,
+            message_content AS messageContent,
+            sentiment_type AS sentimentType,
+            is_deleted AS isDeleted,
+            log_regdate AS logRegdate
+        FROM Chat_Log
+        WHERE rec_id = #{recId}
+          AND is_deleted = 'N'
+        ORDER BY log_regdate ASC
+    </select>
+
+</mapper>

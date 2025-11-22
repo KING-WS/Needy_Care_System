@@ -327,13 +327,115 @@ function showError(message) {
  * 모달 외부 클릭 시 닫기
  */
 document.addEventListener('DOMContentLoaded', function() {
-    const modal = document.getElementById('mealModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
+    const mealModal = document.getElementById('mealModal');
+    if (mealModal) {
+        mealModal.addEventListener('click', function(e) {
+            if (e.target === mealModal) {
                 closeModal();
             }
         });
     }
+
+    const aiRecommendationModal = document.getElementById('aiRecommendationModal');
+    if (aiRecommendationModal) {
+        aiRecommendationModal.addEventListener('click', function(e) {
+            if (e.target === aiRecommendationModal) {
+                closeAiRecommendationModal();
+            }
+        });
+    }
 });
+
+/**
+ * AI 식단 추천 모달 열기
+ */
+function openAiRecommendationModal() {
+    document.getElementById('aiPreferences').value = ''; // 입력 필드 초기화
+    document.getElementById('aiRecommendationResult').style.display = 'none'; // 결과 숨기기
+    document.getElementById('aiRecommendedMealDetails').innerHTML = ''; // 이전 결과 지우기
+    document.getElementById('aiRecommendationModal').classList.add('show');
+}
+
+/**
+ * AI 식단 추천 모달 닫기
+ */
+function closeAiRecommendationModal() {
+    document.getElementById('aiRecommendationModal').classList.remove('show');
+}
+
+/**
+ * AI 식단 추천 요청
+ */
+function getAiRecommendation() {
+    const preferences = document.getElementById('aiPreferences').value;
+    if (!preferences) {
+        showError('추천 선호도를 입력해주세요.');
+        return;
+    }
+
+    const recId = currentRecId; // 현재 선택된 노약자 ID
+    if (!recId) {
+        showError('돌봄 대상자를 선택해야 AI 식단 추천을 받을 수 있습니다.');
+        return;
+    }
+
+    // 로딩 인디케이터 표시
+    const getAiRecommendationBtn = document.getElementById('getAiRecommendationBtn');
+    getAiRecommendationBtn.disabled = true;
+    getAiRecommendationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추천받는 중...';
+
+    fetch('/mealplan/api/recommend', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ preferences: preferences, recId: recId }) // recId도 함께 전송
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const recommendation = data.recommendation;
+            const resultDiv = document.getElementById('aiRecommendedMealDetails');
+            resultDiv.innerHTML = `
+                <p><strong>메뉴:</strong> ${recommendation.mealName}</p>
+                <p><strong>칼로리:</strong> ${recommendation.calories}</p>
+                <p><strong>단백질:</strong> ${recommendation.protein}</p>
+                <p><strong>탄수화물:</strong> ${recommendation.carbohydrates}</p>
+                <p><strong>지방:</strong> ${recommendation.fats}</p>
+                <p><strong>설명:</strong> ${recommendation.description}</p>
+            `;
+            document.getElementById('aiRecommendationResult').style.display = 'block';
+            showSuccess('AI 식단 추천을 받았습니다!');
+        } else {
+            showError(data.message || 'AI 식단 추천에 실패했습니다.');
+            document.getElementById('aiRecommendationResult').style.display = 'none';
+        }
+    })
+    .catch(error => {
+        console.error('AI 식단 추천 실패:', error);
+        showError('AI 식단 추천 중 오류가 발생했습니다.');
+        document.getElementById('aiRecommendationResult').style.display = 'none';
+    })
+    .finally(() => {
+        getAiRecommendationBtn.disabled = false;
+        getAiRecommendationBtn.innerHTML = '<i class="fas fa-robot"></i> 추천받기';
+    });
+}
+
+/**
+ * AI 추천 식단을 식단 등록 폼에 적용
+ */
+function applyAiRecommendation() {
+    const resultDiv = document.getElementById('aiRecommendedMealDetails');
+    const mealName = resultDiv.querySelector('p:nth-child(1) strong').nextSibling.textContent.trim();
+    const calories = resultDiv.querySelector('p:nth-child(2) strong').nextSibling.textContent.replace('kcal', '').trim();
+    
+    // 현재 날짜와 선택된 노약자 정보는 이미 있으므로, AI 추천에서 받은 메뉴와 칼로리만 적용
+    openAddModal(''); // 식단 추가 모달 열기 (기존 필드 유지)
+    document.getElementById('mealMenu').value = mealName;
+    document.getElementById('mealCalories').value = calories;
+    
+    closeAiRecommendationModal(); // AI 추천 모달 닫기
+    showSuccess('AI 추천 식단이 식단 추가 폼에 적용되었습니다.');
+}
 
