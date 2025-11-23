@@ -23,6 +23,70 @@
             padding: 0 20px;
         }
     }
+
+    /* 통계 카드 스타일 - 일정 페이지와 동일 */
+    .stat-item {
+        border-radius: 15px;
+        border: 1px solid #eee;
+        padding: 20px;
+        color: #2c3e50;
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.2s;
+        margin-bottom: 15px;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: none;
+    }
+
+    .stat-icon {
+        font-size: 32px;
+        opacity: 0.9;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: white;
+    }
+    
+    /* 오늘 식단 이모티콘 배경색 */
+    .stat-item:first-child .stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* 오늘 총 칼로리 이모티콘 배경색 */
+    .stat-item:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* 주간 평균 이모티콘 배경색 */
+    .stat-item:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
 </style>
 
 <section class="mealplan-section" style="padding: 20px 0 100px 0; background: #FFFFFF;">
@@ -30,14 +94,12 @@
         <!-- 헤더 -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="page-header">
-                    <h1 class="page-title">
-                        <i class="fas fa-utensils"></i> 식단 관리
-                    </h1>
-                    <p class="page-subtitle">
-                        <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
-                    </p>
-                </div>
+                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
+                    <i class="fas fa-utensils"></i> 식단 관리
+                </h1>
+                <p style="font-size: 16px; color: #666; margin-top: 10px;">
+                    <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
+                </p>
             </div>
         </div>
 
@@ -83,38 +145,29 @@
                 <!-- 왼쪽 영역: 통계 카드 -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <!-- 오늘 식단 -->
-                    <div class="stat-card stat-card-today">
-                        <div class="stat-icon">
-                            <i class="fas fa-calendar-day"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">오늘 식단</div>
                             <div class="stat-value" id="todayMealCount">0</div>
-                            <div class="stat-sub">끼 등록됨</div>
                         </div>
                     </div>
 
                     <!-- 오늘 총 칼로리 -->
-                    <div class="stat-card stat-card-calories">
-                        <div class="stat-icon">
-                            <i class="fas fa-fire"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-fire"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">오늘 총 칼로리</div>
                             <div class="stat-value" id="todayTotalCalories">0</div>
-                            <div class="stat-sub">kcal</div>
                         </div>
                     </div>
 
                     <!-- 이번 주 평균 -->
-                    <div class="stat-card stat-card-average">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">주간 평균</div>
                             <div class="stat-value" id="weekAvgCalories">0</div>
-                            <div class="stat-sub">kcal/일</div>
                         </div>
                     </div>
 
