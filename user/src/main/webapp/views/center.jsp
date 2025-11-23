@@ -304,7 +304,7 @@
                                     <span class="map-title-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </span>
-                                    <span>내 주변 케어 지도</span>
+                                    <span>케어 지도</span>
 
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
