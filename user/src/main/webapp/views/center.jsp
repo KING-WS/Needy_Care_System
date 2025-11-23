@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <spring:eval expression="@environment.getProperty('app.api.kakao-js-key')" var="kakaoJsKey"/>
@@ -18,45 +19,45 @@
                     <c:if test="${not empty recipient}">
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
+                                <i class="bi bi-heart-pulse-fill card-title-icon"></i>
                                 <div class="calendar-header">
                                     <div class="calendar-title">
-                                        <i class="bi bi-heart-pulse-fill"></i>
                                         건강 정보
                                     </div>
                                 </div>
                                 <div class="health-card-content">
-                                    <!-- 왼쪽: 프로필 정보 -->
-                                    <div class="health-card-left">
-                                        <div class="recipient-avatar">
-                                            <c:choose>
-                                                <c:when test="${not empty recipient.recPhotoUrl}">
+                                <!-- 왼쪽: 프로필 정보 -->
+                                <div class="health-card-left">
+                                    <div class="recipient-avatar">
+                                        <c:choose>
+                                            <c:when test="${not empty recipient.recPhotoUrl}">
                                                     <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
-                                                </c:when>
-                                                <c:otherwise>
-                                                    <i class="bi bi-person-fill"></i>
-                                                </c:otherwise>
-                                            </c:choose>
-                                        </div>
-                                        <div class="recipient-info">
-                                            <div class="recipient-name">${recipient.recName}</div>
-                                            <c:choose>
-                                                <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
-                                                    <span class="recipient-badge badge-elderly">노인</span>
-                                                </c:when>
-                                                <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
-                                                    <span class="recipient-badge badge-pregnant">임산부</span>
-                                                </c:when>
-                                                <c:when test="${recipient.recTypeCode == 'DISABLED'}">
-                                                    <span class="recipient-badge badge-disabled">장애인</span>
-                                                </c:when>
-                                            </c:choose>
-                                        </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <i class="bi bi-person-fill"></i>
+                                            </c:otherwise>
+                                        </c:choose>
                                     </div>
+                                    <div class="recipient-info">
+                                        <div class="recipient-name">${recipient.recName}</div>
+                                        <c:choose>
+                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                <span class="recipient-badge badge-elderly">노인</span>
+                                            </c:when>
+                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                <span class="recipient-badge badge-pregnant">임산부</span>
+                                            </c:when>
+                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                <span class="recipient-badge badge-disabled">장애인</span>
+                                            </c:when>
+                                        </c:choose>
+                                    </div>
+                                </div>
 
-                                    <!-- 오른쪽: 건강 데이터 섹션 -->
-                                    <div class="health-card-right">
+                                <!-- 오른쪽: 건강 데이터 섹션 -->
+                                <div class="health-card-right">
                                     <!-- 혈압 수치 병력 -->
                                     <div class="health-info-item">
                                         <div class="health-info-label">혈압 수치</div>
@@ -82,7 +83,7 @@
                                         <div class="progress-bar-wrapper">
                                             <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
                                         </div>
-                                    </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -116,21 +117,32 @@
                             pageContext.setAttribute("daysInMonth", daysInMonth);
                             pageContext.setAttribute("startDayOfWeek", startDayOfWeek);
                             
-                            // 일정이 있는 날짜를 Set으로 저장
+                            // 일정이 있는 날짜를 Set으로 저장하고, 날짜별 일정 이름 목록을 Map으로 저장
                             Set<Integer> scheduleDays = new HashSet<>();
+                            Map<Integer, List<String>> scheduleNamesByDay = new HashMap<>();
                             List schedules = (List) request.getAttribute("schedules");
                             if (schedules != null) {
                                 for (Object obj : schedules) {
                                     edu.sm.app.dto.Schedule schedule = (edu.sm.app.dto.Schedule) obj;
-                                    scheduleDays.add(schedule.getSchedDate().getDayOfMonth());
+                                    int day = schedule.getSchedDate().getDayOfMonth();
+                                    scheduleDays.add(day);
+                                    
+                                    // 날짜별 일정 이름 목록 저장
+                                    if (!scheduleNamesByDay.containsKey(day)) {
+                                        scheduleNamesByDay.put(day, new ArrayList<>());
+                                    }
+                                    if (schedule.getSchedName() != null && !schedule.getSchedName().isEmpty()) {
+                                        scheduleNamesByDay.get(day).add(schedule.getSchedName());
+                                    }
                                 }
                             }
                             pageContext.setAttribute("scheduleDays", scheduleDays);
+                            pageContext.setAttribute("scheduleNamesByDay", scheduleNamesByDay);
                         %>
                         
+                        <i class="bi bi-calendar-event card-title-icon"></i>
                         <div class="calendar-header">
                             <div class="calendar-title">
-                                <i class="bi bi-calendar-event"></i>
                                 일정
                             </div>
                             <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>
@@ -153,9 +165,13 @@
                             
                             <!-- 날짜 -->
                             <c:forEach begin="1" end="${daysInMonth}" var="day">
+                                <c:set var="daySchedules" value="${scheduleNamesByDay[day]}" />
                                 <div class="calendar-day 
                                     ${day == currentDay ? 'today' : ''} 
-                                    ${scheduleDays.contains(day) ? 'has-event' : ''}">
+                                    ${scheduleDays.contains(day) ? 'has-event' : ''}"
+                                    <c:if test="${not empty daySchedules}">
+                                        data-schedule-names="<c:forEach var="schedName" items="${daySchedules}" varStatus="status">${schedName}<c:if test="${!status.last}">|</c:if></c:forEach>"
+                                    </c:if>>
                                     ${day}
                                 </div>
                             </c:forEach>
@@ -187,9 +203,9 @@
                 <div class="card-wrapper">
                     <a href="<c:url value="/mealplan"/>" class="dashboard-card-link">
                         <div class="dashboard-card card-medium meal-card">
+                            <i class="fas fa-utensils card-title-icon"></i>
                             <div class="calendar-header">
                                 <div class="calendar-title">
-                                    <i class="bi bi-egg-fried"></i>
                                     오늘의 식단표
                                 </div>
                                 <div class="calendar-month">
@@ -202,23 +218,23 @@
                                 <c:choose>
                                     <c:when test="${not empty todayMeals}">
                                         <c:forEach var="meal" items="${todayMeals}">
-                                            <div class="meal-item">
+                                <div class="meal-item">
                                                 <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
                                                     <span>${meal.mealType}</span>
-                                                </div>
-                                                <div class="meal-content">
-                                                    <div class="meal-menu">${meal.mealMenu}</div>
-                                                    <c:if test="${not empty meal.mealCalories}">
-                                                        <div class="meal-calories">${meal.mealCalories}kcal</div>
-                                                    </c:if>
-                                                </div>
-                                            </div>
+                                    </div>
+                                    <div class="meal-content">
+                                                <div class="meal-menu">${meal.mealMenu}</div>
+                                                <c:if test="${not empty meal.mealCalories}">
+                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                        </c:if>
+                                    </div>
+                                </div>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="meal-empty-container">
                                             <div class="meal-empty">등록된 식단이 없습니다</div>
-                                        </div>
+                                    </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -230,9 +246,9 @@
                 <div class="card-wrapper">
                     <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
                         <div class="dashboard-card card-medium schedule-card">
+                            <i class="bi bi-clock-history card-title-icon"></i>
                             <div class="calendar-header">
                                 <div class="calendar-title">
-                                    <i class="bi bi-clock-history"></i>
                                     오늘의 일정
                                 </div>
                                 <div class="calendar-month">
@@ -245,22 +261,22 @@
                                 <c:choose>
                                     <c:when test="${not empty todayHourlySchedules}">
                                         <c:forEach var="hourly" items="${todayHourlySchedules}">
-                                            <div class="hourly-schedule-item">
-                                                <div class="hourly-time">
-                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
-                                                        ${hourly.hourlySchedStartTime}
-                                                    </c:if>
-                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
-                                                        ~ ${hourly.hourlySchedEndTime}
-                                                    </c:if>
+                                                <div class="hourly-schedule-item">
+                                                    <div class="hourly-time">
+                                                        <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                                        ${fn:substring(hourly.hourlySchedStartTime, 0, 5)}
+                                                        </c:if>
+                                                        <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                        ~ ${fn:substring(hourly.hourlySchedEndTime, 0, 5)}
+                                                        </c:if>
+                                                    </div>
+                                                    <div class="hourly-content">
+                                                        <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                        <c:if test="${not empty hourly.hourlySchedContent}">
+                                                            <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                        </c:if>
+                                                    </div>
                                                 </div>
-                                                <div class="hourly-content">
-                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
-                                                    <c:if test="${not empty hourly.hourlySchedContent}">
-                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
-                                                    </c:if>
-                                                </div>
-                                            </div>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
@@ -295,24 +311,23 @@
                                         <!-- 노약자 집 주소 (항상 표시, 고정) -->
                                         <c:if test="${not empty recipient && not empty recipient.recAddress}">
                                             <div class="map-location-item home-location" onclick="focusHomeMarker()">
-                                                <div class="location-icon" style="color: #e74c3c;">
-                                                    <i class="bi bi-house-heart-fill"></i>
-                                                </div>
                                                 <div class="location-info">
-                                                    <div class="location-name" style="color: #e74c3c; font-weight: 700;">
+                                                    <div class="location-name-wrapper">
+                                                        <div class="location-name" style="font-weight: 600;">
                                                         ${recipient.recName}님의 집
                                                     </div>
-                                                    <div class="location-category" style="background: #ffebee; color: #e74c3c;">집</div>
+                                                        <div class="location-category">집</div>
+                                                    </div>
+                                                </div>
                                                     <div class="location-address">
                                                         ${recipient.recAddress}
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </c:if>
                                         
                                         <!-- 구분선 -->
-                                        <c:if test="${not empty maps && not empty recipient.recAddress}">
-                                            <div style="border-top: 2px solid #e0e0e0; margin: 12px 0;"></div>
+                                            <c:if test="${not empty maps}">
+                                                <div class="home-location-divider"></div>
+                                            </c:if>
                                         </c:if>
                                         
                                         <!-- 저장된 장소 목록 또는 빈 상태 -->
@@ -328,12 +343,14 @@
                                                     <div class="map-location-item" data-map-id="${map.mapId}" 
                                                          data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}"
                                                          onclick="showLocationDetail(${map.mapId})">
-                                                        <div class="location-icon">
-                                                            <i class="bi bi-geo-alt-fill"></i>
-                                                        </div>
                                                         <div class="location-info">
+                                                            <div class="location-name-wrapper">
                                                             <div class="location-name">${map.mapName}</div>
                                                             <div class="location-category">${map.mapCategory}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
+                                                            주소 조회 중...
                                                         </div>
                                                         <button class="location-delete-btn" onclick="event.stopPropagation(); deleteLocation(${map.mapId})">
                                                             <i class="bi bi-x-circle"></i>
@@ -363,6 +380,11 @@
                                         <button type="button" id="courseResetBtn" class="map-tab course-reset-btn" onclick="clearCurrentCourse()" style="display: none; margin-left: 10px; background: #ff6b6b; border-color: #ff6b6b;">
                                             <i class="fas fa-redo"></i>
                                             <span>경로 초기화</span>
+                                        </button>
+                                        <!-- 산책코스 모드일 때만 표시되는 저장 버튼 -->
+                                        <button type="button" id="courseSaveBtn" class="map-tab course-save-btn" onclick="saveCourse()" style="display: none; margin-left: 10px; background: #667eea; border-color: #667eea; color: white;">
+                                            <i class="fas fa-save"></i>
+                                            <span>산책코스 저장</span>
                                         </button>
                                     </div>
                                     
@@ -801,5 +823,85 @@
                 display: item.style.display || 'default'
             });
         });
+        
+        // 저장된 장소들의 주소 가져오기
+        loadMapLocationAddresses();
+        
+        // 캘린더 일정 툴팁 설정
+        setupCalendarScheduleTooltips();
     });
+    
+    // 캘린더 일정 툴팁 설정 함수
+    function setupCalendarScheduleTooltips() {
+        var calendarDays = document.querySelectorAll('.calendar-day[data-schedule-names]');
+        
+        calendarDays.forEach(function(day) {
+            var scheduleNames = day.getAttribute('data-schedule-names');
+            if (!scheduleNames) return;
+            
+            // 일정 이름들을 |로 분리
+            var schedules = scheduleNames.split('|');
+            
+            // 마우스 오버 시 툴팁 생성
+            day.addEventListener('mouseenter', function(e) {
+                // 기존 툴팁 제거
+                var existingTooltip = day.querySelector('.calendar-schedule-tooltip');
+                if (existingTooltip) {
+                    existingTooltip.remove();
+                }
+                
+                // 툴팁 생성
+                var tooltip = document.createElement('ul');
+                tooltip.className = 'calendar-schedule-tooltip';
+                
+                schedules.forEach(function(scheduleName) {
+                    if (scheduleName.trim()) {
+                        var li = document.createElement('li');
+                        li.textContent = scheduleName.trim();
+                        tooltip.appendChild(li);
+                    }
+                });
+                
+                day.appendChild(tooltip);
+            });
+            
+            // 마우스 아웃 시 툴팁 제거
+            day.addEventListener('mouseleave', function(e) {
+                var tooltip = day.querySelector('.calendar-schedule-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            });
+        });
+    }
+    
+    // 저장된 장소들의 주소를 가져와서 표시하는 함수
+    function loadMapLocationAddresses() {
+        if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
+            return;
+        }
+        
+        var geocoder = new kakao.maps.services.Geocoder();
+        var addressElements = document.querySelectorAll('.map-location-item .location-address[data-lat][data-lng]');
+        
+        addressElements.forEach(function(element) {
+            var lat = parseFloat(element.getAttribute('data-lat'));
+            var lng = parseFloat(element.getAttribute('data-lng'));
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                element.textContent = '주소 정보 없음';
+                return;
+            }
+            
+            // 좌표를 주소로 변환
+            geocoder.coord2Address(lng, lat, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    var addr = result[0].address.address_name;
+                    element.textContent = addr;
+                } else {
+                    element.textContent = '위도: ' + lat.toFixed(6) + ', 경도: ' + lng.toFixed(6);
+                }
+            });
+        });
+    }
 </script>
