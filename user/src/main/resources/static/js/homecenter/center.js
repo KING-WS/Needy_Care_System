@@ -139,16 +139,16 @@ function addCoursePin(latlng) {
         removable: false
     });
     
-    // 마커 클릭 이벤트
-    kakao.maps.event.addListener(marker, 'click', function() {
-        // 다른 인포윈도우 닫기
-        courseMarkers.forEach(function(item) {
-            if (item.infowindow) {
-                item.infowindow.close();
-            }
-        });
-        infowindow.open(map, marker);
-    });
+    // 마커 클릭 이벤트 - 인포윈도우 표시 비활성화 (사용자 요청)
+    // kakao.maps.event.addListener(marker, 'click', function() {
+    //     // 다른 인포윈도우 닫기
+    //     courseMarkers.forEach(function(item) {
+    //         if (item.infowindow) {
+    //             item.infowindow.close();
+    //         }
+    //     });
+    //     infowindow.open(map, marker);
+    // });
     
     // 산책코스 마커 배열에 추가
     courseMarkers.push({
@@ -161,10 +161,10 @@ function addCoursePin(latlng) {
     // 경로 업데이트
     updateCoursePath();
     
-    // 첫 번째 핀인 경우 인포윈도우 자동 표시
-    if (isFirstPin) {
-        infowindow.open(map, marker);
-    }
+    // 첫 번째 핀인 경우 인포윈도우 자동 표시 비활성화 (사용자 요청)
+    // if (isFirstPin) {
+    //     infowindow.open(map, marker);
+    // }
 }
 
 // 산책코스 경로 업데이트 (폴리라인 및 거리 계산)
@@ -202,6 +202,8 @@ function updateCoursePath() {
     // 거리 계산 및 업데이트
     calculateCourseDistances();
     updateDistanceInfo();
+    
+    // 구간별 마커는 표시하지 않음
 }
 
 // 산책코스 거리 계산
@@ -231,6 +233,93 @@ function calculateCourseDistances() {
         });
         
         totalDistance += distance;
+    }
+}
+
+// 구간별 마커 추가 (구간 중간 지점에 거리 표시)
+var segmentMarkers = []; // 구간별 마커 배열
+
+function addSegmentMarkers() {
+    // 기존 구간 마커 제거
+    segmentMarkers.forEach(function(item) {
+        if (item && item.marker) {
+            item.marker.setMap(null);
+        }
+        if (item && item.infowindow) {
+            item.infowindow.close();
+        }
+    });
+    segmentMarkers = [];
+    
+    if (courseMarkers.length < 2) {
+        return;
+    }
+    
+    // 각 구간의 중간 지점에 마커 추가
+    for (var i = 0; i < courseMarkers.length - 1; i++) {
+        var from = courseMarkers[i].position;
+        var to = courseMarkers[i + 1].position;
+        
+        // 중간 지점 계산
+        var midLat = (from.getLat() + to.getLat()) / 2;
+        var midLng = (from.getLng() + to.getLng()) / 2;
+        var midPosition = new kakao.maps.LatLng(midLat, midLng);
+        
+        // 구간 거리 계산
+        var distance = calculateDistance(
+            from.getLat(), from.getLng(),
+            to.getLat(), to.getLng()
+        );
+        
+        var distanceText = distance < 1000 
+            ? Math.round(distance) + 'm' 
+            : (distance / 1000).toFixed(2) + 'km';
+        
+        // 마커 이미지 - 간단한 원형 마커 (파란색 배경에 흰색 + 표시)
+        var markerImage = new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">' +
+                '<circle cx="20" cy="20" r="18" fill="#667eea" stroke="white" stroke-width="3"/>' +
+                '<path d="M20 12 L20 28 M12 20 L28 20" stroke="white" stroke-width="3" stroke-linecap="round"/>' +
+                '</svg>'
+            ),
+            new kakao.maps.Size(40, 40),
+            {offset: new kakao.maps.Point(20, 40)}
+        );
+        
+        // 마커 생성
+        var marker = new kakao.maps.Marker({
+            position: midPosition,
+            map: map,
+            image: markerImage,
+            title: '구간 ' + (i + 1) + ': ' + distanceText,
+            zIndex: 1000 // 다른 마커 위에 표시
+        });
+        
+        // 인포윈도우 생성 (자동으로 표시하지 않음)
+        var infowindow = new kakao.maps.InfoWindow({
+            content: '<div style="padding:10px;font-size:13px;text-align:center;min-width:120px;background:white;border-radius:5px;">' +
+                     '<strong style="color:#667eea;">구간 ' + (i + 1) + '</strong><br/>' +
+                     '<span style="color:#666;font-size:12px;">' + distanceText + '</span>' +
+                     '</div>',
+            removable: false
+        });
+        
+        // 마커 클릭 이벤트 - 인포윈도우 표시 비활성화 (사용자 요청)
+        // kakao.maps.event.addListener(marker, 'click', function() {
+        //     // 다른 인포윈도우 닫기
+        //     segmentMarkers.forEach(function(item) {
+        //         if (item.infowindow) {
+        //             item.infowindow.close();
+        //         }
+        //     });
+        //     infowindow.open(map, marker);
+        // });
+        
+        segmentMarkers.push({
+            marker: marker,
+            infowindow: infowindow
+        });
     }
 }
 
@@ -272,19 +361,26 @@ function updateDistanceInfo() {
     
     var html = '<div style="font-weight: 600; color: #667eea; margin-bottom: 10px;"><i class="fas fa-route"></i> 총 거리: ' + distanceText + '</div>';
     
-    // 구간별 거리 표시
+    // 구간별 거리 표시 - 마커 이모지 추가
     courseDistances.forEach(function(item, index) {
         var segmentDistance = item.distance < 1000 
             ? Math.round(item.distance) + 'm' 
             : (item.distance / 1000).toFixed(2) + 'km';
-        html += '<div style="font-size: 12px; color: #666; margin-top: 5px;">' +
-               '구간 ' + (index + 1) + ': ' + segmentDistance + '</div>';
+        // 구간별 마커 이모지 (📍)
+        html += '<div style="font-size: 12px; color: #666; margin-top: 5px; display: flex; align-items: center; gap: 5px;">' +
+               '<span style="font-size: 14px;">📍</span>' +
+               '<span>구간 ' + (index + 1) + ': ' + segmentDistance + '</span>' +
+               '</div>';
     });
-    
-    html += '<button onclick="saveCourse()" style="margin-top: 10px; padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 13px; font-weight: 600; width: 100%;">산책코스 저장</button>';
     
     distanceInfo.innerHTML = html;
     document.querySelector('.map-right').appendChild(distanceInfo);
+    
+    // 저장 버튼 표시 (경로 초기화 옆에 있음)
+    var saveBtn = document.getElementById('courseSaveBtn');
+    if (saveBtn && courseMarkers.length >= 2) {
+        saveBtn.style.display = 'inline-flex';
+    }
 }
 
 // 산책코스 저장
@@ -853,6 +949,15 @@ function enableMyMapMode() {
         item.classList.remove('hidden-in-course-mode');
     });
     
+    // 구분선 다시 표시 (집과 장소 목록 사이의 구분선)
+    var locationItemsContainer = document.querySelector('#mapLocationList .map-location-items');
+    if (locationItemsContainer) {
+        var divider = locationItemsContainer.querySelector('.home-location-divider');
+        if (divider) {
+            divider.style.display = 'block';
+        }
+    }
+    
     // "더 보기" 메시지 제거
     var moreItemsMsg = document.getElementById('moreLocationItemsMsg');
     if (moreItemsMsg) {
@@ -867,6 +972,12 @@ function enableMyMapMode() {
     var resetBtn = document.getElementById('courseResetBtn');
     if (resetBtn) {
         resetBtn.style.display = 'none';
+    }
+    
+    // 저장 버튼 숨기기
+    var saveBtn = document.getElementById('courseSaveBtn');
+    if (saveBtn) {
+        saveBtn.style.display = 'none';
     }
     
     // 기존 지도 클릭 이벤트 복원
@@ -916,13 +1027,13 @@ function hideLocationItemsInCourseMode() {
         item.classList.add('hidden-in-course-mode');
     });
     
-    // 구분선도 숨기기 (집과 장소 목록 사이의 구분선)
+    // 구분선 숨기기 (집과 장소 목록 사이의 구분선)
     var locationItemsContainer = document.querySelector('#mapLocationList .map-location-items');
     if (locationItemsContainer) {
-        var dividers = locationItemsContainer.querySelectorAll('div[style*="border-top"]');
-        dividers.forEach(function(divider) {
+        var divider = locationItemsContainer.querySelector('.home-location-divider');
+        if (divider) {
             divider.style.display = 'none';
-        });
+        }
     }
 }
 
@@ -935,6 +1046,17 @@ function clearCourseMode() {
         }
     });
     courseMarkers = [];
+    
+    // 구간별 마커 제거
+    segmentMarkers.forEach(function(item) {
+        if (item.marker) {
+            item.marker.setMap(null);
+        }
+        if (item.infowindow) {
+            item.infowindow.close();
+        }
+    });
+    segmentMarkers = [];
     
     // 경로 선 제거
     if (coursePolyline) {
@@ -950,6 +1072,12 @@ function clearCourseMode() {
     var distanceInfo = document.getElementById('courseDistanceInfo');
     if (distanceInfo) {
         distanceInfo.remove();
+    }
+    
+    // 저장 버튼 숨기기 (경로 초기화 옆에 있음)
+    var saveBtn = document.getElementById('courseSaveBtn');
+    if (saveBtn) {
+        saveBtn.style.display = 'none';
     }
 }
 
@@ -973,9 +1101,8 @@ function showCourseModeGuide() {
 
 // 현재 산책코스 초기화
 function clearCurrentCourse() {
-    if (confirm('작성 중인 산책코스를 초기화하시겠습니까?')) {
-        clearCourseMode();
-    }
+    // 확인 메시지 없이 바로 초기화
+    clearCourseMode();
 }
 
 // 산책코스 목록 로드
@@ -1007,10 +1134,12 @@ function displayCourseList(courses) {
         existingCourseSection.remove();
     }
     
-    // 산책코스 섹션 생성
+    // 산책코스 섹션 생성 - 구분선 하나로 통합
     var courseListContainer = document.createElement('div');
     courseListContainer.id = 'courseListContainer';
-    courseListContainer.style.cssText = 'width: 100%; margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;';
+    courseListContainer.className = 'course-list-container';
+    // 첫 번째 산책코스 항목 위에만 구분선 표시 (내 지도 모드와 동일한 간격: margin-top: 10px, padding-top: 0)
+    // CSS에서 이미 스타일이 정의되어 있으므로 인라인 스타일 제거
     
     if (courses.length === 0) {
         courseListContainer.innerHTML = '<div style="text-align: center; padding: 15px; color: #999; font-size: 13px;">저장된 산책코스가 없습니다.</div>';
@@ -1018,7 +1147,7 @@ function displayCourseList(courses) {
         return;
     }
     
-    var html = '<div style="font-weight: 600; color: #667eea; margin-bottom: 12px; font-size: 14px;">저장된 산책코스</div>';
+    var html = '';
     
     courses.forEach(function(course) {
         var pathData = null;
@@ -1037,15 +1166,16 @@ function displayCourseList(courses) {
             }
         }
         
-        html += '<div class="course-list-item" onclick="showCourseDetail(' + course.courseId + ')">' +
-               '<div class="course-item-content">' +
-               '<div class="course-name">' + course.courseName + '</div>' +
-               '<div class="course-info">' +
-               '<span class="course-type">' + course.courseType + '</span>' +
-               (distanceText ? '<span class="course-distance">' + distanceText + '</span>' : '') +
+        // 서버 객체와 동일한 스타일로 변경
+        html += '<div class="map-location-item course-item" data-course-id="' + course.courseId + '" onclick="showCourseDetail(' + course.courseId + ')">' +
+               '<div class="location-info">' +
+               '<div class="location-name-wrapper">' +
+               '<div class="location-name">' + course.courseName + '</div>' +
+               '<div class="location-category course-category">' + course.courseType + '</div>' +
                '</div>' +
                '</div>' +
-               '<button class="course-delete-btn" onclick="event.stopPropagation(); deleteCourse(' + course.courseId + ')">' +
+               (distanceText ? '<div class="location-address course-distance">' + distanceText + '</div>' : '') +
+               '<button class="location-delete-btn" onclick="event.stopPropagation(); deleteCourse(' + course.courseId + ')">' +
                '<i class="bi bi-x-circle"></i>' +
                '</button>' +
                '</div>';
@@ -1127,14 +1257,15 @@ function addCoursePinFromData(latlng, pinNumber) {
         removable: false
     });
     
-    kakao.maps.event.addListener(marker, 'click', function() {
-        courseMarkers.forEach(function(item) {
-            if (item.infowindow) {
-                item.infowindow.close();
-            }
-        });
-        infowindow.open(map, marker);
-    });
+    // 마커 클릭 이벤트 - 인포윈도우 표시 비활성화 (사용자 요청)
+    // kakao.maps.event.addListener(marker, 'click', function() {
+    //     courseMarkers.forEach(function(item) {
+    //         if (item.infowindow) {
+    //             item.infowindow.close();
+    //         }
+    //     });
+    //     infowindow.open(map, marker);
+    // });
     
     courseMarkers.push({
         marker: marker,

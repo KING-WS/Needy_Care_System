@@ -3,8 +3,8 @@
 
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar/main.min.css' rel='stylesheet' />
 
-<section style="padding: 20px 20px 100px 20px; background: #f8f9fc; min-height: calc(100vh - 200px);">
-    <div class="container-fluid">
+<section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
+    <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
         <div class="row">
             <div class="col-12 mb-4">
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
@@ -686,6 +686,25 @@
 
     html, body {
         min-height: 100vh;
+    }
+    
+    /* 컨텐츠 중앙 정렬 및 여백 조정 */
+    section > .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 1200px) {
+        section > .container-fluid {
+            padding: 0 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        section > .container-fluid {
+            padding: 0 20px;
+        }
     }
 
     .stats-card {
