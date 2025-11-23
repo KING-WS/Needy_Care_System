@@ -740,17 +740,17 @@
         flex-shrink: 0;
         color: white;
     }
-    
+
     /* 오늘 일정 이모티콘 배경색 */
     .stat-item:first-child .stat-icon {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-    
+
     /* 이번 주 일정 이모티콘 배경색 */
     .stat-item:nth-child(2) .stat-icon {
         background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
-    
+
     /* 이번 달 일정 이모티콘 배경색 */
     .stat-item:nth-child(3) .stat-icon {
         background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
