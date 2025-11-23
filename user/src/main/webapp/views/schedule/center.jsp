@@ -7,14 +7,12 @@
     <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
         <div class="row">
             <div class="col-12 mb-4">
-                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);">
-                    <h1 style="font-size: 32px; font-weight: 600; color: white; margin: 0;">
-                        <i class="fas fa-calendar-alt"></i> Needy 일정 관리
-                    </h1>
-                    <p style="font-size: 15px; color: rgba(255,255,255,0.9); margin: 10px 0 0 0;">
-                        <i class="fas fa-user-md"></i> ${sessionScope.loginUser.custName} 님의 Needy 스케줄
-                    </p>
-                </div>
+                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
+                    <i class="fas fa-calendar-alt"></i> Needy 일정 관리
+                </h1>
+                <p style="font-size: 16px; color: #666; margin-top: 10px;">
+                    <i class="fas fa-user-md"></i> ${sessionScope.loginUser.custName} 님의 Needy 스케줄
+                </p>
             </div>
         </div>
 
@@ -43,7 +41,7 @@
         <div class="row">
             <div class="col-lg-3 mb-4">
                 <div class="stats-card">
-                    <div class="stat-item" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
                         <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">오늘 일정</div>
@@ -51,7 +49,7 @@
                         </div>
                     </div>
 
-                    <div class="stat-item" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
                         <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">이번 주 일정</div>
@@ -59,7 +57,7 @@
                         </div>
                     </div>
 
-                    <div class="stat-item" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
                         <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">이번 달 일정</div>
@@ -714,10 +712,11 @@
     }
 
     .stat-item {
-        border-radius: 12px;
+        border-radius: 15px;
+        border: 1px solid #eee;
         padding: 20px;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        color: #2c3e50;
+        box-shadow: none;
         display: flex;
         align-items: center;
         gap: 15px;
@@ -726,12 +725,35 @@
 
     .stat-item:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        box-shadow: none;
     }
 
     .stat-icon {
         font-size: 32px;
         opacity: 0.9;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: white;
+    }
+    
+    /* 오늘 일정 이모티콘 배경색 */
+    .stat-item:first-child .stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* 이번 주 일정 이모티콘 배경색 */
+    .stat-item:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* 이번 달 일정 이모티콘 배경색 */
+    .stat-item:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
 
     .stat-content {
@@ -740,13 +762,15 @@
 
     .stat-label {
         font-size: 13px;
-        opacity: 0.9;
+        color: #2c3e50;
         margin-bottom: 5px;
+        font-weight: 500;
     }
 
     .stat-value {
         font-size: 28px;
         font-weight: 700;
+        color: #2c3e50;
     }
 
     .calendar-card {
