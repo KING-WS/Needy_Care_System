@@ -21,11 +21,11 @@ spring:
     resources:
       static-locations: classpath:/static/,classpath:/META-INF/resources/,classpath:/resources/,classpath:/public/
   datasource:
-    #url: jdbc:mysql://127.0.0.1:3306/shopdb?serverTimezone=Asia/Seoul
-    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
-    url: jdbc:log4jdbc:mysql://127.0.0.1:3306/Needy_Care_System?characterEncoding=utf8
-    username: smuser
-    password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+        driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+        url: jdbc:log4jdbc:mysql://127.0.0.1:3306/Needy_Care_System?characterEncoding=utf8
+        username: smuser
+        password: ENC(m90iLjAYPAsMSYEMNfP84Q==)
+
 
 mybatis:
   type-aliases-package: edu.sm.app.dto
@@ -39,7 +39,7 @@ logging:
 
 app:
   url:
-    websocketurl: https://192.168.1.11:8084/
+    websocketurl: https://192.168.1.9:8084/
   dir:
     imgsdir: file:///C:/Needy-Care_System/imgs/     # 화면 출력 용
     uploadimgsdir: C:/Needy-Care_System/imgs/    # 파일 Write 용
@@ -50,3 +50,6 @@ app:
     algo: PBEWithMD5AndDES
     wkey: ENC(KpenOyMjgFsfI5Y63m7CO843NZ1e3rD/qFoI4ac76xcGcyFgzGi1lv128RRgkaY4lbwmKXJnH086MRn/OqV1iN4tR7FSVOVyOhrqjDHW57A226jVu9Q2oq+VjFBCurrdQF2ECJ+XlWESrLtT8BzUzA==)
     owkey: ENC(1n0CubQdrW/QjB/ed6/Y348zgr3A0CgdIGr546KvjqzbQapHn8dt3GMRT8KZxn+q)
+
+  api:
+    kakao-js-key: ${KAKAO_JS_KEY:bcc88354a0c06049623a690be552d3ac}
