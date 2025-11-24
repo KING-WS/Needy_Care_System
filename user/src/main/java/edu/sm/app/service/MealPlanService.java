@@ -188,6 +188,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
 
         if (StringUtils.hasText(recipient.getRecMedHistory())) {
             basis.append(", 병력(").append(recipient.getRecMedHistory()).append(")");
+            prompt.append("- 병력: ").append(recipient.getRecMedHistory()).append("\n");
         }
         if (StringUtils.hasText(recipient.getRecAllergies())) {
             basis.append(", 알레르기(").append(recipient.getRecAllergies()).append(")");
