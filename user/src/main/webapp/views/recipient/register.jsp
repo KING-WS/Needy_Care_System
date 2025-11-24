@@ -216,6 +216,81 @@
     .btn-address-search i {
         margin-right: 5px;
     }
+    
+    /* 체크박스 스타일 */
+    .checkbox-group {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        margin-bottom: 8px;
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .checkbox-item:hover {
+        background: #e3f2fd;
+        transform: translateX(5px);
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+        accent-color: #667eea;
+    }
+    
+    .checkbox-item label {
+        cursor: pointer;
+        flex: 1;
+        font-size: 14px;
+        color: #2c3e50;
+        margin: 0;
+    }
+    
+    .other-input-wrapper {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #ddd;
+    }
+    
+    .other-input {
+        width: 100%;
+        padding: 10px;
+        border: 2px solid #ecf0f1;
+        border-radius: 8px;
+        font-size: 14px;
+        margin-top: 8px;
+        display: none;
+    }
+    
+    .other-input.show {
+        display: block;
+    }
+    
+    .checkbox-section-title {
+        font-size: 15px;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 12px;
+        display: block;
+    }
+    
+    .checkbox-section-subtitle {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 15px;
+        display: block;
+    }
 </style>
 
 <div class="register-container">
@@ -323,25 +398,128 @@
                 <i class="bi bi-heart-pulse"></i> 건강 정보
             </h3>
             
+            <!-- 1. 병력 -->
             <div class="form-group">
                 <label class="form-label">
-                    병력 (Medical History)
+                    현재 앓고 계신 질환이 있으신가요? (병력)
                 </label>
-                <textarea name="recMedHistory" class="form-input form-textarea" placeholder="기존 질병이나 수술 이력 등을 입력하세요"></textarea>
+                <div class="checkbox-group">
+                    <span class="checkbox-section-title">해당하는 곳에 모두 체크해 주세요.</span>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_hypertension" value="고혈압" onchange="updateMedHistory()">
+                        <label for="medHistory_hypertension">고혈압</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_diabetes" value="당뇨" onchange="updateMedHistory()">
+                        <label for="medHistory_diabetes">당뇨</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_heart" value="심장 질환 (부정맥 등)" onchange="updateMedHistory()">
+                        <label for="medHistory_heart">심장 질환 (부정맥 등)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_respiratory" value="호흡기 질환 (천식 등)" onchange="updateMedHistory()">
+                        <label for="medHistory_respiratory">호흡기 질환 (천식 등)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_joint" value="관절염 / 허리 디스크" onchange="updateMedHistory()">
+                        <label for="medHistory_joint">관절염 / 허리 디스크</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_none" value="해당 사항 없음" onchange="updateMedHistory()">
+                        <label for="medHistory_none">해당 사항 없음</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="medHistory_other" onchange="toggleOtherInput('medHistory')">
+                        <label for="medHistory_other">그외의 항목 입력하기</label>
+                    </div>
+                    <div class="other-input-wrapper">
+                        <input type="text" id="medHistory_other_input" class="other-input" 
+                               placeholder="기타 질환을 입력하세요" onchange="updateMedHistory()">
+                    </div>
+                </div>
+                <textarea name="recMedHistory" id="recMedHistory" class="form-input form-textarea" 
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly></textarea>
             </div>
             
+            <!-- 2. 알레르기 -->
             <div class="form-group">
                 <label class="form-label">
-                    알레르기 (Allergies)
+                    주의해야 할 알레르기가 있으신가요?
                 </label>
-                <textarea name="recAllergies" class="form-input form-textarea" placeholder="약물, 음식 알레르기 등을 입력하세요"></textarea>
+                <div class="checkbox-group">
+                    <span class="checkbox-section-subtitle">약물이나 음식에 민감하시다면 체크해 주세요.</span>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_antibiotic" value="항생제 알레르기" onchange="updateAllergies()">
+                        <label for="allergy_antibiotic">항생제 알레르기</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_painkiller" value="진통제/해열제 알레르기" onchange="updateAllergies()">
+                        <label for="allergy_painkiller">진통제/해열제 알레르기</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_food" value="특정 음식 알레르기 (계란, 우유, 땅콩 등)" onchange="updateAllergies()">
+                        <label for="allergy_food">특정 음식 알레르기 (계란, 우유, 땅콩 등)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_other_type" value="기타 알레르기" onchange="updateAllergies()">
+                        <label for="allergy_other_type">기타 알레르기</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_none" value="해당 사항 없음" onchange="updateAllergies()">
+                        <label for="allergy_none">해당 사항 없음</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="allergy_other" onchange="toggleOtherInput('allergy')">
+                        <label for="allergy_other">그외의 항목을 입력하기</label>
+                    </div>
+                    <div class="other-input-wrapper">
+                        <input type="text" id="allergy_other_input" class="other-input" 
+                               placeholder="기타 알레르기를 입력하세요" onchange="updateAllergies()">
+                    </div>
+                </div>
+                <textarea name="recAllergies" id="recAllergies" class="form-input form-textarea" 
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly></textarea>
             </div>
             
+            <!-- 3. 건강 요구사항 -->
             <div class="form-group">
                 <label class="form-label">
-                    건강 요구사항 (Health Needs)
+                    특별히 도움이 필요하신 부분이 있나요? (건강 요구사항)
                 </label>
-                <textarea name="recHealthNeeds" class="form-input form-textarea" placeholder="특별한 건강 관리 요구사항을 입력하세요"></textarea>
+                <div class="checkbox-group">
+                    <span class="checkbox-section-subtitle">저희가 미리 준비할 수 있도록 알려주세요.</span>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_pregnant" value="임산부입니다. (안정이 필요합니다)" onchange="updateHealthNeeds()">
+                        <label for="healthNeed_pregnant">임산부입니다. (안정이 필요합니다)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_wheelchair" value="휠체어를 사용합니다. (경사로/엘리베이터 필요)" onchange="updateHealthNeeds()">
+                        <label for="healthNeed_wheelchair">휠체어를 사용합니다. (경사로/엘리베이터 필요)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_mobility" value="거동이 불편하여 부축이나 지팡이가 필요합니다" onchange="updateHealthNeeds()">
+                        <label for="healthNeed_mobility">거동이 불편하여 부축이나 지팡이가 필요합니다</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_sensory" value="시각/청각에 불편함이 있어 안내가 필요합니다" onchange="updateHealthNeeds()">
+                        <label for="healthNeed_sensory">시각/청각에 불편함이 있어 안내가 필요합니다</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_ok" value="괜찮습니다. 스스로 이동 가능합니다" onchange="updateHealthNeeds()">
+                        <label for="healthNeed_ok">괜찮습니다. 스스로 이동 가능합니다</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="healthNeed_other" onchange="toggleOtherInput('healthNeed')">
+                        <label for="healthNeed_other">그외의 항목을 입력하기</label>
+                    </div>
+                    <div class="other-input-wrapper">
+                        <input type="text" id="healthNeed_other_input" class="other-input" 
+                               placeholder="기타 건강 요구사항을 입력하세요" onchange="updateHealthNeeds()">
+                    </div>
+                </div>
+                <textarea name="recHealthNeeds" id="recHealthNeeds" class="form-input form-textarea" 
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly></textarea>
             </div>
         </div>
         
@@ -440,6 +618,167 @@
                 }
             }
         }).open();
+    }
+    
+    // 체크박스 "그외의 항목 입력하기" 토글
+    function toggleOtherInput(type) {
+        const checkbox = document.getElementById(type + '_other');
+        const input = document.getElementById(type + '_other_input');
+        
+        if (checkbox.checked) {
+            input.classList.add('show');
+            input.focus();
+        } else {
+            input.classList.remove('show');
+            input.value = '';
+            if (type === 'medHistory') {
+                updateMedHistory();
+            } else if (type === 'allergy') {
+                updateAllergies();
+            } else if (type === 'healthNeed') {
+                updateHealthNeeds();
+            }
+        }
+    }
+    
+    // 병력 업데이트
+    function updateMedHistory() {
+        const checkboxes = document.querySelectorAll('input[id^="medHistory_"]:not([id="medHistory_other"]):not([id="medHistory_other_input"])');
+        const otherInput = document.getElementById('medHistory_other_input');
+        const textarea = document.getElementById('recMedHistory');
+        const selected = [];
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked && cb.id !== 'medHistory_none') {
+                selected.push(cb.value);
+            }
+        });
+        
+        // "해당 사항 없음"이 체크되면 다른 항목들 해제
+        const noneCheckbox = document.getElementById('medHistory_none');
+        if (noneCheckbox.checked) {
+            checkboxes.forEach(cb => {
+                if (cb.id !== 'medHistory_none' && cb.id !== 'medHistory_other') {
+                    cb.checked = false;
+                }
+            });
+            document.getElementById('medHistory_other').checked = false;
+            otherInput.classList.remove('show');
+            otherInput.value = '';
+            textarea.value = '해당 사항 없음';
+            return;
+        }
+        
+        // 기타 항목 입력 추가
+        if (document.getElementById('medHistory_other').checked && otherInput.value.trim()) {
+            selected.push(otherInput.value.trim());
+        }
+        
+        textarea.value = selected.join(', ');
+    }
+    
+    // 알레르기 업데이트
+    function updateAllergies() {
+        const checkboxes = document.querySelectorAll('input[id^="allergy_"]:not([id="allergy_other"]):not([id="allergy_other_input"])');
+        const otherInput = document.getElementById('allergy_other_input');
+        const textarea = document.getElementById('recAllergies');
+        const selected = [];
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked && cb.id !== 'allergy_none') {
+                selected.push(cb.value);
+            }
+        });
+        
+        // "해당 사항 없음"이 체크되면 다른 항목들 해제
+        const noneCheckbox = document.getElementById('allergy_none');
+        if (noneCheckbox.checked) {
+            checkboxes.forEach(cb => {
+                if (cb.id !== 'allergy_none' && cb.id !== 'allergy_other') {
+                    cb.checked = false;
+                }
+            });
+            document.getElementById('allergy_other').checked = false;
+            otherInput.classList.remove('show');
+            otherInput.value = '';
+            textarea.value = '해당 사항 없음';
+            return;
+        }
+        
+        // 기타 항목 입력 추가
+        if (document.getElementById('allergy_other').checked && otherInput.value.trim()) {
+            selected.push(otherInput.value.trim());
+        }
+        
+        textarea.value = selected.join(', ');
+    }
+    
+    // 건강 요구사항 업데이트
+    function updateHealthNeeds() {
+        const checkboxes = document.querySelectorAll('input[id^="healthNeed_"]:not([id="healthNeed_other"]):not([id="healthNeed_other_input"])');
+        const otherInput = document.getElementById('healthNeed_other_input');
+        const textarea = document.getElementById('recHealthNeeds');
+        const selected = [];
+        
+        checkboxes.forEach(cb => {
+            if (cb.checked && cb.id !== 'healthNeed_ok') {
+                selected.push(cb.value);
+            }
+        });
+        
+        // "괜찮습니다"가 체크되면 다른 항목들 해제
+        const okCheckbox = document.getElementById('healthNeed_ok');
+        if (okCheckbox.checked) {
+            checkboxes.forEach(cb => {
+                if (cb.id !== 'healthNeed_ok' && cb.id !== 'healthNeed_other') {
+                    cb.checked = false;
+                }
+            });
+            document.getElementById('healthNeed_other').checked = false;
+            otherInput.classList.remove('show');
+            otherInput.value = '';
+            textarea.value = '괜찮습니다. 스스로 이동 가능합니다';
+            return;
+        }
+        
+        // 기타 항목 입력 추가
+        if (document.getElementById('healthNeed_other').checked && otherInput.value.trim()) {
+            selected.push(otherInput.value.trim());
+        }
+        
+        textarea.value = selected.join(', ');
+    }
+    
+    // 저장된 텍스트 데이터를 파싱하여 체크박스에 반영 (수정 페이지용, 등록 페이지에서는 사용 안 함)
+    function parseAndCheckHealthData(text, type) {
+        if (!text || text.trim() === '') return;
+        
+        const items = text.split(',').map(item => item.trim());
+        const prefix = type === 'medHistory' ? 'medHistory' : (type === 'allergy' ? 'allergy' : 'healthNeed');
+        
+        items.forEach(item => {
+            // 정확히 일치하는 체크박스 찾기
+            const checkboxes = document.querySelectorAll(`input[id^="${prefix}_"]`);
+            let found = false;
+            
+            checkboxes.forEach(cb => {
+                if (cb.value === item && cb.id !== prefix + '_other' && cb.id !== prefix + '_other_input') {
+                    cb.checked = true;
+                    found = true;
+                }
+            });
+            
+            // 일치하는 체크박스가 없으면 "그외의 항목"으로 처리
+            if (!found && item !== '해당 사항 없음' && item !== '괜찮습니다. 스스로 이동 가능합니다') {
+                const otherCheckbox = document.getElementById(prefix + '_other');
+                const otherInput = document.getElementById(prefix + '_other_input');
+                if (otherCheckbox && otherInput) {
+                    otherCheckbox.checked = true;
+                    otherInput.value = item;
+                    otherInput.classList.add('show');
+                }
+            }
+        });
     }
 </script>
 

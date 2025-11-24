@@ -2,6 +2,9 @@ package edu.sm.app.aiservice;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.sm.app.aiservice.util.AiUtilService;
+import edu.sm.app.aiservice.util.DateExtractionService;
+import edu.sm.app.aiservice.util.ScheduleNameGenerationService;
 import edu.sm.app.dto.*;
 import edu.sm.app.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -24,37 +27,58 @@ public class AiChatService {
 
     private final ChatClient chatClient;
     private final ChatLogService chatLogService;
+    private final ObjectMapper objectMapper;
+    
+    // 분리된 서비스들
+    private final IntentAnalysisService intentAnalysisService;
+    private final HealthQueryService healthQueryService;
+    private final RecipientStatusService recipientStatusService;
+    private final MealRecommendationService mealRecommendationService;
+    private final WalkingRouteService walkingRouteService;
+    private final DateExtractionService dateExtractionService;
+    private final AiUtilService aiUtilService;
+    private final ScheduleNameGenerationService scheduleNameGenerationService;
+    
+    // Schedule 관련 서비스는 아직 분리 전이므로 직접 의존성 주입
+    private final RecipientService recipientService;
     private final HealthDataService healthDataService;
     private final MealPlanService mealPlanService;
     private final ScheduleService scheduleService;
-    private final MapCourseService mapCourseService;
-    private final RecipientService recipientService;
-    private final AiMealService aiMealService;
-    private final ObjectMapper objectMapper;
     
-    // 최근 추천 결과를 임시 저장 (세션 대신 메모리 사용 - 실제로는 Redis나 세션 사용 권장)
-    private final Map<Integer, Map<String, Object>> recentRecommendations = new HashMap<>();
+    // Schedule 추천 결과 임시 저장 (추후 ScheduleRecommendationService로 분리 시 제거)
+    private final Map<Integer, Map<String, Object>> recentScheduleRecommendations = new HashMap<>();
 
-    // 팀원의 AiImageService처럼 Builder로 주입받아 생성하는 것이 가장 안전한 방식입니다.
     public AiChatService(
             ChatClient.Builder chatClientBuilder, 
             ChatLogService chatLogService,
+            ObjectMapper objectMapper,
+            IntentAnalysisService intentAnalysisService,
+            HealthQueryService healthQueryService,
+            RecipientStatusService recipientStatusService,
+            MealRecommendationService mealRecommendationService,
+            WalkingRouteService walkingRouteService,
+            DateExtractionService dateExtractionService,
+            AiUtilService aiUtilService,
+            ScheduleNameGenerationService scheduleNameGenerationService,
+            RecipientService recipientService,
             HealthDataService healthDataService,
             MealPlanService mealPlanService,
-            ScheduleService scheduleService,
-            MapCourseService mapCourseService,
-            RecipientService recipientService,
-            AiMealService aiMealService,
-            ObjectMapper objectMapper) {
+            ScheduleService scheduleService) {
         this.chatClient = chatClientBuilder.build();
         this.chatLogService = chatLogService;
+        this.objectMapper = objectMapper;
+        this.intentAnalysisService = intentAnalysisService;
+        this.healthQueryService = healthQueryService;
+        this.recipientStatusService = recipientStatusService;
+        this.mealRecommendationService = mealRecommendationService;
+        this.walkingRouteService = walkingRouteService;
+        this.dateExtractionService = dateExtractionService;
+        this.aiUtilService = aiUtilService;
+        this.scheduleNameGenerationService = scheduleNameGenerationService;
+        this.recipientService = recipientService;
         this.healthDataService = healthDataService;
         this.mealPlanService = mealPlanService;
         this.scheduleService = scheduleService;
-        this.mapCourseService = mapCourseService;
-        this.recipientService = recipientService;
-        this.aiMealService = aiMealService;
-        this.objectMapper = objectMapper;
     }
 
     private static final String SYSTEM_PROMPT = """
@@ -74,38 +98,6 @@ public class AiChatService {
             - **오류 발생 시**: 문제 상황을 명확히 설명하고 해결 방법을 제시하세요.
             """;
     
-    private static final String INTENT_ANALYSIS_PROMPT = """
-            사용자의 메시지를 분석해서 의도를 파악해주세요.
-            
-            가능한 의도 타입:
-            - HEALTH_QUERY: 건강 상태 조회 (예: "내 건강 어때?", "혈압 알려줘", "건강 상태 확인")
-            - HEALTH_ANALYSIS: 건강 데이터 분석 (예: "건강 상태 분석해줘", "최근 건강 트렌드 알려줘")
-            - MEAL_RECOMMEND: 식단 추천 (예: "오늘 식단 추천해줘", "저염식 추천해줘", "식단 추천")
-            - MEAL_QUERY: 식단 조회 (예: "오늘 식단 뭐야?", "오늘의 식단 알려줘", "어제 저녁 뭐 먹었어?", "오늘 밥 뭐야?", "식단 알려줘", "오늘 먹을 것 뭐야?")
-            - MEAL_SAVE: 식단 저장 확인 (예: "네", "등록해줘", "저장해줘", "좋아", "그렇게 해줘" - 이전 대화에서 식단 추천이 있었을 때)
-            - SCHEDULE_CREATE: 일정 등록 (예: "내일 오후 3시 병원 가기", "다음주 월요일 약 먹기", "오늘 오후 2시 약 먹기")
-            - SCHEDULE_QUERY: 일정 조회 (예: "오늘 일정 알려줘", "오늘의 일정", "오늘 일정 뭐야?", "이번 주 일정 뭐야?", "일정 확인", "오늘 스케줄", "오늘 할 일")
-            - SCHEDULE_RECOMMEND: 일정 추천/생성 (예: "오늘 일정 짜줘", "오늘 일정 추천해줘", "오늘 할 일 정해줘", "오늘 스케줄 만들어줘", "오늘 계획 세워줘")
-            - SCHEDULE_SAVE: 일정 저장 확인 (예: "네", "등록해줘", "저장해줘", "좋아" - 이전 대화에서 일정 추천이 있었을 때)
-            - WALKING_ROUTE: 산책 경로 추천 (예: "산책 경로 추천해줘", "가까운 산책 코스 알려줘")
-            - GENERAL_CHAT: 일반 대화 (위의 의도에 해당하지 않는 모든 대화)
-            
-            중요: 
-            - "오늘의 식단", "오늘 식단", "식단 알려줘", "오늘 밥" 같은 표현은 모두 MEAL_QUERY입니다.
-            - "오늘의 일정", "오늘 일정", "오늘 할 일", "오늘 스케줄" 같은 표현은 모두 SCHEDULE_QUERY입니다.
-            - "오늘 일정 짜줘", "오늘 일정 추천해줘", "오늘 계획 세워줘" 같은 표현은 모두 SCHEDULE_RECOMMEND입니다.
-            - 이전 대화에서 식단 추천이 있었고, 사용자가 "네", "등록해줘" 등으로 응답하면 MEAL_SAVE입니다.
-            - 이전 대화에서 일정 추천이 있었고, 사용자가 "네", "등록해줘" 등으로 응답하면 SCHEDULE_SAVE입니다.
-            
-            응답은 반드시 JSON 형식으로만 해주세요. 다른 설명 없이 JSON만 반환하세요:
-            {
-              "intent": "의도타입",
-              "parameters": {},
-              "confidence": 0.9
-            }
-            
-            사용자 메시지: %s
-            """;
 
     public String generateResponse(Integer recId, String userMessage) {
         log.info("AI 응답 생성 시작: recId={}, userMessage='{}'", recId, userMessage);
@@ -134,62 +126,7 @@ public class AiChatService {
      * 사용자 메시지의 의도를 분석합니다.
      */
     private ChatIntent analyzeIntent(String userMessage) {
-        try {
-            String prompt = INTENT_ANALYSIS_PROMPT.formatted(userMessage);
-            log.debug("의도 분석 프롬프트: {}", prompt);
-            
-            String response = chatClient.prompt()
-                    .user(prompt)
-                    .call()
-                    .content();
-            
-            log.debug("의도 분석 원본 응답: {}", response);
-            
-            // JSON 추출
-            String json = extractJson(response);
-            log.debug("추출된 JSON: {}", json);
-            
-            // JSON 파싱
-            @SuppressWarnings("unchecked")
-            Map<String, Object> intentMap = objectMapper.readValue(json, Map.class);
-            
-            ChatIntent intent = new ChatIntent();
-            String intentType = intentMap.get("intent") != null ? 
-                    intentMap.get("intent").toString() : "GENERAL_CHAT";
-            intent.setIntent(intentType);
-            
-            Object paramsObj = intentMap.get("parameters");
-            String paramsJson = "{}";
-            if (paramsObj != null) {
-                if (paramsObj instanceof String) {
-                    paramsJson = (String) paramsObj;
-                } else {
-                    paramsJson = objectMapper.writeValueAsString(paramsObj);
-                }
-            }
-            intent.setParameters(paramsJson);
-            
-            Object confObj = intentMap.get("confidence");
-            double confidence = 0.5;
-            if (confObj != null) {
-                if (confObj instanceof Number) {
-                    confidence = ((Number) confObj).doubleValue();
-                } else {
-                    try {
-                        confidence = Double.parseDouble(confObj.toString());
-                    } catch (NumberFormatException e) {
-                        confidence = 0.5;
-                    }
-                }
-            }
-            intent.setConfidence(confidence);
-            
-            return intent;
-        } catch (Exception e) {
-            log.error("의도 분석 실패", e);
-            // 기본값: 일반 대화
-            return new ChatIntent("GENERAL_CHAT", "{}", 0.5);
-        }
+        return intentAnalysisService.analyzeIntent(userMessage);
     }
     
     /**
@@ -203,20 +140,25 @@ public class AiChatService {
             if ("SCHEDULE_QUERY".equals(intent.getIntent()) || 
                 "SCHEDULE_CREATE".equals(intent.getIntent()) ||
                 "SCHEDULE_RECOMMEND".equals(intent.getIntent())) {
-                params = extractDateFromMessage(userMessage, params);
+                params = dateExtractionService.extractDateFromMessage(userMessage, params);
             }
             
             switch (intent.getIntent()) {
                 case "HEALTH_QUERY":
-                    return handleHealthQuery(recId, params);
+                    return healthQueryService.queryHealth(recId);
                 case "HEALTH_ANALYSIS":
-                    return handleHealthAnalysis(recId, params);
+                    return healthQueryService.analyzeHealth(recId);
+                case "RECIPIENT_STATUS":
+                    return recipientStatusService.getRecipientStatus(recId, userMessage);
                 case "MEAL_RECOMMEND":
-                    return handleMealRecommend(recId, params, userMessage);
+                    return mealRecommendationService.recommendMeal(recId, userMessage);
                 case "MEAL_QUERY":
-                    return handleMealQuery(recId, params);
+                    return mealRecommendationService.queryMeal(recId, params);
                 case "MEAL_SAVE":
-                    return handleMealSave(recId, params, userMessage);
+                    return mealRecommendationService.saveMeal(recId, userMessage);
+                case "WALKING_ROUTE":
+                    return walkingRouteService.recommendWalkingRoute(recId);
+                // TODO: Schedule 관련 서비스 분리 후 추가
                 case "SCHEDULE_CREATE":
                     return handleScheduleCreate(recId, params, userMessage);
                 case "SCHEDULE_QUERY":
@@ -225,8 +167,6 @@ public class AiChatService {
                     return handleScheduleRecommend(recId, params, userMessage);
                 case "SCHEDULE_SAVE":
                     return handleScheduleSave(recId, params, userMessage);
-                case "WALKING_ROUTE":
-                    return handleWalkingRoute(recId, params);
                 default:
                     return null; // 일반 대화는 함수 실행 없음
             }
@@ -272,200 +212,7 @@ public class AiChatService {
         }
     }
     
-    // ========== 기능별 핸들러 메서드 ==========
-    
-    private String handleHealthQuery(Integer recId, Map<String, Object> params) {
-        try {
-            List<HealthData> healthDataList = healthDataService.getHealthDataByRecId(recId);
-            if (healthDataList == null || healthDataList.isEmpty()) {
-                return "아직 건강 데이터가 등록되지 않았어요. 건강 데이터를 먼저 등록해주세요.";
-            }
-            
-            HealthData latest = healthDataList.get(0);
-            String healthType = latest.getHealthType();
-            String value1 = latest.getHealthValue1() != null ? latest.getHealthValue1().toString() : "-";
-            String value2 = latest.getHealthValue2() != null ? latest.getHealthValue2().toString() : "-";
-            String measuredAt = latest.getHealthMeasuredAt() != null ? 
-                    latest.getHealthMeasuredAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")) : "-";
-            
-            return String.format("최근 건강 데이터를 확인했어요.\n" +
-                    "종류: %s\n" +
-                    "값1: %s\n" +
-                    "값2: %s\n" +
-                    "측정 시간: %s", healthType, value1, value2, measuredAt);
-        } catch (Exception e) {
-            log.error("건강 데이터 조회 실패", e);
-            return "건강 데이터를 조회하는 중 문제가 발생했어요.";
-        }
-    }
-    
-    private String handleHealthAnalysis(Integer recId, Map<String, Object> params) {
-        try {
-            List<HealthData> healthDataList = healthDataService.getRecentHealthDataByType(recId, "BLOOD_PRESSURE", 7);
-            if (healthDataList == null || healthDataList.isEmpty()) {
-                return "분석할 건강 데이터가 충분하지 않아요. 더 많은 데이터를 등록해주세요.";
-            }
-            
-            // 간단한 통계 계산
-            double avgValue1 = healthDataList.stream()
-                    .filter(h -> h.getHealthValue1() != null)
-                    .mapToDouble(h -> h.getHealthValue1().doubleValue())
-                    .average()
-                    .orElse(0.0);
-            
-            return String.format("최근 7일간의 건강 데이터를 분석했어요.\n" +
-                    "평균값: %.1f\n" +
-                    "데이터 개수: %d개\n" +
-                    "전반적으로 건강 상태를 잘 관리하고 계시는 것 같아요!", 
-                    avgValue1, healthDataList.size());
-        } catch (Exception e) {
-            log.error("건강 데이터 분석 실패", e);
-            return "건강 데이터를 분석하는 중 문제가 발생했어요.";
-        }
-    }
-    
-    private String handleMealRecommend(Integer recId, Map<String, Object> params, String userMessage) {
-        try {
-            Recipient recipient = recipientService.getRecipientById(recId);
-            String preferences = recipient != null && recipient.getRecHealthNeeds() != null ? 
-                    recipient.getRecHealthNeeds() : "건강한 식단";
-            
-            // 사용자 메시지에서 선호도 추출 시도
-            if (userMessage.contains("저염") || userMessage.contains("싱겁")) {
-                preferences = "저염식";
-            } else if (userMessage.contains("고단백") || userMessage.contains("단백질")) {
-                preferences = "고단백";
-            } else if (userMessage.contains("저칼로리") || userMessage.contains("다이어트")) {
-                preferences = "저칼로리";
-            }
-            
-            Map<String, String> recommendation = aiMealService.getMealRecommendation(preferences);
-            
-            if (recommendation.containsKey("error")) {
-                return recommendation.get("error");
-            }
-            
-            // 추천 결과를 임시 저장 (사용자가 저장을 원할 때 사용)
-            Map<String, Object> savedRecommendation = new HashMap<>();
-            savedRecommendation.put("type", "MEAL");
-            savedRecommendation.put("data", recommendation);
-            savedRecommendation.put("timestamp", System.currentTimeMillis());
-            recentRecommendations.put(recId, savedRecommendation);
-            
-            return String.format("식단을 추천해드릴게요!\n" +
-                    "메뉴: %s\n" +
-                    "칼로리: %s\n" +
-                    "단백질: %s\n" +
-                    "탄수화물: %s\n" +
-                    "지방: %s\n" +
-                    "설명: %s\n\n" +
-                    "이 식단을 등록하시겠어요? '네' 또는 '등록해줘'라고 말씀해주세요!",
-                    recommendation.get("mealName"),
-                    recommendation.get("calories"),
-                    recommendation.get("protein"),
-                    recommendation.get("carbohydrates"),
-                    recommendation.get("fats"),
-                    recommendation.get("description"));
-        } catch (Exception e) {
-            log.error("식단 추천 실패", e);
-            return "식단을 추천하는 중 문제가 발생했어요.";
-        }
-    }
-    
-    /**
-     * 추천받은 식단을 DB에 저장합니다.
-     */
-    private String handleMealSave(Integer recId, Map<String, Object> params, String userMessage) {
-        try {
-            Map<String, Object> savedRecommendation = recentRecommendations.get(recId);
-            
-            if (savedRecommendation == null || !"MEAL".equals(savedRecommendation.get("type"))) {
-                return "저장할 식단 정보를 찾을 수 없어요. 먼저 식단을 추천받아주세요.";
-            }
-            
-            @SuppressWarnings("unchecked")
-            Map<String, String> mealData = (Map<String, String>) savedRecommendation.get("data");
-            
-            // 식사 타입 결정 (사용자 메시지에서 추출 시도, 없으면 점심으로 기본값)
-            String mealType = "점심";
-            if (userMessage.contains("아침") || userMessage.contains("조식")) {
-                mealType = "아침";
-            } else if (userMessage.contains("저녁") || userMessage.contains("석식")) {
-                mealType = "저녁";
-            }
-            
-            // 칼로리 파싱
-            String caloriesStr = mealData.get("calories");
-            Integer calories = 0;
-            if (caloriesStr != null) {
-                try {
-                    calories = Integer.parseInt(caloriesStr.replaceAll("[^0-9]", ""));
-                } catch (NumberFormatException e) {
-                    log.warn("칼로리 파싱 실패: {}", caloriesStr);
-                }
-            }
-            
-            // MealPlan 생성 및 저장
-            MealPlan mealPlan = MealPlan.builder()
-                    .recId(recId)
-                    .mealDate(LocalDate.now())
-                    .mealType(mealType)
-                    .mealMenu(mealData.get("mealName"))
-                    .mealCalories(calories)
-                    .isDeleted("N")
-                    .build();
-            
-            mealPlanService.register(mealPlan);
-            
-            // 저장된 추천 결과 제거
-            recentRecommendations.remove(recId);
-            
-            log.info("식단 자동 저장 완료 - recId: {}, mealType: {}, menu: {}", 
-                    recId, mealType, mealData.get("mealName"));
-            
-            return String.format("식단을 등록했어요!\n" +
-                    "메뉴: %s\n" +
-                    "식사: %s\n" +
-                    "칼로리: %dkcal\n" +
-                    "오늘 %s로 등록되었어요!",
-                    mealData.get("mealName"),
-                    mealType,
-                    calories,
-                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")));
-        } catch (Exception e) {
-            log.error("식단 저장 실패", e);
-            return "식단을 저장하는 중 문제가 발생했어요. 다시 시도해주세요.";
-        }
-    }
-    
-    private String handleMealQuery(Integer recId, Map<String, Object> params) {
-        try {
-            LocalDate date = params.containsKey("date") ? 
-                    LocalDate.parse(params.get("date").toString()) : LocalDate.now();
-            
-            List<MealPlan> meals = mealPlanService.getByRecIdAndDate(recId, date);
-            if (meals == null || meals.isEmpty()) {
-                return String.format("%s 식단이 등록되지 않았어요.", 
-                        date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")));
-            }
-            
-            StringBuilder sb = new StringBuilder();
-            sb.append(String.format("%s 식단이에요:\n", 
-                    date.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))));
-            
-            for (MealPlan meal : meals) {
-                sb.append(String.format("- %s: %s (칼로리: %dkcal)\n",
-                        meal.getMealType(),
-                        meal.getMealMenu(),
-                        meal.getMealCalories() != null ? meal.getMealCalories() : 0));
-            }
-            
-            return sb.toString();
-        } catch (Exception e) {
-            log.error("식단 조회 실패", e);
-            return "식단을 조회하는 중 문제가 발생했어요.";
-        }
-    }
+    // ========== Schedule 관련 메서드 (추후 ScheduleRecommendationService로 분리 예정) ==========
     
     private String handleScheduleCreate(Integer recId, Map<String, Object> params, String userMessage) {
         try {
@@ -496,7 +243,7 @@ public class AiChatService {
                     .call()
                     .content();
             
-            String json = extractJson(extractionResponse);
+            String json = aiUtilService.extractJson(extractionResponse);
             @SuppressWarnings("unchecked")
             Map<String, Object> scheduleData = objectMapper.readValue(json, Map.class);
             
@@ -615,6 +362,458 @@ public class AiChatService {
     }
     
     /**
+     * 텍스트에서 날짜 추출 (이번주 금요일, 이번달 23일 등)
+     * DateExtractionService를 사용하여 처리
+     */
+    public String extractDateFromText(String text) {
+        return dateExtractionService.extractDateFromText(text);
+    }
+    
+    /**
+     * 특이사항 기반 맞춤형 일정 추천 (기본 식사/약 복용 시간 제외, 특이사항 활동 중심)
+     */
+    public Map<String, Object> getCustomScheduleRecommendation(Integer recId, LocalDate targetDate, String specialActivity) {
+        try {
+            // 사용자 정보 조회
+            Recipient recipient = recipientService.getRecipientById(recId);
+            if (recipient == null) {
+                return Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다.");
+            }
+            
+            if (specialActivity == null || specialActivity.trim().isEmpty()) {
+                return Map.of("success", false, "message", "특이사항에 활동을 입력해주세요.");
+            }
+            
+            // 건강 데이터 조회
+            List<HealthData> healthDataList = healthDataService.getHealthDataByRecId(recId);
+            HealthData latestHealth = healthDataList != null && !healthDataList.isEmpty() ? 
+                    healthDataList.get(0) : null;
+            
+            // 기존 일정 조회
+            List<Schedule> existingSchedules = scheduleService.getSchedulesByDateRange(recId, targetDate, targetDate);
+            
+            // GPT에게 맞춤형 일정 추천 요청
+            StringBuilder contextBuilder = new StringBuilder();
+            contextBuilder.append(String.format("날짜는 %s입니다.\n\n", 
+                    targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))));
+            
+            // 사용자 정보
+            contextBuilder.append("[사용자 정보]\n");
+            contextBuilder.append(String.format("이름: %s\n", recipient.getRecName()));
+            if (recipient.getRecHealthNeeds() != null) {
+                contextBuilder.append(String.format("건강 요구사항: %s\n", recipient.getRecHealthNeeds()));
+            }
+            if (recipient.getRecMedHistory() != null) {
+                contextBuilder.append(String.format("병력: %s\n", recipient.getRecMedHistory()));
+            }
+            if (recipient.getRecAllergies() != null) {
+                contextBuilder.append(String.format("알레르기: %s\n", recipient.getRecAllergies()));
+            }
+            if (recipient.getRecSpecNotes() != null) {
+                contextBuilder.append(String.format("특이사항: %s\n", recipient.getRecSpecNotes()));
+            }
+            contextBuilder.append("\n");
+            
+            // 건강 데이터
+            if (latestHealth != null) {
+                contextBuilder.append("[최근 건강 데이터]\n");
+                contextBuilder.append(String.format("종류: %s\n", latestHealth.getHealthType()));
+                if (latestHealth.getHealthValue1() != null) {
+                    contextBuilder.append(String.format("값1: %s\n", latestHealth.getHealthValue1()));
+                }
+                if (latestHealth.getHealthValue2() != null) {
+                    contextBuilder.append(String.format("값2: %s\n", latestHealth.getHealthValue2()));
+                }
+                contextBuilder.append("\n");
+            }
+            
+            // 기존 일정
+            if (existingSchedules != null && !existingSchedules.isEmpty()) {
+                contextBuilder.append("[기존 일정]\n");
+                for (Schedule schedule : existingSchedules) {
+                    contextBuilder.append(String.format("- %s (%s ~ %s)\n", 
+                            schedule.getSchedName(),
+                            schedule.getSchedStartTime() != null ? schedule.getSchedStartTime() : "",
+                            schedule.getSchedEndTime() != null ? schedule.getSchedEndTime() : ""));
+                }
+                contextBuilder.append("\n");
+            }
+            
+            String customRecommendationPrompt = """
+                당신은 노인 돌봄 전문가입니다. 위의 사용자 정보를 바탕으로, 사용자가 원하는 활동을 중심으로 건강 상태에 맞는 일정을 추천해주세요.
+                
+                사용자가 원하는 활동: "%s"
+                
+                중요 사항:
+                1. 사용자가 원하는 활동을 반드시 포함해야 합니다.
+                2. 사용자가 시간을 명시한 경우 (예: "저녁 5시", "오후 3시", "17시") 그 시간을 정확히 반영해주세요.
+                3. 사용자의 건강 상태(병력, 알레르기, 건강 요구사항, 특이사항)를 반드시 고려하여 활동에 적합한 시간과 방법을 추천해주세요.
+                4. 기본적인 식사 시간이나 약 복용 시간은 제외하고, 사용자가 원하는 활동과 관련된 일정만 추천해주세요.
+                5. 활동 전후 휴식 시간, 이동 시간 등을 고려해주세요.
+                6. 건강 상태에 따라 활동 강도나 시간을 조절해주세요.
+                
+                예시:
+                - "공원에 가고 싶어요" → 공원 산책 시간, 공원에서의 활동, 이동 시간, 휴식 시간 등을 건강 상태에 맞게 추천
+                - "도서관 방문" → 도서관 방문 시간, 이동 시간, 독서 시간, 휴식 시간 등을 고려
+                - "친구 만나기" → 만남 시간, 이동 시간, 대화/활동 시간 등을 고려
+                - "저녁 5시에 요양사 선생을 만날예정" → 저녁 5시(17:00)에 요양사 만남 일정을 포함
+                
+                응답은 반드시 JSON 객체 형식으로만 해주세요. 다른 설명 없이 JSON만 반환해주세요:
+                {
+                  "scheduleName": "일정명 (사용자가 입력한 활동을 바탕으로 의미있는 이름, 예: '공원 산책', '도서관 방문', '요양원 방문' 등)",
+                  "schedules": [
+                    {
+                      "scheduleName": "일정명",
+                      "startTime": "HH:mm",
+                      "endTime": "HH:mm",
+                      "description": "일정 설명 (건강 상태를 고려한 이유 포함)"
+                    },
+                    ...
+                  ]
+                }
+                
+                일정명(scheduleName)은 사용자가 입력한 활동을 바탕으로 의미있게 작성해주세요.
+                예를 들어, "요양원과 사람을 만나게 될 날"이라고 입력했다면 "요양원 방문" 또는 "요양원 만남" 같은 이름을 사용하세요.
+                "저녁 5시에 요양사 선생을 만날예정"이라고 입력했다면 "요양사 만남" 같은 이름을 사용하세요.
+                단순히 날짜만 사용하지 마세요 (예: "2025-11-26 일정" ❌).
+                
+                일정은 오전 7시부터 오후 9시까지, 사용자가 원하는 활동을 중심으로 시간표를 짜주세요.
+                사용자가 특정 시간을 명시한 경우 그 시간을 정확히 포함해주세요.
+                기존 일정과 겹치지 않도록 주의하세요.
+                건강 상태에 따라 활동 시간, 강도, 방법을 조절하여 추천해주세요.
+                
+                %s
+                """.formatted(specialActivity.trim(), contextBuilder.toString());
+            
+            String response = chatClient.prompt()
+                    .user(customRecommendationPrompt)
+                    .call()
+                    .content();
+            
+            String json = aiUtilService.extractJson(response);
+            log.info("맞춤형 일정 추천 원본 응답: {}", response);
+            log.info("추출된 JSON: {}", json);
+            
+            // JSON이 배열인지 확인
+            if (json == null || json.trim().isEmpty() || json.equals("{}")) {
+                log.warn("JSON 추출 실패 또는 빈 응답");
+                return Map.of("success", false, "message", "AI 응답에서 일정 정보를 추출할 수 없습니다.");
+            }
+            
+            // JSON 파싱
+            List<Map<String, Object>> scheduleList;
+            String scheduleName = null;
+            
+            try {
+                // 먼저 JSON이 배열인지 객체인지 확인
+                String trimmedJson = json.trim();
+                boolean isArray = trimmedJson.startsWith("[");
+                boolean isObject = trimmedJson.startsWith("{");
+                
+                if (isObject) {
+                    // 객체 형식으로 파싱 시도
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> obj = objectMapper.readValue(json, Map.class);
+                    
+                    // scheduleName 추출
+                    if (obj.containsKey("scheduleName")) {
+                        scheduleName = obj.get("scheduleName").toString();
+                    }
+                    
+                    // schedules 배열 추출
+                    if (obj.containsKey("schedules") && obj.get("schedules") instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> schedules = (List<Map<String, Object>>) obj.get("schedules");
+                        scheduleList = schedules;
+                        log.info("객체에서 schedules 배열 추출 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+                    } else {
+                        // schedules 키가 없으면 빈 리스트
+                        log.warn("객체에 schedules 키가 없음: {}", obj.keySet());
+                        scheduleList = new ArrayList<>();
+                    }
+                } else if (isArray) {
+                    // 배열 형식으로 직접 파싱
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> parsedList = objectMapper.readValue(json, List.class);
+                    scheduleList = parsedList;
+                    
+                    // 일정명이 없으면 활동 설명에서 생성
+                    if (scheduleName == null && specialActivity != null && !specialActivity.trim().isEmpty()) {
+                        scheduleName = scheduleNameGenerationService.generateScheduleNameFromActivity(specialActivity.trim());
+                    }
+                    
+                    log.info("배열로 파싱 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+                } else {
+                    log.error("JSON 형식이 올바르지 않음 (배열도 객체도 아님): {}", json.substring(0, Math.min(200, json.length())));
+                    return Map.of("success", false, "message", "AI 응답 형식을 인식할 수 없습니다. 다시 시도해주세요.");
+                }
+                
+                if (scheduleList == null || scheduleList.isEmpty()) {
+                    log.warn("파싱된 일정 리스트가 비어있음");
+                    return Map.of("success", false, "message", "추천된 일정이 없습니다.");
+                }
+                
+                // 일정명이 없으면 기본값 생성
+                if (scheduleName == null || scheduleName.trim().isEmpty()) {
+                    scheduleName = scheduleNameGenerationService.generateScheduleNameFromActivity(specialActivity != null ? specialActivity.trim() : "");
+                    if (scheduleName == null || scheduleName.trim().isEmpty()) {
+                        scheduleName = targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + " 일정";
+                    }
+                }
+                
+                log.info("맞춤형 일정 추천 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+            } catch (JsonProcessingException e) {
+                log.error("JSON 파싱 실패 - JSON 길이: {}, 시작 부분: {}", json.length(), 
+                    json.substring(0, Math.min(500, json.length())), e);
+                log.error("파싱 에러 상세: {}", e.getMessage());
+                return Map.of("success", false, "message", 
+                    "AI 응답을 파싱하는 중 오류가 발생했습니다: " + e.getMessage() + ". 다시 시도해주세요.");
+            } catch (Exception e) {
+                log.error("예상치 못한 오류 발생 - JSON: {}", json.substring(0, Math.min(200, json.length())), e);
+                return Map.of("success", false, "message", "일정 추천 중 오류가 발생했습니다: " + e.getMessage());
+            }
+            
+            // 결과 반환
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("schedules", scheduleList);
+            result.put("scheduleName", scheduleName);
+            result.put("date", targetDate.toString());
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("맞춤형 일정 추천 실패", e);
+            return Map.of("success", false, "message", "일정 추천 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+    
+    /**
+     * AI 일정 추천 결과를 직접 반환하는 public 메서드 (API용) - 기본 모드
+     */
+    public Map<String, Object> getScheduleRecommendation(Integer recId, LocalDate targetDate, String specialNotes) {
+        try {
+            // 사용자 정보 조회
+            Recipient recipient = recipientService.getRecipientById(recId);
+            if (recipient == null) {
+                return Map.of("success", false, "message", "사용자 정보를 찾을 수 없습니다.");
+            }
+            
+            // 건강 데이터 조회
+            List<HealthData> healthDataList = healthDataService.getHealthDataByRecId(recId);
+            HealthData latestHealth = healthDataList != null && !healthDataList.isEmpty() ? 
+                    healthDataList.get(0) : null;
+            
+            // 해당 날짜 식단 조회
+            List<MealPlan> dayMeals = mealPlanService.getByRecIdAndDate(recId, targetDate);
+            
+            // 기존 일정 조회
+            List<Schedule> existingSchedules = scheduleService.getSchedulesByDateRange(recId, targetDate, targetDate);
+            
+            // GPT에게 일정 추천 요청
+            StringBuilder contextBuilder = new StringBuilder();
+            contextBuilder.append(String.format("날짜는 %s입니다.\n\n", 
+                    targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))));
+            
+            // 사용자 정보
+            contextBuilder.append("[사용자 정보]\n");
+            contextBuilder.append(String.format("이름: %s\n", recipient.getRecName()));
+            if (recipient.getRecHealthNeeds() != null) {
+                contextBuilder.append(String.format("건강 요구사항: %s\n", recipient.getRecHealthNeeds()));
+            }
+            if (recipient.getRecMedHistory() != null) {
+                contextBuilder.append(String.format("병력: %s\n", recipient.getRecMedHistory()));
+            }
+            if (recipient.getRecAllergies() != null) {
+                contextBuilder.append(String.format("알레르기: %s\n", recipient.getRecAllergies()));
+            }
+            if (recipient.getRecSpecNotes() != null) {
+                contextBuilder.append(String.format("특이사항: %s\n", recipient.getRecSpecNotes()));
+            }
+            contextBuilder.append("\n");
+            
+            // 건강 데이터
+            if (latestHealth != null) {
+                contextBuilder.append("[최근 건강 데이터]\n");
+                contextBuilder.append(String.format("종류: %s\n", latestHealth.getHealthType()));
+                if (latestHealth.getHealthValue1() != null) {
+                    contextBuilder.append(String.format("값1: %s\n", latestHealth.getHealthValue1()));
+                }
+                if (latestHealth.getHealthValue2() != null) {
+                    contextBuilder.append(String.format("값2: %s\n", latestHealth.getHealthValue2()));
+                }
+                contextBuilder.append("\n");
+            }
+            
+            // 해당 날짜 식단
+            if (dayMeals != null && !dayMeals.isEmpty()) {
+                contextBuilder.append(String.format("[%s 식단]\n", 
+                    targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))));
+                for (MealPlan meal : dayMeals) {
+                    contextBuilder.append(String.format("- %s: %s\n", meal.getMealType(), meal.getMealMenu()));
+                }
+                contextBuilder.append("\n");
+            }
+            
+            // 기존 일정
+            if (existingSchedules != null && !existingSchedules.isEmpty()) {
+                contextBuilder.append("[기존 일정]\n");
+                for (Schedule schedule : existingSchedules) {
+                    contextBuilder.append(String.format("- %s (%s ~ %s)\n", 
+                            schedule.getSchedName(),
+                            schedule.getSchedStartTime() != null ? schedule.getSchedStartTime() : "",
+                            schedule.getSchedEndTime() != null ? schedule.getSchedEndTime() : ""));
+                }
+                contextBuilder.append("\n");
+            }
+            
+            // 특이사항 추가
+            String activityDescription = "";
+            if (specialNotes != null && !specialNotes.trim().isEmpty()) {
+                contextBuilder.append("[추가 요청사항]\n");
+                contextBuilder.append(specialNotes).append("\n\n");
+                activityDescription = specialNotes.trim();
+            }
+            
+            String recommendationPrompt = """
+                당신은 노인 돌봄 전문가입니다. 위의 정보를 바탕으로 해당 날짜의 건강하고 즐거운 일정을 추천해주세요.
+                
+                일정은 다음을 포함해야 합니다:
+                1. 식사 시간 (아침, 점심, 저녁)
+                2. 약 복용 시간 (필요시)
+                3. 산책/운동 시간
+                4. 휴식 시간
+                5. 취미 활동 시간
+                
+                응답은 반드시 JSON 객체 형식으로만 해주세요:
+                {
+                  "scheduleName": "일정명 (사용자가 입력한 활동이나 목적을 반영한 의미있는 이름, 예: '요양원 방문', '공원 산책', '친구 만나기' 등)",
+                  "schedules": [
+                    {
+                      "scheduleName": "일정명",
+                      "startTime": "HH:mm",
+                      "endTime": "HH:mm",
+                      "description": "일정 설명"
+                    },
+                    ...
+                  ]
+                }
+                
+                일정명(scheduleName)은 사용자가 입력한 내용을 바탕으로 의미있게 작성해주세요.
+                예를 들어, "요양원과 사람을 만나게 될 날"이라고 입력했다면 "요양원 방문" 또는 "요양원 만남" 같은 이름을 사용하세요.
+                단순히 날짜만 사용하지 마세요 (예: "2025-11-26 일정" ❌).
+                
+                일정은 오전 7시부터 오후 9시까지, 1-2시간 간격으로 5-7개 정도 추천해주세요.
+                기존 일정과 겹치지 않도록 주의하세요.
+                사용자의 건강 상태(병력, 알레르기, 건강 요구사항)를 반드시 고려하여 추천해주세요.
+                
+                %s
+                """.formatted(contextBuilder.toString());
+            
+            String response = chatClient.prompt()
+                    .user(recommendationPrompt)
+                    .call()
+                    .content();
+            
+            String json = aiUtilService.extractJson(response);
+            log.info("일정 추천 원본 응답: {}", response);
+            log.info("추출된 JSON: {}", json);
+            
+            // JSON이 배열인지 확인
+            if (json == null || json.trim().isEmpty() || json.equals("{}")) {
+                log.warn("JSON 추출 실패 또는 빈 응답");
+                return Map.of("success", false, "message", "AI 응답에서 일정 정보를 추출할 수 없습니다.");
+            }
+            
+            // JSON 파싱
+            List<Map<String, Object>> scheduleList;
+            String scheduleName = null;
+            
+            try {
+                // 먼저 JSON이 배열인지 객체인지 확인
+                String trimmedJson = json.trim();
+                boolean isArray = trimmedJson.startsWith("[");
+                boolean isObject = trimmedJson.startsWith("{");
+                
+                if (isObject) {
+                    // 객체 형식으로 파싱 시도
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> obj = objectMapper.readValue(json, Map.class);
+                    
+                    // scheduleName 추출
+                    if (obj.containsKey("scheduleName")) {
+                        scheduleName = obj.get("scheduleName").toString();
+                    }
+                    
+                    // schedules 배열 추출
+                    if (obj.containsKey("schedules") && obj.get("schedules") instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> schedules = (List<Map<String, Object>>) obj.get("schedules");
+                        scheduleList = schedules;
+                        log.info("객체에서 schedules 배열 추출 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+                    } else {
+                        // schedules 키가 없으면 빈 리스트
+                        log.warn("객체에 schedules 키가 없음: {}", obj.keySet());
+                        scheduleList = new ArrayList<>();
+                    }
+                } else if (isArray) {
+                    // 배열 형식으로 직접 파싱
+                    @SuppressWarnings("unchecked")
+                    List<Map<String, Object>> parsedList = objectMapper.readValue(json, List.class);
+                    scheduleList = parsedList;
+                    
+                    // 일정명이 없으면 활동 설명에서 생성
+                    if (scheduleName == null && activityDescription != null && !activityDescription.isEmpty()) {
+                        scheduleName = scheduleNameGenerationService.generateScheduleNameFromActivity(activityDescription);
+                    }
+                    
+                    log.info("배열로 파싱 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+                } else {
+                    log.error("JSON 형식이 올바르지 않음 (배열도 객체도 아님): {}", json.substring(0, Math.min(200, json.length())));
+                    return Map.of("success", false, "message", "AI 응답 형식을 인식할 수 없습니다. 다시 시도해주세요.");
+                }
+                
+                if (scheduleList == null || scheduleList.isEmpty()) {
+                    log.warn("파싱된 일정 리스트가 비어있음");
+                    return Map.of("success", false, "message", "추천된 일정이 없습니다.");
+                }
+                
+                // 일정명이 없으면 기본값 생성
+                if (scheduleName == null || scheduleName.trim().isEmpty()) {
+                    scheduleName = scheduleNameGenerationService.generateScheduleNameFromActivity(activityDescription != null ? activityDescription : "");
+                    if (scheduleName == null || scheduleName.trim().isEmpty()) {
+                        scheduleName = targetDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")) + " 일정";
+                    }
+                }
+                
+                log.info("일정 추천 성공 - 일정명: {}, 일정 개수: {}", scheduleName, scheduleList.size());
+            } catch (JsonProcessingException e) {
+                log.error("JSON 파싱 실패 - JSON 길이: {}, 시작 부분: {}", json.length(), 
+                    json.substring(0, Math.min(500, json.length())), e);
+                log.error("파싱 에러 상세: {}", e.getMessage());
+                return Map.of("success", false, "message", 
+                    "AI 응답을 파싱하는 중 오류가 발생했습니다: " + e.getMessage() + ". 다시 시도해주세요.");
+            } catch (Exception e) {
+                log.error("예상치 못한 오류 발생 - JSON: {}", json.substring(0, Math.min(200, json.length())), e);
+                return Map.of("success", false, "message", "일정 추천 중 오류가 발생했습니다: " + e.getMessage());
+            }
+            
+            // 결과 반환
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("schedules", scheduleList);
+            result.put("scheduleName", scheduleName);
+            result.put("date", targetDate.toString());
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("AI 일정 추천 실패", e);
+            return Map.of("success", false, "message", "일정 추천 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+    
+    /**
      * 오늘의 일정을 AI가 추천/생성합니다.
      */
     private String handleScheduleRecommend(Integer recId, Map<String, Object> params, String userMessage) {
@@ -720,7 +919,7 @@ public class AiChatService {
                     .call()
                     .content();
             
-            String json = extractJson(response);
+            String json = aiUtilService.extractJson(response);
             log.debug("일정 추천 원본 응답: {}", response);
             log.debug("추출된 JSON: {}", json);
             
@@ -734,7 +933,7 @@ public class AiChatService {
             savedRecommendation.put("date", targetDate.toString());
             savedRecommendation.put("data", scheduleList);
             savedRecommendation.put("timestamp", System.currentTimeMillis());
-            recentRecommendations.put(recId, savedRecommendation);
+            recentScheduleRecommendations.put(recId, savedRecommendation);
             
             // 추천 일정을 자연어로 변환
             StringBuilder sb = new StringBuilder();
@@ -767,7 +966,7 @@ public class AiChatService {
      */
     private String handleScheduleSave(Integer recId, Map<String, Object> params, String userMessage) {
         try {
-            Map<String, Object> savedRecommendation = recentRecommendations.get(recId);
+            Map<String, Object> savedRecommendation = recentScheduleRecommendations.get(recId);
             
             if (savedRecommendation == null || !"SCHEDULE".equals(savedRecommendation.get("type"))) {
                 return "저장할 일정 정보를 찾을 수 없어요. 먼저 일정을 추천받아주세요.";
@@ -803,7 +1002,7 @@ public class AiChatService {
             }
             
             // 저장된 추천 결과 제거
-            recentRecommendations.remove(recId);
+            recentScheduleRecommendations.remove(recId);
             
             log.info("일정 자동 저장 완료 - recId: {}, date: {}, 개수: {}", 
                     recId, targetDate, savedCount);
@@ -820,78 +1019,6 @@ public class AiChatService {
         }
     }
     
-    private String handleWalkingRoute(Integer recId, Map<String, Object> params) {
-        try {
-            List<MapCourse> courses = mapCourseService.getCoursesByRecId(recId);
-            if (courses == null || courses.isEmpty()) {
-                return "등록된 산책 코스가 없어요. 먼저 산책 코스를 등록해주세요.";
-            }
-            
-            StringBuilder sb = new StringBuilder();
-            sb.append("추천 산책 코스예요:\n");
-            
-            for (MapCourse course : courses) {
-                sb.append(String.format("- %s (타입: %s)\n",
-                        course.getCourseName(),
-                        course.getCourseType() != null ? course.getCourseType() : "일반"));
-            }
-            
-            return sb.toString();
-        } catch (Exception e) {
-            log.error("산책 코스 조회 실패", e);
-            return "산책 코스를 조회하는 중 문제가 발생했어요.";
-        }
-    }
-    
-    // ========== 유틸리티 메서드 ==========
-    
-    /**
-     * 사용자 메시지에서 날짜 정보를 추출합니다.
-     */
-    private Map<String, Object> extractDateFromMessage(String userMessage, Map<String, Object> params) {
-        try {
-            // 이미 params에 날짜가 있으면 그대로 사용
-            if (params.containsKey("date")) {
-                return params;
-            }
-            
-            // 간단한 날짜 추출 (오늘, 내일, 모레 등)
-            LocalDate extractedDate = LocalDate.now();
-            
-            if (userMessage.contains("오늘") || userMessage.contains("오늘의")) {
-                extractedDate = LocalDate.now();
-            } else if (userMessage.contains("내일")) {
-                extractedDate = LocalDate.now().plusDays(1);
-            } else if (userMessage.contains("모레")) {
-                extractedDate = LocalDate.now().plusDays(2);
-            } else if (userMessage.contains("어제")) {
-                extractedDate = LocalDate.now().minusDays(1);
-            } else if (userMessage.contains("다음주")) {
-                extractedDate = LocalDate.now().plusWeeks(1);
-            } else if (userMessage.contains("이번주")) {
-                extractedDate = LocalDate.now();
-            }
-            
-            // 추출된 날짜를 params에 추가
-            params.put("date", extractedDate.toString());
-            log.debug("메시지에서 날짜 추출: {} -> {}", userMessage, extractedDate);
-            
-        } catch (Exception e) {
-            log.warn("날짜 추출 실패, 기본값(오늘) 사용: {}", userMessage, e);
-        }
-        
-        return params;
-    }
-    
-    private String extractJson(String text) {
-        int firstBrace = text.indexOf('{');
-        int lastBrace = text.lastIndexOf('}');
-        
-        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
-            return text.substring(firstBrace, lastBrace + 1);
-        }
-        return "{}";
-    }
     
     private Map<String, Object> parseParameters(String parametersJson) {
         try {
