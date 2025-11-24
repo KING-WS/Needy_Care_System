@@ -563,6 +563,7 @@
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>"><i class="fas fa-file-alt"></i> 페이지</a></li>
             </ul>
 
@@ -735,16 +736,61 @@
             // Clear input
             chatInput.value = '';
 
-            // Simulate response (실제로는 서버와 통신)
-            setTimeout(function() {
-                addMessage('감사합니다. 문의사항을 확인했습니다. 담당자가 곧 답변드리겠습니다.', 'received');
-            }, 1000);
+            // 로딩 메시지 표시
+            const loadingId = 'loading-' + Date.now();
+            addMessage('AI 응답을 생성 중입니다...', 'received', loadingId);
+
+            // 실제 API 호출
+            <c:choose>
+                <c:when test="${selectedRecipient != null}">
+                    const recId = ${selectedRecipient.recId};
+                </c:when>
+                <c:otherwise>
+                    const recId = null;
+                </c:otherwise>
+            </c:choose>
+            
+            if (!recId) {
+                removeMessage(loadingId);
+                addMessage('오류: 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.', 'received');
+                return;
+            }
+
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: message,
+                    recId: recId
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('서버 응답 오류: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                removeMessage(loadingId);
+                const responseText = data.response || data.message || '응답을 받지 못했습니다.';
+                addMessage(responseText, 'received');
+            })
+            .catch(error => {
+                removeMessage(loadingId);
+                console.error('AI 메시지 전송 중 오류 발생:', error);
+                addMessage('죄송합니다. 응답을 생성하는 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', 'received');
+            });
         }
 
         // Add message to chat
-        function addMessage(text, type) {
+        function addMessage(text, type, messageId) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `chat-message ${type}`;
+            if (messageId) {
+                messageDiv.id = messageId;
+            }
 
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
@@ -761,6 +807,14 @@
 
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Remove message from chat
+        function removeMessage(messageId) {
+            const messageElement = document.getElementById(messageId);
+            if (messageElement) {
+                messageElement.remove();
+            }
         }
 
         // Send button click

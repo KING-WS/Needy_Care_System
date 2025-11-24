@@ -5,7 +5,7 @@
 /* 메인 섹션 */
 .mealplan-section {
     padding: 40px 0;
-    background: #f8f9fc;
+    background: #FFFFFF;
     min-height: calc(100vh - 200px);
 }
 
@@ -112,10 +112,11 @@
 
 /* 통계 카드 */
 .stat-card {
-    background: white;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
     padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border-radius: 15px;
+    border: 1px solid #eee;
+    box-shadow: none;
     margin-bottom: 20px;
     display: flex;
     align-items: center;
@@ -124,20 +125,20 @@
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+    transform: translateY(-3px);
+    box-shadow: none;
 }
 
 .stat-card-today {
-    border-left: 4px solid #667eea;
+    border-left: none;
 }
 
 .stat-card-calories {
-    border-left: 4px solid #f093fb;
+    border-left: none;
 }
 
 .stat-card-average {
-    border-left: 4px solid #4facfe;
+    border-left: none;
 }
 
 .stat-icon {
@@ -149,6 +150,7 @@
     justify-content: center;
     font-size: 28px;
     flex-shrink: 0;
+    color: white;
 }
 
 .stat-card-today .stat-icon {
@@ -172,7 +174,7 @@
 
 .stat-label {
     font-size: 13px;
-    color: #718096;
+    color: #2c3e50;
     margin-bottom: 5px;
     font-weight: 500;
 }
@@ -180,7 +182,7 @@
 .stat-value {
     font-size: 28px;
     font-weight: 700;
-    color: #2d3748;
+    color: #2c3e50;
     line-height: 1;
 }
 

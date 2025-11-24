@@ -4,19 +4,102 @@
 <!-- CSS 파일 링크 -->
 <link rel="stylesheet" href="<c:url value='/css/mealplan.css'/>" />
 
-<section class="mealplan-section">
+<style>
+    /* 컨텐츠 중앙 정렬 및 여백 조정 */
+    .mealplan-section > .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 1200px) {
+        .mealplan-section > .container-fluid {
+            padding: 0 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .mealplan-section > .container-fluid {
+            padding: 0 20px;
+        }
+    }
+
+    /* 통계 카드 스타일 - 일정 페이지와 동일 */
+    .stat-item {
+        border-radius: 15px;
+        border: 1px solid #eee;
+        padding: 20px;
+        color: #2c3e50;
+        box-shadow: none;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: transform 0.2s;
+        margin-bottom: 15px;
+    }
+
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: none;
+    }
+
+    .stat-icon {
+        font-size: 32px;
+        opacity: 0.9;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        color: white;
+    }
+    
+    /* 오늘 식단 이모티콘 배경색 */
+    .stat-item:first-child .stat-icon {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    /* 오늘 총 칼로리 이모티콘 배경색 */
+    .stat-item:nth-child(2) .stat-icon {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    
+    /* 주간 평균 이모티콘 배경색 */
+    .stat-item:nth-child(3) .stat-icon {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .stat-value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+</style>
+
+<section class="mealplan-section" style="padding: 20px 0 100px 0; background: #FFFFFF;">
     <div class="container-fluid">
         <!-- 헤더 -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="page-header">
-                    <h1 class="page-title">
-                        <i class="fas fa-utensils"></i> 식단 관리
-                    </h1>
-                    <p class="page-subtitle">
-                        <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
-                    </p>
-                </div>
+                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
+                    <i class="fas fa-utensils"></i> 식단 관리
+                </h1>
+                <p style="font-size: 16px; color: #666; margin-top: 10px;">
+                    <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
+                </p>
             </div>
         </div>
 
@@ -62,38 +145,29 @@
                 <!-- 왼쪽 영역: 통계 카드 -->
                 <div class="col-lg-3 col-md-6 mb-4">
                     <!-- 오늘 식단 -->
-                    <div class="stat-card stat-card-today">
-                        <div class="stat-icon">
-                            <i class="fas fa-calendar-day"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">오늘 식단</div>
                             <div class="stat-value" id="todayMealCount">0</div>
-                            <div class="stat-sub">끼 등록됨</div>
                         </div>
                     </div>
 
                     <!-- 오늘 총 칼로리 -->
-                    <div class="stat-card stat-card-calories">
-                        <div class="stat-icon">
-                            <i class="fas fa-fire"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-fire"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">오늘 총 칼로리</div>
                             <div class="stat-value" id="todayTotalCalories">0</div>
-                            <div class="stat-sub">kcal</div>
                         </div>
                     </div>
 
                     <!-- 이번 주 평균 -->
-                    <div class="stat-card stat-card-average">
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
+                    <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
+                        <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
                         <div class="stat-content">
                             <div class="stat-label">주간 평균</div>
                             <div class="stat-value" id="weekAvgCalories">0</div>
-                            <div class="stat-sub">kcal/일</div>
                         </div>
                     </div>
 
@@ -275,13 +349,26 @@
             <form id="aiRecommendationForm">
                 <div class="form-group">
                     <label class="form-label">
-                        <i class="fas fa-list-alt"></i> 추천 선호도
+                        <i class="fas fa-clock"></i> 식사 종류 <span class="required">*</span>
                     </label>
-                    <textarea id="aiPreferences" class="form-control" rows="4" 
-                              placeholder="예: 저염식, 고단백, 당뇨 환자용, 체중 감량식, 비건, 알러지 정보 등을 입력해주세요."></textarea>
-                    <small class="form-hint">AI가 식단을 추천하는 데 참고할 정보를 입력해주세요.</small>
+                    <select id="aiMealType" class="form-control" required>
+                        <option value="아침" selected>🌅 아침</option>
+                        <option value="점심">☀️ 점심</option>
+                        <option value="저녁">🌙 저녁</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-list-alt"></i> 특이사항 (선택)
+                    </label>
+                    <textarea id="aiSpecialNotes" class="form-control" rows="4" 
+                              placeholder="추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
+                    <small class="form-hint">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
                 </div>
                 <div id="aiRecommendationResult" class="form-group" style="display: none;">
+                    <div id="aiRecommendationBasis" style="display: none; margin-bottom: 15px; padding: 12px; background-color: #f0f7ff; border-left: 4px solid #4facfe; border-radius: 4px; font-size: 13px; color: #555;">
+                        <!-- 추천 근거가 여기에 표시됩니다. -->
+                    </div>
                     <label class="form-label">
                         <i class="fas fa-lightbulb"></i> AI 추천 식단
                     </label>

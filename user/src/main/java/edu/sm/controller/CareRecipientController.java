@@ -354,5 +354,23 @@ public class CareRecipientController {
         model.addAttribute("center", dir + "stats");
         return "home";
     }
+
+    /**
+     * 노약자 실시간 위치 지도 페이지
+     */
+    @GetMapping("/map")
+    public String mapPage(Model model, HttpSession session) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        
+        if (loginUser == null) {
+            log.warn("비로그인 사용자가 /recipient/map 접근 시도");
+            return "redirect:/login";
+        }
+        
+        model.addAttribute("loginUser", loginUser);
+        model.addAttribute("left", dir + "left");
+        model.addAttribute("center", dir + "map");
+        return "home";
+    }
 }
 

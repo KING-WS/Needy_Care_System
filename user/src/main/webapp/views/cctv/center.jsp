@@ -164,7 +164,28 @@
 </script>
 
 
-<section style="padding: 20px;">
+<style>
+    /* 컨텐츠 중앙 정렬 및 여백 조정 */
+    section > .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 1200px) {
+        section > .container-fluid {
+            padding: 0 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        section > .container-fluid {
+            padding: 0 20px;
+        }
+    }
+</style>
+
+<section style="padding: 20px 0 100px 0;">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 mb-4">
