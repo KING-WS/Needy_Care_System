@@ -400,9 +400,28 @@ function getAiRecommendation() {
     })
     .then(response => response.json())
     .then(res => {
+        console.log('AI 응답 데이터:', res); // 디버깅을 위해 응답 전체를 콘솔에 출력
         if (res.success) {
-            const recommendation = res.data.recommendation;
+            let recommendation = res.data.recommendation;
             const basis = res.data.basis;
+
+            // [FIX 1] Handle cases where the recommendation data is a string
+            if (typeof recommendation === 'string') {
+                try {
+                    recommendation = JSON.parse(recommendation);
+                } catch (e) {
+                    console.error("Failed to parse recommendation string:", e);
+                    showError('AI 추천 결과를 처리하는 데 실패했습니다.');
+                    return;
+                }
+            }
+
+            // [FIX 2] Check if the recommendation object contains an error from the AI
+            if (recommendation.error) {
+                showError('AI 추천 실패: ' + recommendation.error);
+                document.getElementById('aiRecommendationResult').style.display = 'none';
+                return; // Stop further execution
+            }
 
             // 추천 근거 표시
             const basisDiv = document.getElementById('aiRecommendationBasis');
