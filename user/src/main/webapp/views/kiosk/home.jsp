@@ -11,34 +11,42 @@
 <body>
 
 <div class="kiosk-wrapper">
+    <!-- 상단 헤더 -->
     <header class="header-info">
         <div class="header-top-row">
+            <!-- 날씨 -->
             <div class="header-section section-left">
                 <div class="info-widget">
                     <span id="weather-icon" class="weather-icon">⏳</span>
                     <span id="weather-text" style="font-size: 0.8em;">위치 확인 중..</span>
                 </div>
             </div>
+            <!-- 시계 -->
             <div class="header-section section-center">
                 <div id="clock" class="info-widget kiosk-clock">--:--</div>
             </div>
+            <!-- 상태 -->
             <div class="header-section section-right">
                 <div class="status-indicator">
-                    <div id="status-dot" class="status-dot"></div>
-                    <span id="status-text">연결 중...</span>
+                    <div id="status-dot" class="status-dot"></div> <!-- id="status-dot" 확인 -->
+                    <span id="status-text">연결 중...</span> <!-- id="status-text" 확인 -->
                 </div>
             </div>
         </div>
+        <!-- 인사말 -->
         <div class="header-main-row">
             <h1 class="recipient-name">${recipient.recName} 님</h1>
             <p id="greeting-text" class="welcome-text"></p>
         </div>
     </header>
 
+    <!-- 메인 컨텐츠 -->
     <main class="main-content">
+        <!-- AI 채팅 -->
         <section class="ai-companion-area">
             <div class="chat-window" id="chat-window"></div>
             <div class="chat-input-area">
+                <!-- onclick에서 호출하는 함수는 전역 스코프에 있어야 함 -->
                 <button class="speak-button" onclick="startSpeechRecognition()">
                     <span style="font-size: 3rem;">🎤</span>
                     <span>음성으로 말하기</span>
@@ -50,6 +58,7 @@
             </div>
         </section>
 
+        <!-- 긴급 호출 -->
         <section class="call-button-area">
             <button id="emergency-btn" class="call-button emergency" onclick="sendRequest(this, 'emergency', '긴급 호출')">
                 <div class="button-content">
@@ -77,48 +86,95 @@
     // 날씨 상태 저장용 객체
     window.weatherState = { temp: null, city: null };
 
+    // WebSocket 관련 변수
+    let kioskWs = null;
+    let reconnectInterval = null;
+
     // ============================================================
-    // 1. 전역 유틸리티 함수들
+    // 1. 전역 유틸리티 함수들 (HTML onclick에서 호출 가능)
     // ============================================================
 
-    // [개선된 기능] Google 목소리를 우선 사용하는 TTS 함수
-    function speakText(text) {
-        if (!window.speechSynthesis) {
-            console.error("이 브라우저는 음성 합성을 지원하지 않습니다.");
+    // [NEW] WebSocket 연결 함수
+    function connectKioskWebSocket() {
+        if (kioskWs && (kioskWs.readyState === WebSocket.OPEN || kioskWs.readyState === WebSocket.CONNECTING)) {
             return;
         }
 
-        // 말하고 있던 게 있다면 중단
+        // HTTPS 환경 고려 (wss://)
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + window.location.host + '/ws/kiosk';
+
+        console.log("🔄 WebSocket 연결 시도:", wsUrl);
+        kioskWs = new WebSocket(wsUrl);
+
+        kioskWs.onopen = function() {
+            console.log('✅ Kiosk WebSocket 연결 성공');
+
+            // UI 업데이트 (초록불)
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (statusDot && statusText) {
+                statusDot.className = 'status-dot online';
+                statusText.textContent = '온라인';
+                statusDot.style.backgroundColor = '#28a745'; // 확실하게 색상 지정
+            }
+
+            if(reconnectInterval) {
+                clearInterval(reconnectInterval); // 재연결 시도 중지
+                reconnectInterval = null;
+            }
+
+            // [핵심 수정] 서버 핸들러가 'kiosk_connect'를 기다리고 있습니다. ('register' -> 'kiosk_connect')
+            kioskWs.send(JSON.stringify({
+                type: 'kiosk_connect',
+                kioskCode: KIOSK_CODE
+            }));
+        };
+
+        kioskWs.onmessage = function(event) {
+            console.log('메시지 수신:', event.data);
+        };
+
+        kioskWs.onclose = function(event) {
+            console.warn('⚠️ WebSocket 연결 끊김');
+
+            // UI 업데이트 (빨간불)
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (statusDot && statusText) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = '연결 끊김';
+                statusDot.style.backgroundColor = '#dc3545'; // 확실하게 색상 지정
+            }
+
+            kioskWs = null;
+
+            // 3초마다 재연결 시도
+            if (!reconnectInterval) {
+                reconnectInterval = setInterval(connectKioskWebSocket, 3000);
+            }
+        };
+
+        kioskWs.onerror = function(error) {
+            console.error('WebSocket 에러:', error);
+            kioskWs.close(); // 에러 발생 시 명시적으로 닫고 재연결 유도
+        };
+    }
+
+    // [TTS (음성 합성)]
+    function speakText(text) {
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel();
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ko-KR';
-        utterance.rate = 1.0; // 속도 (어르신용이면 0.9 추천)
-        utterance.pitch = 1.0;
+        utterance.rate = 0.9;
 
-        // [핵심] 브라우저에 있는 목소리 리스트를 가져옵니다.
         const voices = window.speechSynthesis.getVoices();
+        const korVoice = voices.find(v => v.lang.includes('ko'));
+        if (korVoice) utterance.voice = korVoice;
 
-        // 'Google'이 포함된 한국어 목소리를 찾습니다. (이게 훨씬 자연스럽습니다)
-        // 만약 없으면 그냥 아무 한국어 목소리나 씁니다.
-        const googleVoice = voices.find(v => v.lang.includes('ko') && v.name.includes('Google'));
-        const anyKoreanVoice = voices.find(v => v.lang.includes('ko'));
-
-        if (googleVoice) {
-            utterance.voice = googleVoice;
-        } else if (anyKoreanVoice) {
-            utterance.voice = anyKoreanVoice;
-        }
-
-        // 말하기 시작
         window.speechSynthesis.speak(utterance);
-    }
-
-    // [중요] 크롬은 목소리 리스트를 비동기로 가져오므로 이 이벤트가 필요합니다.
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-        window.speechSynthesis.onvoiceschanged = function() {
-            window.speechSynthesis.getVoices();
-        };
     }
 
     // [음성 인식 STT]
@@ -128,6 +184,9 @@
             alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
             return;
         }
+
+        // TTS 중단 (말 겹침 방지)
+        window.speechSynthesis.cancel();
 
         const recognition = new SpeechRecognition();
         const speakBtn = document.querySelector('.speak-button');
@@ -164,7 +223,7 @@
         recognition.start();
     }
 
-    // 5. 호출 버튼 (실제 서버 API 호출 로직)
+    // [호출 버튼]
     function sendRequest(btn, type, text) {
         const feedback = btn.querySelector('.button-feedback');
         const content = btn.querySelector('.button-content');
@@ -174,26 +233,30 @@
         feedback.style.opacity = '1';
         feedback.textContent = '전송 중...';
 
-        console.log(`🚨 알림 요청 발생: 타입=${type}, 키오스크 코드=${KIOSK_CODE}`);
+        // WebSocket으로도 알림 전송 (서버 핸들러가 emergency/contact_request 처리함)
+        if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
+            kioskWs.send(JSON.stringify({
+                type: type === 'emergency' ? 'emergency' : 'contact_request',
+                kioskCode: KIOSK_CODE
+            }));
+        }
 
+        // HTTP 전송 (DB 기록용)
         fetch('/api/alert/send', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ kioskCode: KIOSK_CODE, type: type })
+            body: JSON.stringify({
+                kioskCode: KIOSK_CODE,
+                type: type,
+                message: text
+            })
         })
             .then(res => res.json())
             .then(data => {
-                if (data.status === 'success') {
-                    feedback.textContent = '요청 완료!';
-                } else {
-                    feedback.textContent = '요청 실패! 😥';
-                    alert("알림 요청에 실패했습니다: " + data.message);
-                }
+                if(data.status === 'success') feedback.textContent = '호출 완료!';
+                else feedback.textContent = '오류 발생';
             })
-            .catch(err => {
-                feedback.textContent = '연결 오류! 😥';
-                alert("알림 서버 연결에 실패했습니다.");
-            })
+            .catch(() => { feedback.textContent = '전송 실패'; })
             .finally(() => {
                 setTimeout(() => {
                     content.style.opacity = '1';
@@ -203,7 +266,7 @@
             });
     }
 
-    // [채팅 메시지 UI 추가]
+    // [채팅 메시지 추가]
     function addMessageToChat(sender, text, id = null) {
         const chatWindow = document.getElementById('chat-window');
         const div = document.createElement('div');
@@ -225,6 +288,11 @@
         div.appendChild(timeSpan);
         chatWindow.appendChild(div);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // 봇 메시지는 읽어주기 (TTS)
+        if (sender === 'bot' && text !== '생각 중이에요...') {
+            speakText(text);
+        }
     }
 
     // [로딩 제거]
@@ -237,6 +305,7 @@
     function updateWeatherUI() {
         const textEl = document.getElementById('weather-text');
         const { temp, city } = window.weatherState;
+
         if (city && temp !== null) textEl.textContent = city + ", " + temp + "°C";
         else if (city) textEl.textContent = city;
         else if (temp !== null) textEl.textContent = "현재 위치, " + temp + "°C";
@@ -252,11 +321,14 @@
 
 
     // ============================================================
-    // 2. 페이지 로드 후 실행되는 초기화 로직
+    // 3. 페이지 로드 후 실행되는 초기화 로직 (DOMContentLoaded)
     // ============================================================
     document.addEventListener('DOMContentLoaded', function() {
 
-        // [초기화 1] 날씨 기능 실행
+        // [초기화 1] WebSocket 연결 실행
+        connectKioskWebSocket();
+
+        // [초기화 2] 날씨 기능 실행
         function fetchWeather() {
             if (!navigator.geolocation) {
                 document.getElementById('weather-text').textContent = "위치 권한 없음";
@@ -289,6 +361,16 @@
                             window.weatherState.city = city;
                             updateWeatherUI();
                         }).catch(() => {});
+
+                    // 위치 전송 (WebSocket이 연결되어 있다면)
+                    if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
+                        kioskWs.send(JSON.stringify({
+                            type: "location_update",
+                            kioskCode: KIOSK_CODE,
+                            latitude: lat.toString(),
+                            longitude: lon.toString()
+                        }));
+                    }
                 },
                 () => {
                     document.getElementById('weather-text').textContent = "위치 미수신";
@@ -298,7 +380,7 @@
         }
         fetchWeather();
 
-        // [초기화 2] 시계 및 인사말
+        // [초기화 3] 시계 및 인사말
         const clockElement = document.getElementById('clock');
         const greetingElement = document.getElementById('greeting-text');
 
@@ -308,7 +390,9 @@
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const ampm = hours >= 12 ? '오후' : '오전';
             const displayHours = hours % 12 ? hours % 12 : 12;
+
             if (clockElement) clockElement.textContent = ampm + " " + displayHours + ":" + minutes;
+
             if (greetingElement) {
                 greetingElement.textContent = "안녕하세요! 무엇을 도와드릴까요?";
             }
@@ -316,15 +400,11 @@
         setInterval(updateClockAndGreeting, 1000);
         updateClockAndGreeting();
 
-        // [초기화 3] 초기 메시지 & 음성 출력
-        // *목소리가 로드될 시간을 주기 위해 약간의 지연(500ms) 후 첫 인사 실행
-        setTimeout(() => {
-            const initialMsg = '안녕하세요, ' + RECIPIENT_NAME + '님! 말벗 로봇 마음이에요.';
-            addMessageToChat('bot', initialMsg);
-            speakText(initialMsg);
-        }, 500);
+        // [초기화 4] 채팅 초기 메시지
+        const initMsg = '안녕하세요, ' + RECIPIENT_NAME + '님! 말벗 로봇 마음이에요.';
+        addMessageToChat('bot', initMsg);
 
-        // [초기화 4] 채팅 전송 이벤트 연결
+        // [초기화 5] 채팅 전송 이벤트 연결
         const chatInput = document.getElementById('chat-text-input');
         const sendBtn = document.getElementById('chat-send-btn');
 
@@ -347,15 +427,11 @@
                 .then(data => {
                     removeElement(loadingId);
                     const replyText = data.reply || data.response || "응답을 받지 못했습니다.";
-
                     addMessageToChat('bot', replyText);
-                    speakText(replyText); // 답변 읽어주기
                 })
                 .catch(() => {
                     removeElement(loadingId);
-                    const errorMsg = '죄송해요, 잠시 문제가 생겼어요.';
-                    addMessageToChat('bot', errorMsg);
-                    speakText(errorMsg);
+                    addMessageToChat('bot', '죄송해요, 잠시 문제가 생겼어요.');
                 });
         }
 
@@ -363,58 +439,6 @@
         if(chatInput) chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSendMessage();
         });
-
-        // [초기화 5] 키오스크 웹소켓 연결
-        let kioskWs;
-        const statusDot = document.getElementById('status-dot');
-        const statusText = document.getElementById('status-text');
-        let reconnectInterval;
-
-        function connectKioskWebSocket() {
-            if (kioskWs && (kioskWs.readyState === WebSocket.OPEN || kioskWs.readyState === WebSocket.CONNECTING)) {
-                console.log("WebSocket already open or connecting.");
-                return;
-            }
-
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = protocol + '//' + window.location.host + '/ws/kiosk';
-            kioskWs = new WebSocket(wsUrl);
-
-            kioskWs.onopen = function() {
-                console.log('Kiosk WebSocket connection opened');
-                statusDot.className = 'status-dot online';
-                statusText.textContent = '연결됨';
-                if(reconnectInterval) clearInterval(reconnectInterval); // 연결 성공 시 재연결 인터벌 중지
-
-                // 연결 성공 시 kioskCode 전송
-                kioskWs.send(JSON.stringify({ type: 'register', kioskCode: KIOSK_CODE }));
-            };
-
-            kioskWs.onmessage = function(event) {
-                console.log('Kiosk WebSocket message received:', event.data);
-                // 여기에 서버로부터 오는 메시지 처리 로직 추가
-                // 예: 긴급 호출 확인 메시지 등
-            };
-
-            kioskWs.onclose = function(event) {
-                console.log('Kiosk WebSocket connection closed:', event);
-                statusDot.className = 'status-dot offline';
-                statusText.textContent = '연결 끊김';
-                // 재연결 시도
-                if (!reconnectInterval) {
-                   reconnectInterval = setInterval(connectKioskWebSocket, 5000); // 5초마다 재연결 시도
-                }
-            };
-
-            kioskWs.onerror = function(error) {
-                console.error('Kiosk WebSocket error:', error);
-                statusDot.className = 'status-dot error';
-                statusText.textContent = '연결 오류';
-                kioskWs.close(); // 오류 발생 시 명시적으로 연결 닫기
-            };
-        }
-
-        connectKioskWebSocket(); // 페이지 로드 시 웹소켓 연결 시작
     });
 </script>
 
