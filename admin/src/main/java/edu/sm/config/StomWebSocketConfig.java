@@ -18,7 +18,7 @@ public class StomWebSocketConfig implements WebSocketMessageBrokerConfigurer, We
     }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.enableSimpleBroker("/send","/adminsend");
+        registry.enableSimpleBroker("/send","/adminsend", "/topic");
     }
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

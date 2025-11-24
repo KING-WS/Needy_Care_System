@@ -5,6 +5,9 @@ import edu.sm.app.repository.RecipientRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -77,5 +80,19 @@ public class RecipientService {
         if (result <= 0) {
             throw new RuntimeException("돌봄 대상자 수정 실패");
         }
+    }
+
+    // 마지막 접속 시간 업데이트
+    @Transactional
+    public void updateLastConnectedAt(Integer recId, LocalDateTime lastConnectedAt) {
+        log.info("돌봄 대상자 {} 마지막 접속 시간 업데이트: {}", recId, lastConnectedAt);
+        recipientRepository.updateLastConnectedAt(recId, lastConnectedAt);
+    }
+
+    // 위치 정보 업데이트
+    @Transactional
+    public void updateLocation(Integer recId, Double recLatitude, Double recLongitude) {
+        log.info("돌봄 대상자 {} 위치 정보 업데이트: 위도={}, 경도={}", recId, recLatitude, recLongitude);
+        recipientRepository.updateLocation(recId, recLatitude, recLongitude);
     }
 }
