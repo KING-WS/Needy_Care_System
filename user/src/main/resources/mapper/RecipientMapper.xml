@@ -140,4 +140,20 @@
         WHERE rec_id = #{recId}
     </delete>
 
+    <!-- 마지막 접속 시간 업데이트 -->
+    <update id="updateLastConnectedAt">
+        UPDATE Care_Recipient
+        SET
+            last_connected_at = #{lastConnectedAt},
+            rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </update>
+
+    <!-- 위치 정보 업데이트 -->
+    <update id="updateLocation">
+        UPDATE Care_Recipient
+        SET rec_latitude = #{recLatitude}, rec_longitude = #{recLongitude}, rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </update>
+
 </mapper>

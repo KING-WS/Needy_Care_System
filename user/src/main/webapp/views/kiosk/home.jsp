@@ -24,8 +24,8 @@
             </div>
             <div class="header-section section-right">
                 <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span>온라인</span>
+                    <div id="status-dot" class="status-dot"></div>
+                    <span id="status-text">연결 중...</span>
                 </div>
             </div>
         </div>
@@ -363,6 +363,58 @@
         if(chatInput) chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSendMessage();
         });
+
+        // [초기화 5] 키오스크 웹소켓 연결
+        let kioskWs;
+        const statusDot = document.getElementById('status-dot');
+        const statusText = document.getElementById('status-text');
+        let reconnectInterval;
+
+        function connectKioskWebSocket() {
+            if (kioskWs && (kioskWs.readyState === WebSocket.OPEN || kioskWs.readyState === WebSocket.CONNECTING)) {
+                console.log("WebSocket already open or connecting.");
+                return;
+            }
+
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = protocol + '//' + window.location.host + '/ws/kiosk';
+            kioskWs = new WebSocket(wsUrl);
+
+            kioskWs.onopen = function() {
+                console.log('Kiosk WebSocket connection opened');
+                statusDot.className = 'status-dot online';
+                statusText.textContent = '연결됨';
+                if(reconnectInterval) clearInterval(reconnectInterval); // 연결 성공 시 재연결 인터벌 중지
+
+                // 연결 성공 시 kioskCode 전송
+                kioskWs.send(JSON.stringify({ type: 'register', kioskCode: KIOSK_CODE }));
+            };
+
+            kioskWs.onmessage = function(event) {
+                console.log('Kiosk WebSocket message received:', event.data);
+                // 여기에 서버로부터 오는 메시지 처리 로직 추가
+                // 예: 긴급 호출 확인 메시지 등
+            };
+
+            kioskWs.onclose = function(event) {
+                console.log('Kiosk WebSocket connection closed:', event);
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = '연결 끊김';
+                // 재연결 시도
+                if (!reconnectInterval) {
+                   reconnectInterval = setInterval(connectKioskWebSocket, 5000); // 5초마다 재연결 시도
+                }
+            };
+
+            kioskWs.onerror = function(error) {
+                console.error('Kiosk WebSocket error:', error);
+                statusDot.className = 'status-dot error';
+                statusText.textContent = '연결 오류';
+                kioskWs.close(); // 오류 발생 시 명시적으로 연결 닫기
+            };
+        }
+
+        connectKioskWebSocket(); // 페이지 로드 시 웹소켓 연결 시작
     });
 </script>
 

@@ -28,4 +28,7 @@ public class Recipient {
     private LocalDateTime recRegdate;
     private LocalDateTime recUpdate;
     private String recHealthNeeds;
+    private LocalDateTime lastConnectedAt; // 마지막 접속 시간
+    private Double recLatitude; // 현재 위도
+    private Double recLongitude; // 현재 경도
 }
