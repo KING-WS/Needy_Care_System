@@ -1,3 +1,29 @@
+server:
+  port: 8084
+  
 spring:
   profiles:
     active: dev
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/needy_care_system?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: smuser
+    password: ENC(idIWCdznEM3ggslDeTmLJw==)
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+  thymeleaf:
+    cache: false
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: info
+    edu.sm: debug
+    org.springframework.web: info

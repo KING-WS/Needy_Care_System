@@ -97,6 +97,11 @@ body, html {
     box-shadow: 0 0 0.5rem rgba(40, 167, 69, 0.5);
 }
 
+.status-dot.status-offline {
+    background-color: #6c757d; /* 회색 */
+    box-shadow: none;
+}
+
 /* 사용자 인사말 영역 */
 .header-main-row { padding-top: 0.5rem; }
 .recipient-name {

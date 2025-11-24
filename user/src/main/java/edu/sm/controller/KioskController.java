@@ -7,6 +7,7 @@ import edu.sm.app.service.CustService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,9 @@ public class KioskController {
 
     private final RecipientService recipientService;
     private final CustService custService;
+
+    @Value("${app.url.websocketurl}")
+    private String websocketUrl;
 
     /**
      * 키오스크 메인 페이지 접속
@@ -61,6 +65,7 @@ public class KioskController {
 
             // 4. 화면에 필요한 데이터 전달 (노약자 정보)
             model.addAttribute("recipient", recipient);
+            model.addAttribute("websocketUrl", websocketUrl);
 
             // 5. (선택) 보호자 정보가 있다면 추가 조회
             if (recipient.getCustId() != null) {
