@@ -91,9 +91,6 @@
                                                     <button class="btn btn-sm btn-primary senior-btn" onclick="location.href='<c:url value="/senior/detail/${senior.recId}"/>'">
                                                         <i class="bi bi-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-sm btn-warning senior-btn" onclick="location.href='<c:url value="/senior/edit/${senior.recId}"/>'">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </button>
                                                 </td>
                                             </tr>
                                         </c:forEach>
