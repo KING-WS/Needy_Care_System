@@ -1,0 +1,403 @@
+@charset "UTF-8";
+
+/* ==========================================================================
+   1. 전역 설정 및 초기화 (Global Reset)
+   ========================================================================== */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f0f2f5;
+    /* 기본 폰트: 가독성을 위해 시스템 폰트 우선 적용 */
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    overflow: hidden; /* 전체 페이지 스크롤 방지 (키오스크 모드) */
+    box-sizing: border-box;
+
+    /* [반응형 기준점] rem 단위의 기준이 되는 폰트 크기 (1rem = 10px) */
+    font-size: 10px;
+}
+
+*, *:before, *:after {
+    box-sizing: inherit; /* 모든 요소의 패딩/테두리를 크기 계산에 포함 */
+}
+
+/* ==========================================================================
+   2. 레이아웃 구조 (Layout Structure)
+   ========================================================================== */
+.kiosk-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    /* 모바일 브라우저 주소창 영역 대응 (지원 브라우저용) */
+    height: 100dvh;
+}
+
+/* ==========================================================================
+   3. 헤더 영역 (Header)
+   ========================================================================== */
+.header-info {
+    flex-shrink: 0; /* 화면 축소 시 헤더 영역 찌그러짐 방지 */
+    padding: 1.5rem 2.5rem;
+    background-color: #ffffff;
+    border-bottom: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.header-top-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+/* 헤더 내부 3단 분할 (좌측:날씨 / 중앙:시계 / 우측:상태) */
+.header-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+.section-left { justify-content: flex-start; }
+.section-center { justify-content: center; }
+.section-right { justify-content: flex-end; }
+
+/* 정보 위젯 공통 스타일 */
+.info-widget {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #495057;
+    white-space: nowrap; /* 좁아져도 줄바꿈 방지 */
+}
+.weather-icon { font-size: 2.2rem; }
+.kiosk-clock {
+    font-size: 2.5rem;
+    color: #212529;
+    font-weight: 800;
+    white-space: nowrap; /* 시계 줄바꿈 방지 */
+}
+
+/* 상태 표시기 (온라인/오프라인) */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.2rem;
+    color: #28a745;
+    font-weight: bold;
+    white-space: nowrap;
+}
+.status-dot {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-color: #28a745;
+    border-radius: 50%;
+    box-shadow: 0 0 0.5rem rgba(40, 167, 69, 0.5);
+}
+
+.status-dot.status-offline {
+    background-color: #6c757d; /* 회색 */
+    box-shadow: none;
+}
+
+/* 사용자 인사말 영역 */
+.header-main-row { padding-top: 0.5rem; }
+.recipient-name {
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: #212529;
+    margin: 0;
+    line-height: 1.2;
+}
+.welcome-text {
+    font-size: 1.4rem;
+    color: #6c757d;
+    margin-top: 0.5rem;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   4. 메인 컨텐츠 영역 (Main Content)
+   ========================================================================== */
+.main-content {
+    flex: 1;          /* 남은 세로 공간을 모두 차지 */
+    display: flex;    /* 좌우 배치 (기본: PC) */
+    gap: 2rem;
+    padding: 2rem;
+    min-height: 0;    /* Flex item 내부 스크롤 작동을 위한 필수 속성 */
+    overflow: hidden;
+}
+
+/* ==========================================================================
+   5. 좌측: AI 채팅 영역 (AI Companion Area)
+   ========================================================================== */
+.ai-companion-area {
+    flex: 3;          /* 화면 비율 3 차지 */
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 2.5rem;
+    box-shadow: 0 0.4rem 2rem rgba(0,0,0,0.08);
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid #eee;
+}
+
+/* 채팅 메시지 리스트 영역 */
+.chat-window {
+    flex: 1;            /* 남은 공간 모두 차지 */
+    padding: 2.5rem;
+    overflow-y: auto;   /* 세로 스크롤 허용 */
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    background-color: #fcfcfc;
+    scroll-behavior: smooth;
+}
+
+/* 커스텀 스크롤바 스타일 */
+.chat-window::-webkit-scrollbar { width: 1.2rem; }
+.chat-window::-webkit-scrollbar-track { background: #f1f1f1; }
+.chat-window::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 0.6rem; }
+.chat-window::-webkit-scrollbar-thumb:hover { background: #adb5bd; }
+
+/* 메시지 말풍선 스타일 */
+.chat-message {
+    display: flex;
+    flex-direction: column;
+    max-width: 85%;
+}
+.bot-message { align-self: flex-start; }
+.user-message { align-self: flex-end; }
+
+.message-bubble {
+    padding: 1.8rem 2.4rem;
+    font-size: 1.6rem;
+    line-height: 1.5;
+    border-radius: 2rem;
+    box-shadow: 0 0.2rem 0.5rem rgba(0,0,0,0.05);
+    word-break: break-word; /* 긴 단어 자동 줄바꿈 */
+}
+
+.bot-message .message-bubble {
+    background-color: #ffffff;
+    border: 1px solid #e9ecef;
+    border-top-left-radius: 0.5rem;
+    color: #343a40;
+}
+
+.user-message .message-bubble {
+    background-color: #007bff;
+    color: white;
+    border-top-right-radius: 0.5rem;
+}
+
+.message-time {
+    font-size: 0.9rem;
+    color: #adb5bd;
+    margin-top: 0.5rem;
+    margin-left: 0.5rem;
+}
+.user-message .message-time { text-align: right; margin-right: 0.5rem; }
+
+/* 채팅 입력 컨트롤 영역 */
+.chat-input-area {
+    flex-shrink: 0;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.speak-button {
+    width: 100%;
+    padding: 1.5rem;
+    border: none;
+    border-radius: 1.5rem;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+    font-size: 1.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    box-shadow: 0 0.4rem 1rem rgba(37, 117, 252, 0.3);
+    transition: transform 0.1s;
+}
+.speak-button:active { transform: scale(0.98); }
+
+.input-group { display: flex; gap: 1rem; height: 6rem; }
+
+.text-input {
+    flex: 1;
+    padding: 0 2rem;
+    font-size: 1.5rem;
+    border: 2px solid #e9ecef;
+    border-radius: 1.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+.text-input:focus { border-color: #007bff; }
+
+.send-button {
+    width: 10rem;
+    border: none;
+    border-radius: 1.5rem;
+    background-color: #343a40;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+.send-button:active { background-color: #1d2124; }
+
+/* ==========================================================================
+   6. 우측: 호출 버튼 영역 (Call Buttons)
+   ========================================================================== */
+.call-button-area {
+    flex: 2;          /* 화면 비율 2 차지 */
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    height: 100%;
+}
+
+.call-button {
+    flex: 1;          /* 높이 균등 분할 */
+    position: relative;
+    border: none;
+    border-radius: 2.5rem;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0.4rem 1.5rem rgba(0,0,0,0.15);
+    overflow: hidden;
+    transition: transform 0.1s;
+}
+.call-button:active { transform: scale(0.98); }
+
+.button-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 0.5rem;
+}
+
+.button-icon { font-size: 5rem; margin-bottom: 1rem; }
+.button-text { font-size: 2.5rem; font-weight: 800; }
+
+.emergency { background: linear-gradient(135deg, #ff5f6d, #ffc371); }
+.contact { background: linear-gradient(135deg, #11998e, #38ef7d); }
+
+/* 버튼 클릭 시 피드백 효과 */
+.button-feedback {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    border-radius: 2.5rem;
+}
+
+/* ==========================================================================
+   7. 반응형 미디어 쿼리 (Responsive Design)
+   ========================================================================== */
+
+/* [Tablet & Mobile] 태블릿 및 모바일 기기 (1024px 이하) */
+@media (max-width: 1024px) {
+    body, html { font-size: 9px; }
+
+    .header-info { padding: 1.2rem 2rem; }
+
+    /* 메인 컨텐츠: 세로 배치 */
+    .main-content {
+        flex-direction: column;
+        padding: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    /* 채팅 영역 */
+    .ai-companion-area {
+        flex: none;
+        height: 65%;
+    }
+
+    /* 호출 버튼 영역: 가로 배치 */
+    .call-button-area {
+        flex: 1;
+        flex-direction: row;
+        gap: 1rem;
+    }
+
+    .call-button {
+        border-radius: 1.2rem;
+        font-size: 1.6rem;
+    }
+    .button-icon { font-size: 2.5rem; }
+    .button-text { font-size: 1.8rem; }
+}
+
+/* [Mobile] 소형 모바일 기기 (600px 이하) */
+@media (max-width: 600px) {
+    body, html { font-size: 8.5px; }
+
+    .header-info { padding: 1rem; }
+    .recipient-name { font-size: 1.8rem; }
+
+    /* [수정됨] 헤더 상단: 가로(Row) 배치 복구 및 정렬 유지 */
+    .header-top-row {
+        flex-direction: row; /* 다시 가로 배치! */
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        gap: 0.5rem;
+    }
+
+    /* 각 섹션 정렬 복구 */
+    .header-section { flex: 1; display: flex; }
+    .section-left { justify-content: flex-start; }
+    .section-center { justify-content: center; }
+    .section-right { justify-content: flex-end; }
+
+    /* 좁은 화면에 맞게 크기 미세 조정 */
+    .weather-icon { font-size: 1.8rem; }
+    .info-widget { font-size: 1.2rem; gap: 0.5rem; }
+
+    .kiosk-clock { font-size: 1.8rem; } /* 시계 크기 살짝 줄임 */
+
+    .status-indicator { font-size: 1rem; gap: 0.4rem; }
+    .status-dot { width: 1rem; height: 1rem; }
+
+    .main-content {
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .ai-companion-area {
+        height: 65%;
+    }
+
+    .message-bubble { font-size: 1.5rem; }
+
+    .call-button-area {
+        gap: 0.8rem;
+    }
+    .call-button {
+        font-size: 1.4rem;
+    }
+    .button-icon { font-size: 2rem; }
+}

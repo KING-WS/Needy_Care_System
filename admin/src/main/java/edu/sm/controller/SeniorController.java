@@ -6,6 +6,7 @@ import edu.sm.app.dto.Senior;
 import edu.sm.app.service.SeniorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public class SeniorController {
 
     private final SeniorService seniorService;
 
+
     @RequestMapping("/list")
     public String seniorList(@RequestParam(defaultValue = "1") int pageNo, Model model) {
         log.info("Senior list page accessed, pageNo: {}", pageNo);
@@ -33,7 +35,7 @@ public class SeniorController {
             Page<Senior> page = seniorService.getPage(pageNo);
             PageInfo<Senior> pageInfo = new PageInfo<>(page);
             model.addAttribute("page", pageInfo);
-            model.addAttribute("seniorList", pageInfo.getList()); // For compatibility
+            model.addAttribute("seniorList", pageInfo.getList());
         } catch (Exception e) {
             log.error("Error fetching senior list", e);
             model.addAttribute("errorMessage", "노약자 목록을 불러오는 중 오류가 발생했습니다.");

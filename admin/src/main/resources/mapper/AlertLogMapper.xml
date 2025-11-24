@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.AlertLogRepository">
+
+    <!-- 알림 저장 -->
+    <insert id="insert" parameterType="edu.sm.app.dto.AlertLog" useGeneratedKeys="true" keyProperty="alertId">
+        INSERT INTO Alert_Log (rec_id, alert_type, alert_msg, check_status, alert_regdate)
+        VALUES (#{recId}, #{alertType}, #{alertMsg}, 'N', NOW())
+    </insert>
+
+    <!-- 모든 알림 조회 (관리자용) -->
+    <select id="findAll" resultType="edu.sm.app.dto.AlertLog">
+        SELECT
+            al.alert_id,
+            al.rec_id,
+            al.alert_type,
+            al.alert_msg,
+            al.check_status,
+            al.alert_regdate,
+            r.rec_name AS recipientName <!-- DTO에 추가 필드를 위해 -->
+        FROM Alert_Log al
+        LEFT JOIN Care_Recipient r ON al.rec_id = r.rec_id
+        ORDER BY al.alert_regdate DESC
+    </select>
+
+    <!-- 알림 상태 업데이트 (확인 처리) -->
+    <update id="updateCheckStatus">
+        UPDATE Alert_Log
+        SET
+            check_status = #{checkStatus}
+        WHERE alert_id = #{alertId}
+    </update>
+
+</mapper>
