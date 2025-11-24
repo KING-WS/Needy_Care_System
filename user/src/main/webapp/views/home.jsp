@@ -563,6 +563,7 @@
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>"><i class="fas fa-file-alt"></i> 페이지</a></li>
             </ul>
 
