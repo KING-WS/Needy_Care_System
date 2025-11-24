@@ -439,48 +439,173 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            background: #f8f9fa;
-        }
-
-        .chat-message {
-            margin-bottom: 15px;
+            background: #f0f2f5;
             display: flex;
             flex-direction: column;
         }
 
-        .chat-message.sent {
+        .chat-message {
+            margin-bottom: 12px;
+            display: flex;
             align-items: flex-end;
+            gap: 8px;
+            width: 100%;
         }
 
-        .chat-message.received {
+        /* 말풍선 레이아웃 스타일 - 사용자 메시지를 완전히 오른쪽에 배치 */
+        .chat-messages .chat-message.sent {
+            flex-direction: row-reverse !important;
+            justify-content: flex-end !important;
+            align-items: flex-end !important;
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            max-width: 85% !important;
+            width: 100% !important;
+        }
+
+        .chat-messages .chat-message.received {
+            flex-direction: row !important;
+            justify-content: flex-start !important;
+            margin-right: auto !important;
+            max-width: 85% !important;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        /* 아바타 스타일 - 사용자 메시지 아바타 숨김 */
+        .chat-messages .chat-message.sent .message-avatar {
+            display: none !important;
+        }
+
+        .chat-messages .chat-message.received .message-avatar {
+            background: #e4e6eb !important;
+            color: #65676b !important;
+        }
+
+        .message-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            min-width: 0;
+        }
+
+        .chat-messages .chat-message.sent .message-content-wrapper {
+            align-items: flex-end !important;
+            margin-left: auto !important;
+            margin-right: 0 !important;
+            max-width: 85% !important;
+        }
+
+        .chat-messages .chat-message.received .message-content-wrapper {
             align-items: flex-start;
         }
 
+        .message-bubble-wrapper {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .chat-messages .chat-message.sent .message-bubble-wrapper {
+            flex-direction: row-reverse;
+        }
+
+        .chat-messages .chat-message.received .message-bubble-wrapper {
+            flex-direction: row;
+        }
+
+        .message-sender {
+            font-size: 12px;
+            font-weight: 600;
+            color: #65676b;
+            margin-bottom: 4px;
+            padding: 0 4px;
+        }
+
+        .chat-messages .chat-message.sent .message-sender {
+            text-align: right;
+            color: #0084ff;
+        }
+
+        .chat-messages .chat-message.received .message-sender {
+            text-align: left;
+            color: #65676b;
+        }
+
         .message-bubble {
-            max-width: 70%;
-            padding: 12px 16px;
+            padding: 10px 14px;
             border-radius: 18px;
             word-wrap: break-word;
+            word-break: break-word;
+            position: relative;
+            line-height: 1.4;
+            display: inline-block;
+            /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
         }
 
-        .chat-message.sent .message-bubble {
-            background: var(--primary-color);
-            color: white;
-            border-bottom-right-radius: 4px;
+        /* 말풍선 스타일 - 최고 우선순위로 설정 (모든 외부 CSS 이후에 적용) */
+        #chatMessages .chat-message.sent .message-bubble,
+        .chat-modal #chatMessages .chat-message.sent .message-bubble {
+            background: #0084ff !important;
+            color: white !important;
+            border-bottom-right-radius: 4px !important;
         }
 
-        .chat-message.received .message-bubble {
-            background: white;
-            color: #333;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        #chatMessages .chat-message.sent .message-bubble::after,
+        .chat-modal #chatMessages .chat-message.sent .message-bubble::after {
+            content: '' !important;
+            position: absolute !important;
+            right: -8px !important;
+            bottom: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            border: 8px solid transparent !important;
+            border-left-color: #0084ff !important;
+            border-right: none !important;
+            border-bottom: none !important;
+            border-top: none !important;
+        }
+
+        #chatMessages .chat-message.received .message-bubble,
+        .chat-modal #chatMessages .chat-message.received .message-bubble {
+            background: #ffffff !important;
+            color: #1c1e21 !important;
+            border-bottom-left-radius: 4px !important;
+            border: 1px solid #e4e6eb !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        #chatMessages .chat-message.received .message-bubble::after,
+        .chat-modal #chatMessages .chat-message.received .message-bubble::after {
+            content: '' !important;
+            position: absolute !important;
+            left: -8px !important;
+            bottom: 0 !important;
+            width: 0 !important;
+            height: 0 !important;
+            border: 8px solid transparent !important;
+            border-right-color: white !important;
+            border-left: none !important;
+            border-bottom: none !important;
         }
 
         .message-time {
             font-size: 11px;
-            color: #999;
-            margin-top: 5px;
-            padding: 0 5px;
+            color: #8a8d91;
+            padding: 0 2px;
+            white-space: nowrap;
+            margin-bottom: 2px;
+            line-height: 1.2;
         }
 
         .chat-input-area {
@@ -648,10 +773,18 @@
     </div>
     <div class="chat-messages" id="chatMessages">
         <div class="chat-message received">
-            <div class="message-bubble">
-                안녕하세요! 무엇을 도와드릴까요?
+            <div class="message-avatar">
+                <i class="fas fa-robot"></i>
             </div>
-            <div class="message-time">지금</div>
+            <div class="message-content-wrapper">
+                <div class="message-sender">AI 봇</div>
+                <div class="message-bubble-wrapper">
+                    <div class="message-bubble">
+                        안녕하세요! 무엇을 도와드릴까요?
+                    </div>
+                    <div class="message-time" id="initialMessageTime"></div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="chat-input-area">
@@ -712,6 +845,19 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatBadge = document.getElementById('chatBadge');
 
+        // 사용자 이름 설정
+        var userName = '사용자';
+        <c:if test="${sessionScope.loginUser != null}">
+        userName = '<c:out value="${sessionScope.loginUser.custName}" escapeXml="true"/>';
+        </c:if>
+
+        // 첫 메시지 시간 설정
+        const initialMessageTime = document.getElementById('initialMessageTime');
+        if (initialMessageTime) {
+            const now = new Date();
+            initialMessageTime.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
+        }
+
         // Open chat modal
         floatingChatBtn.addEventListener('click', function() {
             chatModal.classList.add('active');
@@ -749,7 +895,7 @@
                     const recId = null;
                 </c:otherwise>
             </c:choose>
-            
+
             if (!recId) {
                 removeMessage(loadingId);
                 addMessage('오류: 사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.', 'received');
@@ -787,26 +933,94 @@
         // Add message to chat
         function addMessage(text, type, messageId) {
             const messageDiv = document.createElement('div');
-            messageDiv.className = `chat-message ${type}`;
+            // classList를 사용하여 클래스 추가 (더 확실함)
+            messageDiv.classList.add('chat-message');
+            if (type === 'sent' || type === 'received') {
+                messageDiv.classList.add(type);
+            }
             if (messageId) {
                 messageDiv.id = messageId;
             }
 
+            // 디버깅: 클래스 확인
+            console.log('메시지 추가:', type, '클래스:', messageDiv.className, 'classList:', Array.from(messageDiv.classList));
+
+            // 아바타 생성
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            if (type === 'sent') {
+                avatar.innerHTML = '<i class="fas fa-user"></i>';
+            } else {
+                avatar.innerHTML = '<i class="fas fa-robot"></i>';
+            }
+
+            // 메시지 컨텐츠 래퍼
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'message-content-wrapper';
+
+            // 발신자 이름
+            const sender = document.createElement('div');
+            sender.className = 'message-sender';
+            sender.textContent = type === 'sent' ? userName : 'AI 봇';
+
+            // 말풍선 래퍼 (말풍선 + 시간)
+            const bubbleWrapper = document.createElement('div');
+            bubbleWrapper.className = 'message-bubble-wrapper';
+
+            // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
 
+            // 시간
             const time = document.createElement('div');
             time.className = 'message-time';
             const now = new Date();
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
-            messageDiv.appendChild(bubble);
-            messageDiv.appendChild(time);
+            // 구조 조립
+            bubbleWrapper.appendChild(bubble);
+            bubbleWrapper.appendChild(time);
+            contentWrapper.appendChild(sender);
+            contentWrapper.appendChild(bubbleWrapper);
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(contentWrapper);
+            
+            // 클래스가 제대로 추가되었는지 다시 확인 및 수정
+            if (!messageDiv.classList.contains('chat-message')) {
+                messageDiv.classList.add('chat-message');
+            }
+            if (type === 'sent' && !messageDiv.classList.contains('sent')) {
+                messageDiv.classList.add('sent');
+            }
+            if (type === 'received' && !messageDiv.classList.contains('received')) {
+                messageDiv.classList.add('received');
+            }
+            
             chatMessages.appendChild(messageDiv);
 
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // 스타일 적용 확인 (디버깅용)
+            setTimeout(() => {
+                const computedStyle = window.getComputedStyle(bubble);
+                const parentComputedStyle = window.getComputedStyle(messageDiv);
+                console.log('말풍선 스타일 확인:', {
+                    type: type,
+                    background: computedStyle.backgroundColor,
+                    color: computedStyle.color,
+                    bubbleClasses: bubble.className,
+                    messageDivClasses: messageDiv.className,
+                    messageDivClassList: Array.from(messageDiv.classList),
+                    hasReceived: messageDiv.classList.contains('received'),
+                    hasSent: messageDiv.classList.contains('sent'),
+                    parentBackground: parentComputedStyle.backgroundColor,
+                    // CSS 선택자 매칭 확인
+                    matchesSentSelector: messageDiv.matches('#chatMessages .chat-message.sent'),
+                    matchesReceivedSelector: messageDiv.matches('#chatMessages .chat-message.received')
+                });
+            }, 100);
         }
 
         // Remove message from chat
