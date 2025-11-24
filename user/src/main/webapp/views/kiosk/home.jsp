@@ -233,38 +233,34 @@
         feedback.style.opacity = '1';
         feedback.textContent = '전송 중...';
 
-        // WebSocket으로도 알림 전송 (서버 핸들러가 emergency/contact_request 처리함)
+        // [수정] 웹소켓으로만 전송 (이게 DB저장 + 알림 다 처리함)
         if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
             kioskWs.send(JSON.stringify({
                 type: type === 'emergency' ? 'emergency' : 'contact_request',
                 kioskCode: KIOSK_CODE
             }));
-        }
 
-        // HTTP 전송 (DB 기록용)
-        fetch('/api/alert/send', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                kioskCode: KIOSK_CODE,
-                type: type,
-                message: text
-            })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === 'success') feedback.textContent = '호출 완료!';
-                else feedback.textContent = '오류 발생';
-            })
-            .catch(() => { feedback.textContent = '전송 실패'; })
-            .finally(() => {
+            // [추가] 전송 성공 UI 처리 (1초 뒤 복구)
+            setTimeout(() => {
+                feedback.textContent = '호출 완료!';
                 setTimeout(() => {
                     content.style.opacity = '1';
                     feedback.style.opacity = '0';
                     btn.disabled = false;
-                }, 3000);
-            });
+                }, 2000);
+            }, 1000);
+
+        } else {
+            // 연결 안 된 경우 에러 표시
+            feedback.textContent = '연결 오류';
+            setTimeout(() => {
+                content.style.opacity = '1';
+                feedback.style.opacity = '0';
+                btn.disabled = false;
+            }, 2000);
+        }
     }
+
 
     // [채팅 메시지 추가]
     function addMessageToChat(sender, text, id = null) {
