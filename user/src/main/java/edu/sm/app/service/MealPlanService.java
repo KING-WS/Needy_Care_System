@@ -2,11 +2,13 @@ package edu.sm.app.service;
 
 import edu.sm.app.aiservice.AiMealService;
 import edu.sm.app.dto.MealPlan;
+import edu.sm.app.dto.Recipient;
 import edu.sm.app.repository.MealPlanRepository;
 import edu.sm.common.frame.SmService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +24,9 @@ import java.util.Map;
 public class MealPlanService implements SmService<MealPlan, Integer> {
 
     private final MealPlanRepository mealPlanRepository;
+    private final RecipientService recipientService;
+    private final AiMealService aiMealService;
+
 
     /**
      * 새 식단 등록
@@ -153,16 +158,62 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         return totalCalories != null ? totalCalories : 0;
     }
 
-    private final AiMealService aiMealService;
-
     /**
      * AI 기반 식단 추천
-     * @param preferences 식단 추천을 위한 사용자 선호도 (예: 저염식, 고단백 등)
-     * @return AI가 추천하는 식단 정보
+     * @param recId 노약자 ID
+     * @param specialNotes 식단 추천을 위한 사용자 특이사항
+     * @return AI가 추천하는 식단 정보와 추천 근거
      */
-    public Map<String, String> getRecommendedMeal(String preferences) {
-        log.info("AI 식단 추천 요청 - 선호도: {}", preferences);
-        return aiMealService.getMealRecommendation(preferences);
+    public Map<String, Object> getAiRecommendedMeal(Integer recId, String specialNotes, String mealType) throws Exception {
+        log.info("AI 식단 추천 요청 - recId: {}, 특이사항: {}, 식사종류: {}", recId, specialNotes, mealType);
+
+        // 1. recId로 노약자 정보 조회
+        Recipient recipient = recipientService.getRecipientById(recId);
+        if (recipient == null) {
+            throw new Exception("ID " + recId + "에 해당하는 노약자 정보가 없습니다.");
+        }
+
+        // 2. AI에게 보낼 프롬프트 및 사용자에게 보여줄 추천 근거 생성
+        StringBuilder prompt = new StringBuilder();
+        prompt.append(String.format("다음 정보를 가진 사람을 위한 건강한 %s 식단을 추천해줘. 반드시 한글로 답변해줘.\n", mealType));
+        prompt.append("응답 형식은 'mealName', 'calories', 'protein', 'carbohydrates', 'fats', 'description' 키를 가진 JSON 객체 형식이어야 해.\n");
+        prompt.append("각 영양소의 단위는 그램(g)으로, 칼로리는 kcal로 표시해줘.\n");
+        prompt.append(String.format("특히, 이 식단은 '%s' 식사임을 명심하고 그에 맞는 메뉴를 추천해줘.\n\n", mealType));
+
+        StringBuilder basis = new StringBuilder();
+        basis.append(String.format("'%s'님을 위한 %s 식단으로, 다음 정보를 바탕으로 추천합니다: ", recipient.getRecName(), mealType));
+
+        basis.append("대상자 유형(").append(recipient.getRecTypeCode()).append(")");
+        prompt.append("- 대상자 유형: ").append(recipient.getRecTypeCode()).append("\n");
+
+        if (StringUtils.hasText(recipient.getRecMedHistory())) {
+            basis.append(", 병력(").append(recipient.getRecMedHistory()).append(")");
+        }
+        if (StringUtils.hasText(recipient.getRecAllergies())) {
+            basis.append(", 알레르기(").append(recipient.getRecAllergies()).append(")");
+            prompt.append("- 알레르기: ").append(recipient.getRecAllergies()).append("\n");
+        }
+        if (StringUtils.hasText(recipient.getRecHealthNeeds())) {
+            basis.append(", 건강 요구사항(").append(recipient.getRecHealthNeeds()).append(")");
+            prompt.append("- 건강 요구사항: ").append(recipient.getRecHealthNeeds()).append("\n");
+        }
+        if (StringUtils.hasText(recipient.getRecSpecNotes())) {
+            basis.append(", 기타 특이사항(").append(recipient.getRecSpecNotes()).append(")");
+            prompt.append("- 기타 특이사항: ").append(recipient.getRecSpecNotes()).append("\n");
+        }
+        if (StringUtils.hasText(specialNotes)) {
+            basis.append(", 추가 요청(").append(specialNotes).append(")");
+            prompt.append("- 추가 요청사항: ").append(specialNotes).append("\n");
+        }
+
+        String finalPrompt = prompt.toString();
+        log.debug("AI 프롬프트: {}", finalPrompt);
+
+        // 3. AiMealService를 통해 추천 받기
+        Map<String, String> recommendation = aiMealService.getMealRecommendation(finalPrompt);
+
+        // 4. 결과와 근거를 함께 반환
+        return Map.of("recommendation", recommendation, "basis", basis.toString());
     }
 }
 

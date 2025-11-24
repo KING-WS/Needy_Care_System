@@ -13,17 +13,20 @@
         border-bottom: 2px solid var(--primary-color);
     }
     .nav-pills .nav-link {
-        color: #666;
+        color: var(--secondary-color) !important;
         margin-bottom: 10px;
         border-radius: 8px;
+        padding: 12px 15px;
         transition: all 0.3s;
     }
     .nav-pills .nav-link:hover {
-        background-color: var(--primary-color);
-        color: white;
+        background: var(--light-bg);
+        color: var(--primary-color) !important;
+        transform: translateX(5px);
     }
     .nav-pills .nav-link.active {
-        background-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white !important;
     }
 </style>
 

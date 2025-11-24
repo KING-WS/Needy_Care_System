@@ -350,8 +350,9 @@ document.addEventListener('DOMContentLoaded', function() {
  * AI 식단 추천 모달 열기
  */
 function openAiRecommendationModal() {
-    document.getElementById('aiPreferences').value = ''; // 입력 필드 초기화
+    document.getElementById('aiSpecialNotes').value = ''; // 입력 필드 초기화
     document.getElementById('aiRecommendationResult').style.display = 'none'; // 결과 숨기기
+    document.getElementById('aiRecommendationBasis').style.display = 'none'; // 추천 근거 숨기기
     document.getElementById('aiRecommendedMealDetails').innerHTML = ''; // 이전 결과 지우기
     document.getElementById('aiRecommendationModal').classList.add('show');
 }
@@ -367,15 +368,16 @@ function closeAiRecommendationModal() {
  * AI 식단 추천 요청
  */
 function getAiRecommendation() {
-    const preferences = document.getElementById('aiPreferences').value;
-    if (!preferences) {
-        showError('추천 선호도를 입력해주세요.');
-        return;
-    }
-
+    const specialNotes = document.getElementById('aiSpecialNotes').value;
+    const mealType = document.getElementById('aiMealType').value;
     const recId = currentRecId; // 현재 선택된 노약자 ID
+
     if (!recId) {
         showError('돌봄 대상자를 선택해야 AI 식단 추천을 받을 수 있습니다.');
+        return;
+    }
+    if (!mealType) {
+        showError('식사 종류를 선택해주세요.');
         return;
     }
 
@@ -384,17 +386,30 @@ function getAiRecommendation() {
     getAiRecommendationBtn.disabled = true;
     getAiRecommendationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추천받는 중...';
 
+    // 이전 결과 숨기기
+    document.getElementById('aiRecommendationResult').style.display = 'none';
+    document.getElementById('aiRecommendationBasis').style.display = 'none';
+
+
     fetch('/mealplan/api/recommend', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ preferences: preferences, recId: recId }) // recId도 함께 전송
+        body: JSON.stringify({ recId: recId, specialNotes: specialNotes, mealType: mealType })
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const recommendation = data.recommendation;
+    .then(res => {
+        if (res.success) {
+            const recommendation = res.data.recommendation;
+            const basis = res.data.basis;
+
+            // 추천 근거 표시
+            const basisDiv = document.getElementById('aiRecommendationBasis');
+            basisDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${basis}`;
+            basisDiv.style.display = 'block';
+
+            // 추천 식단 표시
             const resultDiv = document.getElementById('aiRecommendedMealDetails');
             resultDiv.innerHTML = `
                 <p><strong>메뉴:</strong> ${recommendation.mealName}</p>
@@ -407,7 +422,7 @@ function getAiRecommendation() {
             document.getElementById('aiRecommendationResult').style.display = 'block';
             showSuccess('AI 식단 추천을 받았습니다!');
         } else {
-            showError(data.message || 'AI 식단 추천에 실패했습니다.');
+            showError(res.message || 'AI 식단 추천에 실패했습니다.');
             document.getElementById('aiRecommendationResult').style.display = 'none';
         }
     })
@@ -429,9 +444,12 @@ function applyAiRecommendation() {
     const resultDiv = document.getElementById('aiRecommendedMealDetails');
     const mealName = resultDiv.querySelector('p:nth-child(1) strong').nextSibling.textContent.trim();
     const calories = resultDiv.querySelector('p:nth-child(2) strong').nextSibling.textContent.replace('kcal', '').trim();
+    const mealType = document.getElementById('aiMealType').value; // 추천 시 선택했던 식사 종류
     
-    // 현재 날짜와 선택된 노약자 정보는 이미 있으므로, AI 추천에서 받은 메뉴와 칼로리만 적용
-    openAddModal(''); // 식단 추가 모달 열기 (기존 필드 유지)
+    // 식단 추가 모달 열기
+    openAddModal(mealType);
+    
+    // AI 추천에서 받은 메뉴와 칼로리 적용
     document.getElementById('mealMenu').value = mealName;
     document.getElementById('mealCalories').value = calories;
     

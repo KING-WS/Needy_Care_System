@@ -262,20 +262,29 @@ public class MealPlanController {
      */
     @PostMapping("/api/recommend")
     @ResponseBody
-    public ResponseEntity<?> getRecommendedMeal(@RequestBody Map<String, String> requestBody) {
+    public ResponseEntity<?> getRecommendedMeal(@RequestBody Map<String, Object> requestBody) {
         try {
-            String preferences = requestBody.get("preferences");
-            if (preferences == null || preferences.isEmpty()) {
+            Integer recId = (Integer) requestBody.get("recId");
+            String specialNotes = (String) requestBody.get("specialNotes");
+            String mealType = (String) requestBody.get("mealType");
+
+            if (recId == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "선호도 정보가 필요합니다.")
+                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
                 );
             }
-            Map<String, String> recommendation = mealPlanService.getRecommendedMeal(preferences);
-            return ResponseEntity.ok(Map.of("success", true, "recommendation", recommendation));
+            if (mealType == null || mealType.isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "식사 종류(아침/점심/저녁) 정보가 필요합니다.")
+                );
+            }
+
+            Map<String, Object> data = mealPlanService.getAiRecommendedMeal(recId, specialNotes, mealType);
+            return ResponseEntity.ok(Map.of("success", true, "data", data));
         } catch (Exception e) {
             log.error("AI 식단 추천 실패", e);
             return ResponseEntity.status(500).body(
-                    Map.of("success", false, "message", "AI 식단 추천 실패: " + e.getMessage())
+                    Map.of("success", false, "message", "AI 식단 추천 중 오류가 발생했습니다: " + e.getMessage())
             );
         }
     }

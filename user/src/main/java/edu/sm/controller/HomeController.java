@@ -5,10 +5,13 @@ import edu.sm.app.dto.Cust;
 import edu.sm.app.dto.HealthData;
 import edu.sm.app.dto.Schedule;
 import edu.sm.app.dto.MapLocation;
+import edu.sm.app.dto.MealPlan;
+import edu.sm.app.dto.HourlySchedule;
 import edu.sm.app.service.RecipientService;
 import edu.sm.app.service.HealthDataService;
 import edu.sm.app.service.ScheduleService;
 import edu.sm.app.service.MapService;
+import edu.sm.app.service.MealPlanService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ public class HomeController {
     private final HealthDataService healthDataService;
     private final ScheduleService scheduleService;
     private final MapService mapService;
+    private final MealPlanService mealPlanService;
     
     @GetMapping("/")
     public String index(HttpSession session, Model model) {
@@ -56,11 +60,16 @@ public class HomeController {
                 // 선택된 노약자 결정
                 Recipient selectedRecipient = null;
                 
-                // 1. 세션에 저장된 노약자가 있으면 사용
-                selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                // 1. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
+                Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                 // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                    selectedRecipient = null;
+                if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                    // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                    selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                    if (selectedRecipient != null) {
+                        // 세션에 최신 정보로 업데이트
+                        session.setAttribute("selectedRecipient", selectedRecipient);
+                    }
                 }
                 
                 // 2. 세션에도 없으면 첫 번째 노약자 사용
@@ -102,8 +111,55 @@ public class HomeController {
                             selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
                         log.info("오늘의 일정 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todaySchedules.size());
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
+                        log.info("오늘의 시간대별 일정 조회 성공 - 개수: {}", todayHourlySchedules.size());
                     } catch (Exception e) {
-                        log.warn("오늘의 일정 조회 실패");
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
+                        model.addAttribute("todayMeals", todayMeals);
+                        log.info("오늘의 식단 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todayMeals.size());
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
                     }
                     
                     // 지도 장소 조회
@@ -163,12 +219,17 @@ public class HomeController {
                     }
                 }
                 
-                // 2. 세션에 저장된 노약자가 있으면 사용
+                // 2. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
                 if (selectedRecipient == null) {
-                    selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                    Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                     // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                    if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                        selectedRecipient = null;
+                    if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                        // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                        selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                        if (selectedRecipient != null) {
+                            // 세션에 최신 정보로 업데이트
+                            session.setAttribute("selectedRecipient", selectedRecipient);
+                        }
                     }
                 }
                 
@@ -208,8 +269,53 @@ public class HomeController {
                         List<Schedule> todaySchedules = scheduleService.getSchedulesByDateRange(
                             selectedRecipient.getRecId(), today, today);
                         model.addAttribute("todaySchedules", todaySchedules);
+                        
+                        // 오늘의 HourlySchedule 조회
+                        List<HourlySchedule> todayHourlySchedules = new java.util.ArrayList<>();
+                        for (Schedule schedule : todaySchedules) {
+                            List<HourlySchedule> hourlySchedules = scheduleService.getHourlySchedulesBySchedId(schedule.getSchedId());
+                            todayHourlySchedules.addAll(hourlySchedules);
+                        }
+                        // 시작 시간으로 정렬
+                        todayHourlySchedules.sort((h1, h2) -> {
+                            if (h1.getHourlySchedStartTime() == null) return 1;
+                            if (h2.getHourlySchedStartTime() == null) return -1;
+                            return h1.getHourlySchedStartTime().compareTo(h2.getHourlySchedStartTime());
+                        });
+                        model.addAttribute("todayHourlySchedules", todayHourlySchedules);
                     } catch (Exception e) {
-                        log.warn("오늘의 일정 조회 실패");
+                        log.warn("오늘의 일정 조회 실패", e);
+                    }
+                    
+                    // 오늘의 식단 조회
+                    try {
+                        LocalDate today = LocalDate.now();
+                        List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
+                            selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
+                        model.addAttribute("todayMeals", todayMeals);
+                    } catch (Exception e) {
+                        log.warn("오늘의 식단 조회 실패", e);
                     }
                     
                     // 지도 장소 조회
