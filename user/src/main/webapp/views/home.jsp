@@ -467,7 +467,7 @@
             flex-direction: row !important;
             justify-content: flex-start !important;
             margin-right: auto !important;
-            max-width: 85% !important;
+            max-width: 95% !important;
         }
 
         .message-avatar {
@@ -506,8 +506,11 @@
             max-width: 85% !important;
         }
 
+        /* AI 봇 메시지 말풍선을 더 넓게 */
         .chat-messages .chat-message.received .message-content-wrapper {
             align-items: flex-start;
+            max-width: 90% !important;
+            min-width: 200px;
         }
 
         .message-bubble-wrapper {
@@ -543,14 +546,21 @@
         }
 
         .message-bubble {
-            padding: 10px 14px;
+            padding: 12px 16px;
             border-radius: 18px;
             word-wrap: break-word;
             word-break: break-word;
             position: relative;
-            line-height: 1.4;
+            line-height: 1.5;
             display: inline-block;
+            max-width: 100%;
             /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
+        }
+        
+        /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
+        .chat-messages .chat-message.received .message-bubble {
+            min-width: 250px;
+            max-width: 100%;
         }
 
         /* 말풍선 스타일 - 최고 우선순위로 설정 (모든 외부 CSS 이후에 적용) */
