@@ -329,4 +329,9 @@ public class HomeController {
         
         return "home";
     }
+
+    @GetMapping("/caregiver")
+    public String caregiver() {
+        return "redirect:/home?center=caregiver/center";
+    }
 }
