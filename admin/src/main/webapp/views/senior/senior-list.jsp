@@ -89,9 +89,6 @@
                                             <a href="<c:url value='/senior/detail/${senior.recId}'/>" class="btn btn-sm btn-primary senior-btn">
                                                 <i class="bi bi-eye"></i>
                                             </a>
-                                            <a href="<c:url value='/senior/edit/${senior.recId}'/>" class="btn btn-sm btn-warning senior-btn">
-                                                <i class="bi bi-pencil"></i>
-                                            </a>
                                         </td>
                                     </tr>
                                 </c:forEach>
@@ -100,48 +97,6 @@
                                         <td colspan="9" class="text-center">등록된 노약자가 없습니다.</td>
                                     </tr>
                                 </c:if>
-                                <c:choose>
-                                    <c:when test="${empty seniorList}">
-                                        <tr>
-                                            <td colspan="8" class="text-center">등록된 노약자 정보가 없습니다.</td>
-                                        </tr>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <c:forEach items="${seniorList}" var="senior">
-                                            <tr>
-                                                <td>${senior.recId}</td>
-                                                <td>${senior.recName}</td>
-                                                <td>${senior.age}세</td>
-                                                <td>
-                                                    <c:if test="${senior.recGender == 'M'}">남</c:if>
-                                                    <c:if test="${senior.recGender == 'F'}">여</c:if>
-                                                </td>
-                                                <td>
-                                                    <c:choose>
-                                                        <c:when test="${not empty senior.caregiverName}">
-                                                            ${senior.caregiverName}
-                                                        </c:when>
-                                                        <c:otherwise>
-                                                            <span class="text-muted">미지정</span>
-                                                        </c:otherwise>
-                                                    </c:choose>
-                                                </td>
-                                                <td>
-                                                    <%-- 건강 상태 로직 추가 필요 --%>
-                                                    <span class="badge bg-success senior-badge">${senior.recHealthNeeds}</span>
-                                                </td>
-                                                <td>
-                                                    <fmt:formatDate value="${senior.recRegdate}" pattern="yyyy-MM-dd"/>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary senior-btn" onclick="location.href='<c:url value="/senior/detail/${senior.recId}"/>'">
-                                                        <i class="bi bi-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </c:forEach>
-                                    </c:otherwise>
-                                </c:choose>
                             </tbody>
                         </table>
                     </div>

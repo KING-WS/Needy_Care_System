@@ -23,10 +23,13 @@
             cr.rec_regdate AS recRegdate,
             cr.rec_update AS recUpdate,
             cr.rec_health_needs AS recHealthNeeds,
-            cg.caregiver_name AS caregiverName
+            (
+                SELECT GROUP_CONCAT(cg.caregiver_name SEPARATOR ', ')
+                FROM care_matching cm
+                JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id
+                WHERE cm.rec_id = cr.rec_id AND cm.is_deleted = 'N' AND cg.is_deleted = 'N'
+            ) AS caregiverName
         FROM Care_Recipient cr
-        LEFT JOIN care_matching cm ON cr.rec_id = cm.rec_id AND cm.is_deleted = 'N'
-        LEFT JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id AND cg.is_deleted = 'N'
         WHERE cr.is_deleted = 'N'
         ORDER BY cr.rec_regdate DESC
     </select>
@@ -49,10 +52,13 @@
             cr.rec_regdate AS recRegdate,
             cr.rec_update AS recUpdate,
             cr.rec_health_needs AS recHealthNeeds,
-            cg.caregiver_name AS caregiverName
+            (
+                SELECT GROUP_CONCAT(cg.caregiver_name SEPARATOR ', ')
+                FROM care_matching cm
+                JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id
+                WHERE cm.rec_id = cr.rec_id AND cm.is_deleted = 'N' AND cg.is_deleted = 'N'
+            ) AS caregiverName
         FROM Care_Recipient cr
-        LEFT JOIN care_matching cm ON cr.rec_id = cm.rec_id AND cm.is_deleted = 'N'
-        LEFT JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id AND cg.is_deleted = 'N'
         WHERE cr.rec_id = #{id}
     </select>
 
