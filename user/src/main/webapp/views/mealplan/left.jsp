@@ -39,13 +39,13 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan/ai-calories'/>">
-                <i class="fas fa-chart-line"></i> AI 식단 칼로리 통계
+            <a class="nav-link" href="<c:url value='/mealplan/ai-menu'/>">
+                <i class="fas fa-robot"></i> AI식단 메뉴
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan/ai-menu'/>">
-                <i class="fas fa-robot"></i> AI식단 메뉴
+            <a class="nav-link" href="<c:url value='/mealplan/calories-analysis'/>">
+                <i class="fas fa-chart-line"></i> 칼로리 분석
             </a>
         </li>
     </ul>
