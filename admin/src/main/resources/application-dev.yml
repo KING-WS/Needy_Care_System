@@ -54,6 +54,6 @@ app:
   api:
     kakao-js-key: ${KAKAO_JS_KEY:bcc88354a0c06049623a690be552d3ac}
 
-  kiosk:
-    server:
-      url: "https://192.168.1.9:8084" # 각자 로컬 환경에 맞게 수정
+kiosk:
+  server:
+    url: "https://192.168.1.9:8084" # 각자 로컬 환경에 맞게 수정
