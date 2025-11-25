@@ -385,7 +385,7 @@
 </section>
 
 <script>
-    let currentRecId = ${selectedRecipient != null ? selectedRecipient.recId : 'null'};
+    let currentRecId = <c:choose><c:when test="${selectedRecipient != null}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     let calorieChart = null;
 
     // 날짜 초기화 (최근 30일)
@@ -397,8 +397,10 @@
         document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
         document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
         
-        // 자동으로 분석 실행
-        loadAnalysis();
+        // 자동으로 분석 실행 (노약자가 선택된 경우에만)
+        if (currentRecId) {
+            loadAnalysis();
+        }
     });
 
     function changeRecipient() {
