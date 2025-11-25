@@ -315,6 +315,15 @@
 
                 <div class="form-group">
                     <label class="form-label">
+                        <i class="fas fa-book"></i> 레시피
+                    </label>
+                    <textarea id="mealRecipe" name="mealRecipe" class="form-control" rows="6" 
+                              placeholder="예: 1. 김치를 적당한 크기로 썬다&#10;2. 냄비에 물을 넣고 끓인다&#10;3. 김치와 고기를 넣고 끓인다"></textarea>
+                    <small class="form-hint">선택사항입니다. 조리 방법을 입력해주세요</small>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
                         <i class="fas fa-fire"></i> 칼로리 (kcal)
                     </label>
                     <input type="number" id="mealCalories" name="mealCalories" class="form-control" 
@@ -329,6 +338,73 @@
             </button>
             <button class="btn btn-save" onclick="saveMeal()">
                 <i class="fas fa-save"></i> 저장
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 식단 상세 정보 모달 -->
+<div class="modal-overlay" id="mealDetailModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-utensils"></i> 식단 상세 정보
+            </h3>
+            <button class="modal-close-btn" onclick="closeMealDetailModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-utensils"></i> 메뉴
+                </label>
+                <div class="form-control" style="background: #f7fafc; border: none; padding: 12px; font-weight: 600; font-size: 16px;" id="detailMealMenu">
+                    -
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i> 식사 구분
+                    </label>
+                    <div class="form-control" style="background: #f7fafc; border: none; padding: 12px;" id="detailMealType">
+                        -
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar"></i> 날짜
+                    </label>
+                    <div class="form-control" style="background: #f7fafc; border: none; padding: 12px;" id="detailMealDate">
+                        -
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-fire"></i> 칼로리
+                </label>
+                <div class="form-control" style="background: #f7fafc; border: none; padding: 12px; color: #f093fb; font-weight: 600;" id="detailMealCalories">
+                    -
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-book"></i> 레시피
+                </label>
+                <div id="detailMealRecipe" style="min-height: 100px;">
+                    <p style="color: #999; font-style: italic; text-align: center; padding: 20px;">로딩 중...</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" onclick="closeMealDetailModal()">
+                <i class="fas fa-check"></i> 확인
             </button>
         </div>
     </div>

@@ -5,6 +5,9 @@ import edu.sm.app.dto.MealPlan;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.service.MealPlanService;
 import edu.sm.app.service.RecipientService;
+import edu.sm.app.aiservice.AiMealSafetyService;
+import edu.sm.app.aiservice.AiCalorieAnalysisService;
+import edu.sm.app.aiservice.AiMealRecipeService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +34,9 @@ public class MealPlanController {
 
     private final MealPlanService mealPlanService;
     private final RecipientService recipientService;
+    private final AiMealSafetyService aiMealSafetyService;
+    private final AiCalorieAnalysisService aiCalorieAnalysisService;
+    private final AiMealRecipeService aiMealRecipeService;
     private final String dir = "mealplan/";
 
     /**
@@ -285,6 +291,261 @@ public class MealPlanController {
             log.error("AI 식단 추천 실패", e);
             return ResponseEntity.status(500).body(
                     Map.of("success", false, "message", "AI 식단 추천 중 오류가 발생했습니다: " + e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * AI 식단 안전성 검사 페이지
+     */
+    @GetMapping("/ai-check")
+    public String aiCheckPage(Model model, HttpSession session,
+                              @RequestParam(required = false) Integer recId) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            List<Recipient> recipientList = recipientService.getRecipientsByCustId(loginUser.getCustId());
+
+            if (recipientList == null || recipientList.isEmpty()) {
+                log.warn("돌봄 대상자 없음 - custId: {}", loginUser.getCustId());
+                model.addAttribute("recipientList", null);
+                model.addAttribute("selectedRecipient", null);
+            } else {
+                Recipient selectedRecipient;
+                if (recId != null && recId > 0) {
+                    selectedRecipient = recipientService.getRecipientById(recId);
+                    if (selectedRecipient == null) {
+                        selectedRecipient = recipientList.get(0);
+                    }
+                } else {
+                    selectedRecipient = recipientList.get(0);
+                }
+
+                model.addAttribute("recipientList", recipientList);
+                model.addAttribute("selectedRecipient", selectedRecipient);
+            }
+        } catch (Exception e) {
+            log.error("AI 식단 안전성 검사 페이지 로드 실패", e);
+            model.addAttribute("recipientList", null);
+            model.addAttribute("selectedRecipient", null);
+        }
+
+        model.addAttribute("center", dir + "ai-check");
+        model.addAttribute("left", dir + "left");
+        return "home";
+    }
+
+    /**
+     * AI 식단 칼로리 통계 페이지
+     */
+    @GetMapping("/ai-calories")
+    public String aiCaloriesPage(Model model, HttpSession session,
+                                 @RequestParam(required = false) Integer recId) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            List<Recipient> recipientList = recipientService.getRecipientsByCustId(loginUser.getCustId());
+
+            if (recipientList == null || recipientList.isEmpty()) {
+                log.warn("돌봄 대상자 없음 - custId: {}", loginUser.getCustId());
+                model.addAttribute("recipientList", null);
+                model.addAttribute("selectedRecipient", null);
+            } else {
+                Recipient selectedRecipient;
+                if (recId != null && recId > 0) {
+                    selectedRecipient = recipientService.getRecipientById(recId);
+                    if (selectedRecipient == null) {
+                        selectedRecipient = recipientList.get(0);
+                    }
+                } else {
+                    selectedRecipient = recipientList.get(0);
+                }
+
+                model.addAttribute("recipientList", recipientList);
+                model.addAttribute("selectedRecipient", selectedRecipient);
+            }
+        } catch (Exception e) {
+            log.error("AI 식단 칼로리 통계 페이지 로드 실패", e);
+            model.addAttribute("recipientList", null);
+            model.addAttribute("selectedRecipient", null);
+        }
+
+        model.addAttribute("center", dir + "ai-calories");
+        model.addAttribute("left", dir + "left");
+        return "home";
+    }
+
+    /**
+     * AI 식단 안전성 검사 (API) - 이미지 분석
+     */
+    @PostMapping("/api/ai-check")
+    @ResponseBody
+    public ResponseEntity<?> checkMealSafety(@RequestBody Map<String, Object> requestBody) {
+        try {
+            Integer recId = (Integer) requestBody.get("recId");
+            String imageBase64 = (String) requestBody.get("imageBase64");
+            String mealDescription = (String) requestBody.get("mealDescription");
+
+            if (recId == null) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                );
+            }
+
+            Map<String, Object> result = aiMealSafetyService.checkMealSafety(recId, imageBase64, mealDescription);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("AI 식단 안전성 검사 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "AI 식단 안전성 검사 중 오류가 발생했습니다: " + e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * AI 식단 칼로리 분석 (API)
+     */
+    @GetMapping("/api/ai-calories")
+    @ResponseBody
+    public ResponseEntity<?> analyzeCalories(
+            @RequestParam(required = false) Integer recId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+        try {
+            if (recId == null) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                );
+            }
+
+            if (startDate == null) {
+                startDate = LocalDate.now().minusDays(30); // 기본값: 최근 30일
+            }
+            if (endDate == null) {
+                endDate = LocalDate.now();
+            }
+
+            Map<String, Object> result = aiCalorieAnalysisService.analyzeCalories(recId, startDate, endDate);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("AI 식단 칼로리 분석 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "AI 식단 칼로리 분석 중 오류가 발생했습니다: " + e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * AI 식단 메뉴 페이지 (레시피 + 안전성 검사)
+     */
+    @GetMapping("/ai-menu")
+    public String aiMenuPage(Model model, HttpSession session,
+                             @RequestParam(required = false) Integer recId) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            List<Recipient> recipientList = recipientService.getRecipientsByCustId(loginUser.getCustId());
+
+            if (recipientList == null || recipientList.isEmpty()) {
+                log.warn("돌봄 대상자 없음 - custId: {}", loginUser.getCustId());
+                model.addAttribute("recipientList", null);
+                model.addAttribute("selectedRecipient", null);
+            } else {
+                Recipient selectedRecipient;
+                if (recId != null && recId > 0) {
+                    selectedRecipient = recipientService.getRecipientById(recId);
+                    if (selectedRecipient == null) {
+                        selectedRecipient = recipientList.get(0);
+                    }
+                } else {
+                    selectedRecipient = recipientList.get(0);
+                }
+
+                model.addAttribute("recipientList", recipientList);
+                model.addAttribute("selectedRecipient", selectedRecipient);
+            }
+        } catch (Exception e) {
+            log.error("AI 식단 메뉴 페이지 로드 실패", e);
+            model.addAttribute("recipientList", null);
+            model.addAttribute("selectedRecipient", null);
+        }
+
+        model.addAttribute("center", dir + "ai-menu");
+        model.addAttribute("left", dir + "left");
+        return "home";
+    }
+
+    /**
+     * AI 식단 메뉴 분석 (레시피 + 안전성 검사) (API)
+     */
+    @PostMapping("/api/ai-menu")
+    @ResponseBody
+    public ResponseEntity<?> analyzeMealMenu(@RequestBody Map<String, Object> requestBody) {
+        try {
+            Integer recId = (Integer) requestBody.get("recId");
+            String imageBase64 = (String) requestBody.get("imageBase64");
+            String mealDescription = (String) requestBody.get("mealDescription");
+
+            if (recId == null) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                );
+            }
+
+            // 이미지 또는 음식 설명 중 하나는 필수
+            boolean hasImage = imageBase64 != null && !imageBase64.trim().isEmpty();
+            boolean hasDescription = mealDescription != null && !mealDescription.trim().isEmpty();
+
+            if (!hasImage && !hasDescription) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "이미지 또는 음식 이름이 필요합니다.")
+                );
+            }
+
+            log.info("AI 식단 메뉴 분석 시작 - recId: {}, 이미지: {}, 텍스트: {}", 
+                    recId, hasImage, hasDescription);
+
+            Map<String, Object> recipeResult;
+            Map<String, Object> safetyResult;
+
+            // 레시피 생성
+            if (hasImage) {
+                // 이미지 기반 레시피 생성
+                recipeResult = aiMealRecipeService.getRecipeFromImage(imageBase64);
+                log.info("레시피 생성 결과 (이미지) - success: {}", recipeResult.get("success"));
+            } else {
+                // 텍스트 기반 레시피 생성
+                recipeResult = aiMealRecipeService.getRecipeFromText(mealDescription);
+                log.info("레시피 생성 결과 (텍스트) - success: {}", recipeResult.get("success"));
+            }
+            
+            // 안전성 검사 (이미지가 있으면 이미지 사용, 없으면 텍스트 사용)
+            safetyResult = aiMealSafetyService.checkMealSafety(recId, imageBase64, mealDescription);
+            log.info("안전성 검사 결과 - success: {}", safetyResult.get("success"));
+
+            // 결과 통합
+            Map<String, Object> result = new HashMap<>();
+            result.put("success", true);
+            result.put("recipe", recipeResult);
+            result.put("safety", safetyResult);
+
+            log.info("AI 식단 메뉴 분석 완료 - 레시피 성공: {}, 안전성 성공: {}", 
+                    recipeResult.get("success"), safetyResult.get("success"));
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            log.error("AI 식단 메뉴 분석 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "분석 중 오류가 발생했습니다: " + e.getMessage())
             );
         }
     }
