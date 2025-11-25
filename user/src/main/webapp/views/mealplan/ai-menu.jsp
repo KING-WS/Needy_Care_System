@@ -29,26 +29,66 @@
         color: #666;
     }
     
-    .recipient-select-card {
-        background: #f8f9fa;
+    .usage-guide-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 12px;
-        padding: 20px;
+        padding: 25px;
         margin-bottom: 30px;
+        color: white;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
     }
     
-    .recipient-select-label {
+    .usage-guide-card h3 {
+        color: white;
+        font-size: 22px;
         font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        display: block;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
-    .recipient-select {
-        width: 100%;
+    .usage-guide-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .usage-guide-item {
+        display: flex;
+        align-items: start;
+        gap: 15px;
+        margin-bottom: 15px;
         padding: 12px;
-        border: 1px solid #ddd;
+        background: rgba(255, 255, 255, 0.15);
         border-radius: 8px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .usage-guide-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .usage-guide-icon {
+        font-size: 20px;
+        min-width: 30px;
+        text-align: center;
+    }
+    
+    .usage-guide-text {
+        flex: 1;
+        line-height: 1.6;
+    }
+    
+    .usage-guide-text strong {
+        display: block;
+        margin-bottom: 5px;
         font-size: 16px;
+    }
+    
+    .usage-guide-text span {
+        font-size: 14px;
+        opacity: 0.95;
     }
     
     .camera-container {
@@ -377,21 +417,50 @@
             <p>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</p>
         </div>
 
-        <!-- 노약자 선택 -->
-        <c:if test="${not empty recipientList}">
-            <div class="recipient-select-card">
-                <label class="recipient-select-label">
-                    <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
-                </label>
-                <select id="recipientSelect" class="recipient-select" onchange="changeRecipient()">
-                    <c:forEach items="${recipientList}" var="rec">
-                        <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                            ${rec.recName}
-                        </option>
-                    </c:forEach>
-                </select>
-            </div>
-        </c:if>
+        <!-- 사용방법 안내 -->
+        <div class="usage-guide-card">
+            <h3>
+                <i class="fas fa-info-circle"></i> 사용방법
+            </h3>
+            <ul class="usage-guide-list">
+                <li class="usage-guide-item">
+                    <div class="usage-guide-icon">
+                        <i class="fas fa-keyboard"></i>
+                    </div>
+                    <div class="usage-guide-text">
+                        <strong>텍스트 입력 방식</strong>
+                        <span>음식 이름을 입력하고 "분석하기" 버튼을 클릭하면 AI가 레시피와 안전성 검사 결과를 제공합니다.</span>
+                    </div>
+                </li>
+                <li class="usage-guide-item">
+                    <div class="usage-guide-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="usage-guide-text">
+                        <strong>사진 촬영 방식</strong>
+                        <span>"카메라 시작" 버튼을 눌러 카메라를 활성화한 후, "사진 촬영" 버튼으로 음식을 촬영하면 자동으로 분석이 시작됩니다.</span>
+                    </div>
+                </li>
+                <li class="usage-guide-item">
+                    <div class="usage-guide-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <div class="usage-guide-text">
+                        <strong>안전성 검사</strong>
+                        <span>AI가 돌봄 대상자의 건강 상태를 고려하여 음식의 안전성을 자동으로 검사하고 주의사항을 제공합니다.</span>
+                    </div>
+                </li>
+                <li class="usage-guide-item">
+                    <div class="usage-guide-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="usage-guide-text">
+                        <strong>레시피 제공</strong>
+                        <span>조리 시간, 난이도, 필요한 재료, 조리 순서, 조리 팁 등 상세한 레시피 정보를 제공합니다.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
 
         <!-- 텍스트 입력 섹션 -->
         <div class="camera-container" style="margin-bottom: 20px;">
@@ -468,12 +537,6 @@
     let stream = null;
     let capturedImage = null;
 
-    function changeRecipient() {
-        const select = document.getElementById('recipientSelect');
-        currentRecId = parseInt(select.value);
-        window.location.href = '/mealplan/ai-menu?recId=' + currentRecId;
-    }
-
     function startCamera() {
         const video = document.getElementById('videoElement');
         const captureBtn = document.getElementById('captureBtn');
@@ -518,11 +581,6 @@
     }
 
     function capturePhoto() {
-        if (!currentRecId) {
-            alert('돌봄 대상자를 선택해주세요.');
-            return;
-        }
-
         const video = document.getElementById('videoElement');
         
         if (!video.srcObject) {
@@ -582,11 +640,6 @@
     }
 
     function analyzeMealByText() {
-        if (!currentRecId) {
-            alert('돌봄 대상자를 선택해주세요.');
-            return;
-        }
-
         const foodNameInput = document.getElementById('foodNameInput');
         const foodName = foodNameInput.value.trim();
 
@@ -600,14 +653,14 @@
         document.getElementById('loadingDiv').classList.add('show');
         document.getElementById('resultContainer').classList.remove('show');
 
-        // API 호출
+        // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                recId: currentRecId,
+                recId: currentRecId || null,
                 mealDescription: foodName
             })
         })
@@ -641,11 +694,6 @@
     }
 
     function analyzeMeal() {
-        if (!currentRecId) {
-            alert('돌봄 대상자를 선택해주세요.');
-            return;
-        }
-
         if (!capturedImage) {
             alert('사진을 촬영해주세요.');
             return;
@@ -658,14 +706,14 @@
         // Base64 이미지에서 데이터 부분만 추출
         const imageBase64 = capturedImage.split(',')[1];
 
-        // API 호출
+        // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                recId: currentRecId,
+                recId: currentRecId || null,
                 imageBase64: imageBase64
             })
         })
