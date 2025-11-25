@@ -39,13 +39,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan'/>">
-                <i class="fas fa-chart-line"></i> 칼로리 통계
-            </a>
-        </li>
-        <li class="nav-item">
             <a class="nav-link" href="<c:url value='/mealplan/ai-calories'/>">
-                <i class="fas fa-chart-pie"></i> AI 식단 칼로리 통계
+                <i class="fas fa-chart-line"></i> AI 식단 칼로리 통계
             </a>
         </li>
         <li class="nav-item">
