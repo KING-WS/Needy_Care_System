@@ -1,27 +1,26 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <style>
     .senior-card {
         border-radius: 15px;
         overflow: hidden;
     }
-    
+
     .senior-card .card-header {
         border-radius: 15px 15px 0 0;
     }
-    
+
     .senior-btn {
         border-radius: 10px;
         padding: 10px 20px;
     }
-    
+
     .senior-table {
         border-radius: 10px;
         overflow: hidden;
     }
-    
+
     .senior-badge {
         border-radius: 8px;
         padding: 6px 12px;
