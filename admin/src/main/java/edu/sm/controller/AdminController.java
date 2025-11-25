@@ -3,6 +3,7 @@ package edu.sm.controller;
 import edu.sm.app.service.AlertLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,15 +55,13 @@ public class AdminController {
         return "index";
     }
 
-    /**
-     * 알림 목록 페이지
-     * @param model
-     * @return
-     */
+
     @GetMapping("/alerts")
     public String alerts(Model model) {
         log.info("Admin Alerts page accessed");
         model.addAttribute("alerts", alertLogService.findAllAlerts());
+
+
         model.addAttribute("center", "admin/alerts");
         return "index";
     }

@@ -27,8 +27,6 @@ public class SeniorController {
 
     private final SeniorService seniorService;
 
-    @Value("${kiosk.server.url}")
-    private String kioskServerUrl;
 
     @RequestMapping("/list")
     public String seniorList(@RequestParam(defaultValue = "1") int pageNo, Model model) {
@@ -38,7 +36,6 @@ public class SeniorController {
             PageInfo<Senior> pageInfo = new PageInfo<>(page);
             model.addAttribute("page", pageInfo);
             model.addAttribute("seniorList", pageInfo.getList());
-            model.addAttribute("kioskServerUrl", kioskServerUrl);
         } catch (Exception e) {
             log.error("Error fetching senior list", e);
             model.addAttribute("errorMessage", "노약자 목록을 불러오는 중 오류가 발생했습니다.");
