@@ -76,11 +76,13 @@
     </root>
 
     <logger name="jdbc" level="OFF" />
-    <logger name="jdbc.sqlonly" level="INFO" />
+    <logger name="jdbc.sqlonly" level="OFF" />
     <logger name="jdbc.sqltiming" level="OFF" />
     <logger name="jdbc.audit" level="OFF" />
     <logger name="jdbc.resultset" level="OFF" />
-    <logger name="jdbc.resultsettable" level="INFO" />
+    <logger name="jdbc.resultsettable" level="OFF" />
     <logger name="jdbc.connection" level="OFF" />
-    <!-- INFO(trace > debug > info > warn > error)  -->
+    <logger name="net.sf.log4jdbc" level="OFF" />
+    <logger name="log4jdbc.log4j2" level="OFF" />
+    <!-- INFO(trace > debug > info > warn > error)  -->-->
 </configuration>
