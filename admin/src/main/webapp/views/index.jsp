@@ -173,6 +173,13 @@
                         </a>
                     </li>
 
+                    <li class="nav-item">
+                        <a class="nav-link ${center == 'map/map' ? 'active' : ''}" href="<c:url value='/map'/>">
+                            <i class="bi bi-geo-alt"></i>
+                            <span>지도</span>
+                        </a>
+                    </li>
+
                     <li class="nav-item mt-4">
                         <small class="text-muted px-3 text-uppercase fw-bold">ADMIN MENU</small>
                     </li>
