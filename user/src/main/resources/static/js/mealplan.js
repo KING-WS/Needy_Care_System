@@ -89,11 +89,11 @@ function createMealItemHTML(meal) {
     const calories = meal.mealCalories ? `<i class="fas fa-fire"></i> ${meal.mealCalories} kcal` : '칼로리 미입력';
     
     return `
-        <div class="meal-item">
+        <div class="meal-item" onclick="showMealDetail(${meal.mealId})" style="cursor: pointer;">
             <div class="meal-item-menu">${meal.mealMenu}</div>
             <div class="meal-item-footer">
                 <div class="meal-item-calories">${calories}</div>
-                <div class="meal-item-actions">
+                <div class="meal-item-actions" onclick="event.stopPropagation();">
                     <button class="meal-action-btn edit" onclick="editMeal(${meal.mealId})">
                         <i class="fas fa-edit"></i> 수정
                     </button>
@@ -202,6 +202,7 @@ function editMeal(mealId) {
             document.getElementById('mealDate').value = meal.mealDate;
             document.getElementById('mealType').value = meal.mealType;
             document.getElementById('mealMenu').value = meal.mealMenu;
+            document.getElementById('mealRecipe').value = meal.mealRecipe || '';
             document.getElementById('mealCalories').value = meal.mealCalories || '';
             
             // 모달 표시
@@ -223,6 +224,7 @@ function saveMeal() {
     const mealDate = document.getElementById('mealDate').value;
     const mealType = document.getElementById('mealType').value;
     const mealMenu = document.getElementById('mealMenu').value;
+    const mealRecipe = document.getElementById('mealRecipe').value;
     const mealCalories = document.getElementById('mealCalories').value;
 
     // 유효성 검사
@@ -237,6 +239,7 @@ function saveMeal() {
         mealDate: mealDate,
         mealType: mealType,
         mealMenu: mealMenu.trim(),
+        mealRecipe: mealRecipe ? mealRecipe.trim() : null,
         mealCalories: mealCalories ? parseInt(mealCalories) : null
     };
 
@@ -344,6 +347,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const mealDetailModal = document.getElementById('mealDetailModal');
+    if (mealDetailModal) {
+        mealDetailModal.addEventListener('click', function(e) {
+            if (e.target === mealDetailModal) {
+                closeMealDetailModal();
+            }
+        });
+    }
 });
 
 /**
@@ -430,6 +442,15 @@ function getAiRecommendation() {
 
             // 추천 식단 표시
             const resultDiv = document.getElementById('aiRecommendedMealDetails');
+            let recipeHtml = '';
+            if (res.data.recipe) {
+                recipeHtml = `
+                    <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                        <strong style="color: #667eea;"><i class="fas fa-book"></i> 레시피:</strong>
+                        <pre style="white-space: pre-wrap; font-family: inherit; margin-top: 10px; font-size: 14px; line-height: 1.6;">${escapeHtml(res.data.recipe)}</pre>
+                    </div>
+                `;
+            }
             resultDiv.innerHTML = `
                 <p><strong>메뉴:</strong> ${recommendation.mealName}</p>
                 <p><strong>칼로리:</strong> ${recommendation.calories}</p>
@@ -437,7 +458,10 @@ function getAiRecommendation() {
                 <p><strong>탄수화물:</strong> ${recommendation.carbohydrates}</p>
                 <p><strong>지방:</strong> ${recommendation.fats}</p>
                 <p><strong>설명:</strong> ${recommendation.description}</p>
+                ${recipeHtml}
             `;
+            // 레시피 정보를 데이터 속성에 저장 (나중에 사용)
+            resultDiv.setAttribute('data-recipe', res.data.recipe || '');
             document.getElementById('aiRecommendationResult').style.display = 'block';
             showSuccess('AI 식단 추천을 받았습니다!');
         } else {
@@ -465,14 +489,73 @@ function applyAiRecommendation() {
     const calories = resultDiv.querySelector('p:nth-child(2) strong').nextSibling.textContent.replace('kcal', '').trim();
     const mealType = document.getElementById('aiMealType').value; // 추천 시 선택했던 식사 종류
     
+    // 레시피 정보 가져오기
+    const recipe = resultDiv.getAttribute('data-recipe') || '';
+    
     // 식단 추가 모달 열기
     openAddModal(mealType);
     
-    // AI 추천에서 받은 메뉴와 칼로리 적용
+    // AI 추천에서 받은 메뉴, 칼로리, 레시피 적용
     document.getElementById('mealMenu').value = mealName;
     document.getElementById('mealCalories').value = calories;
+    if (recipe) {
+        document.getElementById('mealRecipe').value = recipe;
+    }
     
     closeAiRecommendationModal(); // AI 추천 모달 닫기
     showSuccess('AI 추천 식단이 식단 추가 폼에 적용되었습니다.');
+}
+
+/**
+ * 식단 상세 정보 모달 표시
+ */
+function showMealDetail(mealId) {
+    // 식단 정보 조회
+    fetch(`/mealplan/api/meal/${mealId}`)
+        .then(response => response.json())
+        .then(meal => {
+            // 모달 내용 채우기
+            document.getElementById('detailMealMenu').textContent = meal.mealMenu || '메뉴 없음';
+            document.getElementById('detailMealType').textContent = meal.mealType || '';
+            document.getElementById('detailMealDate').textContent = meal.mealDate || '';
+            document.getElementById('detailMealCalories').textContent = meal.mealCalories ? `${meal.mealCalories} kcal` : '칼로리 미입력';
+            
+            // 레시피 표시
+            const recipeContent = document.getElementById('detailMealRecipe');
+            if (meal.mealRecipe && meal.mealRecipe.trim() !== '') {
+                recipeContent.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; margin: 0; padding: 15px; background: #f8f9fa; border-radius: 8px; line-height: 1.6;">${escapeHtml(meal.mealRecipe)}</pre>`;
+            } else {
+                recipeContent.innerHTML = '<p style="color: #999; font-style: italic; text-align: center; padding: 20px;">등록된 레시피가 없습니다.</p>';
+            }
+            
+            // 모달 표시
+            document.getElementById('mealDetailModal').classList.add('show');
+        })
+        .catch(error => {
+            console.error('식단 조회 실패:', error);
+            showError('식단 정보를 불러오는데 실패했습니다.');
+        });
+}
+
+/**
+ * 식단 상세 모달 닫기
+ */
+function closeMealDetailModal() {
+    document.getElementById('mealDetailModal').classList.remove('show');
+}
+
+/**
+ * HTML 이스케이프 함수
+ */
+function escapeHtml(text) {
+    if (text == null) return '';
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
 }
 

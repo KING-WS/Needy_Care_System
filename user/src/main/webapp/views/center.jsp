@@ -31,7 +31,8 @@
                                     <div class="recipient-avatar">
                                         <c:choose>
                                             <c:when test="${not empty recipient.recPhotoUrl}">
-                                                    <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
+                                                    <c:set var="photoUrlWithCache" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+                                                    <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image" 
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
                                             </c:when>
@@ -679,7 +680,15 @@
     // JSP 변수 - 노약자 정보
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
-    var recipientPhotoUrl = '<c:out value="${recipient.recPhotoUrl}" escapeXml="false"/>';
+    <c:choose>
+        <c:when test="${not empty recipient.recPhotoUrl}">
+            <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+        </c:when>
+        <c:otherwise>
+            var recipientPhotoUrl = '';
+        </c:otherwise>
+    </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     
     // 저장된 마커들 표시 (JSP forEach 사용)

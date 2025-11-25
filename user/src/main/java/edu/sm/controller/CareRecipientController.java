@@ -324,6 +324,17 @@ public class CareRecipientController {
             // DB 업데이트
             recipientService.updateRecipient(recipient);
             
+            // 세션에 저장된 selectedRecipient가 수정된 노약자와 같다면 최신 정보로 업데이트
+            Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
+            if (sessionRecipient != null && sessionRecipient.getRecId().equals(recId)) {
+                // DB에서 최신 정보를 다시 조회하여 세션에 업데이트
+                Recipient updatedRecipient = recipientService.getRecipientById(recId);
+                if (updatedRecipient != null) {
+                    session.setAttribute("selectedRecipient", updatedRecipient);
+                    log.info("세션의 selectedRecipient 업데이트 완료 - recId: {}", recId);
+                }
+            }
+            
             log.info("노약자 수정 성공: recId={}, recName={}", recId, recName);
             
             // 수정 후 상세 페이지로 리다이렉트

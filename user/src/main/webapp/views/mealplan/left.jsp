@@ -34,23 +34,18 @@
     <h5><i class="fas fa-utensils"></i> 식단 관리</h5>
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan'/>">
-                <i class="fas fa-calendar-alt"></i> 식단 캘린더
+            <a class="nav-link" href="<c:url value='/mealplan/ai-check'/>">
+                <i class="fas fa-shield-alt"></i> AI 식단 안전성 검사
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan'/>">
-                <i class="fas fa-plus-circle"></i> 식단 추가
+            <a class="nav-link" href="<c:url value='/mealplan/ai-calories'/>">
+                <i class="fas fa-chart-line"></i> AI 식단 칼로리 통계
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan'/>">
-                <i class="fas fa-chart-line"></i> 칼로리 통계
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan'/>">
-                <i class="fas fa-history"></i> 식단 이력
+            <a class="nav-link" href="<c:url value='/mealplan/ai-menu'/>">
+                <i class="fas fa-robot"></i> AI식단 메뉴
             </a>
         </li>
     </ul>
