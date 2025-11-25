@@ -69,9 +69,6 @@ public class AiCalorieAnalysisService {
             if (StringUtils.hasText(recipient.getRecMedHistory())) {
                 prompt.append("병력: ").append(recipient.getRecMedHistory()).append("\n");
             }
-            if (StringUtils.hasText(recipient.getRecHealthNeeds())) {
-                prompt.append("건강 요구사항: ").append(recipient.getRecHealthNeeds()).append("\n");
-            }
             if (StringUtils.hasText(recipient.getRecAllergies())) {
                 prompt.append("알레르기: ").append(recipient.getRecAllergies()).append("\n");
             }
