@@ -536,6 +536,7 @@
     let currentRecId = <c:choose><c:when test="${selectedRecipient != null}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     let stream = null;
     let capturedImage = null;
+    let currentFoodName = null;  // 현재 분석 중인 음식명 저장
 
     function startCamera() {
         const video = document.getElementById('videoElement');
@@ -648,6 +649,9 @@
             foodNameInput.focus();
             return;
         }
+
+        // 음식명 저장
+        currentFoodName = foodName;
 
         // 로딩 표시
         document.getElementById('loadingDiv').classList.add('show');
@@ -765,6 +769,11 @@
         if (data.recipe && data.recipe.success && data.recipe.recipe) {
             displayRecipe(data.recipe.recipe);
             document.getElementById('recipeSection').style.display = 'block';
+            
+            // 레시피에서 음식명 추출 (이미지 분석인 경우)
+            if (!currentFoodName && data.recipe.recipe.foodName) {
+                currentFoodName = data.recipe.recipe.foodName;
+            }
         } else {
             document.getElementById('recipeSection').style.display = 'none';
         }
@@ -951,6 +960,82 @@
         safetyContent.style.display = 'block';
         safetyContent.style.visibility = 'visible';
         safetyContent.style.opacity = '1';
+        
+        // 권장사항 아래에 YouTube 영상 표시
+        if (currentFoodName) {
+            loadYouTubeVideo(currentFoodName);
+        }
+    }
+    
+    // YouTube 영상 로드
+    function loadYouTubeVideo(foodName) {
+        if (!foodName || foodName.trim() === '') {
+            return;
+        }
+        
+        const safetyContent = document.getElementById('safetyContent');
+        if (!safetyContent) {
+            return;
+        }
+        
+        // YouTube 검색 API 호출
+        fetch('/mealplan/api/youtube-search?foodName=' + encodeURIComponent(foodName))
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.videoId) {
+                    // YouTube 영상 임베드 추가
+                    const videoTitle = escapeHtml(data.videoTitle || foodName + ' 만드는 방법');
+                    const videoId = data.videoId;
+                    const searchUrl = data.searchUrl;
+                    
+                    const youtubeHtml = 
+                        '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
+                        '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
+                        '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
+                        videoTitle + ' 영상' +
+                        '</h4>' +
+                        '<div class="youtube-embed" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">' +
+                        '<iframe ' +
+                        'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" ' +
+                        'src="https://www.youtube.com/embed/' + videoId + '" ' +
+                        'frameborder="0" ' +
+                        'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
+                        'allowfullscreen>' +
+                        '</iframe>' +
+                        '</div>' +
+                        '<div style="margin-top: 10px; text-align: right;">' +
+                        '<a href="' + searchUrl + '" target="_blank" style="color: #667eea; text-decoration: none; font-size: 14px;">' +
+                        '<i class="fas fa-external-link-alt"></i> YouTube에서 더 보기' +
+                        '</a>' +
+                        '</div>' +
+                        '</div>';
+                    safetyContent.insertAdjacentHTML('beforeend', youtubeHtml);
+                } else if (data.searchUrl) {
+                    // API 키가 없거나 검색 실패 시 검색 링크만 제공
+                    const escapedFoodName = escapeHtml(foodName);
+                    const searchUrl = data.searchUrl;
+                    
+                    const youtubeHtml = 
+                        '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
+                        '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
+                        '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
+                        escapedFoodName + ' 만드는 방법 영상' +
+                        '</h4>' +
+                        '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">' +
+                        '<p style="color: #666; margin-bottom: 15px;">YouTube에서 "' + escapedFoodName + ' 만드는 방법" 영상을 검색하세요.</p>' +
+                        '<a href="' + searchUrl + '" target="_blank" ' +
+                        'style="display: inline-block; padding: 12px 24px; background: #FF0000; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">' +
+                        '<i class="fab fa-youtube"></i> YouTube에서 검색하기' +
+                        '</a>' +
+                        '</div>' +
+                        '</div>';
+                    safetyContent.insertAdjacentHTML('beforeend', youtubeHtml);
+                }
+            })
+            .catch(error => {
+                console.error('YouTube 영상 검색 실패:', error);
+                // 에러가 발생해도 계속 진행 (YouTube 영상은 선택사항)
+            });
     }
 
     // HTML 이스케이프 함수
