@@ -1,6 +1,7 @@
 package edu.sm.app.service;
 
 import edu.sm.app.aiservice.AiMealService;
+import edu.sm.app.aiservice.AiMealRecipeService;
 import edu.sm.app.dto.MealPlan;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.repository.MealPlanRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     private final MealPlanRepository mealPlanRepository;
     private final RecipientService recipientService;
     private final AiMealService aiMealService;
+    private final AiMealRecipeService aiMealRecipeService;
 
 
     /**
@@ -213,8 +216,65 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         // 3. AiMealService를 통해 추천 받기
         Map<String, String> recommendation = aiMealService.getMealRecommendation(finalPrompt);
 
-        // 4. 결과와 근거를 함께 반환
-        return Map.of("recommendation", recommendation, "basis", basis.toString());
+        // 4. 레시피 생성 (메뉴 이름을 기반으로)
+        Map<String, Object> recipeResult = null;
+        String recipeText = null;
+        if (recommendation.containsKey("mealName") && !recommendation.containsKey("error")) {
+            try {
+                recipeResult = aiMealRecipeService.getRecipeFromText(recommendation.get("mealName"));
+                if (recipeResult != null && (Boolean) recipeResult.getOrDefault("success", false)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> recipe = (Map<String, Object>) recipeResult.get("recipe");
+                    if (recipe != null) {
+                        // 레시피를 텍스트 형식으로 변환
+                        StringBuilder recipeBuilder = new StringBuilder();
+                        if (recipe.containsKey("foodName")) {
+                            recipeBuilder.append("음식명: ").append(recipe.get("foodName")).append("\n\n");
+                        }
+                        if (recipe.containsKey("ingredients")) {
+                            @SuppressWarnings("unchecked")
+                            List<String> ingredients = (List<String>) recipe.get("ingredients");
+                            if (ingredients != null && !ingredients.isEmpty()) {
+                                recipeBuilder.append("재료:\n");
+                                for (String ingredient : ingredients) {
+                                    recipeBuilder.append("- ").append(ingredient).append("\n");
+                                }
+                                recipeBuilder.append("\n");
+                            }
+                        }
+                        if (recipe.containsKey("steps")) {
+                            @SuppressWarnings("unchecked")
+                            List<Map<String, Object>> steps = (List<Map<String, Object>>) recipe.get("steps");
+                            if (steps != null && !steps.isEmpty()) {
+                                recipeBuilder.append("조리 방법:\n");
+                                for (Map<String, Object> step : steps) {
+                                    int stepNum = step.containsKey("stepNumber") ? 
+                                        ((Number) step.get("stepNumber")).intValue() : 0;
+                                    String desc = step.containsKey("description") ? 
+                                        step.get("description").toString() : "";
+                                    recipeBuilder.append(stepNum).append(". ").append(desc).append("\n");
+                                }
+                            }
+                        }
+                        recipeText = recipeBuilder.toString();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("레시피 생성 실패 (식단 추천에는 영향 없음): {}", e.getMessage());
+            }
+        }
+
+        // 5. 결과와 근거, 레시피를 함께 반환
+        Map<String, Object> result = new HashMap<>();
+        result.put("recommendation", recommendation);
+        result.put("basis", basis.toString());
+        if (recipeText != null) {
+            result.put("recipe", recipeText);
+            if (recipeResult != null) {
+                result.put("recipeDetail", recipeResult);
+            }
+        }
+        return result;
     }
 }
 
