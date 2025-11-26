@@ -60,11 +60,16 @@ public class HomeController {
                 // 선택된 노약자 결정
                 Recipient selectedRecipient = null;
                 
-                // 1. 세션에 저장된 노약자가 있으면 사용
-                selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                // 1. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
+                Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                 // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                    selectedRecipient = null;
+                if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                    // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                    selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                    if (selectedRecipient != null) {
+                        // 세션에 최신 정보로 업데이트
+                        session.setAttribute("selectedRecipient", selectedRecipient);
+                    }
                 }
                 
                 // 2. 세션에도 없으면 첫 번째 노약자 사용
@@ -130,6 +135,27 @@ public class HomeController {
                         LocalDate today = LocalDate.now();
                         List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
                             selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
                         model.addAttribute("todayMeals", todayMeals);
                         log.info("오늘의 식단 조회 성공 - recId: {}, 개수: {}", selectedRecipient.getRecId(), todayMeals.size());
                     } catch (Exception e) {
@@ -193,12 +219,17 @@ public class HomeController {
                     }
                 }
                 
-                // 2. 세션에 저장된 노약자가 있으면 사용
+                // 2. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
                 if (selectedRecipient == null) {
-                    selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                    Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                     // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                    if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                        selectedRecipient = null;
+                    if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                        // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                        selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                        if (selectedRecipient != null) {
+                            // 세션에 최신 정보로 업데이트
+                            session.setAttribute("selectedRecipient", selectedRecipient);
+                        }
                     }
                 }
                 
@@ -261,6 +292,27 @@ public class HomeController {
                         LocalDate today = LocalDate.now();
                         List<MealPlan> todayMeals = mealPlanService.getByRecIdAndDate(
                             selectedRecipient.getRecId(), today);
+                        // 식단 정렬: 타입 순서(아침->점심->저녁) -> 등록 시간 순서
+                        todayMeals.sort((m1, m2) -> {
+                            // 타입 순서 정의
+                            java.util.Map<String, Integer> typeOrder = new java.util.HashMap<>();
+                            typeOrder.put("아침", 1);
+                            typeOrder.put("점심", 2);
+                            typeOrder.put("저녁", 3);
+                            
+                            int typeOrder1 = typeOrder.getOrDefault(m1.getMealType(), 99);
+                            int typeOrder2 = typeOrder.getOrDefault(m2.getMealType(), 99);
+                            
+                            // 타입이 다르면 타입 순서로 정렬
+                            if (typeOrder1 != typeOrder2) {
+                                return Integer.compare(typeOrder1, typeOrder2);
+                            }
+                            
+                            // 타입이 같으면 등록 시간 순서로 정렬
+                            if (m1.getMealRegdate() == null) return 1;
+                            if (m2.getMealRegdate() == null) return -1;
+                            return m1.getMealRegdate().compareTo(m2.getMealRegdate());
+                        });
                         model.addAttribute("todayMeals", todayMeals);
                     } catch (Exception e) {
                         log.warn("오늘의 식단 조회 실패", e);
@@ -286,5 +338,10 @@ public class HomeController {
         log.info("center 페이지 요청: {}", center == null ? "기본 페이지" : center);
         
         return "home";
+    }
+
+    @GetMapping("/caregiver")
+    public String caregiver() {
+        return "redirect:/home?center=caregiver/center";
     }
 }

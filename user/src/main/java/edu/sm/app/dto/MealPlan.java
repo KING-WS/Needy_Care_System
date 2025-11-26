@@ -47,6 +47,11 @@ public class MealPlan {
     private Integer mealCalories;
     
     /**
+     * 식단 레시피
+     */
+    private String mealRecipe;
+    
+    /**
      * 삭제 여부 ('N' 또는 'Y')
      */
     private String isDeleted;

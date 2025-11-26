@@ -1,11 +1,12 @@
 -- ==========================================================
--- 0. 초기화 (FK 체크 해제 및 기존 테이블 삭제)
+-- 0. 초기화 (Clean Up)
+-- 개발 중 테이블을 수정하고 다시 만들 때 에러 방지
 -- ==========================================================
+SET FOREIGN_KEY_CHECKS = 0; -- 외래키 검사 일시 해제
 
--- 외래키 검사를 잠시 끕니다 (삭제 순서 꼬임 방지용 안전장치)
-SET FOREIGN_KEY_CHECKS = 0;
-
--- 1. 자식 테이블 (가장 하위 종속성) 부터 삭제
+-- 자식 테이블부터 삭제 (FK 의존성 고려)
+DROP TABLE IF EXISTS Alert_Log;
+DROP TABLE IF EXISTS Chat_Log;
 DROP TABLE IF EXISTS QnA_Answers;
 DROP TABLE IF EXISTS QnA_Questions;
 DROP TABLE IF EXISTS Payment;
@@ -21,21 +22,18 @@ DROP TABLE IF EXISTS Map;
 DROP TABLE IF EXISTS Notification_Setting;
 DROP TABLE IF EXISTS Health_Data;
 
--- 2. 중간 부모 테이블 삭제
+-- 부모 테이블 삭제
 DROP TABLE IF EXISTS Caregiver;
 DROP TABLE IF EXISTS Care_Recipient;
-
--- 3. 최상위 부모 테이블 (독립적인 테이블) 삭제
 DROP TABLE IF EXISTS Rec_Type_Code;
 DROP TABLE IF EXISTS Admin;
 DROP TABLE IF EXISTS Cust;
 
--- 외래키 검사를 다시 켭니다
-SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1; -- 외래키 검사 재설정
 
 
 -- ==========================================================
--- 1. 데이터베이스 생성 및 선택
+-- 1. 데이터베이스 생성
 -- ==========================================================
 CREATE DATABASE IF NOT EXISTS Needy_Care_System;
 USE Needy_Care_System;
@@ -59,9 +57,10 @@ CREATE TABLE Cust (
                       UNIQUE KEY UK_cust_email (cust_email)
 );
 
--- Cust 초기 테스트 데이터
+-- Cust 테스트 데이터
 INSERT INTO Cust (cust_email, cust_pwd, cust_name, cust_phone, is_deleted, cust_regdate, cust_update)
 VALUES ('test@test.com', '$2a$10$/NTDRN5diDPkmDLOxAMO9e59CrG5dz0aL/1rLdo25TqA5pC6oWYXS', '이말년', '010-1234-5678', 'N', NOW(), NOW());
+
 
 -- [2] Rec_Type_Code (대상자 유형 코드)
 CREATE TABLE Rec_Type_Code (
@@ -70,11 +69,14 @@ CREATE TABLE Rec_Type_Code (
                                PRIMARY KEY (rec_type_code)
 );
 
+-- ★ 필수 기초 데이터 삽입
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('ELDERLY', '노인/고령자');
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('PREGNANT', '임산부');
 INSERT INTO Rec_Type_Code (rec_type_code, type_name) VALUES ('DISABLED', '장애인');
 
+
 -- [3] Care_Recipient (케어 대상자)
+
 CREATE TABLE Care_Recipient (
                                 rec_id INT NOT NULL AUTO_INCREMENT,
                                 rec_type_code VARCHAR(10) NOT NULL,
@@ -92,9 +94,14 @@ CREATE TABLE Care_Recipient (
                                 rec_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                 rec_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                 rec_health_needs TEXT COMMENT '(AI용) 건강 요구사항',
+                                last_connected_at DATETIME COMMENT '최근 접속 시간',
+                                rec_latitude DECIMAL(10, 7) COMMENT '현재 위도',
+                                rec_longitude DECIMAL(10, 7) COMMENT '현재 경도',
+
                                 PRIMARY KEY (rec_id),
                                 UNIQUE KEY UK_rec_kiosk_code (rec_kiosk_code)
 );
+
 
 -- [4] Health_Data (건강 데이터)
 CREATE TABLE Health_Data (
@@ -110,6 +117,7 @@ CREATE TABLE Health_Data (
                              PRIMARY KEY (health_id)
 );
 
+
 -- [5] Admin (관리자)
 CREATE TABLE Admin (
                        admin_id INT NOT NULL AUTO_INCREMENT,
@@ -119,8 +127,10 @@ CREATE TABLE Admin (
                        is_deleted CHAR(1) NOT NULL DEFAULT 'N',
                        admin_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                        admin_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                       PRIMARY KEY (admin_id)
+                       PRIMARY KEY (admin_id),
+                       UNIQUE KEY UK_admin_email (admin_email)
 );
+
 
 -- [6] Caregiver (요양보호사)
 CREATE TABLE Caregiver (
@@ -137,17 +147,18 @@ CREATE TABLE Caregiver (
                            PRIMARY KEY (caregiver_id)
 );
 
--- [7] Care_Matching (매칭)
+
+-- [7] Care_Matching (매칭) - 수정됨 (admin_id 삭제)
 CREATE TABLE Care_Matching (
                                matching_id INT NOT NULL AUTO_INCREMENT,
                                caregiver_id INT NOT NULL,
                                rec_id INT NOT NULL,
-                               admin_id INT NOT NULL,
                                is_deleted CHAR(1) NOT NULL DEFAULT 'N',
                                match_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                match_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                PRIMARY KEY (matching_id)
 );
+
 
 -- [8] Notification_Setting (알림 설정)
 CREATE TABLE Notification_Setting (
@@ -161,6 +172,7 @@ CREATE TABLE Notification_Setting (
                                       setting_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                                       PRIMARY KEY (setting_id)
 );
+
 
 -- [9] Schedule (일정)
 CREATE TABLE Schedule (
@@ -176,6 +188,7 @@ CREATE TABLE Schedule (
                           PRIMARY KEY (sched_id)
 );
 
+
 -- [10] Hourly_Schedule (시간대별 세부 일정)
 CREATE TABLE Hourly_Schedule (
                                  hourly_sched_id INT NOT NULL AUTO_INCREMENT,
@@ -190,6 +203,7 @@ CREATE TABLE Hourly_Schedule (
                                  PRIMARY KEY (hourly_sched_id)
 );
 
+
 -- [11] Meal_Plan (식단)
 CREATE TABLE Meal_Plan (
                            meal_id INT NOT NULL AUTO_INCREMENT,
@@ -198,11 +212,13 @@ CREATE TABLE Meal_Plan (
                            meal_type VARCHAR(10) NOT NULL,
                            meal_menu TEXT,
                            meal_calories INT,
+                           meal_recipe TEXT COMMENT '식단 레시피', -- 새로 추가된 속성
                            is_deleted CHAR(1) NOT NULL,
                            meal_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            meal_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            PRIMARY KEY (meal_id)
 );
+
 
 -- [12] Map (지도/장소)
 CREATE TABLE Map (
@@ -219,6 +235,7 @@ CREATE TABLE Map (
                      PRIMARY KEY (map_id)
 );
 
+
 -- [13] Map_Course (경로)
 CREATE TABLE Map_Course (
                             course_id INT NOT NULL AUTO_INCREMENT,
@@ -232,6 +249,7 @@ CREATE TABLE Map_Course (
                             PRIMARY KEY (course_id)
 );
 
+
 -- [14] Camera (카메라)
 CREATE TABLE Camera (
                         cam_id INT NOT NULL AUTO_INCREMENT,
@@ -243,6 +261,7 @@ CREATE TABLE Camera (
                         cam_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         PRIMARY KEY (cam_id)
 );
+
 
 -- [15] Manual (매뉴얼/AI 텍스트)
 CREATE TABLE Manual (
@@ -258,6 +277,7 @@ CREATE TABLE Manual (
                         PRIMARY KEY (manual_id)
 );
 
+
 -- [16] Subscription (구독)
 CREATE TABLE Subscription (
                               sub_id INT NOT NULL AUTO_INCREMENT,
@@ -271,6 +291,7 @@ CREATE TABLE Subscription (
                               PRIMARY KEY (sub_id)
 );
 
+
 -- [17] Payment (결제)
 CREATE TABLE Payment (
                          payment_id INT NOT NULL AUTO_INCREMENT,
@@ -282,6 +303,7 @@ CREATE TABLE Payment (
                          payment_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                          PRIMARY KEY (payment_id)
 );
+
 
 -- [18] QnA_Questions (질문)
 CREATE TABLE QnA_Questions (
@@ -295,6 +317,7 @@ CREATE TABLE QnA_Questions (
                                PRIMARY KEY (question_id)
 );
 
+
 -- [19] QnA_Answers (답변)
 CREATE TABLE QnA_Answers (
                              answer_id INT NOT NULL AUTO_INCREMENT,
@@ -303,6 +326,30 @@ CREATE TABLE QnA_Answers (
                              content TEXT,
                              qna_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                              PRIMARY KEY (answer_id)
+);
+
+
+-- [20] Chat_Log (AI 대화 기록)
+CREATE TABLE Chat_Log (
+                          log_id INT NOT NULL AUTO_INCREMENT,
+                          rec_id INT NOT NULL COMMENT '대화한 노약자 식별자',
+                          sender_type VARCHAR(10) NOT NULL COMMENT '발화자 구분: USER(환자) / AI(챗봇)',
+                          message_content TEXT NOT NULL COMMENT '실제 대화 내용',
+                          sentiment_type VARCHAR(20) COMMENT '감정 분석 결과 (예: HAPPY, SAD, DEPRESSED, ANGRY, NEUTRAL)',
+                          is_deleted CHAR(1) NOT NULL DEFAULT 'N',
+                          log_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                          PRIMARY KEY (log_id)
+);
+
+-- [21] Alert_Log (긴급 호출 및 알림 기록)
+CREATE TABLE Alert_Log (
+                           alert_id INT NOT NULL AUTO_INCREMENT,
+                           rec_id INT NOT NULL COMMENT '호출한 노약자',
+                           alert_type VARCHAR(20) NOT NULL COMMENT '유형: EMERGENCY(긴급), CONTACT(연락)',
+                           alert_msg TEXT COMMENT '전달 메시지 (예: 화장실에서 긴급 호출)',
+                           check_status CHAR(1) NOT NULL DEFAULT 'N' COMMENT '관리자/보호자 확인 여부 (Y/N)',
+                           alert_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                           PRIMARY KEY (alert_id)
 );
 
 
@@ -320,7 +367,7 @@ ALTER TABLE Health_Data ADD CONSTRAINT FK_Care_Recipient_TO_Health_Data FOREIGN 
 -- Care_Matching 관련
 ALTER TABLE Care_Matching ADD CONSTRAINT FK_Caregiver_TO_Care_Matching FOREIGN KEY (caregiver_id) REFERENCES Caregiver (caregiver_id);
 ALTER TABLE Care_Matching ADD CONSTRAINT FK_Care_Recipient_TO_Care_Matching FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
-ALTER TABLE Care_Matching ADD CONSTRAINT FK_Admin_TO_Care_Matching FOREIGN KEY (admin_id) REFERENCES Admin (admin_id);
+
 
 -- Hourly_Schedule 관련
 ALTER TABLE Hourly_Schedule ADD CONSTRAINT FK_Schedule_TO_Hourly_Schedule FOREIGN KEY (sched_id) REFERENCES Schedule (sched_id);
@@ -346,3 +393,9 @@ ALTER TABLE Schedule ADD CONSTRAINT FK_Care_Recipient_TO_Schedule FOREIGN KEY (r
 ALTER TABLE Meal_Plan ADD CONSTRAINT FK_Care_Recipient_TO_Meal_Plan FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
 ALTER TABLE Camera ADD CONSTRAINT FK_Care_Recipient_TO_Camera FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
 ALTER TABLE Manual ADD CONSTRAINT FK_Care_Recipient_TO_Manual FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
+
+-- Chat_Log 외래키 연결
+ALTER TABLE Chat_Log ADD CONSTRAINT FK_Care_Recipient_TO_Chat_Log FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
+
+-- Alert_Log 외래키 연결
+ALTER TABLE Alert_Log ADD CONSTRAINT FK_Care_Recipient_TO_Alert_Log FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);

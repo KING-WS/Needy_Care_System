@@ -1,331 +1,466 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
-<%
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-    pageContext.setAttribute("dateFormatter", formatter);
-%>
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>키오스크 모드</title>
-    <link rel="icon" type="image/png" href="/img/favicontitle.png">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 헤더 - 큰 글씨, 심플 */
-        .kiosk-header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .kiosk-header h1 {
-            font-size: 48px;
-            font-weight: bold;
-            color: #333;
-            margin: 0;
-        }
-
-        .kiosk-header p {
-            font-size: 24px;
-            color: #666;
-            margin-top: 10px;
-        }
-
-        /* 메인 컨텐츠 */
-        .kiosk-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-
-        /* 환영 카드 */
-        .welcome-card {
-            background: white;
-            border-radius: 30px;
-            padding: 60px 80px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            max-width: 1000px;
-            width: 100%;
-            margin-bottom: 40px;
-        }
-
-        .welcome-card .profile-img {
-            width: 200px;
-            height: 200px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 8px solid #667eea;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .welcome-card h2 {
-            font-size: 56px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .welcome-card .greeting {
-            font-size: 36px;
-            color: #667eea;
-            font-weight: 600;
-            margin-bottom: 40px;
-        }
-
-        .welcome-card .info {
-            font-size: 28px;
-            color: #666;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 15px;
-        }
-
-        /* 메뉴 버튼 그리드 */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 30px;
-            max-width: 1200px;
-            width: 100%;
-        }
-
-        .menu-btn {
-            background: white;
-            border: none;
-            border-radius: 25px;
-            padding: 60px 40px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 280px;
-        }
-
-        .menu-btn:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .menu-btn:hover i {
-            color: white;
-        }
-
-        .menu-btn:hover .menu-text {
-            color: white;
-        }
-
-        .menu-btn i {
-            font-size: 80px;
-            margin-bottom: 25px;
-            color: #667eea;
-            transition: all 0.3s ease;
-        }
-
-        .menu-text {
-            font-size: 32px;
-            font-weight: bold;
-            color: #333;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        /* 하단 버튼 */
-        .bottom-section {
-            padding: 30px;
-            text-align: center;
-        }
-
-        .logout-btn {
-            background: rgba(255, 255, 255, 0.3);
-            color: white;
-            border: 3px solid white;
-            padding: 20px 60px;
-            font-size: 28px;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .logout-btn:hover {
-            background: white;
-            color: #667eea;
-            transform: scale(1.05);
-        }
-
-        /* 반응형 */
-        @media (max-width: 1200px) {
-            .menu-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .kiosk-header h1 {
-                font-size: 36px;
-            }
-
-            .welcome-card {
-                padding: 40px 30px;
-            }
-
-            .welcome-card h2 {
-                font-size: 40px;
-            }
-
-            .welcome-card .greeting {
-                font-size: 28px;
-            }
-
-            .menu-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .menu-btn {
-                padding: 40px 30px;
-                min-height: 200px;
-            }
-
-            .menu-btn i {
-                font-size: 60px;
-            }
-
-            .menu-text {
-                font-size: 24px;
-            }
-        }
-
-        /* 준비중 뱃지 */
-        .coming-soon {
-            position: relative;
-        }
-
-        .coming-soon::after {
-            content: '준비중';
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff6b6b;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>키오스크 돌봄 시스템</title>
+    <link rel="stylesheet" href="/css/kiosk.css">
 </head>
+
 <body>
-    <!-- 헤더 -->
-    <div class="kiosk-header">
-        <h1>🏠 돌봄 키오스크</h1>
-        <p>쉽고 편리한 서비스</p>
-    </div>
+
+<div class="kiosk-wrapper">
+    <!-- 상단 헤더 -->
+    <header class="header-info">
+        <div class="header-top-row">
+            <!-- 날씨 -->
+            <div class="header-section section-left">
+                <div class="info-widget">
+                    <span id="weather-icon" class="weather-icon">⏳</span>
+                    <span id="weather-text" style="font-size: 0.8em;">위치 확인 중..</span>
+                </div>
+            </div>
+            <!-- 시계 -->
+            <div class="header-section section-center">
+                <div id="clock" class="info-widget kiosk-clock">--:--</div>
+            </div>
+            <!-- 상태 -->
+            <div class="header-section section-right">
+                <div class="status-indicator">
+                    <div id="status-dot" class="status-dot"></div> <!-- id="status-dot" 확인 -->
+                    <span id="status-text">연결 중...</span> <!-- id="status-text" 확인 -->
+                </div>
+            </div>
+        </div>
+        <!-- 인사말 -->
+        <div class="header-main-row">
+            <h1 class="recipient-name">${recipient.recName} 님</h1>
+            <p id="greeting-text" class="welcome-text"></p>
+        </div>
+    </header>
 
     <!-- 메인 컨텐츠 -->
-    <div class="kiosk-container">
-        <!-- 환영 카드 -->
-        <div class="welcome-card">
-            <c:if test="${not empty recipient.recPhotoUrl}">
-                <img src="${recipient.recPhotoUrl}" alt="프로필 사진" class="profile-img">
-            </c:if>
-            <c:if test="${empty recipient.recPhotoUrl}">
-                <div class="profile-img" style="display: flex; align-items: center; justify-content: center; background: #f0f0f0;">
-                    <i class="fas fa-user" style="font-size: 80px; color: #999;"></i>
+    <main class="main-content">
+        <!-- AI 채팅 -->
+        <section class="ai-companion-area">
+            <div class="chat-window" id="chat-window"></div>
+            <div class="chat-input-area">
+                <!-- onclick에서 호출하는 함수는 전역 스코프에 있어야 함 -->
+                <button class="speak-button" onclick="startSpeechRecognition()">
+                    <span style="font-size: 3rem;">🎤</span>
+                    <span>음성으로 말하기</span>
+                </button>
+                <div class="input-group">
+                    <input type="text" id="chat-text-input" class="text-input" placeholder="여기에 직접 입력하세요...">
+                    <button class="send-button" id="chat-send-btn">전송</button>
                 </div>
-            </c:if>
-            
-            <p class="greeting">환영합니다! 👋</p>
-            <c:if test="${not empty recipient.recName}">
-                <h2 style="font-size: 48px; color: #333; font-weight: bold; margin-top: 15px; margin-bottom: 15px;">
-                    ${recipient.recName}님
-                </h2>
-            </c:if>
-            <c:if test="${not empty cust.custName}">
-                <p style="font-size: 32px; color: #666; font-weight: 500; margin-bottom: 30px;">
-                    돌봄 담당: ${cust.custName}님
-                </p>
-            </c:if>
-            
-            <div class="info">
-                <i class="fas fa-birthday-cake"></i>
-                생년월일: ${recipient.recBirthday.format(dateFormatter)}
             </div>
-            
-            <c:if test="${not empty recipient.recAddress}">
-                <div class="info">
-                    <i class="fas fa-home"></i>
-                    주소: ${recipient.recAddress}
+        </section>
+
+        <!-- 긴급 호출 -->
+        <section class="call-button-area">
+            <button id="emergency-btn" class="call-button emergency" onclick="sendRequest(this, 'emergency', '긴급 호출')">
+                <div class="button-content">
+                    <span class="button-icon">🚨</span>
+                    <span class="button-text">긴급 호출</span>
                 </div>
-            </c:if>
-        </div>
+                <div class="button-feedback"></div>
+            </button>
+            <button id="contact-btn" class="call-button contact" onclick="sendRequest(this, 'contact', '연락 요청')">
+                <div class="button-content">
+                    <span class="button-icon">📞</span>
+                    <span class="button-text">연락 요청</span>
+                </div>
+                <div class="button-feedback"></div>
+            </button>
+        </section>
+    </main>
+</div>
 
-    </div>
+<script>
+    // [중요] 전역 변수 설정 (모든 함수에서 접근 가능하도록)
+    const KIOSK_CODE = "${kioskCode}";
+    const RECIPIENT_NAME = "${recipient.recName}";
 
-    <!-- 하단 섹션 -->
-    <div class="bottom-section">
-        <a href="/kiosk/logout" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> 나가기
-        </a>
-    </div>
+    // 날씨 상태 저장용 객체
+    window.weatherState = { temp: null, city: null };
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // 현재 시간 표시 (선택사항)
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ko-KR', { 
-                hour: '2-digit', 
-                minute: '2-digit'
-            });
-            console.log('현재 시간:', timeString);
+    // WebSocket 관련 변수
+    let kioskWs = null;
+    let reconnectInterval = null;
+
+    // ============================================================
+    // 1. 전역 유틸리티 함수들 (HTML onclick에서 호출 가능)
+    // ============================================================
+
+    // [NEW] WebSocket 연결 함수
+    function connectKioskWebSocket() {
+        if (kioskWs && (kioskWs.readyState === WebSocket.OPEN || kioskWs.readyState === WebSocket.CONNECTING)) {
+            return;
+        }
+
+        // HTTPS 환경 고려 (wss://)
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + window.location.host + '/ws/kiosk';
+
+
+        kioskWs = new WebSocket(wsUrl);
+
+        kioskWs.onopen = function() {
+            console.log('✅ Kiosk WebSocket 연결 성공');
+
+            // UI 업데이트 (초록불)
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (statusDot && statusText) {
+                statusDot.className = 'status-dot online';
+                statusText.textContent = '온라인';
+                statusDot.style.backgroundColor = '#28a745'; // 확실하게 색상 지정
+            }
+
+            if(reconnectInterval) {
+                clearInterval(reconnectInterval); // 재연결 시도 중지
+                reconnectInterval = null;
+            }
+
+            // [핵심 수정] 서버 핸들러가 'kiosk_connect'를 기다리고 있습니다. ('register' -> 'kiosk_connect')
+            kioskWs.send(JSON.stringify({
+                type: 'kiosk_connect',
+                kioskCode: KIOSK_CODE
+            }));
+        };
+
+        kioskWs.onmessage = function(event) {
+            console.log('메시지 수신:', event.data);
+        };
+
+        kioskWs.onclose = function(event) {
+            console.warn('⚠️ WebSocket 연결 끊김');
+
+            // UI 업데이트 (빨간불)
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            if (statusDot && statusText) {
+                statusDot.className = 'status-dot offline';
+                statusText.textContent = '연결 끊김';
+                statusDot.style.backgroundColor = '#dc3545'; // 확실하게 색상 지정
+            }
+
+            kioskWs = null;
+
+            // 3초마다 재연결 시도
+            if (!reconnectInterval) {
+                reconnectInterval = setInterval(connectKioskWebSocket, 3000);
+            }
+        };
+
+        kioskWs.onerror = function(error) {
+            console.error('WebSocket 에러:', error);
+            kioskWs.close(); // 에러 발생 시 명시적으로 닫고 재연결 유도
+        };
+    }
+
+    // [TTS (음성 합성)]
+    function speakText(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ko-KR';
+        utterance.rate = 0.9;
+
+        const voices = window.speechSynthesis.getVoices();
+        const korVoice = voices.find(v => v.lang.includes('ko'));
+        if (korVoice) utterance.voice = korVoice;
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // [음성 인식 STT]
+    function startSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다.");
+            return;
+        }
+
+        // TTS 중단 (말 겹침 방지)
+        window.speechSynthesis.cancel();
+
+        const recognition = new SpeechRecognition();
+        const speakBtn = document.querySelector('.speak-button');
+        const speakTextElem = speakBtn.querySelector('span:last-child');
+
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+            speakBtn.classList.add('listening');
+            speakTextElem.textContent = "듣고 있어요...";
+        };
+
+        recognition.onend = function() {
+            speakBtn.classList.remove('listening');
+            speakTextElem.textContent = "음성으로 말하기";
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const chatInput = document.getElementById('chat-text-input');
+            chatInput.value = transcript;
+            // 0.5초 뒤 전송 버튼 클릭 트리거
+            setTimeout(() => { document.getElementById('chat-send-btn').click(); }, 500);
+        };
+
+        recognition.onerror = function(event) {
+            speakBtn.classList.remove('listening');
+            speakTextElem.textContent = "음성으로 말하기";
+            if (event.error !== 'no-speech') alert("오류: " + event.error);
+        };
+
+        recognition.start();
+    }
+
+    // [호출 버튼]
+    function sendRequest(btn, type, text) {
+        const feedback = btn.querySelector('.button-feedback');
+        const content = btn.querySelector('.button-content');
+
+        btn.disabled = true;
+        content.style.opacity = '0';
+        feedback.style.opacity = '1';
+        feedback.textContent = '전송 중...';
+
+        // [수정] 웹소켓으로만 전송 (이게 DB저장 + 알림 다 처리함)
+        if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
+            kioskWs.send(JSON.stringify({
+                type: type === 'emergency' ? 'emergency' : 'contact_request',
+                kioskCode: KIOSK_CODE
+            }));
+
+            // [추가] 전송 성공 UI 처리 (1초 뒤 복구)
+            setTimeout(() => {
+                feedback.textContent = '호출 완료!';
+                setTimeout(() => {
+                    content.style.opacity = '1';
+                    feedback.style.opacity = '0';
+                    btn.disabled = false;
+                }, 2000);
+            }, 1000);
+
+        } else {
+            // 연결 안 된 경우 에러 표시
+            feedback.textContent = '연결 오류';
+            setTimeout(() => {
+                content.style.opacity = '1';
+                feedback.style.opacity = '0';
+                btn.disabled = false;
+            }, 2000);
+        }
+    }
+
+
+    // [채팅 메시지 추가]
+    function addMessageToChat(sender, text, id = null) {
+        const chatWindow = document.getElementById('chat-window');
+        const div = document.createElement('div');
+        div.className = 'chat-message ' + (sender === 'user' ? 'user-message' : 'bot-message');
+        if (id) div.id = id;
+
+        const bubble = document.createElement('div');
+        bubble.className = 'message-bubble';
+        bubble.textContent = text;
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'message-time';
+        const now = new Date();
+        const ampm = now.getHours() >= 12 ? '오후' : '오전';
+        const h = now.getHours() % 12 ? now.getHours() % 12 : 12;
+        timeSpan.textContent = ampm + " " + h + ":" + String(now.getMinutes()).padStart(2, '0');
+
+        div.appendChild(bubble);
+        div.appendChild(timeSpan);
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+
+        // 봇 메시지는 읽어주기 (TTS)
+        if (sender === 'bot' && text !== '생각 중이에요...') {
+            speakText(text);
+        }
+    }
+
+    // [로딩 제거]
+    function removeElement(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    }
+
+    // [날씨 UI 업데이트]
+    function updateWeatherUI() {
+        const textEl = document.getElementById('weather-text');
+        const { temp, city } = window.weatherState;
+
+        if (city && temp !== null) textEl.textContent = city + ", " + temp + "°C";
+        else if (city) textEl.textContent = city;
+        else if (temp !== null) textEl.textContent = "현재 위치, " + temp + "°C";
+    }
+
+    function getWeatherEmoji(code) {
+        if (code === 0) return '☀️';
+        if (code >= 1 && code <= 3) return '⛅';
+        if (code >= 45) return '☁️';
+        if (code >= 51) return '☔';
+        return '🌈';
+    }
+
+
+    // ============================================================
+    // 3. 페이지 로드 후 실행되는 초기화 로직 (DOMContentLoaded)
+    // ============================================================
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // [초기화 1] WebSocket 연결 실행
+        connectKioskWebSocket();
+
+        function fetchWeatherAndLocation() {
+            if (!navigator.geolocation) {
+                document.getElementById('weather-text').textContent = "위치 권한 없음";
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    // --- 날씨 정보 가져오기 ---
+                    // Open-Meteo 호출
+                    const weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code&timezone=auto";
+                    fetch(weatherUrl)
+                        .then(res => res.ok ? res.json() : Promise.reject('Weather API failed'))
+                        .then(data => {
+                            if (!data || !data.current) return;
+                            document.getElementById('weather-icon').textContent = getWeatherEmoji(data.current.weather_code);
+                            window.weatherState.temp = Math.round(data.current.temperature_2m);
+                            updateWeatherUI();
+                        }).catch(() => {});
+
+                    // BigDataCloud 호출
+                    const cityUrl = "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat + "&longitude=" + lon + "&localityLanguage=ko";
+                    fetch(cityUrl)
+                        .then(res => res.ok ? res.json() : Promise.reject('City API failed'))
+                        .then(data => {
+                            if(!data) return;
+                            let city = data.locality || data.city || data.principalSubdivision || "대한민국";
+                            if (!city || city.trim() === "") city = "내 위치";
+                            window.weatherState.city = city;
+                            updateWeatherUI();
+                        }).catch(() => {});
+                    
+                    // --- 위치 정보 전송 ---
+                    sendLocationUpdate(lat, lon);
+                },
+                () => {
+                    document.getElementById('weather-text').textContent = "위치 미수신";
+                    document.getElementById('weather-icon').textContent = "❓";
+                }
+            );
+        }
+
+        // [수정] 위치 정보만 주기적으로 전송하는 함수
+        function sendLocationUpdate(lat, lon) {
+             if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
+                kioskWs.send(JSON.stringify({
+                    type: "location_update",
+                    kioskCode: KIOSK_CODE,
+                    latitude: lat.toString(),
+                    longitude: lon.toString()
+                }));
+
+            }
         }
         
-        setInterval(updateTime, 60000); // 1분마다 업데이트
-        updateTime();
+        // [수정] 주기적으로 위치를 가져와 전송하는 로직
+        function periodicLocationSender() {
+             if (!navigator.geolocation) return;
+             navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    sendLocationUpdate(position.coords.latitude, position.coords.longitude);
+                },
+                () => {
+                    console.warn("Could not get location for periodic update.");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
 
-        // 버튼 클릭 시 햅틱 피드백 (모바일)
-        document.querySelectorAll('.menu-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (navigator.vibrate) {
-                    navigator.vibrate(50);
-                }
-            });
+        // [수정] 초기 날씨/위치 로드 후, 10초마다 위치 전송
+        fetchWeatherAndLocation();
+        setInterval(periodicLocationSender, 10000); // 10초마다 위치 전송
+
+        // [초기화 3] 시계 및 인사말
+        const clockElement = document.getElementById('clock');
+        const greetingElement = document.getElementById('greeting-text');
+
+        function updateClockAndGreeting() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? '오후' : '오전';
+            const displayHours = hours % 12 ? hours % 12 : 12;
+
+            if (clockElement) clockElement.textContent = ampm + " " + displayHours + ":" + minutes;
+
+            if (greetingElement) {
+                greetingElement.textContent = "안녕하세요! 무엇을 도와드릴까요?";
+            }
+        }
+        setInterval(updateClockAndGreeting, 1000);
+        updateClockAndGreeting();
+
+        // [초기화 4] 채팅 초기 메시지
+        const initMsg = '안녕하세요, ' + RECIPIENT_NAME + '님! 말벗 로봇 마음이에요.';
+        addMessageToChat('bot', initMsg);
+
+        // [초기화 5] 채팅 전송 이벤트 연결
+        const chatInput = document.getElementById('chat-text-input');
+        const sendBtn = document.getElementById('chat-send-btn');
+
+        function handleSendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessageToChat('user', message);
+            chatInput.value = '';
+
+            const loadingId = 'loading-ai';
+            addMessageToChat('bot', '생각 중이에요...', loadingId);
+
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, kioskCode: KIOSK_CODE })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    removeElement(loadingId);
+                    const replyText = data.reply || data.response || "응답을 받지 못했습니다.";
+                    addMessageToChat('bot', replyText);
+                })
+                .catch(() => {
+                    removeElement(loadingId);
+                    addMessageToChat('bot', '죄송해요, 잠시 문제가 생겼어요.');
+                });
+        }
+
+        if(sendBtn) sendBtn.addEventListener('click', handleSendMessage);
+        if(chatInput) chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSendMessage();
         });
-    </script>
+    });
+</script>
+
 </body>
 </html>
-

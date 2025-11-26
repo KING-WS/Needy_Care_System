@@ -202,10 +202,10 @@
         <div class="col-lg-6">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Order Status Distribution</h5>
+                    <h5 class="card-title mb-0">지도</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="orderStatusChart" height="200"></canvas>
+                    <div id="dashboard-map" style="width: 100%; height: 300px; border-radius: 8px; border: 1px solid #e0e0e0;"></div>
                 </div>
             </div>
         </div>
@@ -306,6 +306,148 @@ document.addEventListener('DOMContentLoaded', function() {
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
+    
+    // Initialize map
+    initDashboardMap();
 });
+
+// Dashboard Map initialization
+function initDashboardMap() {
+    const mapContainer = document.getElementById('dashboard-map');
+    
+    if (!mapContainer) {
+        console.error('지도 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
+
+    // 카카오맵 API 로드 함수
+    function loadKakaoMap() {
+        // 이미 로드되어 있으면 바로 초기화
+        if (typeof kakao !== 'undefined' && kakao.maps && typeof kakao.maps.LatLng === 'function') {
+            console.log('카카오맵 API 이미 로드됨');
+            createMap();
+            return;
+        }
+
+        // 이미 스크립트가 추가되었는지 확인
+        const existingScript = document.querySelector('script[src*="dapi.kakao.com"]');
+        if (existingScript) {
+            console.log('카카오맵 스크립트 이미 존재, 로드 대기 중...');
+            const checkInterval = setInterval(function() {
+                if (typeof kakao !== 'undefined' && kakao.maps && typeof kakao.maps.LatLng === 'function') {
+                    clearInterval(checkInterval);
+                    createMap();
+                }
+            }, 100);
+            
+            setTimeout(function() {
+                clearInterval(checkInterval);
+                if (typeof kakao === 'undefined' || !kakao.maps || typeof kakao.maps.LatLng !== 'function') {
+                    console.error('카카오맵 API 로드 타임아웃');
+                }
+            }, 10000);
+            return;
+        }
+
+        console.log('카카오맵 API 스크립트 동적 로드 시작');
+        
+        // 카카오맵 API 스크립트 동적 로드
+        const script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=d22ea3311c2736901f0453c68b914e19&libraries=services&autoload=false';
+        script.async = true;
+        
+        script.onload = function() {
+            console.log('카카오맵 API 스크립트 로드 완료');
+            if (typeof kakao !== 'undefined' && kakao.maps && kakao.maps.load) {
+                kakao.maps.load(function() {
+                    console.log('카카오맵 API 완전히 로드됨');
+                    if (typeof kakao.maps.LatLng === 'function') {
+                        createMap();
+                    } else {
+                        console.error('카카오맵 API 초기화 실패 - LatLng 생성자 없음');
+                    }
+                });
+            } else {
+                setTimeout(function() {
+                    if (typeof kakao !== 'undefined' && kakao.maps && typeof kakao.maps.LatLng === 'function') {
+                        createMap();
+                    } else {
+                        const retryInterval = setInterval(function() {
+                            if (typeof kakao !== 'undefined' && kakao.maps && typeof kakao.maps.LatLng === 'function') {
+                                clearInterval(retryInterval);
+                                createMap();
+                            }
+                        }, 50);
+                        
+                        setTimeout(function() {
+                            clearInterval(retryInterval);
+                            if (typeof kakao.maps.LatLng !== 'function') {
+                                console.error('카카오맵 API 초기화 실패');
+                            }
+                        }, 5000);
+                    }
+                }, 500);
+            }
+        };
+        
+        script.onerror = function() {
+            console.error('카카오맵 API 스크립트 로드 실패');
+        };
+        
+        document.head.appendChild(script);
+    }
+
+    // 지도 생성 함수
+    function createMap() {
+        if (typeof kakao === 'undefined' || !kakao.maps || typeof kakao.maps.LatLng !== 'function') {
+            console.error('카카오맵 API가 아직 준비되지 않았습니다.');
+            return;
+        }
+
+        console.log('대시보드 지도 초기화 시작...');
+        
+        const mapOption = {
+            center: new kakao.maps.LatLng(37.5665, 126.9780), // 서울시청 좌표
+            level: 5
+        };
+
+        try {
+            const map = new kakao.maps.Map(mapContainer, mapOption);
+            
+            // 지도 타입 컨트롤 추가
+            const mapTypeControl = new kakao.maps.MapTypeControl();
+            map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
+            // 줌 컨트롤 추가
+            const zoomControl = new kakao.maps.ZoomControl();
+            map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+            // 기본 마커 추가
+            const markerPosition = new kakao.maps.LatLng(37.5665, 126.9780);
+            const marker = new kakao.maps.Marker({
+                position: markerPosition,
+                map: map
+            });
+
+            // 인포윈도우 생성
+            const infowindow = new kakao.maps.InfoWindow({
+                content: '<div style="padding:5px;font-size:12px;">서울시청</div>'
+            });
+
+            // 마커 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+                infowindow.open(map, marker);
+            });
+            
+            console.log('대시보드 지도 초기화 완료');
+        } catch (error) {
+            console.error('지도 초기화 오류:', error);
+        }
+    }
+
+    // 지도 로드 시작
+    loadKakaoMap();
+}
 </script>
 

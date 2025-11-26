@@ -2,195 +2,186 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
-    /* 위험 경보 스타일 */
     #alert-box {
-        font-size: 1.8em;
-        font-weight: bold;
-        padding: 15px;
-        border-radius: 8px;
-        display: none; /* 평소에는 숨김 */
-        margin-top: 15px;
+        font-size: 1.5em; font-weight: bold; padding: 15px; border-radius: 8px;
+        display: none; margin-top: 15px; text-align: center;
     }
-
-    /* 위험 감지 시 활성화될 스타일 */
     .alert-active {
-        background-color: #dc3545; /* 빨간색 배경 */
-        color: white;
-        display: block !important; /* 보이도록 설정 */
-        animation: blinker 1s linear infinite; /* 깜빡임 효과 */
+        background-color: #dc3545; color: white; display: block !important;
+        animation: blinker 1s linear infinite;
     }
+    #activity-status { font-size: 1.2em; color: #333; font-weight: bold; }
+    @keyframes blinker { 50% { opacity: 0.5; } }
 
-    /* 평상시 활동 상태 */
-    #activity-status {
-        font-size: 1.5em;
-        color: #333;
-        font-weight: bold;
-    }
-
-    /* 깜빡임 애니메이션 */
-    @keyframes blinker {
-        50% {
-            opacity: 0.5;
-        }
-    }
+    /* 비디오 컨테이너 스타일 */
+    .video-container { margin-bottom: 20px; border: 1px solid #ddd; padding: 10px; border-radius: 8px; }
+    .video-label { font-size: 1.1em; font-weight: bold; margin-bottom: 5px; display: block;}
+    video { width: 100%; height: auto; border-radius: 5px; background: #000; }
 </style>
 
+<section style="padding: 20px 0;">
+    <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
+        <!-- 헤더 -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 style="font-size: 28px; font-weight: bold;">
+                    <i class="fas fa-video"></i> 다중 모니터링
+                </h1>
+                <div id="activity-status">시스템 가동 중...</div>
+                <div id="alert-box"></div>
+            </div>
+        </div>
+
+        <!-- 비디오 영역 (2개 배치) -->
+        <div class="row">
+            <!-- CCTV 1번 -->
+            <div class="col-md-6">
+                <div class="video-container">
+                    <span class="video-label">📺 CCTV 1 (거실)</span>
+                    <video id="video1" autoplay muted playsinline></video>
+                </div>
+            </div>
+            <!-- CCTV 2번 -->
+            <div class="col-md-6">
+                <div class="video-container">
+                    <span class="video-label">📺 CCTV 2 (안방)</span>
+                    <video id="video2" autoplay muted playsinline></video>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <script>
-    // CCTV 모니터링 로직
-    const cctvMonitor = {
-        analysisInterval: null,
+    // WebRTC 연결을 생성하는 클래스 (복사해서 여러 개 쓰기 위함)
+    class CCTVViewer {
+        constructor(videoId, roomId) {
+            this.videoId = videoId;
+            this.roomId = roomId;
+            this.peerConnection = null;
+            this.signalSocket = null;
+            this.SIGNALING_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + "/signal";
+        }
 
-        init: function () {
-            console.log("cctvMonitor: init() 호출됨");
-            this.previewCamera('video');
-
-            // 5초마다 상태 분석
-            console.log("cctvMonitor: 5초 간격으로 프레임 캡처 및 전송을 시작합니다.");
-            this.analysisInterval = setInterval(() => {
-                this.captureFrame("video", (pngBlob) => {
-                    this.send(pngBlob);
-                });
-            }, 5000);
-        },
-
-        previewCamera: function (videoId) {
-            console.log(`cctvMonitor: previewCamera() 호출됨 (videoId: ${videoId})`);
-            const video = document.getElementById(videoId);
-            if (!video) {
-                console.error('cctvMonitor: 비디오 요소를 찾을 수 없습니다. ID:', videoId);
+        start() {
+            if (!this.roomId) {
+                // [수정] JSP 파싱 오류 방지를 위해 문자열 연결(+) 사용
+                console.error('[' + this.videoId + '] 방 번호가 없습니다.');
                 return;
             }
+            // [수정] JSP 파싱 오류 방지를 위해 문자열 연결(+) 사용
+            console.log('[' + this.videoId + '] 연결 시작 (Room: ' + this.roomId + ')');
 
-            // 보안 경고 (localhost가 아닌 http 환경)
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                console.warn('cctvMonitor: 카메라 API는 보안 컨텍스트(HTTPS)에서만 안정적으로 작동합니다. 현재 프로토콜:', location.protocol);
-                alert('카메라를 사용하려면 HTTPS 프로토콜로 접속해야 합니다.');
-            }
+            this.signalSocket = new WebSocket(this.SIGNALING_URL);
 
-            console.log("cctvMonitor: 카메라 접근을 요청합니다...");
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                    console.log("cctvMonitor: 카메라 접근 성공. 스트림을 비디오에 연결합니다.", stream);
-                    video.srcObject = stream;
-                    video.onloadedmetadata = () => {
-                        video.play().catch(e => console.error("cctvMonitor: 비디오 재생 실패.", e));
-                        console.log("cctvMonitor: 비디오가 성공적으로 재생되었습니다.");
-                    };
-                })
-                .catch((error) => {
-                    console.error('cctvMonitor: 카메라 접근 중 오류 발생.', error);
-                    if (error.name === 'NotAllowedError') {
-                        alert('카메라 접근 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-                    } else if (error.name === 'NotFoundError') {
-                        alert('연결된 카메라를 찾을 수 없습니다. 카메라가 제대로 연결되었는지 확인해주세요.');
-                    } else {
-                        alert(`카메라 접근에 실패했습니다: ${error.name}`);
+            this.signalSocket.onopen = () => {
+                // "나 들어왔어!" (Receiver Join)
+                this.signalSocket.send(JSON.stringify({ type: 'join', roomId: this.roomId }));
+            };
+
+            this.signalSocket.onmessage = async (event) => {
+                const msg = JSON.parse(event.data);
+
+                // CCTV(Sender)가 보낸 초대장(Offer) 도착
+                if (msg.type === 'offer') {
+                    // [수정] JSP 파싱 오류 방지를 위해 문자열 연결(+) 사용
+                    console.log('[' + this.videoId + '] Offer 수신');
+                    await this.createAnswer(msg.sdp);
+                }
+                // 연결 경로 후보(Candidate) 도착
+                else if (msg.type === 'ice-candidate') {
+                    if (this.peerConnection && msg.candidate) {
+                        await this.peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate));
                     }
-                });
-        },
+                }
+            };
+        }
 
-        captureFrame: function (videoId, handleFrame) {
+        async createAnswer(offerSdp) {
+            this.peerConnection = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+            // 영상 트랙이 들어오면 화면에 띄우기
+            this.peerConnection.ontrack = (event) => {
+                // [수정] JSP 파싱 오류 방지를 위해 문자열 연결(+) 사용
+                console.log('[' + this.videoId + '] 영상 수신 성공!');
+                const video = document.getElementById(this.videoId);
+                video.srcObject = event.streams[0];
+                video.play().catch(e => console.error("재생 오류", e));
+            };
+
+            this.peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    this.signalSocket.send(JSON.stringify({
+                        type: 'ice-candidate',
+                        candidate: event.candidate,
+                        roomId: this.roomId
+                    }));
+                }
+            };
+
+            await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offerSdp));
+            const answer = await this.peerConnection.createAnswer();
+            await this.peerConnection.setLocalDescription(answer);
+
+            this.signalSocket.send(JSON.stringify({
+                type: 'answer',
+                sdp: answer,
+                roomId: this.roomId
+            }));
+        }
+    }
+
+    // AI 분석 로직 (영상 1개만 분석하거나, 번갈아 분석 가능 - 여기선 1번만 분석 예시)
+    const aiMonitor = {
+        init: function(videoId) {
+            setInterval(() => {
+                this.captureAndSend(videoId);
+            }, 5000); // 5초마다 분석
+        },
+        captureAndSend: function(videoId) {
             const video = document.getElementById(videoId);
-            if (!video || !video.srcObject || video.videoWidth === 0 || video.videoHeight === 0) {
-                // console.warn('cctvMonitor: 비디오가 캡처 준비되지 않았습니다. (스트림이 없거나, 비디오 크기가 0)');
-                return;
-            }
-            console.log("cctvMonitor: 현재 프레임을 캡처합니다.");
+            // 영상이 나오고 있을 때만 분석
+            if (!video || !video.srcObject || video.videoWidth === 0) return;
+
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            canvas.getContext('2d').drawImage(video, 0, 0);
+
             canvas.toBlob((blob) => {
-                handleFrame(blob);
+                const formData = new FormData();
+                formData.append('attach', blob, 'frame.png');
+
+                fetch('/cctv/analyze', { method: "post", body: formData })
+                    .then(res => res.json())
+                    .then(result => this.updateDisplay(result))
+                    .catch(e => console.error("AI 분석 오류"));
             }, 'image/png');
         },
-
-        send: async function (pngBlob) {
-            if (!pngBlob) {
-                console.warn("cctvMonitor: 전송할 PNG Blob이 없습니다.");
-                return;
-            }
-            console.log("cctvMonitor: 캡처된 프레임을 서버로 전송합니다.");
-
-            const formData = new FormData();
-            formData.append('attach', pngBlob, 'frame.png');
-
-            try {
-                const response = await fetch('/cctv/analyze', {
-                    method: "post",
-                    body: formData
-                });
-
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log("cctvMonitor: 서버로부터 분석 결과를 받았습니다.", result);
-                    this.updateDisplay(result);
-                } else {
-                    console.error("cctvMonitor: 서버 응답 오류.", response.status, response.statusText);
-                    this.updateDisplay({ activity: "상태 분석 실패", alert: "없음" });
-                }
-            } catch (error) {
-                console.error("cctvMonitor: 프레임 분석 요청 중 네트워크 오류 발생:", error);
-                this.updateDisplay({ activity: "연결 오류", alert: "없음" });
-            }
-        },
-
         updateDisplay: function(result) {
             const statusEl = $('#activity-status');
             const alertEl = $('#alert-box');
 
-            if (result.activity) {
-                statusEl.text(result.activity);
-            } else {
-                statusEl.text("---");
-            }
+            if(result.activity) statusEl.text(result.activity);
 
-            if (result.alert && result.alert !== "없음" && result.alert !== null) {
-                alertEl.text(result.alert);
-                alertEl.addClass('alert-active');
+            if (result.alert && result.alert !== "없음") {
+                alertEl.text(result.alert).addClass('alert-active');
             } else {
-                alertEl.text('');
-                alertEl.removeClass('alert-active');
+                alertEl.text('').removeClass('alert-active');
             }
         }
-    }
+    };
 
-    // DOM이 준비되면 스크립트 초기화 실행
     $(() => {
-        console.log("DOM이 준비되었습니다. cctvMonitor를 초기화합니다.");
-        cctvMonitor.init();
+        // 1. 컨트롤러에서 받은 코드로 2개의 CCTV 연결 시작
+        // JSP EL 태그(${cctv1})로 값을 주입받음
+        const cctv1 = new CCTVViewer('video1', "${cctv1}");
+        const cctv2 = new CCTVViewer('video2', "${cctv2}");
+
+        cctv1.start();
+        cctv2.start();
+
+        // 2. AI 분석 시작 (일단 1번 카메라만 분석하도록 설정됨)
+        aiMonitor.init('video1');
     });
 </script>
-
-
-<section style="padding: 20px;">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-video"></i> 실시간 모니터링
-                </h1>
-                <p style="font-size: 16px; color: #666; margin-top: 10px;">
-                    ${sessionScope.loginUser.custName}님의 CCTV | AI가 실시간으로 상황을 분석합니다.
-                </p>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12">
-                <div class="text-center">
-                    <div id="activity-status">분석 대기 중...</div>
-                    <div id="alert-box"></div> </div>
-                <hr>
-                <div class="container p-3 my-3 border">
-                    <div class="row">
-                        <div class="col-12 text-center">
-                            <video id="video" style="max-width: 100%; height: auto; border-radius: 8px;" autoplay muted playsinline></video>
-                        </div>
-                    </div>
-                </div>
-
-        </div>
-    </div>
-</section>
