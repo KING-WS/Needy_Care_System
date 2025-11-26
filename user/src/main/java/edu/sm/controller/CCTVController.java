@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.aiservice.AiImageService;
-import edu.sm.app.dto.Cust; // [중요] Cust import 추가
+import edu.sm.app.dto.Cust;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,6 @@ public class CCTVController {
     private final ObjectMapper objectMapper;
     String dir = "cctv/";
 
-    // [수정됨] 중복된 main 메소드를 하나로 합쳤습니다.
     @RequestMapping("")
     public String main(Model model, HttpSession session) {
 
@@ -38,20 +37,20 @@ public class CCTVController {
 
         if (loginUser != null) {
             try {
-                // [테스트용 설정]
-                // 실제로는 DB에서 보호자와 연결된 키오스크 코드를 가져와야 합니다.
-                // 지금은 테스트를 위해 "kiosk001"로 고정합니다.
-                // 나중에 recipientService를 주입받아 실제 로직으로 교체하세요.
-                // 키오스크 화면에 떠있는 그 코드(A0FB-5992-2405)를 넣으세요!
-                model.addAttribute("targetKioskCode", "A0FB-5992-2405");
+                // [수정 포인트] 기기 분리를 위해 _CCTV를 붙여야 합니다!
+                // cam.jsp에서 KIOSK_CODE + "_CCTV"로 방을 만들었기 때문입니다.
+                String originalCode = "A0FB-5992-2405"; // 원래 키오스크 코드
+                String targetRoomId = originalCode + "_CCTV"; // CCTV 방 번호
 
-                log.info("CCTV 접속 - 보호자: {}, 대상 키오스크: kiosk001", loginUser.getCustId());
+                model.addAttribute("targetKioskCode", targetRoomId);
+
+                log.info("CCTV 접속 - 보호자: {}, 접속할 방: {}", loginUser.getCustId(), targetRoomId);
             } catch (Exception e) {
                 log.error("대상 키오스크 조회 실패", e);
             }
         } else {
-            // 로그인하지 않은 경우 (테스트 편의를 위해 일단 기본값 넣어줌)
-            model.addAttribute("targetKioskCode", "kiosk001");
+            // 로그인 안 했을 때 테스트용 (여기도 _CCTV 붙여주세요)
+            model.addAttribute("targetKioskCode", "A0FB-5992-2405_CCTV");
         }
 
         model.addAttribute("center", dir + "center");
@@ -59,6 +58,7 @@ public class CCTVController {
         return "home";
     }
 
+    // ... (아래 analyzeFrame 메소드는 그대로 두시면 됩니다) ...
     @ResponseBody
     @PostMapping("/analyze")
     public Map<String, String> analyzeFrame(

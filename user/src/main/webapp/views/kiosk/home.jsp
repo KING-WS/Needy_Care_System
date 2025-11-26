@@ -462,10 +462,5 @@
     });
 </script>
 
-<iframe
-        src="/kiosk/cam?kioskCode=${kioskCode}"
-        allow="camera; microphone; autoplay"
-        style="display:none; width:0; height:0; border:0;">
-</iframe>
 </body>
 </html>
