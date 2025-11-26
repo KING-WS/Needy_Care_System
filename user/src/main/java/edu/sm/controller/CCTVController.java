@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.aiservice.AiImageService;
+import edu.sm.app.dto.Cust; // [중요] Cust import 추가
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +26,34 @@ import java.util.Map;
 public class CCTVController {
 
     private final AiImageService aiImageService;
-    private final ObjectMapper objectMapper; // JSON 파싱을 위해 ObjectMapper 주입
+    private final ObjectMapper objectMapper;
     String dir = "cctv/";
 
+    // [수정됨] 중복된 main 메소드를 하나로 합쳤습니다.
     @RequestMapping("")
     public String main(Model model, HttpSession session) {
+
+        // 1. 세션에서 로그인한 보호자 정보 가져오기
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+
+        if (loginUser != null) {
+            try {
+                // [테스트용 설정]
+                // 실제로는 DB에서 보호자와 연결된 키오스크 코드를 가져와야 합니다.
+                // 지금은 테스트를 위해 "kiosk001"로 고정합니다.
+                // 나중에 recipientService를 주입받아 실제 로직으로 교체하세요.
+                // 키오스크 화면에 떠있는 그 코드(A0FB-5992-2405)를 넣으세요!
+                model.addAttribute("targetKioskCode", "A0FB-5992-2405");
+
+                log.info("CCTV 접속 - 보호자: {}, 대상 키오스크: kiosk001", loginUser.getCustId());
+            } catch (Exception e) {
+                log.error("대상 키오스크 조회 실패", e);
+            }
+        } else {
+            // 로그인하지 않은 경우 (테스트 편의를 위해 일단 기본값 넣어줌)
+            model.addAttribute("targetKioskCode", "kiosk001");
+        }
+
         model.addAttribute("center", dir + "center");
         model.addAttribute("left", dir + "left");
         return "home";
@@ -44,7 +68,6 @@ public class CCTVController {
             return Map.of("activity", "이미지 없음", "alert", "없음");
         }
 
-        // AI에게 JSON 형식의 구체적인 답변을 요청하는 프롬프트
         String prompt = """
             You are a safety monitoring AI expert. Analyze the image for any potential dangers to the person in it.
             Your response MUST be a JSON object and nothing else.
@@ -73,7 +96,6 @@ public class CCTVController {
         String activity = "상태 분석 중...";
         String alert = "없음";
 
-        // AI 응답에서 JSON 부분만 추출하는 전처리 로직 추가
         String cleanedJson = analysisResult;
         int firstBrace = cleanedJson.indexOf('{');
         int lastBrace = cleanedJson.lastIndexOf('}');
@@ -90,9 +112,9 @@ public class CCTVController {
 
             if ("DANGER".equals(status)) {
                 activity = "!!! 위험 감지 !!!";
-                alert = description; // AI가 생성한 구체적인 한글 설명
+                alert = description;
             } else if ("SAFE".equals(status)) {
-                activity = description; // AI가 생성한 구체적인 한글 설명
+                activity = description;
                 alert = "없음";
             } else {
                 activity = "분석 상태 불명확";
@@ -101,7 +123,7 @@ public class CCTVController {
         } catch (JsonProcessingException e) {
             log.error("Failed to parse AI response JSON", e);
             activity = "AI 응답 파싱 실패";
-            alert = analysisResult; // 파싱 실패 시 원본 응답을 보여줌
+            alert = analysisResult;
         }
 
         return Map.of("activity", activity, "alert", alert);
