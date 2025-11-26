@@ -36,66 +36,94 @@
 </style>
 
 <script>
-    // CCTV 모니터링 로직
+    // CCTV 모니터링 로직 (WebRTC 수신 버전)
     const cctvMonitor = {
         analysisInterval: null,
+        peerConnection: null,
+        signalSocket: null,
+        targetRoomId: "${targetKioskCode}", // 컨트롤러에서 넘겨준 키오스크 코드
 
         init: function () {
-            console.log("cctvMonitor: init() 호출됨");
-            this.previewCamera('video');
+            console.log("cctvMonitor: WebRTC 수신 모드로 초기화합니다.");
 
-            // 5초마다 상태 분석
+            // 1. WebRTC 연결 시작
+            this.startWebRTC();
+
+            // 2. 5초마다 AI 분석 (기존 로직 유지)
             console.log("cctvMonitor: 5초 간격으로 프레임 캡처 및 전송을 시작합니다.");
             this.analysisInterval = setInterval(() => {
+                // video 태그에 키오스크 영상이 나오고 있으면 그걸 캡처함
                 this.captureFrame("video", (pngBlob) => {
                     this.send(pngBlob);
                 });
             }, 5000);
         },
 
-        previewCamera: function (videoId) {
-            console.log(`cctvMonitor: previewCamera() 호출됨 (videoId: ${videoId})`);
-            const video = document.getElementById(videoId);
-            if (!video) {
-                console.error('cctvMonitor: 비디오 요소를 찾을 수 없습니다. ID:', videoId);
-                return;
-            }
+        startWebRTC: function() {
+            const SIGNALING_URL = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + "/signal";
+            this.signalSocket = new WebSocket(SIGNALING_URL);
 
-            // 보안 경고 (localhost가 아닌 http 환경)
-            if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-                console.warn('cctvMonitor: 카메라 API는 보안 컨텍스트(HTTPS)에서만 안정적으로 작동합니다. 현재 프로토콜:', location.protocol);
-                alert('카메라를 사용하려면 HTTPS 프로토콜로 접속해야 합니다.');
-            }
+            this.signalSocket.onopen = () => {
+                console.log("[Receiver] 소켓 연결됨. 방 입장:", this.targetRoomId);
+                // 방 입장 (이걸 보내면 키오스크 쪽 cam.jsp가 반응해서 offer를 보냄)
+                this.signalSocket.send(JSON.stringify({ type: 'join', roomId: this.targetRoomId }));
+            };
 
-            console.log("cctvMonitor: 카메라 접근을 요청합니다...");
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then((stream) => {
-                    console.log("cctvMonitor: 카메라 접근 성공. 스트림을 비디오에 연결합니다.", stream);
-                    video.srcObject = stream;
-                    video.onloadedmetadata = () => {
-                        video.play().catch(e => console.error("cctvMonitor: 비디오 재생 실패.", e));
-                        console.log("cctvMonitor: 비디오가 성공적으로 재생되었습니다.");
-                    };
-                })
-                .catch((error) => {
-                    console.error('cctvMonitor: 카메라 접근 중 오류 발생.', error);
-                    if (error.name === 'NotAllowedError') {
-                        alert('카메라 접근 권한이 거부되었습니다. 브라우저 설정에서 권한을 허용해주세요.');
-                    } else if (error.name === 'NotFoundError') {
-                        alert('연결된 카메라를 찾을 수 없습니다. 카메라가 제대로 연결되었는지 확인해주세요.');
-                    } else {
-                        alert(`카메라 접근에 실패했습니다: ${error.name}`);
+            this.signalSocket.onmessage = async (event) => {
+                const msg = JSON.parse(event.data);
+
+                if (msg.type === 'offer') {
+                    console.log("[Receiver] Offer 수신. 응답 준비.");
+                    await this.createAnswer(msg.sdp);
+                }
+                else if (msg.type === 'ice-candidate') {
+                    if (this.peerConnection && msg.candidate) {
+                        await this.peerConnection.addIceCandidate(new RTCIceCandidate(msg.candidate));
                     }
-                });
+                }
+            };
         },
 
+        createAnswer: async function(offerSdp) {
+            const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+            this.peerConnection = new RTCPeerConnection(rtcConfig);
+
+            // 영상 트랙이 들어오면 화면(<video>)에 연결
+            this.peerConnection.ontrack = (event) => {
+                console.log("[Receiver] 영상 스트림 수신 성공!");
+                const video = document.getElementById('video');
+                video.srcObject = event.streams[0];
+                video.play().catch(e => console.error("비디오 재생 실패", e));
+            };
+
+            // ICE Candidate 발생 시 서버로 전송
+            this.peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    this.signalSocket.send(JSON.stringify({
+                        type: 'ice-candidate',
+                        candidate: event.candidate,
+                        roomId: this.targetRoomId
+                    }));
+                }
+            };
+
+            await this.peerConnection.setRemoteDescription(new RTCSessionDescription(offerSdp));
+            const answer = await this.peerConnection.createAnswer();
+            await this.peerConnection.setLocalDescription(answer);
+
+            // Answer 전송
+            this.signalSocket.send(JSON.stringify({
+                type: 'answer',
+                sdp: answer,
+                roomId: this.targetRoomId
+            }));
+        },
+
+        // --- 아래는 기존 AI 분석용 코드 (변경 없음) ---
         captureFrame: function (videoId, handleFrame) {
             const video = document.getElementById(videoId);
-            if (!video || !video.srcObject || video.videoWidth === 0 || video.videoHeight === 0) {
-                // console.warn('cctvMonitor: 비디오가 캡처 준비되지 않았습니다. (스트림이 없거나, 비디오 크기가 0)');
-                return;
-            }
-            console.log("cctvMonitor: 현재 프레임을 캡처합니다.");
+            if (!video || !video.srcObject || video.videoWidth === 0 || video.videoHeight === 0) return;
+
             const canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -107,31 +135,19 @@
         },
 
         send: async function (pngBlob) {
-            if (!pngBlob) {
-                console.warn("cctvMonitor: 전송할 PNG Blob이 없습니다.");
-                return;
-            }
-            console.log("cctvMonitor: 캡처된 프레임을 서버로 전송합니다.");
-
+            if (!pngBlob) return;
             const formData = new FormData();
             formData.append('attach', pngBlob, 'frame.png');
 
             try {
-                const response = await fetch('/cctv/analyze', {
-                    method: "post",
-                    body: formData
-                });
-
+                const response = await fetch('/cctv/analyze', { method: "post", body: formData });
                 if (response.ok) {
                     const result = await response.json();
-                    console.log("cctvMonitor: 서버로부터 분석 결과를 받았습니다.", result);
                     this.updateDisplay(result);
                 } else {
-                    console.error("cctvMonitor: 서버 응답 오류.", response.status, response.statusText);
                     this.updateDisplay({ activity: "상태 분석 실패", alert: "없음" });
                 }
             } catch (error) {
-                console.error("cctvMonitor: 프레임 분석 요청 중 네트워크 오류 발생:", error);
                 this.updateDisplay({ activity: "연결 오류", alert: "없음" });
             }
         },
@@ -140,11 +156,8 @@
             const statusEl = $('#activity-status');
             const alertEl = $('#alert-box');
 
-            if (result.activity) {
-                statusEl.text(result.activity);
-            } else {
-                statusEl.text("---");
-            }
+            if (result.activity) statusEl.text(result.activity);
+            else statusEl.text("---");
 
             if (result.alert && result.alert !== "없음" && result.alert !== null) {
                 alertEl.text(result.alert);
@@ -156,9 +169,8 @@
         }
     }
 
-    // DOM이 준비되면 스크립트 초기화 실행
+    // DOM이 준비되면 실행
     $(() => {
-        console.log("DOM이 준비되었습니다. cctvMonitor를 초기화합니다.");
         cctvMonitor.init();
     });
 </script>

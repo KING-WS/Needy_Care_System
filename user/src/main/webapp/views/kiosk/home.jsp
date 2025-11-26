@@ -8,6 +8,7 @@
     <title>키오스크 돌봄 시스템</title>
     <link rel="stylesheet" href="/css/kiosk.css">
 </head>
+
 <body>
 
 <div class="kiosk-wrapper">
