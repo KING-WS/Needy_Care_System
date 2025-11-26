@@ -212,7 +212,7 @@
         // 카카오맵 API 스크립트 동적 로드 (autoload=false 사용)
         const script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=d22ea3311c2736901f0453c68b914e19&libraries=services&autoload=false';
+        script.src = '//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoMapKey}&libraries=services&autoload=false';
         script.async = true;
         
         script.onload = function() {

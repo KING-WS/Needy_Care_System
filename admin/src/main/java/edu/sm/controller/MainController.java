@@ -1,6 +1,7 @@
 package edu.sm.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,12 +14,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Slf4j
 public class MainController {
 
+    @Value("${app.api.kakao-js-key}")
+    private String kakaoMapKey;
+
     /**
      * 메인 대시보드 페이지
      */
     @RequestMapping("/")
     public String dashboard(Model model) {
         log.info("Dashboard page accessed");
+        model.addAttribute("kakaoMapKey", kakaoMapKey);
         return "index";
     }
 
