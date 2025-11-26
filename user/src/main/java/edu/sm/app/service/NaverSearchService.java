@@ -35,7 +35,8 @@ public class NaverSearchService {
     @Value("${naver.api.client-secret:}")
     private String clientSecret;
     
-    private static final String NAVER_SEARCH_URL = "https://openapi.naver.com/v1/search/blog.json";
+    private static final String NAVER_SEARCH_BLOG_URL = "https://openapi.naver.com/v1/search/blog.json";
+    private static final String NAVER_SEARCH_NEWS_URL = "https://openapi.naver.com/v1/search/news.json";
     
     public NaverSearchService(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -47,6 +48,19 @@ public class NaverSearchService {
      * @return 검색 결과 리스트 (제목, 링크, 요약, 썸네일 등)
      */
     public Map<String, Object> searchBlog(String keyword) {
+        return search(keyword, NAVER_SEARCH_BLOG_URL, "blog");
+    }
+
+    /**
+     * 뉴스 검색
+     * @param keyword 검색어
+     * @return 검색 결과 리스트
+     */
+    public Map<String, Object> searchNews(String keyword) {
+        return search(keyword, NAVER_SEARCH_NEWS_URL, "news");
+    }
+
+    private Map<String, Object> search(String keyword, String searchUrl, String type) {
         Map<String, Object> result = new HashMap<>();
         List<Map<String, String>> items = new ArrayList<>();
         
@@ -59,9 +73,9 @@ public class NaverSearchService {
                 return result;
             }
             
-            log.info("네이버 블로그 검색: {}", keyword);
+            log.info("네이버 {} 검색: {}", type, keyword);
             
-            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(NAVER_SEARCH_URL)
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(searchUrl)
                     .queryParam("query", keyword)
                     .queryParam("display", 1)  // 1개만 검색
                     .queryParam("start", 1)
@@ -85,29 +99,34 @@ public class NaverSearchService {
                 
                 if (jsonItems != null && jsonItems.isArray()) {
                     for (JsonNode item : jsonItems) {
-                        Map<String, String> blogItem = new HashMap<>();
+                        Map<String, String> searchItem = new HashMap<>();
                         // 태그 제거
                         String title = item.get("title").asText().replaceAll("<[^>]*>", "");
                         String description = item.get("description").asText().replaceAll("<[^>]*>", "");
                         String link = item.get("link").asText();
                         
-                        blogItem.put("title", title);
-                        blogItem.put("link", link);
-                        blogItem.put("description", description);
-                        blogItem.put("bloggername", item.get("bloggername").asText());
-                        blogItem.put("postdate", item.get("postdate").asText());
+                        searchItem.put("title", title);
+                        searchItem.put("link", link);
+                        searchItem.put("description", description);
                         
-                        // 썸네일 추출 시도
-                        try {
-                            String thumbnail = extractThumbnail(link);
-                            if (thumbnail != null && !thumbnail.isEmpty()) {
-                                blogItem.put("thumbnail", thumbnail);
+                        if (type.equals("blog")) {
+                            searchItem.put("source", item.get("bloggername").asText());
+                            searchItem.put("date", item.get("postdate").asText());
+                            // 썸네일 추출 시도 (블로그만)
+                            try {
+                                String thumbnail = extractThumbnail(link);
+                                if (thumbnail != null && !thumbnail.isEmpty()) {
+                                    searchItem.put("thumbnail", thumbnail);
+                                }
+                            } catch (Exception e) {
+                                log.warn("썸네일 추출 실패: {}", link);
                             }
-                        } catch (Exception e) {
-                            log.warn("썸네일 추출 실패: {}", link);
+                        } else { // news
+                            searchItem.put("source", "네이버 뉴스"); // 뉴스는 언론사 정보가 별도 필드가 없거나 originallink에서 유추해야 함. 여기선 단순화
+                            searchItem.put("date", item.get("pubDate").asText());
                         }
                         
-                        items.add(blogItem);
+                        items.add(searchItem);
                     }
                 }
                 
@@ -116,7 +135,7 @@ public class NaverSearchService {
                 if (!items.isEmpty()) {
                     result.put("firstItem", items.get(0));
                 }
-                log.info("네이버 검색 성공 - 키워드: {}, 결과수: {}", keyword, items.size());
+                log.info("네이버 {} 검색 성공 - 키워드: {}, 결과수: {}", type, keyword, items.size());
                 
             } else {
                 log.error("네이버 API 호출 실패 - 응답 코드: {}", responseCode);
