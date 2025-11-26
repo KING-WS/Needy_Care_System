@@ -25,5 +25,5 @@ mybatis:
 logging:
   level:
     root: info
-    edu.sm: debug
+    edu.sm: info
     org.springframework.web: info

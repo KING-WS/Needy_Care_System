@@ -174,6 +174,29 @@
         AND (is_deleted = 'N' OR is_deleted IS NULL)
     </select>
 
+    <!-- 노약자의 총 칼로리 합계 조회 (특정 기간) -->
+    <select id="selectTotalCaloriesByDateRange" resultType="Integer">
+        SELECT 
+            COALESCE(SUM(meal_calories), 0) AS totalCalories
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date BETWEEN #{param2} AND #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- 노약자의 일별 칼로리 데이터 조회 (차트용) -->
+    <select id="selectDailyCaloriesForChart" resultType="java.util.HashMap">
+        SELECT 
+            DATE_FORMAT(meal_date, '%Y-%m-%d') AS mealDate,
+            COALESCE(SUM(meal_calories), 0) AS totalCalories
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date BETWEEN #{param2} AND #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        GROUP BY meal_date
+        ORDER BY meal_date ASC
+    </select>
+
     <!-- ========== 삽입/수정/삭제 쿼리 ========== -->
     
     <!-- 식단 등록 -->

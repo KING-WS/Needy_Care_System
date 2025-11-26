@@ -31,21 +31,11 @@
 </style>
 
 <div class="comm-left-menu">
-    <h5><i class="fas fa-utensils"></i> 식단 관리</h5>
+    <h5><i class="fas fa-heartbeat"></i> 돌봄 케어</h5>
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan/ai-check'/>">
-                <i class="fas fa-shield-alt"></i> AI 식단 안전성 검사
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan/ai-menu'/>">
-                <i class="fas fa-robot"></i> AI식단 메뉴
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value='/mealplan/calories-analysis'/>">
-                <i class="fas fa-chart-line"></i> 칼로리 분석
+            <a class="nav-link active" href="<c:url value='/care'/>">
+                <i class="fas fa-video"></i> 맞춤 돌봄 콘텐츠
             </a>
         </li>
     </ul>
