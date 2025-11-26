@@ -101,5 +101,16 @@ public class AiUtilService {
         }
         return objectMapper.readValue(json, Map.class);
     }
+
+    /**
+     * JSON 문자열을 List<Map>으로 파싱
+     */
+    @SuppressWarnings("unchecked")
+    public java.util.List<Map<String, Object>> parseJsonToList(String json) throws JsonProcessingException {
+        if (json == null || json.trim().isEmpty() || json.equals("[]")) {
+            return java.util.Collections.emptyList();
+        }
+        return objectMapper.readValue(json, java.util.List.class);
+    }
 }
 
