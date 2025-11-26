@@ -162,6 +162,63 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
+     * 노약자의 총 칼로리 합계 조회 (특정 기간)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 총 칼로리
+     */
+    public Integer getTotalCaloriesByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception {
+        log.debug("기간별 총 칼로리 조회 - recId: {}, start: {}, end: {}", recId, startDate, endDate);
+        Integer totalCalories = mealPlanRepository.selectTotalCaloriesByDateRange(recId, startDate, endDate);
+        return totalCalories != null ? totalCalories : 0;
+    }
+
+    /**
+     * 노약자의 오늘 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 오늘 총 칼로리
+     */
+    public Integer getTodayTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        return getTotalCaloriesByDate(recId, today);
+    }
+
+    /**
+     * 노약자의 이번주 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 이번주 총 칼로리
+     */
+    public Integer getThisWeekTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // 월요일
+        return getTotalCaloriesByDateRange(recId, startOfWeek, today);
+    }
+
+    /**
+     * 노약자의 이번달 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 이번달 총 칼로리
+     */
+    public Integer getThisMonthTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        return getTotalCaloriesByDateRange(recId, startOfMonth, today);
+    }
+
+    /**
+     * 노약자의 일별 칼로리 데이터 조회 (차트용)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 날짜별 칼로리 맵 리스트
+     */
+    public List<Map<String, Object>> getDailyCaloriesForChart(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception {
+        log.debug("일별 칼로리 차트 데이터 조회 - recId: {}, start: {}, end: {}", recId, startDate, endDate);
+        return mealPlanRepository.selectDailyCaloriesForChart(recId, startDate, endDate);
+    }
+
+    /**
      * AI 기반 식단 추천
      * @param recId 노약자 ID
      * @param specialNotes 식단 추천을 위한 사용자 특이사항

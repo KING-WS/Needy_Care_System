@@ -176,8 +176,21 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
 
             Recipient recipient = recipientService.getRecipientByKioskCode(kioskCode);
             if (recipient != null) {
+                // 1. DB에 위치 정보 업데이트
                 recipientService.updateLocation(recipient.getRecId(), latitude, longitude);
                 log.info("[Kiosk WS] Location updated for recipient {} ({}): lat={}, lon={}", recipient.getRecName(), kioskCode, latitude, longitude);
+
+                // 2. 보호자 페이지(center.jsp)에 실시간 위치 전송
+                if (messagingTemplate != null) {
+                    Map<String, Object> locationPayload = new java.util.HashMap<>();
+                    locationPayload.put("recId", recipient.getRecId());
+                    locationPayload.put("latitude", latitude);
+                    locationPayload.put("longitude", longitude);
+                    
+                    String destination = "/topic/location/" + recipient.getRecId();
+                    messagingTemplate.convertAndSend(destination, locationPayload);
+                    log.info("[Kiosk WS] Sent real-time location to: {}", destination);
+                }
             }
         } catch (NumberFormatException e) {
             log.error("[Kiosk WS] Invalid latitude/longitude format for kioskCode '{}'", kioskCode, e);

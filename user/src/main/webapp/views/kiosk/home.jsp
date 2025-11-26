@@ -104,7 +104,7 @@
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         const wsUrl = protocol + '//' + window.location.host + '/ws/kiosk';
 
-        console.log("🔄 WebSocket 연결 시도:", wsUrl);
+
         kioskWs = new WebSocket(wsUrl);
 
         kioskWs.onopen = function() {
@@ -324,8 +324,7 @@
         // [초기화 1] WebSocket 연결 실행
         connectKioskWebSocket();
 
-        // [초기화 2] 날씨 기능 실행
-        function fetchWeather() {
+        function fetchWeatherAndLocation() {
             if (!navigator.geolocation) {
                 document.getElementById('weather-text').textContent = "위치 권한 없음";
                 return;
@@ -335,10 +334,11 @@
                     const lat = position.coords.latitude;
                     const lon = position.coords.longitude;
 
+                    // --- 날씨 정보 가져오기 ---
                     // Open-Meteo 호출
                     const weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=" + lat + "&longitude=" + lon + "&current=temperature_2m,weather_code&timezone=auto";
                     fetch(weatherUrl)
-                        .then(res => res.ok ? res.json() : null)
+                        .then(res => res.ok ? res.json() : Promise.reject('Weather API failed'))
                         .then(data => {
                             if (!data || !data.current) return;
                             document.getElementById('weather-icon').textContent = getWeatherEmoji(data.current.weather_code);
@@ -349,7 +349,7 @@
                     // BigDataCloud 호출
                     const cityUrl = "https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat + "&longitude=" + lon + "&localityLanguage=ko";
                     fetch(cityUrl)
-                        .then(res => res.ok ? res.json() : null)
+                        .then(res => res.ok ? res.json() : Promise.reject('City API failed'))
                         .then(data => {
                             if(!data) return;
                             let city = data.locality || data.city || data.principalSubdivision || "대한민국";
@@ -357,16 +357,9 @@
                             window.weatherState.city = city;
                             updateWeatherUI();
                         }).catch(() => {});
-
-                    // 위치 전송 (WebSocket이 연결되어 있다면)
-                    if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
-                        kioskWs.send(JSON.stringify({
-                            type: "location_update",
-                            kioskCode: KIOSK_CODE,
-                            latitude: lat.toString(),
-                            longitude: lon.toString()
-                        }));
-                    }
+                    
+                    // --- 위치 정보 전송 ---
+                    sendLocationUpdate(lat, lon);
                 },
                 () => {
                     document.getElementById('weather-text').textContent = "위치 미수신";
@@ -374,7 +367,37 @@
                 }
             );
         }
-        fetchWeather();
+
+        // [수정] 위치 정보만 주기적으로 전송하는 함수
+        function sendLocationUpdate(lat, lon) {
+             if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
+                kioskWs.send(JSON.stringify({
+                    type: "location_update",
+                    kioskCode: KIOSK_CODE,
+                    latitude: lat.toString(),
+                    longitude: lon.toString()
+                }));
+
+            }
+        }
+        
+        // [수정] 주기적으로 위치를 가져와 전송하는 로직
+        function periodicLocationSender() {
+             if (!navigator.geolocation) return;
+             navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    sendLocationUpdate(position.coords.latitude, position.coords.longitude);
+                },
+                () => {
+                    console.warn("Could not get location for periodic update.");
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        }
+
+        // [수정] 초기 날씨/위치 로드 후, 10초마다 위치 전송
+        fetchWeatherAndLocation();
+        setInterval(periodicLocationSender, 10000); // 10초마다 위치 전송
 
         // [초기화 3] 시계 및 인사말
         const clockElement = document.getElementById('clock');

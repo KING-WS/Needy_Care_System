@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Aventro</title>
+    <title>Needy Care</title>
     <link rel="icon" type="image/png" href="/img/favicontitle.png">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -699,7 +699,7 @@
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/page"/>"><i class="fas fa-file-alt"></i> 페이지</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
 
             <!-- 오른쪽: 사용자 정보 -->
@@ -869,17 +869,21 @@
         }
 
         // Open chat modal
-        floatingChatBtn.addEventListener('click', function() {
-            chatModal.classList.add('active');
-            chatInput.focus();
-            // Hide badge when chat is open
-            chatBadge.style.display = 'none';
-        });
+        if (floatingChatBtn) {
+            floatingChatBtn.addEventListener('click', function() {
+                chatModal.classList.add('active');
+                chatInput.focus();
+                // Hide badge when chat is open
+                chatBadge.style.display = 'none';
+            });
+        }
 
         // Close chat modal
-        closeChatBtn.addEventListener('click', function() {
-            chatModal.classList.remove('active');
-        });
+        if (closeChatBtn) {
+            closeChatBtn.addEventListener('click', function() {
+                chatModal.classList.remove('active');
+            });
+        }
 
         // Send message function
         function sendMessage() {
@@ -1042,14 +1046,18 @@
         }
 
         // Send button click
-        chatSendBtn.addEventListener('click', sendMessage);
+        if (chatSendBtn) {
+            chatSendBtn.addEventListener('click', sendMessage);
+        }
 
         // Enter key press
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        if (chatInput) {
+            chatInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+        }
 
         // Show notification badge (예시)
         // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출
