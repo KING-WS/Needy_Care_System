@@ -15,6 +15,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -33,6 +34,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -52,6 +54,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -71,6 +74,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -89,6 +93,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -108,6 +113,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -126,6 +132,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -145,6 +152,7 @@
             meal_type AS mealType,
             meal_menu AS mealMenu,
             meal_calories AS mealCalories,
+            meal_recipe AS mealRecipe,
             is_deleted AS isDeleted,
             meal_regdate AS mealRegdate,
             meal_update AS mealUpdate
@@ -166,6 +174,29 @@
         AND (is_deleted = 'N' OR is_deleted IS NULL)
     </select>
 
+    <!-- 노약자의 총 칼로리 합계 조회 (특정 기간) -->
+    <select id="selectTotalCaloriesByDateRange" resultType="Integer">
+        SELECT 
+            COALESCE(SUM(meal_calories), 0) AS totalCalories
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date BETWEEN #{param2} AND #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- 노약자의 일별 칼로리 데이터 조회 (차트용) -->
+    <select id="selectDailyCaloriesForChart" resultType="java.util.HashMap">
+        SELECT 
+            DATE_FORMAT(meal_date, '%Y-%m-%d') AS mealDate,
+            COALESCE(SUM(meal_calories), 0) AS totalCalories
+        FROM Meal_Plan
+        WHERE rec_id = #{param1}
+        AND meal_date BETWEEN #{param2} AND #{param3}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        GROUP BY meal_date
+        ORDER BY meal_date ASC
+    </select>
+
     <!-- ========== 삽입/수정/삭제 쿼리 ========== -->
     
     <!-- 식단 등록 -->
@@ -176,6 +207,7 @@
             meal_type,
             meal_menu,
             meal_calories,
+            meal_recipe,
             is_deleted,
             meal_regdate,
             meal_update
@@ -186,6 +218,7 @@
             #{mealType},
             #{mealMenu},
             #{mealCalories},
+            #{mealRecipe},
             'N',
             NOW(),
             NOW()
@@ -210,6 +243,9 @@
             </if>
             <if test="mealCalories != null">
                 meal_calories = #{mealCalories},
+            </if>
+            <if test="mealRecipe != null">
+                meal_recipe = #{mealRecipe},
             </if>
             <if test="isDeleted != null and isDeleted != ''">
                 is_deleted = #{isDeleted},

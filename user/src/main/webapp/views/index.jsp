@@ -950,7 +950,7 @@
     <div class="container">
         <div class="section-title" data-aos="fade-up">
             <h2>구독</h2>
-            <p>최상의 서비스를 월 구독제를 통해 만나보세요 </p>
+            <p>최상의 서비스를 월 구독제를 통해 만나보세요 에아~</p>
         </div>
         <div class="row">
             <!-- Starter Plan -->

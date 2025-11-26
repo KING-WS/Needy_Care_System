@@ -31,7 +31,8 @@
                                     <div class="recipient-avatar">
                                         <c:choose>
                                             <c:when test="${not empty recipient.recPhotoUrl}">
-                                                    <img src="${recipient.recPhotoUrl}" alt="${recipient.recName}" class="avatar-image" 
+                                                    <c:set var="photoUrlWithCache" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+                                                    <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image" 
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
                                             </c:when>
@@ -673,13 +674,26 @@
 
 <!-- 카카오맵 API (services 라이브러리 포함) -->
 <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+
+<!-- SockJS & StompJS for real-time location -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
 <!-- Map 관련 JavaScript 파일 -->
 <script src="/js/homecenter/center.js"></script>
 <script>
     // JSP 변수 - 노약자 정보
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
-    var recipientPhotoUrl = '<c:out value="${recipient.recPhotoUrl}" escapeXml="false"/>';
+    <c:choose>
+        <c:when test="${not empty recipient.recPhotoUrl}">
+            <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+        </c:when>
+        <c:otherwise>
+            var recipientPhotoUrl = '';
+        </c:otherwise>
+    </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     
     // 저장된 마커들 표시 (JSP forEach 사용)
@@ -781,8 +795,13 @@
             loadSavedMarkers(); // 저장된 장소들 표시
             // 집 마커가 로드된 후 노약자 위치 마커 표시
             setTimeout(function() {
-                loadRecipientLocationMarker();
-            }, 1000); // 집 마커 로드 후 1초 뒤에 실행
+                // 함수가 존재할 때만 실행하도록 변경
+                if (typeof loadRecipientLocationMarker === 'function') {
+                    loadRecipientLocationMarker();
+                } else {
+                    console.warn('loadRecipientLocationMarker 함수를 찾을 수 없습니다.');
+                }
+            }, 1000);
         }
         
         // 일정 제목 길이 제한 적용
@@ -903,6 +922,48 @@
                     element.textContent = '위도: ' + lat.toFixed(6) + ', 경도: ' + lng.toFixed(6);
                 }
             });
+        });
+    }
+
+    // --- 실시간 위치 업데이트 스크립트 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        if (defaultRecId && typeof Stomp !== 'undefined') {
+            connectAndSubscribeForLocation();
+        } else {
+            console.log("실시간 위치 업데이트를 위한 사용자 정보 또는 Stomp 라이브러리를 찾을 수 없습니다.");
+        }
+    });
+
+    function connectAndSubscribeForLocation() {
+        const socket = new SockJS('/adminchat'); // 서버의 STOMP 엔드포인트
+        const stompClient = Stomp.over(socket);
+        stompClient.debug = null; // 디버그 로그 비활성화
+
+        stompClient.connect({}, function (frame) {
+            console.log('✅ Real-time location WS Connected: ' + frame);
+            
+            // recipient-specific 토픽 구독
+            const topic = '/topic/location/' + defaultRecId;
+            stompClient.subscribe(topic, function (message) {
+                try {
+                    const locationData = JSON.parse(message.body);
+                    console.log('📍 Real-time Location:', locationData);
+
+                    // center.js에 정의된 마커 이동 함수 호출
+                    if (typeof updateRecipientMarker === 'function') {
+                        updateRecipientMarker(locationData.latitude, locationData.longitude);
+                    } else {
+                        // 함수가 없으면 직접 이동 (비상용)
+                        moveMarkerDirectly(locationData.latitude, locationData.longitude);
+                    }
+                    
+                } catch (e) {
+                    console.error('위치 데이터 파싱 오류:', e);
+                }
+            });
+        }, function(error) {
+            console.log('⚠️ 위치 정보 소켓 연결이 끊겼습니다. 5초 후 재연결합니다...');
+            setTimeout(connectAndSubscribeForLocation, 5000);
         });
     }
 </script>

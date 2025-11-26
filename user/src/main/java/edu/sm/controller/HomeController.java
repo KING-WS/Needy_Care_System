@@ -60,11 +60,16 @@ public class HomeController {
                 // 선택된 노약자 결정
                 Recipient selectedRecipient = null;
                 
-                // 1. 세션에 저장된 노약자가 있으면 사용
-                selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                // 1. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
+                Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                 // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                    selectedRecipient = null;
+                if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                    // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                    selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                    if (selectedRecipient != null) {
+                        // 세션에 최신 정보로 업데이트
+                        session.setAttribute("selectedRecipient", selectedRecipient);
+                    }
                 }
                 
                 // 2. 세션에도 없으면 첫 번째 노약자 사용
@@ -214,12 +219,17 @@ public class HomeController {
                     }
                 }
                 
-                // 2. 세션에 저장된 노약자가 있으면 사용
+                // 2. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
                 if (selectedRecipient == null) {
-                    selectedRecipient = (Recipient) session.getAttribute("selectedRecipient");
+                    Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                     // 세션의 노약자가 현재 사용자의 노약자인지 확인
-                    if (selectedRecipient != null && !selectedRecipient.getCustId().equals(loginUser.getCustId())) {
-                        selectedRecipient = null;
+                    if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
+                        // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
+                        selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
+                        if (selectedRecipient != null) {
+                            // 세션에 최신 정보로 업데이트
+                            session.setAttribute("selectedRecipient", selectedRecipient);
+                        }
                     }
                 }
                 
@@ -328,5 +338,10 @@ public class HomeController {
         log.info("center 페이지 요청: {}", center == null ? "기본 페이지" : center);
         
         return "home";
+    }
+
+    @GetMapping("/caregiver")
+    public String caregiver() {
+        return "redirect:/home?center=caregiver/center";
     }
 }

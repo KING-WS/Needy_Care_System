@@ -87,7 +87,7 @@
                                     </c:choose>
                                 </td>
                                 <td>${alert.alertMsg}</td>
-                                <td><fmt:formatDate value="${alert.alertRegdate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                                <td>${alert.alertRegdate.toString().replace('T', ' ')}</td>
                                 <td>
                                     <span id="statusBadge_${alert.alertId}" class="status-badge ${alert.checkStatus == 'N' ? 'badge-secondary' : 'badge-success'}">
                                         ${alert.checkStatus == 'N' ? '미확인' : '확인됨'}
@@ -116,48 +116,97 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkButtons = document.querySelectorAll('.btn-check-alert');
+    // [1] 전역 함수로 선언 (index.jsp에서 호출할 수 있도록)
+    function addAlertRow(data) {
+        const tableBody = document.querySelector('#alertsTable tbody');
 
-    checkButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const alertId = this.dataset.alertId;
-            const confirmCheck = confirm(`ID ${alertId} 알림을 확인 처리하시겠습니까?`);
+        // '새로운 알림이 없습니다' 메시지가 있다면 제거
+        const emptyRow = tableBody.querySelector('tr td[colspan="7"]');
+        if (emptyRow) {
+            tableBody.innerHTML = '';
+        }
 
-            if (confirmCheck) {
-                fetch(`/admin/alerts/check/${alertId}`, {
+        const tr = document.createElement('tr');
+        tr.id = 'alertRow_' + data.alertId;
+        tr.className = 'status-unckecked'; // 노란색 배경
+
+        // 시간 포맷팅 (T 제거)
+        const timeStr = data.time.replace('T', ' ').substring(0, 19);
+
+        // 배지 스타일 결정
+        let badgeHtml = '';
+        if(data.type === 'EMERGENCY') {
+            badgeHtml = '<span class="status-badge badge-danger">긴급 호출</span>';
+        } else {
+            badgeHtml = '<span class="status-badge badge-info">연락 요청</span>';
+        }
+
+        tr.innerHTML = `
+            <td>\${data.alertId}</td>
+            <td>\${data.recName} (\${data.recId})</td>
+            <td>\${badgeHtml}</td>
+            <td>\${data.message}</td>
+            <td>\${timeStr}</td>
+            <td>
+                <span id="statusBadge_\${data.alertId}" class="status-badge badge-secondary">미확인</span>
+            </td>
+            <td>
+                <button class="btn-check-alert" data-alert-id="\${data.alertId}">확인 완료</button>
+            </td>
+        `;
+
+        // 테이블 맨 위에 삽입
+        tableBody.prepend(tr);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // [2] 이벤트 위임 (Event Delegation) 사용
+        // 동적으로 추가된 버튼에도 클릭 이벤트가 적용되게 하려면 table에 이벤트를 걸어야 함
+        const table = document.getElementById('alertsTable');
+
+        table.addEventListener('click', function(e) {
+            // 클릭한 요소가 '확인 완료' 버튼인지 확인
+            if (e.target && e.target.classList.contains('btn-check-alert')) {
+                const button = e.target;
+                const alertId = button.dataset.alertId;
+
+                if (!confirm(`ID \${alertId} 알림을 확인 처리하시겠습니까?`)) {
+                    return;
+                }
+
+                fetch(`/admin/alerts/check/\${alertId}`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json' }
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        alert(data.message);
-                        // UI 업데이트
-                        const statusBadge = document.getElementById(`statusBadge_${alertId}`);
-                        if (statusBadge) {
-                            statusBadge.textContent = '확인됨';
-                            statusBadge.classList.remove('badge-secondary');
-                            statusBadge.classList.add('badge-success');
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            alert(data.message);
+
+                            // UI 업데이트
+                            const statusBadge = document.getElementById(`statusBadge_\${alertId}`);
+                            if (statusBadge) {
+                                statusBadge.textContent = '확인됨';
+                                statusBadge.classList.remove('badge-secondary');
+                                statusBadge.classList.add('badge-success');
+                            }
+
+                            const alertRow = document.getElementById(`alertRow_\${alertId}`);
+                            if (alertRow) {
+                                alertRow.classList.remove('status-unckecked');
+                                alertRow.classList.add('status-checked');
+                            }
+
+                            button.remove(); // 버튼 제거
+                        } else {
+                            alert('실패: ' + data.message);
                         }
-                        const alertRow = document.getElementById(`alertRow_${alertId}`);
-                        if (alertRow) {
-                            alertRow.classList.remove('status-unckecked');
-                            alertRow.classList.add('status-checked');
-                        }
-                        this.remove(); // 버튼 제거
-                    } else {
-                        alert('알림 확인 처리 실패: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('알림 확인 처리 중 오류:', error);
-                    alert('알림 확인 처리 중 오류가 발생했습니다.');
-                });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('오류가 발생했습니다.');
+                    });
             }
         });
     });
-});
 </script>

@@ -1,6 +1,7 @@
 package edu.sm.app.service;
 
 import edu.sm.app.aiservice.AiMealService;
+import edu.sm.app.aiservice.AiMealRecipeService;
 import edu.sm.app.dto.MealPlan;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.repository.MealPlanRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +28,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     private final MealPlanRepository mealPlanRepository;
     private final RecipientService recipientService;
     private final AiMealService aiMealService;
+    private final AiMealRecipeService aiMealRecipeService;
 
 
     /**
@@ -159,6 +162,63 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
+     * 노약자의 총 칼로리 합계 조회 (특정 기간)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 총 칼로리
+     */
+    public Integer getTotalCaloriesByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception {
+        log.debug("기간별 총 칼로리 조회 - recId: {}, start: {}, end: {}", recId, startDate, endDate);
+        Integer totalCalories = mealPlanRepository.selectTotalCaloriesByDateRange(recId, startDate, endDate);
+        return totalCalories != null ? totalCalories : 0;
+    }
+
+    /**
+     * 노약자의 오늘 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 오늘 총 칼로리
+     */
+    public Integer getTodayTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        return getTotalCaloriesByDate(recId, today);
+    }
+
+    /**
+     * 노약자의 이번주 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 이번주 총 칼로리
+     */
+    public Integer getThisWeekTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.minusDays(today.getDayOfWeek().getValue() - 1); // 월요일
+        return getTotalCaloriesByDateRange(recId, startOfWeek, today);
+    }
+
+    /**
+     * 노약자의 이번달 총 칼로리 조회
+     * @param recId 노약자 ID
+     * @return 이번달 총 칼로리
+     */
+    public Integer getThisMonthTotalCalories(Integer recId) throws Exception {
+        LocalDate today = LocalDate.now();
+        LocalDate startOfMonth = today.withDayOfMonth(1);
+        return getTotalCaloriesByDateRange(recId, startOfMonth, today);
+    }
+
+    /**
+     * 노약자의 일별 칼로리 데이터 조회 (차트용)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 날짜별 칼로리 맵 리스트
+     */
+    public List<Map<String, Object>> getDailyCaloriesForChart(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception {
+        log.debug("일별 칼로리 차트 데이터 조회 - recId: {}, start: {}, end: {}", recId, startDate, endDate);
+        return mealPlanRepository.selectDailyCaloriesForChart(recId, startDate, endDate);
+    }
+
+    /**
      * AI 기반 식단 추천
      * @param recId 노약자 ID
      * @param specialNotes 식단 추천을 위한 사용자 특이사항
@@ -188,6 +248,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
 
         if (StringUtils.hasText(recipient.getRecMedHistory())) {
             basis.append(", 병력(").append(recipient.getRecMedHistory()).append(")");
+            prompt.append("- 병력: ").append(recipient.getRecMedHistory()).append("\n");
         }
         if (StringUtils.hasText(recipient.getRecAllergies())) {
             basis.append(", 알레르기(").append(recipient.getRecAllergies()).append(")");
@@ -212,8 +273,65 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         // 3. AiMealService를 통해 추천 받기
         Map<String, String> recommendation = aiMealService.getMealRecommendation(finalPrompt);
 
-        // 4. 결과와 근거를 함께 반환
-        return Map.of("recommendation", recommendation, "basis", basis.toString());
+        // 4. 레시피 생성 (메뉴 이름을 기반으로)
+        Map<String, Object> recipeResult = null;
+        String recipeText = null;
+        if (recommendation.containsKey("mealName") && !recommendation.containsKey("error")) {
+            try {
+                recipeResult = aiMealRecipeService.getRecipeFromText(recommendation.get("mealName"));
+                if (recipeResult != null && (Boolean) recipeResult.getOrDefault("success", false)) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> recipe = (Map<String, Object>) recipeResult.get("recipe");
+                    if (recipe != null) {
+                        // 레시피를 텍스트 형식으로 변환
+                        StringBuilder recipeBuilder = new StringBuilder();
+                        if (recipe.containsKey("foodName")) {
+                            recipeBuilder.append("음식명: ").append(recipe.get("foodName")).append("\n\n");
+                        }
+                        if (recipe.containsKey("ingredients")) {
+                            @SuppressWarnings("unchecked")
+                            List<String> ingredients = (List<String>) recipe.get("ingredients");
+                            if (ingredients != null && !ingredients.isEmpty()) {
+                                recipeBuilder.append("재료:\n");
+                                for (String ingredient : ingredients) {
+                                    recipeBuilder.append("- ").append(ingredient).append("\n");
+                                }
+                                recipeBuilder.append("\n");
+                            }
+                        }
+                        if (recipe.containsKey("steps")) {
+                            @SuppressWarnings("unchecked")
+                            List<Map<String, Object>> steps = (List<Map<String, Object>>) recipe.get("steps");
+                            if (steps != null && !steps.isEmpty()) {
+                                recipeBuilder.append("조리 방법:\n");
+                                for (Map<String, Object> step : steps) {
+                                    int stepNum = step.containsKey("stepNumber") ? 
+                                        ((Number) step.get("stepNumber")).intValue() : 0;
+                                    String desc = step.containsKey("description") ? 
+                                        step.get("description").toString() : "";
+                                    recipeBuilder.append(stepNum).append(". ").append(desc).append("\n");
+                                }
+                            }
+                        }
+                        recipeText = recipeBuilder.toString();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("레시피 생성 실패 (식단 추천에는 영향 없음): {}", e.getMessage());
+            }
+        }
+
+        // 5. 결과와 근거, 레시피를 함께 반환
+        Map<String, Object> result = new HashMap<>();
+        result.put("recommendation", recommendation);
+        result.put("basis", basis.toString());
+        if (recipeText != null) {
+            result.put("recipe", recipeText);
+            if (recipeResult != null) {
+                result.put("recipeDetail", recipeResult);
+            }
+        }
+        return result;
     }
 }
 

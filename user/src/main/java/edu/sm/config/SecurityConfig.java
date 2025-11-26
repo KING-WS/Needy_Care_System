@@ -32,9 +32,16 @@ public class SecurityConfig  {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        //CSRF, CORS
+        // CSRF 비활성화
         http.csrf((csrf) -> csrf.disable());
-        //http.cors(Customizer.withDefaults());
+
+        // http.cors(Customizer.withDefaults());
+
+        // [추가된 부분] iframe 허용 설정 (X-Frame-Options: SAMEORIGIN)
+        // 이 설정이 있어야 home.jsp 안에 있는 cam.jsp(iframe)가 보입니다.
+        http.headers((headers) -> headers
+                .frameOptions((frameOptions) -> frameOptions.sameOrigin())
+        );
 
         // Spring Security의 기본 로그아웃 비활성화 (커스텀 로그아웃 사용)
         http.logout((logout) -> logout.disable());
@@ -47,6 +54,4 @@ public class SecurityConfig  {
         );
         return http.build();
     }
-
-
 }

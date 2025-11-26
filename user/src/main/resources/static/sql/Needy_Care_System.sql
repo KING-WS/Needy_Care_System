@@ -212,6 +212,7 @@ CREATE TABLE Meal_Plan (
                            meal_type VARCHAR(10) NOT NULL,
                            meal_menu TEXT,
                            meal_calories INT,
+                           meal_recipe TEXT COMMENT '식단 레시피', -- 새로 추가된 속성
                            is_deleted CHAR(1) NOT NULL,
                            meal_regdate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
                            meal_update DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

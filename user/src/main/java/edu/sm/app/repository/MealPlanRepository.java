@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 /**
  * MealPlan(식단 관리) Repository
@@ -70,5 +71,23 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
      * @return 총 칼로리
      */
     Integer selectTotalCaloriesByDate(Integer recId, LocalDate mealDate) throws Exception;
+    
+    /**
+     * 노약자의 총 칼로리 합계 조회 (특정 기간)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 총 칼로리
+     */
+    Integer selectTotalCaloriesByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception;
+    
+    /**
+     * 노약자의 일별 칼로리 데이터 조회 (차트용)
+     * @param recId 노약자 ID
+     * @param startDate 시작 날짜
+     * @param endDate 종료 날짜
+     * @return 날짜별 칼로리 맵 (날짜, 칼로리)
+     */
+    List<Map<String, Object>> selectDailyCaloriesForChart(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception;
 }
 
