@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.aiservice.AiImageService;
 import edu.sm.app.dto.Cust;
+import edu.sm.app.dto.Recipient;
+import edu.sm.app.service.RecipientService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,8 @@ public class CCTVController {
 
     private final AiImageService aiImageService;
     private final ObjectMapper objectMapper;
+    private final RecipientService recipientService; // DB 조회를 위해 주입
+
     String dir = "cctv/";
 
     @RequestMapping("")
@@ -37,20 +41,33 @@ public class CCTVController {
 
         if (loginUser != null) {
             try {
-                // [수정 포인트] 기기 분리를 위해 _CCTV를 붙여야 합니다!
-                // cam.jsp에서 KIOSK_CODE + "_CCTV"로 방을 만들었기 때문입니다.
-                String originalCode = "A0FB-5992-2405"; // 원래 키오스크 코드
-                String targetRoomId = originalCode + "_CCTV"; // CCTV 방 번호
+                // [DB 연동] 보호자 ID로 노약자 정보 조회 (방금 만든 서비스 메소드 사용)
+                Recipient recipient = recipientService.getRecipientByCustId(loginUser.getCustId());
 
-                model.addAttribute("targetKioskCode", targetRoomId);
+                if (recipient != null) {
+                    // DB에 있는 진짜 키오스크 코드 (예: A0FB-5992-2405)
+                    String originalCode = recipient.getRecKioskCode();
 
-                log.info("CCTV 접속 - 보호자: {}, 접속할 방: {}", loginUser.getCustId(), targetRoomId);
+                    // [핵심] 2대의 CCTV를 위한 방 번호 생성
+                    String cctv1 = originalCode + "_CCTV1";
+                    String cctv2 = originalCode + "_CCTV2";
+
+                    model.addAttribute("cctv1", cctv1);
+                    model.addAttribute("cctv2", cctv2);
+
+                    log.info("CCTV 접속 - 보호자: {}, 대상자: {}, 방1: {}, 방2: {}",
+                            loginUser.getCustId(), recipient.getRecName(), cctv1, cctv2);
+                } else {
+                    log.warn("보호자 {}에게 등록된 대상자(키오스크)가 없습니다.", loginUser.getCustId());
+                }
+
             } catch (Exception e) {
                 log.error("대상 키오스크 조회 실패", e);
             }
         } else {
-            // 로그인 안 했을 때 테스트용 (여기도 _CCTV 붙여주세요)
-            model.addAttribute("targetKioskCode", "A0FB-5992-2405_CCTV");
+            // 로그인 안 했을 때 테스트용
+            model.addAttribute("cctv1", "test_CCTV1");
+            model.addAttribute("cctv2", "test_CCTV2");
         }
 
         model.addAttribute("center", dir + "center");
@@ -58,7 +75,7 @@ public class CCTVController {
         return "home";
     }
 
-    // ... (아래 analyzeFrame 메소드는 그대로 두시면 됩니다) ...
+    // AI 분석 로직 (기존과 동일)
     @ResponseBody
     @PostMapping("/analyze")
     public Map<String, String> analyzeFrame(

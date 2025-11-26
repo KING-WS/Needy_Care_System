@@ -15,8 +15,8 @@ public class SignalMessage {
     // 이전에 있던 data 필드
     private Object data;
 
-    // [★추가됨★] WebRTC 연결에 필수적인 정보들입니다.
-    // 자바스크립트에서 보낸 객체를 그대로 받기 위해 Object로 선언합니다.
+    // [★중요★] 깃 되돌리면서 이 부분이 사라졌을 겁니다. 다시 꼭 넣어주세요!
+    // WebRTC 연결에 필수적인 정보들입니다.
     private Object sdp;
     private Object candidate;
 }
