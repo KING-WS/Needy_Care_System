@@ -206,9 +206,6 @@
                 <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
                     <i class="fas fa-robot"></i> AI 장소 추천
                 </h1>
-                <p style="font-size: 16px; color: #666; margin-top: 10px;">
-                    노약자 맞춤형 장소 및 행사를 AI가 분석하여 추천해드립니다.
-                </p>
             </div>
         </div>
 

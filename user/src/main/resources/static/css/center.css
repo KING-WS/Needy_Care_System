@@ -220,6 +220,11 @@
     color: #777;
     margin-bottom: 20px;
     line-height: 1.6;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: none;
+    border: 1px solid #eee;
 }
 
 /* ========================================
