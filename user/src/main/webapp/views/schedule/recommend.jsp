@@ -2,6 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
+    /* =========================================
+       1. 모달 겹침 방지 및 z-index 설정
+       ========================================= */
+    .modal {
+        z-index: 10055 !important; /* 헤더보다 위로 */
+    }
+    .modal-backdrop {
+        z-index: 10050 !important;
+    }
+
+    /* =========================================
+       2. AI 추천 카드 스타일 (메인 화면)
+       ========================================= */
     .recommend-card {
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
         height: 100%;
@@ -45,11 +58,149 @@
         line-height: 1.6;
         border-left: 4px solid #667eea;
     }
+
+    /* =========================================
+       3. 모달 커스텀 디자인 (깔끔한 스타일)
+       ========================================= */
+
+    /* 모달 컨텐츠 둥글게 */
+    #addScheduleModal .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* 헤더: 흰색 배경 */
+    #addScheduleModal .modal-header {
+        background: #fff;
+        border-bottom: none;
+        padding: 25px 25px 10px 25px;
+    }
+
+    #addScheduleModal .modal-title {
+        font-weight: 800;
+        color: #333;
+        font-size: 1.4rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* 제목 아이콘 */
+    .title-icon {
+        color: #667eea;
+        font-size: 1.6rem;
+    }
+
+    /* 닫기 버튼 */
+    .btn-close-custom {
+        background-color: #f1f3f5;
+        border-radius: 50%;
+        padding: 10px;
+        opacity: 0.8;
+        transition: all 0.3s ease;
+        transform: rotate(0deg); /* 애니메이션을 위한 초기 상태 */
+    }
+    .btn-close-custom:hover {
+        opacity: 1;
+        background-color: #e9ecef;
+        transform: rotate(90deg); /* 마우스 올리면 90도 회전 */
+    }
+    .btn-close-custom:active {
+        transform: rotate(90deg) scale(0.9); /* 클릭 시 살짝 작아지는 효과 */
+        background-color: #dee2e6;
+    }
+
+    /* 폼 라벨 및 입력창 */
+    .form-label-custom {
+        font-weight: 700;
+        color: #495057;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-label-icon {
+        color: #667eea;
+    }
+
+    .form-control-custom {
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        background-color: #fff;
+        transition: border-color 0.2s;
+    }
+
+    .form-control-custom:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control-custom[readonly] {
+        background-color: #f8f9fa;
+        color: #666;
+    }
+
+    .required-star {
+        color: #ff6b6b;
+        margin-left: 2px;
+    }
+
+    /* 푸터 버튼 */
+    #addScheduleModal .modal-footer {
+        border-top: none;
+        background: #fff;
+        padding: 10px 25px 25px 25px;
+    }
+
+    .btn-modal-cancel {
+        background-color: #f1f3f5;
+        color: #495057;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-weight: 600;
+    }
+
+    .btn-modal-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 30px;
+        font-weight: 600;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+    .btn-modal-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    /* AI 정보 박스 */
+    .ai-info-box {
+        background-color: #f3f0ff;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        border: 1px solid #e0d4fc;
+    }
+    .ai-info-title {
+        color: #667eea;
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 </style>
 
 <section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
     <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
-        
+
         <div class="row">
             <div class="col-12 mb-4">
                 <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
@@ -61,7 +212,6 @@
             </div>
         </div>
 
-        <!-- 사용방법 안내 -->
         <div class="row mb-4 justify-content-center">
             <div class="col-lg-12">
                 <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
@@ -98,11 +248,11 @@
         </div>
 
         <div class="row mb-5">
-             <div class="col-12 text-center">
+            <div class="col-12 text-center">
                 <button id="recommendBtn" class="btn btn-lg btn-primary shadow" style="font-size: 1.2rem; padding: 15px 50px; border-radius: 50px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
                     <i class="fas fa-magic me-2"></i> 노약자 맞춤 추천 시작
                 </button>
-             </div>
+            </div>
         </div>
 
         <div id="loadingSpinner" class="text-center my-5" style="display: none;">
@@ -114,84 +264,100 @@
         </div>
 
         <div id="recommendation-results" class="row g-4">
-            <!-- Results will be injected here -->
         </div>
     </div>
 </section>
 
-<!-- Modal for Adding to Schedule -->
 <div class="modal fade" id="addScheduleModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow-lg" style="border-radius: 15px;">
-      <div class="modal-header bg-light">
-        <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle text-primary"></i> 일정/지도 추가하기</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body p-4">
-        <form id="saveRecommendForm">
-            <!-- AI 분석 정보 표시 영역 -->
-            <div class="alert alert-primary mb-3" role="alert">
-                <h6 class="alert-heading fw-bold"><i class="fas fa-robot"></i> AI 자동 분석 정보</h6>
-                <hr>
-                <div class="mb-1">
-                    <small class="text-muted">장소명:</small> <strong id="displayMapName"></strong>
-                    <span id="displayMapCategory" class="badge bg-info text-dark ms-2"></span>
-                </div>
-                <div class="mt-2 p-2 bg-white rounded border">
-                    <small class="text-muted d-block mb-1">AI 추천 내용:</small>
-                    <p id="displayMapContent" class="mb-0 small text-dark"></p>
-                </div>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus-circle title-icon"></i> 일정 추가
+                </h5>
+                <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <input type="hidden" id="modalMapName">
-            <input type="hidden" id="modalMapContent">
-            <input type="hidden" id="modalMapCategory">
-            
-            <div class="mb-3">
-                <label for="schedDate" class="form-label fw-bold">날짜</label>
-                <input type="date" class="form-control" id="schedDate" required>
-            </div>
-            <div class="mb-3">
-                <label for="schedName" class="form-label fw-bold">일정 이름</label>
-                <input type="text" class="form-control" id="schedName" required placeholder="예: 주말 공원 산책">
-            </div>
-            <div class="mb-3">
-                <label for="mapAddress" class="form-label fw-bold">주소 (위치 정보)</label>
-                <input type="text" class="form-control" id="mapAddress" required readonly style="background-color: #f8f9fa;">
-                <div class="form-text">주소가 정확하지 않으면 직접 수정할 수 있습니다.</div>
+            <div class="modal-body">
+                <form id="saveRecommendForm">
+
+                    <div class="ai-info-box">
+                        <div class="ai-info-title">
+                            <i class="fas fa-robot"></i> AI 추천 정보
+                        </div>
+                        <div class="mb-2">
+                            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill" id="displayMapCategory" style="font-weight: 600; margin-right: 5px;"></span>
+                            <strong id="displayMapName" style="font-size: 1.1rem; color: #333;"></strong>
+                        </div>
+                        <div class="p-3 bg-white rounded-3 border border-light text-secondary small" style="line-height: 1.6;">
+                            <span id="displayMapContent"></span>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="modalMapName">
+                    <input type="hidden" id="modalMapContent">
+                    <input type="hidden" id="modalMapCategory">
+
+                    <div class="mb-4">
+                        <label for="schedDate" class="form-label-custom">
+                            <i class="fas fa-calendar-alt form-label-icon"></i> 날짜 <span class="required-star">*</span>
+                        </label>
+                        <input type="date" class="form-control form-control-custom" id="schedDate" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="schedName" class="form-label-custom">
+                            <i class="fas fa-pen form-label-icon"></i> 일정 이름 <span class="required-star">*</span>
+                        </label>
+                        <input type="text" class="form-control form-control-custom" id="schedName" required placeholder="일정 이름을 입력해주세요">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="mapAddress" class="form-label-custom">
+                            <i class="fas fa-map-marker-alt form-label-icon"></i> 주소 <span class="required-star">*</span>
+                        </label>
+                        <textarea class="form-control form-control-custom" id="mapAddress" rows="2" required readonly placeholder="주소 정보"></textarea>
+                        <div class="form-text ms-1 mt-1"><small>주소가 정확하지 않으면 직접 수정할 수 있습니다.</small></div>
+                    </div>
+
+                    <div class="card border-0 bg-light rounded-4 p-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <i class="fas fa-route text-success me-2 fs-5"></i>
+                            <span class="fw-bold text-dark">산책 코스 저장</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="courseName" class="form-label-custom" style="font-size: 0.85rem;">코스 이름</label>
+                            <input type="text" class="form-control form-control-custom" id="courseName" required>
+                        </div>
+
+                        <input type="hidden" id="courseType">
+                        <input type="hidden" id="startLat">
+                        <input type="hidden" id="startLng">
+                        <input type="hidden" id="endLat">
+                        <input type="hidden" id="endLng">
+                        <input type="hidden" id="courseDistance">
+
+                        <div class="d-flex align-items-center mt-2">
+                            <span class="badge bg-success me-2 rounded-pill" id="displayCourseType"></span>
+                            <small class="text-muted" style="font-size: 0.8rem;">이 코스는 지도의 '산책 코스' 탭에 저장됩니다.</small>
+                        </div>
+                    </div>
+
+                </form>
             </div>
 
-            <!-- 산책 코스 정보 (자동 생성) -->
-            <div class="card bg-light border-0 mb-3">
-                <div class="card-body">
-                    <h6 class="fw-bold mb-3"><i class="fas fa-route text-success"></i> 산책 코스 정보</h6>
-                    
-                    <div class="mb-3">
-                        <label for="courseName" class="form-label small fw-bold text-secondary">코스 이름</label>
-                        <input type="text" class="form-control form-control-sm" id="courseName" required>
-                    </div>
-                    
-                    <input type="hidden" id="courseType">
-                    <input type="hidden" id="startLat">
-                    <input type="hidden" id="startLng">
-                    <input type="hidden" id="endLat">
-                    <input type="hidden" id="endLng">
-                    <input type="hidden" id="courseDistance">
-                    
-                    <div class="d-flex align-items-center">
-                        <span class="badge bg-success me-2" id="displayCourseType"></span>
-                        <small class="text-muted">이 코스는 홈 화면의 지도에서 확인할 수 있습니다.</small>
-                    </div>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i> 취소
+                </button>
+                <button type="button" class="btn btn-modal-save" id="saveRecommendBtn">
+                    <i class="fas fa-save me-1"></i> 저장
+                </button>
             </div>
-        </form>
-      </div>
-      <div class="modal-footer border-top-0">
-        <button type="button" class="btn btn-light" data-bs-dismiss="modal">취소</button>
-        <button type="button" class="btn btn-primary px-4" id="saveRecommendBtn" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">저장하기</button>
-      </div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
@@ -201,13 +367,15 @@
         const loadingSpinner = document.getElementById('loadingSpinner');
         const modalElement = document.getElementById('addScheduleModal');
         const modal = new bootstrap.Modal(modalElement);
-        
-        // Set default date to today
+
+        // 오늘 날짜로 초기화
         document.getElementById('schedDate').valueAsDate = new Date();
 
+        // 1. 추천 시작 버튼 클릭
         recommendBtn.addEventListener('click', function() {
+            // JSP EL로 recId 가져오기 (null 처리)
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
-            
+
             if (!recId) {
                 alert("추천을 위한 대상자 정보가 없습니다.");
                 return;
@@ -224,24 +392,24 @@
                 },
                 body: JSON.stringify({ recId: parseInt(recId) })
             })
-            .then(response => response.json())
-            .then(data => {
-                loadingSpinner.style.display = 'none';
-                recommendBtn.disabled = false;
-                
-                if (!data || data.length === 0) {
-                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">추천 결과가 없습니다.</h4></div>';
-                    return;
-                }
+                .then(response => response.json())
+                .then(data => {
+                    loadingSpinner.style.display = 'none';
+                    recommendBtn.disabled = false;
 
-                data.forEach((item, index) => {
-                    const cardCol = document.createElement('div');
-                    cardCol.className = 'col-lg-4 col-md-6';
-                    
-                    const address = item.address || '주소 정보 없음';
-                    const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
-                    
-                    cardCol.innerHTML = `
+                    if (!data || data.length === 0) {
+                        resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">추천 결과가 없습니다.</h4></div>';
+                        return;
+                    }
+
+                    data.forEach((item, index) => {
+                        const cardCol = document.createElement('div');
+                        cardCol.className = 'col-lg-4 col-md-6';
+
+                        const address = item.address || '주소 정보 없음';
+                        const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
+
+                        cardCol.innerHTML = `
                         <div class="card recommend-card">
                             <div class="card-header-custom d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
@@ -249,7 +417,7 @@
                             </div>
                             <div class="card-body d-flex flex-column">
                                 <p class="card-text text-muted mb-2"><i class="fas fa-map-marker-alt text-danger"></i> \${address} \${distance}</p>
-                                
+
                                 <div class="mt-auto pt-3">
                                     <button class="btn btn-outline-primary w-100 mb-2 btn-summary-toggle">
                                         <i class="fas fa-align-left"></i> AI 요약 보기
@@ -258,7 +426,7 @@
                                         <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>
                                         \${item.mapContent}
                                     </div>
-                                    
+
                                     <div class="d-flex gap-2">
                                         <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
                                             <i class="fas fa-directions"></i> 길찾기
@@ -281,23 +449,24 @@
                             </div>
                         </div>
                     `;
-                    
-                    resultsContainer.appendChild(cardCol);
-                });
 
-                // Event delegation for dynamically created buttons
-                addCardEventListeners();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                loadingSpinner.style.display = 'none';
-                recommendBtn.disabled = false;
-                resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
-            });
+                        resultsContainer.appendChild(cardCol);
+                    });
+
+                    // 동적 생성된 버튼에 이벤트 리스너 연결
+                    addCardEventListeners();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loadingSpinner.style.display = 'none';
+                    recommendBtn.disabled = false;
+                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
+                });
         });
 
+        // 2. 동적 생성된 카드 버튼 이벤트
         function addCardEventListeners() {
-            // Summary Toggle
+            // 요약 보기 토글
             document.querySelectorAll('.btn-summary-toggle').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const summary = this.nextElementSibling;
@@ -311,7 +480,7 @@
                 });
             });
 
-            // Add Schedule Button
+            // 추가 버튼 (모달 열기)
             document.querySelectorAll('.btn-add-schedule').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const mapName = this.dataset.mapname;
@@ -320,47 +489,49 @@
                     const mapAddress = this.dataset.mapaddress;
                     const courseType = this.dataset.coursetype;
                     const distance = this.dataset.distance;
-                    
+
                     // 좌표 데이터
                     const startLat = this.dataset.startlat;
                     const startLng = this.dataset.startlng;
                     const endLat = this.dataset.endlat;
                     const endLng = this.dataset.endlng;
 
+                    // 모달 hidden input 설정
                     document.getElementById('modalMapName').value = mapName;
                     document.getElementById('modalMapContent').value = mapContent;
                     document.getElementById('modalMapCategory').value = mapCategory;
 
-                    // 모달 내 표시용 데이터 설정
+                    // 모달 표시 데이터 설정 (텍스트)
                     document.getElementById('displayMapName').textContent = mapName;
                     document.getElementById('displayMapCategory').textContent = mapCategory;
                     document.getElementById('displayMapContent').textContent = mapContent;
-                    
+
+                    // 폼 기본값 채우기
                     document.getElementById('schedName').value = mapName + " 방문";
-                    
+
                     // 코스 정보 설정
                     document.getElementById('courseName').value = mapName + " 방문 코스";
                     document.getElementById('courseType').value = courseType;
                     document.getElementById('displayCourseType').textContent = courseType;
-                    
-                    // 좌표 및 거리 설정
+
+                    // 좌표 및 거리 설정 (Hidden)
                     document.getElementById('startLat').value = startLat;
                     document.getElementById('startLng').value = startLng;
                     document.getElementById('endLat').value = endLat;
                     document.getElementById('endLng').value = endLng;
                     document.getElementById('courseDistance').value = distance;
-                    
+
                     const addrInput = document.getElementById('mapAddress');
                     addrInput.value = mapAddress;
-                    
-                    // 주소 정보가 없거나 '정보 없음'인 경우 수정 가능하게 변경
+
+                    // 주소 정보가 불분명할 경우 수정 가능하도록 처리
                     if (!mapAddress || mapAddress === '주소 정보 없음' || mapAddress === 'null') {
                         addrInput.value = '';
                         addrInput.placeholder = '주소를 직접 입력해주세요';
                         addrInput.readOnly = false;
                         addrInput.style.backgroundColor = '#ffffff';
                     } else {
-                        addrInput.readOnly = true; // 이미 주소가 있으면 읽기 전용 유지
+                        addrInput.readOnly = true;
                         addrInput.style.backgroundColor = '#f8f9fa';
                     }
 
@@ -369,10 +540,10 @@
             });
         }
 
-        // Save Button in Modal
+        // 3. 모달 저장 버튼 클릭
         document.getElementById('saveRecommendBtn').addEventListener('click', function() {
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
-            
+
             const data = {
                 recId: recId,
                 schedDate: document.getElementById('schedDate').value,
@@ -381,7 +552,8 @@
                 mapName: document.getElementById('modalMapName').value,
                 mapContent: document.getElementById('modalMapContent').value,
                 mapCategory: document.getElementById('modalMapCategory').value,
-                // 산책 코스 데이터 추가
+
+                // 산책 코스 데이터
                 courseName: document.getElementById('courseName').value,
                 courseType: document.getElementById('courseType').value,
                 startLat: document.getElementById('startLat').value,
@@ -398,19 +570,19 @@
                 },
                 body: JSON.stringify(data)
             })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert(result.message);
-                    modal.hide();
-                } else {
-                    alert(result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('저장 중 오류가 발생했습니다.');
-            });
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(result.message);
+                        modal.hide();
+                    } else {
+                        alert(result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('저장 중 오류가 발생했습니다.');
+                });
         });
     });
 </script>
