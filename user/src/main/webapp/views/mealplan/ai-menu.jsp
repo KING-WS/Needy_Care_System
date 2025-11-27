@@ -705,7 +705,7 @@
 
 
 <script>
-    let currentRecId = <c:choose><c:when test="${selectedRecipient != null}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
+    let currentRecId = <c:choose><c:when test="${not empty selectedRecipient and not empty selectedRecipient.recId}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     let stream = null;
     let capturedImage = null;
     let currentFoodName = null;  // 현재 분석 중인 음식명 저장
@@ -734,12 +734,12 @@
         document.getElementById('resultContainer').classList.remove('show');
 
         // 카메라 접근 요청
-        navigator.mediaDevices.getUserMedia({ 
-            video: { 
+        navigator.mediaDevices.getUserMedia({
+            video: {
                 facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
-            } 
+            }
         })
             .then(function(mediaStream) {
                 stream = mediaStream;
@@ -756,7 +756,7 @@
 
     function capturePhoto() {
         const video = document.getElementById('videoElement');
-        
+
         if (!video.srcObject) {
             alert('먼저 카메라를 시작해주세요.');
             return;
@@ -770,25 +770,25 @@
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         capturedImage = canvas.toDataURL('image/jpeg', 0.8);
-        
+
         // 촬영된 이미지 미리보기
         video.style.display = 'none';
-        
+
         const existingImg = document.querySelector('#capturedImage');
         if (existingImg) {
             existingImg.remove();
         }
-        
+
         const img = document.createElement('img');
         img.src = capturedImage;
         img.style.width = '100%';
         img.style.height = 'auto';
         img.id = 'capturedImage';
         img.style.display = 'block';
-        
+
         const preview = document.querySelector('.camera-preview');
         preview.appendChild(img);
-        
+
         // 사진 촬영 후 자동으로 분석 시작
         setTimeout(function() {
             analyzeMeal();
@@ -800,15 +800,15 @@
             stream.getTracks().forEach(track => track.stop());
             stream = null;
         }
-        
+
         const video = document.getElementById('videoElement');
         video.srcObject = null;
-        
+
         const capturedImg = document.querySelector('#capturedImage');
         if (!capturedImg) {
             video.style.display = 'block';
         }
-        
+
         document.getElementById('captureBtn').disabled = true;
         document.getElementById('stopBtn').disabled = true;
     }
@@ -896,18 +896,18 @@
         })
         .then(response => {
             console.log('응답 상태:', response.status);
-            
+
             if (!response.ok) {
                 return response.json().then(errData => {
                     throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
                 });
             }
-            
+
             return response.json();
         })
         .then(data => {
             document.getElementById('loadingDiv').classList.remove('show');
-            
+
             console.log('API 응답 데이터:', data);
             
             if (data.success) {
@@ -929,7 +929,7 @@
             console.error('resultContainer 요소를 찾을 수 없습니다!');
             return;
         }
-        
+
         // 컨테이너 표시
         container.classList.add('show');
         container.style.display = 'block';
@@ -937,13 +937,13 @@
         container.style.opacity = '1';
         container.style.height = 'auto';
         container.style.minHeight = '100px';
-        
+
         // 레시피 표시
         if (data.recipe && data.recipe.success && data.recipe.recipe) {
             currentRecipeData = data.recipe.recipe; // 전역 변수에 레시피 데이터 저장
             displayRecipe(currentRecipeData);
             document.getElementById('recipeSection').style.display = 'block';
-            
+
             // 레시피에서 음식명 추출 (이미지 분석인 경우)
             if (!currentFoodName && data.recipe.recipe.foodName) {
                 currentFoodName = data.recipe.recipe.foodName;
@@ -960,7 +960,7 @@
         } else {
             document.getElementById('safetySection').style.display = 'none';
         }
-        
+
         // 결과 컨테이너로 스크롤
         setTimeout(() => {
             container.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -973,7 +973,7 @@
             console.error('recipeContent 요소를 찾을 수 없습니다!');
             return;
         }
-        
+
         let html = '';
 
         // 음식 이름
@@ -1012,16 +1012,23 @@
             recipe.ingredients.forEach(function(ingredient) {
                 let ingredientName = '';
                 let ingredientCalories = 0;
+                let ingredientAmount = '';
 
                 if (typeof ingredient === 'object' && ingredient.name) {
                     ingredientName = ingredient.name;
+                    ingredientAmount = ingredient.amount || '';
                     ingredientCalories = ingredient.calories || 0;
                     totalCalories += ingredientCalories;
                 } else {
                     ingredientName = ingredient;
                 }
 
-                html += '<span class="ingredient-tag">' + escapeHtml(ingredientName);
+                let fullIngredientName = ingredientName;
+                if (ingredientAmount) {
+                    fullIngredientName += ' (' + ingredientAmount + ')';
+                }
+
+                html += '<span class="ingredient-tag">' + escapeHtml(fullIngredientName);
                 if (ingredientCalories > 0) {
                     html += ' <span class="ingredient-calories">(' + ingredientCalories + 'kcal)</span>';
                 }
@@ -1049,8 +1056,8 @@
             html += '</h4>';
             html += '<ul class="steps-list">';
             recipe.steps.forEach(function(step, index) {
-                const stepNum = step.stepNumber !== undefined && step.stepNumber !== null 
-                    ? step.stepNumber 
+                const stepNum = step.stepNumber !== undefined && step.stepNumber !== null
+                    ? step.stepNumber
                     : (index + 1);
                 const stepDesc = step.description || step.desc || '설명 없음';
                 html += '<li class="step-item">';
@@ -1093,17 +1100,17 @@
     function displaySafety(safetyData) {
         const safetyContent = document.getElementById('safetyContent');
         const badge = document.getElementById('safetyBadge');
-        
+
         if (!safetyContent || !badge) {
             console.error('safetyContent 또는 safetyBadge 요소를 찾을 수 없습니다!');
             return;
         }
-        
+
         let html = '';
 
         // 안전성 배지
         const safetyLevel = safetyData.safetyLevel || 'SAFE';
-        
+
         if (safetyLevel === 'SAFE') {
             badge.className = 'safety-badge safe';
             badge.textContent = '안전';
@@ -1125,7 +1132,7 @@
         } else {
             messageStyle = 'background: #d4edda; color: #155724; border-left-color: #28a745;';
         }
-        
+
         html += '<div class="safety-message" style="' + messageStyle + '">';
         html += '<strong>' + escapeHtml(message) + '</strong>';
         html += '</div>';
@@ -1169,24 +1176,24 @@
         safetyContent.style.display = 'block';
         safetyContent.style.visibility = 'visible';
         safetyContent.style.opacity = '1';
-        
+
         // 권장사항 아래에 YouTube 영상 표시
         if (currentFoodName) {
             loadYouTubeVideo(currentFoodName);
         }
     }
-    
+
     // YouTube 영상 로드
     function loadYouTubeVideo(foodName) {
         if (!foodName || foodName.trim() === '') {
             return;
         }
-        
+
         const safetyContent = document.getElementById('safetyContent');
         if (!safetyContent) {
             return;
         }
-        
+
         // YouTube 검색 API 호출
         fetch('/mealplan/api/youtube-search?foodName=' + encodeURIComponent(foodName))
             .then(response => response.json())
@@ -1196,8 +1203,8 @@
                     const videoTitle = escapeHtml(data.videoTitle || foodName + ' 만드는 방법');
                     const videoId = data.videoId;
                     const searchUrl = data.searchUrl;
-                    
-                    const youtubeHtml = 
+
+                    const youtubeHtml =
                         '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
                         '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
                         '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
@@ -1223,8 +1230,8 @@
                     // API 키가 없거나 검색 실패 시 검색 링크만 제공
                     const escapedFoodName = escapeHtml(foodName);
                     const searchUrl = data.searchUrl;
-                    
-                    const youtubeHtml = 
+
+                    const youtubeHtml =
                         '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
                         '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
                         '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
@@ -1249,6 +1256,80 @@
 
     // --- AI 레시피 저장 관련 함수 ---
 
+    function formatRecipeForSaving(recipe) {
+        if (!recipe) return '';
+
+        let recipeText = '';
+
+        // 필요한 재료
+        if (recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
+            recipeText += '필요한 재료:\n';
+            recipe.ingredients.forEach((ing, index) => {
+                let namePart = '';
+                let amountPart = '';
+                let caloriesPart = '';
+
+                if (typeof ing === 'object' && ing !== null) {
+                    // 재료명 추출 (name 또는 ingredient 속성)
+                    namePart = ing.name || ing.ingredient || '';
+                    if (!namePart) {
+                        // 객체지만 이름 속성을 찾지 못한 경우 객체를 문자열로 변환 시도하지 않음
+                        namePart = '재료 ' + (index + 1);
+                    }
+                    
+                    // 양 추출
+                    if (ing.amount) {
+                        amountPart = ' (' + ing.amount + ')';
+                    }
+                    
+                    // 칼로리 추출
+                    if (ing.calories) {
+                        caloriesPart = ' - ' + ing.calories + 'kcal';
+                    }
+                } else {
+                    // 문자열인 경우
+                    namePart = String(ing);
+                }
+                
+                recipeText += (index + 1) + '. ' + namePart + amountPart + caloriesPart + '\n';
+            });
+            recipeText += '\n';
+        }
+
+        // 조리 순서
+        if (recipe.steps && Array.isArray(recipe.steps) && recipe.steps.length > 0) {
+            recipeText += '조리 순서:\n';
+            recipe.steps.forEach((step, index) => {
+                let stepNum = index + 1;
+                let stepDesc = '';
+                
+                if (typeof step === 'object' && step !== null) {
+                    stepNum = (step.stepNumber !== undefined && step.stepNumber !== null) ? step.stepNumber : (index + 1);
+                    stepDesc = step.description || step.desc || step.step || '';
+                } else {
+                    stepDesc = String(step);
+                }
+                
+                if (stepDesc) {
+                    recipeText += stepNum + '. ' + stepDesc + '\n';
+                }
+            });
+            recipeText += '\n';
+        }
+
+        // 조리 팁
+        if (recipe.tips && Array.isArray(recipe.tips) && recipe.tips.length > 0) {
+            recipeText += '조리 팁:\n';
+            recipe.tips.forEach((tip, index) => {
+                if (tip) {
+                    recipeText += '• ' + String(tip) + '\n';
+                }
+            });
+        }
+
+        return recipeText.trim();
+    }
+
     function openSaveRecipeModal() {
         if (!currentRecipeData) {
             alert('저장할 레시피 정보가 없습니다.');
@@ -1259,28 +1340,43 @@
             return;
         }
 
+        // 모달 찾기
+        let modal = document.getElementById('saveRecipeModal');
+        
+        // 모달이 body에 없으면 body로 이동 (레이아웃 문제 방지)
+        if (modal && modal.parentElement && modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
+
         // 모달 필드 채우기
-        document.getElementById('saveMealDate').value = new Date().toISOString().split('T')[0];
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 설정 (로컬 시간대 기준)
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        document.getElementById('saveMealDate').value = `${year}-${month}-${day}`;
+        
         document.getElementById('saveMealType').value = '';
         document.getElementById('saveMealMenu').value = currentRecipeData.foodName || '';
-        
-        // 레시피 내용 채우기
-        let recipeStepsText = '';
-        if (currentRecipeData.steps && currentRecipeData.steps.length > 0) {
-            recipeStepsText = currentRecipeData.steps.map(step => {
-                return (step.stepNumber || '') + '. ' + (step.description || '');
-            }).join('\\n'); // textarea에서는 줄바꿈 문자로 \n을 사용합니다.
-        }
-        document.getElementById('saveMealRecipe').value = recipeStepsText;
+
+        // 레시피 내용 채우기 (새로운 포맷 함수 사용)
+        document.getElementById('saveMealRecipe').value = formatRecipeForSaving(currentRecipeData);
 
         let totalCalories = currentRecipeData.totalCalories || 0;
-        if (totalCalories === 0 && currentRecipeData.ingredients) {
-            totalCalories = currentRecipeData.ingredients.reduce((sum, ing) => sum + (ing.calories || 0), 0);
+        if (totalCalories === 0 && currentRecipeData.ingredients && Array.isArray(currentRecipeData.ingredients)) {
+            totalCalories = currentRecipeData.ingredients.reduce((sum, ing) => {
+                if (typeof ing === 'object' && ing.calories) {
+                    return sum + (parseInt(ing.calories) || 0);
+                }
+                return sum;
+            }, 0);
         }
         document.getElementById('saveMealCalories').value = totalCalories > 0 ? totalCalories : '';
 
         // 모달 보이기
-        document.getElementById('saveRecipeModal').style.display = 'flex';
+        if (modal) {
+            modal.style.display = 'flex';
+        }
     }
 
     function closeSaveRecipeModal() {
@@ -1298,8 +1394,8 @@
             return;
         }
 
-        // 레시피 내용을 JSON 문자열로 변환하여 저장
-        const mealRecipe = JSON.stringify(currentRecipeData, null, 2);
+        // 포맷팅된 레시피 텍스트를 textarea에서 직접 가져옴
+        const mealRecipe = document.getElementById('saveMealRecipe').value;
 
         const data = {
             recId: currentRecId,
