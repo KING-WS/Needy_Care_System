@@ -435,6 +435,82 @@
         color: #ff6b6b;
         font-size: 18px;
     }
+    /* 모달 배경 (어두운 영역) - 핵심: position: fixed */
+    .modal-overlay {
+        position: fixed;        /* 스크롤과 상관없이 화면에 고정 */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
+        display: none;          /* 기본적으로 숨김 */
+        justify-content: center; /* 가로 중앙 정렬 */
+        align-items: center;     /* 세로 중앙 정렬 */
+        z-index: 9999;          /* 다른 요소들보다 위에 뜨도록 설정 */
+    }
+
+    /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
+    .modal-overlay[style*="display: flex"] {
+        display: flex !important;
+    }
+
+    /* 모달 내용 박스 (하얀색 박스) */
+    .modal-content {
+        background-color: white;
+        padding: 0;             /* 내부 여백 제거 (헤더/푸터 분리를 위해) */
+        border-radius: 12px;    /* 둥근 모서리 */
+        width: 90%;             /* 모바일 대응 */
+        max-width: 500px;       /* 최대 너비 제한 */
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2); /* 그림자 효과 */
+        overflow: hidden;       /* 내부 내용 넘침 방지 */
+        animation: slideIn 0.3s ease-out; /* 부드럽게 나타나는 애니메이션 */
+    }
+
+    /* 모달 헤더/바디/푸터 스타일 (디자인 개선) */
+    .modal-header {
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-title {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .modal-body {
+        padding: 20px;
+        max-height: 70vh; /* 화면이 작을 때 스크롤 생기도록 */
+        overflow-y: auto;
+    }
+
+    .modal-footer {
+        padding: 15px 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    /* 닫기 버튼 스타일 */
+    .modal-close-btn {
+        background: none;
+        border: none;
+        font-size: 20px;
+        cursor: pointer;
+        color: #666;
+    }
+
+    /* 애니메이션 효과 */
+    @keyframes slideIn {
+        from { transform: translateY(-20px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
 </style>
 
 <section class="ai-menu-section">
@@ -562,11 +638,78 @@
     </div>
 </section>
 
+<!-- AI 레시피 저장 모달 -->
+<div class="modal-overlay" id="saveRecipeModal" style="display: none; z-index: 1050;">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                <i class="fas fa-save"></i> AI 레시피로 식단 저장
+            </h3>
+            <button class="modal-close-btn" onclick="closeSaveRecipeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="saveRecipeForm">
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-calendar"></i> 날짜 <span class="required">*</span>
+                    </label>
+                    <input type="date" id="saveMealDate" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-clock"></i> 식사 구분 <span class="required">*</span>
+                    </label>
+                    <select id="saveMealType" class="form-control" required>
+                        <option value="">선택하세요</option>
+                        <option value="아침">🌅 아침</option>
+                        <option value="점심">☀️ 점심</option>
+                        <option value="저녁">🌙 저녁</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-utensils"></i> 메뉴
+                    </label>
+                    <textarea id="saveMealMenu" class="form-control" rows="2" readonly style="background: #f8f9fa;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-book"></i> 레시피
+                    </label>
+                    <textarea id="saveMealRecipe" class="form-control" rows="5" readonly style="background: #f8f9fa;"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-fire"></i> 칼로리 (kcal)
+                    </label>
+                    <input type="number" id="saveMealCalories" class="form-control" readonly style="background: #f8f9fa;">
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeSaveRecipeModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button class="btn btn-save" onclick="saveAiRecipe()">
+                <i class="fas fa-save"></i> 저장
+            </button>
+        </div>
+    </div>
+</div>
+
+
 <script>
     let currentRecId = <c:choose><c:when test="${selectedRecipient != null}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     let stream = null;
     let capturedImage = null;
     let currentFoodName = null;  // 현재 분석 중인 음식명 저장
+    let currentRecipeData = null; // AI가 분석한 레시피 데이터 저장
 
     function startCamera() {
         const video = document.getElementById('videoElement');
@@ -797,7 +940,8 @@
         
         // 레시피 표시
         if (data.recipe && data.recipe.success && data.recipe.recipe) {
-            displayRecipe(data.recipe.recipe);
+            currentRecipeData = data.recipe.recipe; // 전역 변수에 레시피 데이터 저장
+            displayRecipe(currentRecipeData);
             document.getElementById('recipeSection').style.display = 'block';
             
             // 레시피에서 음식명 추출 (이미지 분석인 경우)
@@ -805,6 +949,7 @@
                 currentFoodName = data.recipe.recipe.foodName;
             }
         } else {
+            currentRecipeData = null;
             document.getElementById('recipeSection').style.display = 'none';
         }
 
@@ -931,6 +1076,13 @@
             });
             html += '</ul></div>';
         }
+
+        // 저장하기 버튼 추가
+        html += '<div style="text-align: center; margin-top: 40px;">';
+        html += '    <button class="btn-camera btn-camera-primary" onclick="openSaveRecipeModal()">';
+        html += '        <i class="fas fa-save"></i> 이 레시피로 식단 저장하기';
+        html += '    </button>';
+        html += '</div>';
 
         recipeContent.innerHTML = html;
         recipeContent.style.display = 'block';
@@ -1094,6 +1246,92 @@
                 // 에러가 발생해도 계속 진행 (YouTube 영상은 선택사항)
             });
     }
+
+    // --- AI 레시피 저장 관련 함수 ---
+
+    function openSaveRecipeModal() {
+        if (!currentRecipeData) {
+            alert('저장할 레시피 정보가 없습니다.');
+            return;
+        }
+        if (!currentRecId) {
+            alert('식단을 저장할 대상자를 선택해주세요. 홈 화면에서 대상자를 선택할 수 있습니다.');
+            return;
+        }
+
+        // 모달 필드 채우기
+        document.getElementById('saveMealDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('saveMealType').value = '';
+        document.getElementById('saveMealMenu').value = currentRecipeData.foodName || '';
+        
+        // 레시피 내용 채우기
+        let recipeStepsText = '';
+        if (currentRecipeData.steps && currentRecipeData.steps.length > 0) {
+            recipeStepsText = currentRecipeData.steps.map(step => {
+                return (step.stepNumber || '') + '. ' + (step.description || '');
+            }).join('\\n'); // textarea에서는 줄바꿈 문자로 \n을 사용합니다.
+        }
+        document.getElementById('saveMealRecipe').value = recipeStepsText;
+
+        let totalCalories = currentRecipeData.totalCalories || 0;
+        if (totalCalories === 0 && currentRecipeData.ingredients) {
+            totalCalories = currentRecipeData.ingredients.reduce((sum, ing) => sum + (ing.calories || 0), 0);
+        }
+        document.getElementById('saveMealCalories').value = totalCalories > 0 ? totalCalories : '';
+
+        // 모달 보이기
+        document.getElementById('saveRecipeModal').style.display = 'flex';
+    }
+
+    function closeSaveRecipeModal() {
+        document.getElementById('saveRecipeModal').style.display = 'none';
+    }
+
+    function saveAiRecipe() {
+        const mealDate = document.getElementById('saveMealDate').value;
+        const mealType = document.getElementById('saveMealType').value;
+        const mealMenu = document.getElementById('saveMealMenu').value;
+        const mealCalories = document.getElementById('saveMealCalories').value;
+
+        if (!mealDate || !mealType) {
+            alert('날짜와 식사 구분을 선택해주세요.');
+            return;
+        }
+
+        // 레시피 내용을 JSON 문자열로 변환하여 저장
+        const mealRecipe = JSON.stringify(currentRecipeData, null, 2);
+
+        const data = {
+            recId: currentRecId,
+            mealDate: mealDate,
+            mealType: mealType,
+            mealMenu: mealMenu,
+            mealRecipe: mealRecipe,
+            mealCalories: mealCalories || null
+        };
+
+        fetch('/mealplan/api/meal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('AI 레시피가 식단에 성공적으로 저장되었습니다.');
+                closeSaveRecipeModal();
+            } else {
+                alert('식단 저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('식단 저장 중 오류가 발생했습니다.');
+        });
+    }
+
 
     // HTML 이스케이프 함수
     function escapeHtml(text) {
