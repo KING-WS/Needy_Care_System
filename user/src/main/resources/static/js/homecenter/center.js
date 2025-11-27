@@ -1198,7 +1198,41 @@ function loadCourseOnMap(courseId) {
                 var course = result.data;
                 var pathData = JSON.parse(course.coursePathData || '{}');
 
-                if (pathData.points && pathData.points.length >= 2) {
+                // 1. 상세 경로 데이터가 있는 경우 (API로 가져온 경로)
+                if (pathData.path && Array.isArray(pathData.path)) {
+                    // 경로 그리기
+                    var linePath = pathData.path.map(function(p) {
+                        return new kakao.maps.LatLng(p.lat, p.lng);
+                    });
+                    
+                    coursePolyline = new kakao.maps.Polyline({
+                        path: linePath,
+                        strokeWeight: 6,
+                        strokeColor: '#3498db', // 카카오 블루
+                        strokeOpacity: 0.8,
+                        strokeStyle: 'solid',
+                        map: map
+                    });
+                    
+                    // 마커 추가 (출발/도착)
+                    if (pathData.markers) {
+                        pathData.markers.forEach(function(m) {
+                            addSpecialMarker(new kakao.maps.LatLng(m.lat, m.lng), m.type, m.title);
+                        });
+                    }
+                    
+                    // 거리 정보 업데이트
+                    totalDistance = pathData.totalDistance || 0;
+                    showSimpleDistanceInfo(totalDistance);
+                    
+                    // 지도 범위 재설정
+                    var bounds = new kakao.maps.LatLngBounds();
+                    linePath.forEach(p => bounds.extend(p));
+                    map.setBounds(bounds);
+                    
+                } 
+                // 2. 기존 방식 (직선 경로)
+                else if (pathData.points && pathData.points.length >= 2) {
                     // 각 지점에 핀 추가
                     pathData.points.forEach(function(point, index) {
                         var latlng = new kakao.maps.LatLng(point.lat, point.lng);
@@ -1221,6 +1255,65 @@ function loadCourseOnMap(courseId) {
             console.error('산책코스 로드 실패:', error);
             alert('산책코스를 불러오는 중 오류가 발생했습니다.');
         });
+}
+
+// 출발/도착 마커 추가 (이미지 적용)
+function addSpecialMarker(position, type, title) {
+    var imageSrc, imageSize, imageOption;
+    
+    if (type === 'START') {
+        // 출발 마커 (파란색 핀)
+        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png';
+        imageSize = new kakao.maps.Size(50, 45);
+        imageOption = {offset: new kakao.maps.Point(15, 43)};
+    } else {
+        // 도착 마커 (빨간색 핀)
+        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png';
+        imageSize = new kakao.maps.Size(50, 45);
+        imageOption = {offset: new kakao.maps.Point(15, 43)};
+    }
+    
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+    
+    var marker = new kakao.maps.Marker({
+        position: position,
+        map: map,
+        image: markerImage,
+        title: title,
+        zIndex: 100 // 경로 위에 표시
+    });
+    
+    var infowindow = new kakao.maps.InfoWindow({
+        content: '<div style="padding:5px;font-size:12px;text-align:center;min-width:80px;">' +
+            '<strong>' + title + '</strong>' +
+            '</div>',
+        removable: false
+    });
+    infowindow.open(map, marker);
+    
+    courseMarkers.push({
+        marker: marker,
+        infowindow: infowindow,
+        position: position
+    });
+}
+
+// 단순 거리 정보 표시 (상세 경로용)
+function showSimpleDistanceInfo(distance) {
+    var existingInfo = document.getElementById('courseDistanceInfo');
+    if (existingInfo) existingInfo.remove();
+
+    var distanceInfo = document.createElement('div');
+    distanceInfo.id = 'courseDistanceInfo';
+    distanceInfo.style.cssText = 'position: absolute; bottom: 20px; left: 20px; background: rgba(255, 255, 255, 0.95); padding: 15px 20px; border-radius: 10px; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.2); min-width: 200px;';
+
+    var distanceText = distance < 1000 ? Math.round(distance) + 'm' : (distance / 1000).toFixed(2) + 'km';
+    
+    distanceInfo.innerHTML = 
+        '<div style="font-weight: 600; color: #3498db; margin-bottom: 5px;"><i class="fas fa-route"></i> 추천 경로</div>' +
+        '<div style="font-size: 14px; color: #333;">총 거리: <strong>' + distanceText + '</strong></div>';
+
+    document.querySelector('.map-right').appendChild(distanceInfo);
 }
 
 // 데이터에서 산책코스 핀 추가 (저장된 코스 불러오기용)
