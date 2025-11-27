@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,6 +24,7 @@ public class KakaoMapService {
 
     private static final String KAKAO_SEARCH_KEYWORD_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
     private static final String KAKAO_SEARCH_ADDRESS_URL = "https://dapi.kakao.com/v2/local/search/address.json";
+    private static final String KAKAO_DIRECTIONS_URL = "https://apis-navi.kakaomobility.com/v1/directions";
 
     private final ObjectMapper objectMapper;
 
@@ -103,6 +103,68 @@ public class KakaoMapService {
             log.error("Kakao Address Search Failed: {}", e.getMessage(), e);
         }
         return coords;
+    }
+
+    /**
+     * 길찾기 (자동차 경로) - Kakao Mobility Directions API
+     */
+    public Map<String, Object> getRoute(String startLng, String startLat, String endLng, String endLat) {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            if (apiKey == null || apiKey.trim().isEmpty()) return result;
+
+            String origin = startLng + "," + startLat;
+            String destination = endLng + "," + endLat;
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(KAKAO_DIRECTIONS_URL)
+                    .queryParam("origin", origin)
+                    .queryParam("destination", destination)
+                    .queryParam("priority", "RECOMMEND"); // 추천 경로
+
+            String jsonResponse = sendRequest(builder.toUriString());
+            if (jsonResponse != null) {
+                JsonNode root = objectMapper.readTree(jsonResponse);
+                JsonNode routes = root.path("routes");
+                if (routes.isArray() && routes.size() > 0) {
+                    JsonNode route = routes.get(0);
+                    JsonNode summary = route.path("summary");
+                    int totalDistance = summary.path("distance").asInt();
+                    int duration = summary.path("duration").asInt();
+
+                    result.put("totalDistance", totalDistance);
+                    result.put("duration", duration);
+
+                    // 경로 좌표 추출 (vertexes)
+                    List<Map<String, Double>> pathPoints = new ArrayList<>();
+                    JsonNode sections = route.path("sections");
+                    if (sections.isArray()) {
+                        for (JsonNode section : sections) {
+                            JsonNode roads = section.path("roads");
+                            if (roads.isArray()) {
+                                for (JsonNode road : roads) {
+                                    JsonNode vertexes = road.path("vertexes");
+                                    if (vertexes.isArray()) {
+                                        for (int i = 0; i < vertexes.size(); i += 2) {
+                                            double lng = vertexes.get(i).asDouble();
+                                            double lat = vertexes.get(i + 1).asDouble();
+                                            
+                                            Map<String, Double> point = new HashMap<>();
+                                            point.put("lng", lng);
+                                            point.put("lat", lat);
+                                            pathPoints.add(point);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    result.put("path", pathPoints);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Kakao Directions API Failed: {}", e.getMessage(), e);
+        }
+        return result;
     }
 
     private String sendRequest(String urlStr) throws Exception {

@@ -53,16 +53,7 @@ public class AiMealService {
         log.info("Raw AI Response: {}", aiResponse);
 
         // AI 응답에서 JSON 부분만 추출하는 전처리 로직 추가
-        String cleanedJson = aiResponse;
-        int firstBrace = cleanedJson.indexOf('{');
-        int lastBrace = cleanedJson.lastIndexOf('}');
-
-        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
-            cleanedJson = cleanedJson.substring(firstBrace, lastBrace + 1);
-        } else {
-            log.error("Could not find a valid JSON object in the AI response.");
-            return Map.of("error", "AI가 유효한 응답을 생성하지 못했습니다.");
-        }
+        String cleanedJson = extractJson(aiResponse);
         
         log.info("Cleaned JSON for parsing: {}", cleanedJson);
 
@@ -74,5 +65,50 @@ public class AiMealService {
             log.error("Failed to parse AI response JSON", e);
             return Map.of("error", "AI 응답을 파싱하는 데 실패했습니다.");
         }
+    }
+
+    /**
+     * AI에게 프롬프트를 보내고, 응답에서 순수한 JSON 문자열만 추출하여 반환합니다.
+     * @param prompt AI에게 보낼 전체 프롬프트 문자열
+     * @return AI가 생성한 JSON 형식의 문자열
+     */
+    public String getSingleJsonResponse(String prompt) {
+        log.info("AI Service - getSingleJsonResponse 호출됨");
+
+        String aiResponse = chatClient.prompt()
+                .user(prompt)
+                .call()
+                .content();
+
+        log.info("Raw AI Response: {}", aiResponse);
+
+        String cleanedJson = extractJson(aiResponse);
+        
+        if (cleanedJson == null) {
+            log.error("AI 응답에서 유효한 JSON 객체를 찾을 수 없습니다.");
+            // 오류 상황을 나타내는 JSON 문자열을 대신 반환할 수 있습니다.
+            return "{\"error\": \"AI가 유효한 응답을 생성하지 못했습니다.\"}";
+        }
+        
+        log.info("Cleaned JSON for parsing: {}", cleanedJson);
+        return cleanedJson;
+    }
+
+    /**
+     * 응답 문자열에서 JSON 부분만 추출합니다.
+     * @param response AI의 전체 응답 문자열
+     * @return 추출된 JSON 문자열 또는 null
+     */
+    private String extractJson(String response) {
+        if (response == null) {
+            return null;
+        }
+        int firstBrace = response.indexOf('{');
+        int lastBrace = response.lastIndexOf('}');
+
+        if (firstBrace != -1 && lastBrace != -1 && lastBrace > firstBrace) {
+            return response.substring(firstBrace, lastBrace + 1);
+        }
+        return null;
     }
 }

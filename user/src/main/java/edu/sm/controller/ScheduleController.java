@@ -4,6 +4,7 @@ import edu.sm.app.aiservice.AiCareContentService;
 import edu.sm.app.aiservice.AiChatService;
 import edu.sm.app.dto.*;
 import edu.sm.app.service.KakaoMapService;
+import edu.sm.app.service.MapCourseService;
 import edu.sm.app.service.MapService;
 import edu.sm.app.service.RecipientService;
 import edu.sm.app.service.ScheduleService;
@@ -32,6 +33,8 @@ public class ScheduleController {
     private final AiCareContentService aiCareContentService;
     private final KakaoMapService kakaoMapService;
     private final MapService mapService;
+    private final MapCourseService mapCourseService;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final String dir = "schedule/";
 
     @RequestMapping("")
@@ -149,6 +152,13 @@ public class ScheduleController {
                 String placeName = (String) item.get("mapName");
                 List<Map<String, Object>> searchResults = new ArrayList<>();
                 
+                // 사용자 위치 정보 추가 (길찾기 링크용)
+                if (lat != null && lng != null) {
+                    item.put("startLat", lat);
+                    item.put("startLng", lng);
+                    item.put("startAddress", address);
+                }
+                
                 // 사용자 위치 기반 검색 시도
                 if (lat != null && lng != null) {
                     searchResults = kakaoMapService.searchPlace(placeName, lat, lng);
@@ -234,9 +244,95 @@ public class ScheduleController {
             }
 
             mapService.register(mapLocation);
+            
+            // 3. MapCourse 저장 (산책 코스)
+            try {
+                String courseName = (String) request.get("courseName");
+                String courseType = (String) request.get("courseType");
+                String startLat = (String) request.get("startLat");
+                String startLng = (String) request.get("startLng");
+                String endLat = (String) request.get("endLat");
+                String endLng = (String) request.get("endLng");
+                String courseDistanceStr = (String) request.get("courseDistance");
+                
+                if (courseName != null && !courseName.isEmpty()) {
+                    MapCourse mapCourse = new MapCourse();
+                    mapCourse.setRecId(recId);
+                    mapCourse.setCourseName(courseName);
+                    mapCourse.setCourseType(courseType != null ? courseType : "WALK");
+                    
+                    // 경로 데이터 (JSON 형식: 시작점 -> 도착점)
+                    if (startLat != null && endLat != null) {
+                        String pathData = null;
+                        
+                        // 1. Kakao Directions API로 실제 경로 가져오기 시도
+                        try {
+                            Map<String, Object> routeResult = kakaoMapService.getRoute(startLng, startLat, endLng, endLat);
+                            
+                            if (routeResult.containsKey("path")) {
+                                @SuppressWarnings("unchecked")
+                                List<Map<String, Double>> path = (List<Map<String, Double>>) routeResult.get("path");
+                                double totalDist = ((Number) routeResult.get("totalDistance")).doubleValue();
+                                
+                                Map<String, Object> jsonMap = new HashMap<>();
+                                
+                                // 마커 (출발/도착)
+                                List<Map<String, Object>> markers = new ArrayList<>();
+                                markers.add(Map.of("lat", Double.parseDouble(startLat), "lng", Double.parseDouble(startLng), "type", "START", "title", "출발"));
+                                markers.add(Map.of("lat", Double.parseDouble(endLat), "lng", Double.parseDouble(endLng), "type", "END", "title", "도착"));
+                                
+                                jsonMap.put("markers", markers);
+                                jsonMap.put("path", path);
+                                jsonMap.put("totalDistance", totalDist);
+                                
+                                pathData = objectMapper.writeValueAsString(jsonMap);
+                            }
+                        } catch (Exception e) {
+                            log.warn("경로 탐색 API 실패, 직선 경로로 대체합니다.", e);
+                        }
+                        
+                        // 2. API 실패 시 직선 경로 (Fallback)
+                        if (pathData == null) {
+                            double dist = 0.0;
+                            try {
+                                if (courseDistanceStr != null && !courseDistanceStr.isEmpty()) {
+                                    dist = Double.parseDouble(courseDistanceStr);
+                                } else {
+                                    dist = calculateDistance(
+                                        Double.parseDouble(startLat), Double.parseDouble(startLng),
+                                        Double.parseDouble(endLat), Double.parseDouble(endLng)
+                                    );
+                                }
+                            } catch (Exception e) {
+                                log.warn("거리 계산 실패, 0으로 설정", e);
+                            }
+    
+                            // JSON 문자열 수동 생성
+                            pathData = String.format(
+                                "{\"points\":[" +
+                                    "{\"lat\":%s,\"lng\":%s,\"number\":0}," +
+                                    "{\"lat\":%s,\"lng\":%s,\"number\":1}" +
+                                "]," +
+                                "\"distances\":[" +
+                                    "{\"from\":0,\"to\":1,\"distance\":%.2f}" +
+                                "]," +
+                                "\"totalDistance\":%.2f}",
+                                startLat, startLng, endLat, endLng, dist, dist
+                            );
+                        }
+                        
+                        mapCourse.setCoursePathData(pathData);
+                    }
+                    
+                    mapCourseService.registerCourse(mapCourse);
+                }
+            } catch (Exception e) {
+                log.error("산책 코스 저장 실패 (일정은 저장됨)", e);
+                // 코스 저장이 실패해도 일정 저장은 성공했으므로 계속 진행
+            }
 
             response.put("success", true);
-            response.put("message", "일정과 장소가 추가되었습니다.");
+            response.put("message", "일정과 장소, 산책 코스가 추가되었습니다.");
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
@@ -562,5 +658,16 @@ public class ScheduleController {
             result.put("date", LocalDate.now().toString()); // 실패 시 오늘 날짜 반환
             return ResponseEntity.ok(result);
         }
+    }
+
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000; // Radius of the earth in meters
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 }

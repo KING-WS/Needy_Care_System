@@ -69,7 +69,14 @@ public class AiMealRecipeService {
                 반드시 다음 JSON 형식으로만 응답해주세요:
                 {
                   "foodName": "음식 이름",
-                  "ingredients": ["재료1", "재료2", "재료3", ...],
+                  "totalCalories": "총 예상 칼로리 (kcal 단위 숫자)",
+                  "ingredients": [
+                    {
+                      "name": "재료명",
+                      "amount": "필요한 양 (예: 100g)",
+                      "calories": "해당 재료의 칼로리 (kcal 단위 숫자)"
+                    }
+                  ],
                   "cookingTime": "조리 시간 (예: 30분)",
                   "difficulty": "난이도 (쉬움/보통/어려움)",
                   "steps": [
@@ -87,7 +94,8 @@ public class AiMealRecipeService {
                 }
                 
                 - foodName: 식별된 음식의 정확한 이름
-                - ingredients: 필요한 재료 목록
+                - totalCalories: 모든 재료의 칼로리를 합산한 총 예상 칼로리
+                - ingredients: 각 재료의 이름(name), 양(amount), 칼로리(calories)를 포함하는 객체 배열
                 - cookingTime: 예상 조리 시간
                 - difficulty: 조리 난이도
                 - steps: 조리 단계 (순서대로, 최소 3단계 이상)
@@ -149,7 +157,14 @@ public class AiMealRecipeService {
                 반드시 다음 JSON 형식으로만 응답해주세요:
                 {
                   "foodName": "음식 이름",
-                  "ingredients": ["재료1", "재료2", "재료3", ...],
+                  "totalCalories": "총 예상 칼로리 (kcal 단위 숫자)",
+                  "ingredients": [
+                    {
+                      "name": "재료명",
+                      "amount": "필요한 양 (예: 100g)",
+                      "calories": "해당 재료의 칼로리 (kcal 단위 숫자)"
+                    }
+                  ],
                   "cookingTime": "조리 시간 (예: 30분)",
                   "difficulty": "난이도 (쉬움/보통/어려움)",
                   "steps": [
@@ -167,7 +182,8 @@ public class AiMealRecipeService {
                 }
                 
                 - foodName: 입력된 음식의 정확한 이름
-                - ingredients: 필요한 재료 목록 (구체적인 양 포함)
+                - totalCalories: 모든 재료의 칼로리를 합산한 총 예상 칼로리
+                - ingredients: 각 재료의 이름(name), 양(amount), 칼로리(calories)를 포함하는 객체 배열
                 - cookingTime: 예상 조리 시간
                 - difficulty: 조리 난이도
                 - steps: 조리 단계 (순서대로, 최소 3단계 이상, 각 단계는 자세하게)
@@ -226,4 +242,3 @@ public class AiMealRecipeService {
         return null;
     }
 }
-
