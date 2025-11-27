@@ -48,7 +48,7 @@
 </style>
 
 <section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
-    <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+    <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
         
         <div class="row">
             <div class="col-12 mb-4">
@@ -61,25 +61,41 @@
             </div>
         </div>
 
-        <!-- 노약자 선택 (ScheduleController가 recipientList를 넘겨준다고 가정) -->
-        <c:if test="${not empty recipientList}">
-            <div class="row mb-4 justify-content-center">
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body d-flex align-items-center gap-3">
-                            <label class="fw-bold text-nowrap"><i class="fas fa-user-injured"></i> 대상자:</label>
-                            <select id="recipientSelect" class="form-select">
-                                <c:forEach items="${recipientList}" var="rec">
-                                    <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                                        ${rec.recName}
-                                    </option>
-                                </c:forEach>
-                            </select>
-                        </div>
+        <!-- 사용방법 안내 -->
+        <div class="row mb-4 justify-content-center">
+            <div class="col-lg-12">
+                <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                    <div class="card-body">
+                        <h3 style="color: #333; font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-info-circle text-primary"></i> AI 장소 추천 사용 가이드
+                        </h3>
+                        <ul style="list-style: none; padding: 0; margin: 0;">
+                            <li style="display: flex; align-items: start; gap: 15px; margin-bottom: 15px;">
+                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-user-check"></i></div>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">1. 대상자 확인</strong>
+                                    <span style="font-size: 14px; color: #555;">현재 선택된 <strong>${selectedRecipient.recName}</strong> 님의 건강 상태와 선호도에 따라 맞춤형 장소가 추천됩니다. (대상자 변경은 홈 화면에서 가능)</span>
+                                </div>
+                            </li>
+                            <li style="display: flex; align-items: start; gap: 15px; margin-bottom: 15px;">
+                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-magic"></i></div>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">2. 추천 시작</strong>
+                                    <span style="font-size: 14px; color: #555;">'노약자 맞춤 추천 시작' 버튼을 클릭하면 AI가 분석을 시작합니다. 잠시만 기다려주세요.</span>
+                                </div>
+                            </li>
+                            <li style="display: flex; align-items: start; gap: 15px;">
+                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-calendar-plus"></i></div>
+                                <div>
+                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">3. 결과 확인 및 저장</strong>
+                                    <span style="font-size: 14px; color: #555;">추천된 장소의 'AI 요약 보기'로 상세 정보를 확인하고, '추가' 버튼을 눌러 간편하게 일정과 지도에 저장할 수 있습니다.</span>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </c:if>
+        </div>
 
         <div class="row mb-5">
              <div class="col-12 text-center">
@@ -144,6 +160,30 @@
                 <input type="text" class="form-control" id="mapAddress" required readonly style="background-color: #f8f9fa;">
                 <div class="form-text">주소가 정확하지 않으면 직접 수정할 수 있습니다.</div>
             </div>
+
+            <!-- 산책 코스 정보 (자동 생성) -->
+            <div class="card bg-light border-0 mb-3">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-route text-success"></i> 산책 코스 정보</h6>
+                    
+                    <div class="mb-3">
+                        <label for="courseName" class="form-label small fw-bold text-secondary">코스 이름</label>
+                        <input type="text" class="form-control form-control-sm" id="courseName" required>
+                    </div>
+                    
+                    <input type="hidden" id="courseType">
+                    <input type="hidden" id="startLat">
+                    <input type="hidden" id="startLng">
+                    <input type="hidden" id="endLat">
+                    <input type="hidden" id="endLng">
+                    <input type="hidden" id="courseDistance">
+                    
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-success me-2" id="displayCourseType"></span>
+                        <small class="text-muted">이 코스는 홈 화면의 지도에서 확인할 수 있습니다.</small>
+                    </div>
+                </div>
+            </div>
         </form>
       </div>
       <div class="modal-footer border-top-0">
@@ -166,10 +206,10 @@
         document.getElementById('schedDate').valueAsDate = new Date();
 
         recommendBtn.addEventListener('click', function() {
-            const recId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : null;
+            const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
             
             if (!recId) {
-                alert("대상자를 선택해주세요.");
+                alert("추천을 위한 대상자 정보가 없습니다.");
                 return;
             }
 
@@ -220,14 +260,20 @@
                                     </div>
                                     
                                     <div class="d-flex gap-2">
-                                        <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
-                                            <i class="fas fa-map"></i> 지도 검색
+                                        <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
+                                            <i class="fas fa-directions"></i> 길찾기
                                         </a>
                                         <button class="btn btn-success flex-grow-1 btn-add-schedule"
                                             data-mapname="\${item.mapName}"
                                             data-mapcontent="\${item.mapContent}"
                                             data-mapcategory="\${item.mapCategory}"
-                                            data-mapaddress="\${address}">
+                                            data-mapaddress="\${address}"
+                                            data-coursetype="\${item.courseType || 'WALK'}"
+                                            data-startlat="\${item.startLat}"
+                                            data-startlng="\${item.startLng}"
+                                            data-endlat="\${item.y}"
+                                            data-endlng="\${item.x}"
+                                            data-distance="\${item.distance || 0}">
                                             <i class="fas fa-plus"></i> 추가
                                         </button>
                                     </div>
@@ -272,6 +318,14 @@
                     const mapContent = this.dataset.mapcontent;
                     const mapCategory = this.dataset.mapcategory;
                     const mapAddress = this.dataset.mapaddress;
+                    const courseType = this.dataset.coursetype;
+                    const distance = this.dataset.distance;
+                    
+                    // 좌표 데이터
+                    const startLat = this.dataset.startlat;
+                    const startLng = this.dataset.startlng;
+                    const endLat = this.dataset.endlat;
+                    const endLng = this.dataset.endlng;
 
                     document.getElementById('modalMapName').value = mapName;
                     document.getElementById('modalMapContent').value = mapContent;
@@ -283,6 +337,18 @@
                     document.getElementById('displayMapContent').textContent = mapContent;
                     
                     document.getElementById('schedName').value = mapName + " 방문";
+                    
+                    // 코스 정보 설정
+                    document.getElementById('courseName').value = mapName + " 방문 코스";
+                    document.getElementById('courseType').value = courseType;
+                    document.getElementById('displayCourseType').textContent = courseType;
+                    
+                    // 좌표 및 거리 설정
+                    document.getElementById('startLat').value = startLat;
+                    document.getElementById('startLng').value = startLng;
+                    document.getElementById('endLat').value = endLat;
+                    document.getElementById('endLng').value = endLng;
+                    document.getElementById('courseDistance').value = distance;
                     
                     const addrInput = document.getElementById('mapAddress');
                     addrInput.value = mapAddress;
@@ -305,7 +371,7 @@
 
         // Save Button in Modal
         document.getElementById('saveRecommendBtn').addEventListener('click', function() {
-            const recId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : null;
+            const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
             
             const data = {
                 recId: recId,
@@ -314,7 +380,15 @@
                 mapAddress: document.getElementById('mapAddress').value,
                 mapName: document.getElementById('modalMapName').value,
                 mapContent: document.getElementById('modalMapContent').value,
-                mapCategory: document.getElementById('modalMapCategory').value
+                mapCategory: document.getElementById('modalMapCategory').value,
+                // 산책 코스 데이터 추가
+                courseName: document.getElementById('courseName').value,
+                courseType: document.getElementById('courseType').value,
+                startLat: document.getElementById('startLat').value,
+                startLng: document.getElementById('startLng').value,
+                endLat: document.getElementById('endLat').value,
+                endLng: document.getElementById('endLng').value,
+                courseDistance: document.getElementById('courseDistance').value
             };
 
             fetch('/schedule/save-recommendation', {
@@ -340,4 +414,3 @@
         });
     });
 </script>
-
