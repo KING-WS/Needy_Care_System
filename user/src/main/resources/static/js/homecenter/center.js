@@ -1122,6 +1122,16 @@ async function loadCourseList() {
     }
 }
 
+// 코스 이름에 줄 바꿈 추가
+function formatCourseName(name) {
+    if (!name) return '';
+    const parts = name.split(' ');
+    if (parts.length > 2) {
+        return parts.slice(0, 2).join(' ') + '<br>' + parts.slice(2).join(' ');
+    }
+    return name;
+}
+
 // 산책코스 목록 표시
 function displayCourseList(courses) {
     // map-address-panel 안의 map-location-items에 산책코스 목록 추가
@@ -1170,7 +1180,7 @@ function displayCourseList(courses) {
         html += '<div class="map-location-item course-item" data-course-id="' + course.courseId + '" onclick="showCourseDetail(' + course.courseId + ')">' +
             '<div class="location-info">' +
             '<div class="location-name-wrapper">' +
-            '<div class="location-name">' + course.courseName + '</div>' +
+            '<div class="location-name">' + formatCourseName(course.courseName) + '</div>' +
             '<div class="location-category course-category">' + course.courseType + '</div>' +
             '</div>' +
             '</div>' +
