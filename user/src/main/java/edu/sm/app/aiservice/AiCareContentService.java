@@ -97,7 +97,8 @@ public class AiCareContentService {
               {
                 "mapName": "장소 또는 행사 이름 (검색 가능한 정확한 명칭)",
                 "mapContent": "추천 이유 및 활동 내용 요약 (어르신에게 좋은 점)",
-                "mapCategory": "카테고리 (예: 공원, 복지관, 문화센터, 병원, 산책로, 축제 등)"
+                "mapCategory": "카테고리 (예: 공원, 복지관, 문화센터, 병원, 산책로, 축제 등)",
+                "courseType": "코스 타입 (예: 산책, 드라이브, 실내활동, 운동 등)"
               },
               ...
             ]
