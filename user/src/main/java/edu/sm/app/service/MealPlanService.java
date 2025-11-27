@@ -1,7 +1,8 @@
 package edu.sm.app.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.aiservice.AiMealService;
-import edu.sm.app.aiservice.AiMealRecipeService;
 import edu.sm.app.dto.MealPlan;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.repository.MealPlanRepository;
@@ -28,7 +29,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     private final MealPlanRepository mealPlanRepository;
     private final RecipientService recipientService;
     private final AiMealService aiMealService;
-    private final AiMealRecipeService aiMealRecipeService;
+    private final ObjectMapper objectMapper;
 
 
     /**
@@ -236,9 +237,30 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         // 2. AI에게 보낼 프롬프트 및 사용자에게 보여줄 추천 근거 생성
         StringBuilder prompt = new StringBuilder();
         prompt.append(String.format("다음 정보를 가진 사람을 위한 건강한 %s 식단을 추천해줘. 반드시 한글로 답변해줘.\n", mealType));
-        prompt.append("응답 형식은 'mealName', 'calories', 'protein', 'carbohydrates', 'fats', 'description' 키를 가진 JSON 객체 형식이어야 해.\n");
-        prompt.append("각 영양소의 단위는 그램(g)으로, 칼로리는 kcal로 표시해줘.\n");
-        prompt.append(String.format("특히, 이 식단은 '%s' 식사임을 명심하고 그에 맞는 메뉴를 추천해줘.\n\n", mealType));
+        prompt.append("응답은 반드시 아래 JSON 형식이어야 해. 다른 설명은 절대 추가하지 마.\n");
+        prompt.append("""
+            {
+              "foodName": "추천 음식 이름 (예: 닭가슴살 채소 비빔밥)",
+              "totalCalories": "총 예상 칼로리 (kcal 단위 숫자)",
+              "ingredients": [
+                {
+                  "name": "재료명",
+                  "amount": "필요한 양 (예: 100g)",
+                  "calories": "해당 재료의 칼로리 (kcal 단위 숫자)"
+                }
+              ],
+              "cookingTime": "조리 시간 (예: 30분)",
+              "difficulty": "난이도 (쉬움/보통/어려움)",
+              "steps": [
+                {
+                  "stepNumber": 1,
+                  "description": "첫 번째 단계 설명"
+                }
+              ],
+              "tips": ["조리 팁1", "조리 팁2"]
+            }
+            """);
+        prompt.append(String.format("\n특히, 이 식단은 '%s' 식사임을 명심하고 그에 맞는 메뉴를 추천해줘.\n\n", mealType));
 
         StringBuilder basis = new StringBuilder();
         basis.append(String.format("'%s'님을 위한 %s 식단으로, 다음 정보를 바탕으로 추천합니다: ", recipient.getRecName(), mealType));
@@ -271,67 +293,17 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         log.debug("AI 프롬프트: {}", finalPrompt);
 
         // 3. AiMealService를 통해 추천 받기
-        Map<String, String> recommendation = aiMealService.getMealRecommendation(finalPrompt);
+        String aiResponse = aiMealService.getSingleJsonResponse(finalPrompt);
+        log.info("AI 추천 응답: {}", aiResponse);
 
-        // 4. 레시피 생성 (메뉴 이름을 기반으로)
-        Map<String, Object> recipeResult = null;
-        String recipeText = null;
-        if (recommendation.containsKey("mealName") && !recommendation.containsKey("error")) {
-            try {
-                recipeResult = aiMealRecipeService.getRecipeFromText(recommendation.get("mealName"));
-                if (recipeResult != null && (Boolean) recipeResult.getOrDefault("success", false)) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> recipe = (Map<String, Object>) recipeResult.get("recipe");
-                    if (recipe != null) {
-                        // 레시피를 텍스트 형식으로 변환
-                        StringBuilder recipeBuilder = new StringBuilder();
-                        if (recipe.containsKey("foodName")) {
-                            recipeBuilder.append("음식명: ").append(recipe.get("foodName")).append("\n\n");
-                        }
-                        if (recipe.containsKey("ingredients")) {
-                            @SuppressWarnings("unchecked")
-                            List<String> ingredients = (List<String>) recipe.get("ingredients");
-                            if (ingredients != null && !ingredients.isEmpty()) {
-                                recipeBuilder.append("재료:\n");
-                                for (String ingredient : ingredients) {
-                                    recipeBuilder.append("- ").append(ingredient).append("\n");
-                                }
-                                recipeBuilder.append("\n");
-                            }
-                        }
-                        if (recipe.containsKey("steps")) {
-                            @SuppressWarnings("unchecked")
-                            List<Map<String, Object>> steps = (List<Map<String, Object>>) recipe.get("steps");
-                            if (steps != null && !steps.isEmpty()) {
-                                recipeBuilder.append("조리 방법:\n");
-                                for (Map<String, Object> step : steps) {
-                                    int stepNum = step.containsKey("stepNumber") ? 
-                                        ((Number) step.get("stepNumber")).intValue() : 0;
-                                    String desc = step.containsKey("description") ? 
-                                        step.get("description").toString() : "";
-                                    recipeBuilder.append(stepNum).append(". ").append(desc).append("\n");
-                                }
-                            }
-                        }
-                        recipeText = recipeBuilder.toString();
-                    }
-                }
-            } catch (Exception e) {
-                log.warn("레시피 생성 실패 (식단 추천에는 영향 없음): {}", e.getMessage());
-            }
-        }
+        // 4. JSON 파싱
+        Map<String, Object> recommendation = objectMapper.readValue(aiResponse, new TypeReference<>() {});
 
-        // 5. 결과와 근거, 레시피를 함께 반환
+        // 5. 결과와 근거를 함께 반환
         Map<String, Object> result = new HashMap<>();
         result.put("recommendation", recommendation);
         result.put("basis", basis.toString());
-        if (recipeText != null) {
-            result.put("recipe", recipeText);
-            if (recipeResult != null) {
-                result.put("recipeDetail", recipeResult);
-            }
-        }
+        
         return result;
     }
 }
-
