@@ -405,6 +405,36 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+    .ingredient-calories {
+        font-size: 0.9em;
+        color: #007bff;
+        font-weight: 500;
+    }
+    .total-calories-section {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        border: 1px solid #e9ecef;
+    }
+    .total-calories-section i {
+        color: #ff6b6b;
+        font-size: 20px;
+    }
+    .total-calories-section strong {
+        font-weight: 600;
+        color: #343a40;
+    }
+    .total-calories-section span {
+        font-weight: 700;
+        color: #ff6b6b;
+        font-size: 18px;
+    }
 </style>
 
 <section class="ai-menu-section">
@@ -828,15 +858,42 @@
 
         // 재료 목록
         if (recipe.ingredients && recipe.ingredients.length > 0) {
+            let totalCalories = 0;
             html += '<div style="margin-bottom: 25px;">';
             html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">';
             html += '<i class="fas fa-shopping-basket"></i> 필요한 재료';
             html += '</h4>';
             html += '<div class="ingredients-list">';
             recipe.ingredients.forEach(function(ingredient) {
-                html += '<span class="ingredient-tag">' + escapeHtml(ingredient) + '</span>';
+                let ingredientName = '';
+                let ingredientCalories = 0;
+
+                if (typeof ingredient === 'object' && ingredient.name) {
+                    ingredientName = ingredient.name;
+                    ingredientCalories = ingredient.calories || 0;
+                    totalCalories += ingredientCalories;
+                } else {
+                    ingredientName = ingredient;
+                }
+
+                html += '<span class="ingredient-tag">' + escapeHtml(ingredientName);
+                if (ingredientCalories > 0) {
+                    html += ' <span class="ingredient-calories">(' + ingredientCalories + 'kcal)</span>';
+                }
+                html += '</span>';
             });
-            html += '</div></div>';
+            html += '</div>';
+
+            // 총 칼로리 표시
+            const finalTotalCalories = recipe.totalCalories || totalCalories;
+            if (finalTotalCalories > 0) {
+                html += '<div class="total-calories-section">';
+                html += '   <i class="fas fa-fire-alt"></i>';
+                html += '   <strong>총 예상 소비 칼로리:</strong>';
+                html += '   <span>' + finalTotalCalories + ' kcal</span>';
+                html += '</div>';
+            }
+            html += '</div>';
         }
 
         // 조리 단계
@@ -1056,4 +1113,3 @@
         stopCamera();
     });
 </script>
-
