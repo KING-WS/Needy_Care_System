@@ -82,4 +82,8 @@
         WHERE rec_id = #{recId}
     </update>
 
+    <select id="selectSeniorCount" resultType="int">
+        SELECT COUNT(*) FROM Care_Recipient WHERE is_deleted = 'N'
+    </select>
+
 </mapper>

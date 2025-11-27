@@ -49,6 +49,10 @@ public class SeniorService {
         seniorRepository.update(senior);
     }
 
+    public int getSeniorCount() {
+        return seniorRepository.selectSeniorCount();
+    }
+
     private int calculateAge(Date birthDate) {
         if (birthDate == null) {
             return 0;

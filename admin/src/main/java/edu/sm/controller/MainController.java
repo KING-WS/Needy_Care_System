@@ -1,5 +1,9 @@
 package edu.sm.controller;
 
+import edu.sm.app.service.CaregiverService;
+import edu.sm.app.service.SeniorService;
+import edu.sm.app.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -12,10 +16,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
  */
 @Controller
 @Slf4j
+@RequiredArgsConstructor
 public class MainController {
 
     @Value("${app.api.kakao-js-key}")
     private String kakaoMapKey;
+
+    private final UserService userService;
+    private final SeniorService seniorService;
+    private final CaregiverService caregiverService;
 
     /**
      * 메인 대시보드 페이지
@@ -24,6 +33,16 @@ public class MainController {
     public String dashboard(Model model) {
         log.info("Dashboard page accessed");
         model.addAttribute("kakaoMapKey", kakaoMapKey);
+        try {
+            model.addAttribute("userCount", userService.getUserCount());
+            model.addAttribute("seniorCount", seniorService.getSeniorCount());
+            model.addAttribute("caregiverCount", caregiverService.getCaregiverCount());
+        } catch (Exception e) {
+            log.error("Failed to get counts for dashboard", e);
+            model.addAttribute("userCount", 0);
+            model.addAttribute("seniorCount", 0);
+            model.addAttribute("caregiverCount", 0);
+        }
         return "index";
     }
 
