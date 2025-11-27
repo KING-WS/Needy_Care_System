@@ -130,7 +130,7 @@ function loadStatistics() {
     fetch(`/mealplan/api/calories?recId=${currentRecId}&mealDate=${today}`)
         .then(response => response.json())
         .then(data => {
-            document.getElementById('todayCalories').textContent = data.totalCalories + 'kcal';
+            document.getElementById('todayTotalCalories').textContent = data.totalCalories;
         })
         .catch(error => console.error('칼로리 조회 실패:', error));
 
@@ -147,10 +147,6 @@ function loadStatistics() {
             const totalCal = meals.reduce((sum, meal) => sum + (meal.mealCalories || 0), 0);
             const avgCal = meals.length > 0 ? Math.round(totalCal / 7) : 0;
             document.getElementById('weekAvgCalories').textContent = avgCal;
-            document.getElementById('avgCalories').textContent = avgCal + 'kcal';
-            
-            // 이번 주 등록 건수
-            document.getElementById('weekMealsCount').textContent = meals.length + '건';
         })
         .catch(error => console.error('주간 통계 조회 실패:', error));
 }
@@ -382,7 +378,7 @@ function closeAiRecommendationModal() {
 function getAiRecommendation() {
     const specialNotes = document.getElementById('aiSpecialNotes').value;
     const mealType = document.getElementById('aiMealType').value;
-    const recId = currentRecId; // 현재 선택된 노약자 ID
+    const recId = currentRecId;
 
     if (!recId) {
         showError('돌봄 대상자를 선택해야 AI 식단 추천을 받을 수 있습니다.');
@@ -393,86 +389,76 @@ function getAiRecommendation() {
         return;
     }
 
-    // 로딩 인디케이터 표시
     const getAiRecommendationBtn = document.getElementById('getAiRecommendationBtn');
     getAiRecommendationBtn.disabled = true;
     getAiRecommendationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추천받는 중...';
 
-    // 이전 결과 숨기기
     document.getElementById('aiRecommendationResult').style.display = 'none';
     document.getElementById('aiRecommendationBasis').style.display = 'none';
 
-
     fetch('/mealplan/api/recommend', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ recId: recId, specialNotes: specialNotes, mealType: mealType })
     })
     .then(response => response.json())
     .then(res => {
-        console.log('AI 응답 데이터:', res); // 디버깅을 위해 응답 전체를 콘솔에 출력
         if (res.success) {
-            let recommendation = res.data.recommendation;
+            const recommendation = res.data.recommendation;
             const basis = res.data.basis;
 
-            // [FIX 1] Handle cases where the recommendation data is a string
-            if (typeof recommendation === 'string') {
-                try {
-                    recommendation = JSON.parse(recommendation);
-                } catch (e) {
-                    console.error("Failed to parse recommendation string:", e);
-                    showError('AI 추천 결과를 처리하는 데 실패했습니다.');
-                    return;
-                }
-            }
-
-            // [FIX 2] Check if the recommendation object contains an error from the AI
             if (recommendation.error) {
                 showError('AI 추천 실패: ' + recommendation.error);
-                document.getElementById('aiRecommendationResult').style.display = 'none';
-                return; // Stop further execution
+                return;
             }
 
-            // 추천 근거 표시
             const basisDiv = document.getElementById('aiRecommendationBasis');
             basisDiv.innerHTML = `<i class="fas fa-info-circle"></i> ${basis}`;
             basisDiv.style.display = 'block';
 
-            // 추천 식단 표시
             const resultDiv = document.getElementById('aiRecommendedMealDetails');
-            let recipeHtml = '';
-            if (res.data.recipe) {
-                recipeHtml = `
-                    <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
-                        <strong style="color: #667eea;"><i class="fas fa-book"></i> 레시피:</strong>
-                        <pre style="white-space: pre-wrap; font-family: inherit; margin-top: 10px; font-size: 14px; line-height: 1.6;">${escapeHtml(res.data.recipe)}</pre>
-                    </div>
-                `;
+            
+            // 상세 레시피 HTML 생성
+            let recipeHtml = `<h5><i class="fas fa-utensils"></i> ${escapeHtml(recommendation.foodName)}</h5>`;
+            
+            if (recommendation.ingredients && recommendation.ingredients.length > 0) {
+                recipeHtml += '<h6>필요한 재료</h6><ul class="list-unstyled">';
+                recommendation.ingredients.forEach(ing => {
+                    recipeHtml += `<li>- ${escapeHtml(ing.name)} ${ing.amount ? `(${escapeHtml(ing.amount)})` : ''} ${ing.calories ? `[${ing.calories}kcal]` : ''}</li>`;
+                });
+                recipeHtml += '</ul>';
             }
-            resultDiv.innerHTML = `
-                <p><strong>메뉴:</strong> ${recommendation.mealName}</p>
-                <p><strong>칼로리:</strong> ${recommendation.calories}</p>
-                <p><strong>단백질:</strong> ${recommendation.protein}</p>
-                <p><strong>탄수화물:</strong> ${recommendation.carbohydrates}</p>
-                <p><strong>지방:</strong> ${recommendation.fats}</p>
-                <p><strong>설명:</strong> ${recommendation.description}</p>
-                ${recipeHtml}
-            `;
-            // 레시피 정보를 데이터 속성에 저장 (나중에 사용)
-            resultDiv.setAttribute('data-recipe', res.data.recipe || '');
+
+            if (recommendation.steps && recommendation.steps.length > 0) {
+                recipeHtml += '<h6 class="mt-3">조리 순서</h6><ol>';
+                recommendation.steps.forEach(step => {
+                    recipeHtml += `<li>${escapeHtml(step.description)}</li>`;
+                });
+                recipeHtml += '</ol>';
+            }
+
+            if (recommendation.tips && recommendation.tips.length > 0) {
+                recipeHtml += '<h6 class="mt-3">조리 팁</h6><ul class="list-unstyled">';
+                recommendation.tips.forEach(tip => {
+                    recipeHtml += `<li>💡 ${escapeHtml(tip)}</li>`;
+                });
+                recipeHtml += '</ul>';
+            }
+
+            resultDiv.innerHTML = recipeHtml;
+            
+            // 데이터셋에 전체 레시피 정보 저장
+            resultDiv.dataset.recipe = JSON.stringify(recommendation);
+            
             document.getElementById('aiRecommendationResult').style.display = 'block';
             showSuccess('AI 식단 추천을 받았습니다!');
         } else {
             showError(res.message || 'AI 식단 추천에 실패했습니다.');
-            document.getElementById('aiRecommendationResult').style.display = 'none';
         }
     })
     .catch(error => {
         console.error('AI 식단 추천 실패:', error);
         showError('AI 식단 추천 중 오류가 발생했습니다.');
-        document.getElementById('aiRecommendationResult').style.display = 'none';
     })
     .finally(() => {
         getAiRecommendationBtn.disabled = false;
@@ -485,24 +471,53 @@ function getAiRecommendation() {
  */
 function applyAiRecommendation() {
     const resultDiv = document.getElementById('aiRecommendedMealDetails');
-    const mealName = resultDiv.querySelector('p:nth-child(1) strong').nextSibling.textContent.trim();
-    const calories = resultDiv.querySelector('p:nth-child(2) strong').nextSibling.textContent.replace('kcal', '').trim();
-    const mealType = document.getElementById('aiMealType').value; // 추천 시 선택했던 식사 종류
-    
-    // 레시피 정보 가져오기
-    const recipe = resultDiv.getAttribute('data-recipe') || '';
-    
-    // 식단 추가 모달 열기
+    if (!resultDiv.dataset.recipe) {
+        showError('적용할 레시피 정보가 없습니다.');
+        return;
+    }
+
+    const recipeData = JSON.parse(resultDiv.dataset.recipe);
+    const mealType = document.getElementById('aiMealType').value;
+
+    // 칼로리 자동 합산
+    let totalCalories = 0;
+    if (recipeData.totalCalories) {
+        totalCalories = parseInt(recipeData.totalCalories) || 0;
+    } else if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+        totalCalories = recipeData.ingredients.reduce((sum, ing) => sum + (parseInt(ing.calories) || 0), 0);
+    }
+
+    // 레시피 텍스트 생성
+    let recipeText = '';
+    if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+        recipeText += '필요한 재료:\n';
+        recipeData.ingredients.forEach(ing => {
+            recipeText += `- ${ing.name} ${ing.amount ? `(${ing.amount})` : ''}\n`;
+        });
+        recipeText += '\n';
+    }
+    if (recipeData.steps && recipeData.steps.length > 0) {
+        recipeText += '조리 순서:\n';
+        recipeData.steps.forEach(step => {
+            recipeText += `${step.stepNumber}. ${step.description}\n`;
+        });
+        recipeText += '\n';
+    }
+    if (recipeData.tips && recipeData.tips.length > 0) {
+        recipeText += '조리 팁:\n';
+        recipeData.tips.forEach(tip => {
+            recipeText += `- ${tip}\n`;
+        });
+    }
+
+    // 식단 추가 모달 열고 데이터 채우기
     openAddModal(mealType);
     
-    // AI 추천에서 받은 메뉴, 칼로리, 레시피 적용
-    document.getElementById('mealMenu').value = mealName;
-    document.getElementById('mealCalories').value = calories;
-    if (recipe) {
-        document.getElementById('mealRecipe').value = recipe;
-    }
+    document.getElementById('mealMenu').value = recipeData.foodName || '';
+    document.getElementById('mealCalories').value = totalCalories > 0 ? totalCalories : '';
+    document.getElementById('mealRecipe').value = recipeText.trim();
     
-    closeAiRecommendationModal(); // AI 추천 모달 닫기
+    closeAiRecommendationModal();
     showSuccess('AI 추천 식단이 식단 추가 폼에 적용되었습니다.');
 }
 
@@ -558,4 +573,3 @@ function escapeHtml(text) {
     };
     return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
 }
-

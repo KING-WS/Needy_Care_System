@@ -18,10 +18,20 @@ public class RecipientService {
 
     private final RecipientRepository recipientRepository;
 
-    // custId로 돌봄 대상자 목록 조회
+    // custId로 돌봄 대상자 목록 조회 (기존 - 리스트 반환)
     public List<Recipient> getRecipientsByCustId(Integer custId) {
         log.info("돌봄 대상자 목록 조회 - custId: {}", custId);
         return recipientRepository.selectRecipientsByCustId(custId);
+    }
+
+    // [★추가됨★] CCTVController를 위해 첫 번째 대상자만 조회 (단일 객체 반환)
+    public Recipient getRecipientByCustId(Integer custId) {
+        List<Recipient> list = recipientRepository.selectRecipientsByCustId(custId);
+        if (list != null && !list.isEmpty()) {
+            // 리스트 중 첫 번째 사람을 반환
+            return list.get(0);
+        }
+        return null;
     }
 
     // recId로 특정 돌봄 대상자 조회
@@ -39,20 +49,20 @@ public class RecipientService {
     // 돌봄 대상자 등록
     public void registerRecipient(Recipient recipient) {
         log.info("돌봄 대상자 등록 - recName: {}, custId: {}", recipient.getRecName(), recipient.getCustId());
-        
+
         // 키오스크 코드가 없으면 자동 생성
         if (recipient.getRecKioskCode() == null || recipient.getRecKioskCode().isEmpty()) {
             String kioskCode = generateKioskCode();
             recipient.setRecKioskCode(kioskCode);
             log.info("키오스크 코드 자동 생성: {}", kioskCode);
         }
-        
+
         int result = recipientRepository.insertRecipient(recipient);
         if (result <= 0) {
             throw new RuntimeException("돌봄 대상자 등록 실패");
         }
     }
-    
+
     /**
      * 키오스크 접속용 고유 코드 생성
      * 형식: XXXX-XXXX-XXXX (12자리, 대문자+숫자)

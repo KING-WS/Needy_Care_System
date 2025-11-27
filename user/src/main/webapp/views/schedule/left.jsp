@@ -39,8 +39,8 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="<c:url value="/comm/chat"/>">
-                <i class="fas fa-comment-dots"></i> 일정2
+            <a class="nav-link" href="<c:url value="/schedule/recommend"/>">
+                <i class="fas fa-robot"></i> AI 장소 추천
             </a>
         </li>
         <li class="nav-item">

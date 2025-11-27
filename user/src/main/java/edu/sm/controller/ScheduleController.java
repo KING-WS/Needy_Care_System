@@ -1,10 +1,11 @@
 package edu.sm.controller;
 
-import edu.sm.app.dto.Cust;
-import edu.sm.app.dto.HourlySchedule;
-import edu.sm.app.dto.Recipient;
-import edu.sm.app.dto.Schedule;
+import edu.sm.app.aiservice.AiCareContentService;
 import edu.sm.app.aiservice.AiChatService;
+import edu.sm.app.dto.*;
+import edu.sm.app.service.KakaoMapService;
+import edu.sm.app.service.MapCourseService;
+import edu.sm.app.service.MapService;
 import edu.sm.app.service.RecipientService;
 import edu.sm.app.service.ScheduleService;
 import jakarta.servlet.http.HttpSession;
@@ -16,10 +17,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @Slf4j
@@ -30,6 +30,11 @@ public class ScheduleController {
     private final ScheduleService scheduleService;
     private final RecipientService recipientService;
     private final AiChatService aiChatService;
+    private final AiCareContentService aiCareContentService;
+    private final KakaoMapService kakaoMapService;
+    private final MapService mapService;
+    private final MapCourseService mapCourseService;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final String dir = "schedule/";
 
     @RequestMapping("")
@@ -74,6 +79,268 @@ public class ScheduleController {
         model.addAttribute("center", dir + "center");
         model.addAttribute("left", dir + "left");
         return "home";
+    }
+
+    @GetMapping("/recommend")
+    public String recommend(Model model, HttpSession session, @RequestParam(required = false) Integer recId) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            List<Recipient> recipientList = recipientService.getRecipientsByCustId(loginUser.getCustId());
+            if (recipientList != null && !recipientList.isEmpty()) {
+                Recipient selectedRecipient = recipientList.get(0);
+                if (recId != null) {
+                    for (Recipient r : recipientList) {
+                        if (r.getRecId().equals(recId)) {
+                            selectedRecipient = r;
+                            break;
+                        }
+                    }
+                }
+                model.addAttribute("recipientList", recipientList);
+                model.addAttribute("selectedRecipient", selectedRecipient);
+            }
+        } catch (Exception e) {
+            log.error("추천 페이지 로드 중 오류", e);
+        }
+
+        model.addAttribute("center", dir + "recommend");
+        model.addAttribute("left", dir + "left");
+        return "home";
+    }
+
+    @PostMapping("/ai-recommend")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> aiRecommend(@RequestBody Map<String, Integer> request, HttpSession session) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            Integer recId = request.get("recId");
+            Recipient recipient;
+            if (recId != null) {
+                recipient = recipientService.getRecipientById(recId);
+            } else {
+                List<Recipient> list = recipientService.getRecipientsByCustId(loginUser.getCustId());
+                if (list == null || list.isEmpty()) return ResponseEntity.ok(List.of());
+                recipient = list.get(0);
+            }
+
+            if (recipient == null) return ResponseEntity.ok(List.of());
+
+            // 1. AI 추천 (장소/행사)
+            List<Map<String, Object>> recommendations = aiCareContentService.recommendPlaces(recipient);
+
+            // 2. 위치 기반 정보 보정 (Kakao Map API)
+            String address = recipient.getRecAddress();
+            // 주소가 없거나 Kakao API 키가 없어서 좌표를 못 구할 수 있음
+            String lat = null;
+            String lng = null;
+            
+            if (address != null && !address.isEmpty()) {
+                Map<String, String> userCoords = kakaoMapService.getCoordinates(address);
+                lat = userCoords.get("y");
+                lng = userCoords.get("x");
+            }
+
+            for (Map<String, Object> item : recommendations) {
+                String placeName = (String) item.get("mapName");
+                List<Map<String, Object>> searchResults = new ArrayList<>();
+                
+                // 사용자 위치 정보 추가 (길찾기 링크용)
+                if (lat != null && lng != null) {
+                    item.put("startLat", lat);
+                    item.put("startLng", lng);
+                    item.put("startAddress", address);
+                }
+                
+                // 사용자 위치 기반 검색 시도
+                if (lat != null && lng != null) {
+                    searchResults = kakaoMapService.searchPlace(placeName, lat, lng);
+                }
+                
+                // 결과가 없으면 키워드로만 재검색 (전국 범위)
+                if (searchResults.isEmpty()) {
+                     searchResults = kakaoMapService.searchPlace(placeName, null, null);
+                }
+
+                if (!searchResults.isEmpty()) {
+                    Map<String, Object> firstResult = searchResults.get(0);
+                    item.put("distance", firstResult.get("distance")); // 거리 (미터)
+                    item.put("address", firstResult.get("road_address_name"));
+                    item.put("placeUrl", firstResult.get("place_url"));
+                    item.put("x", firstResult.get("x"));
+                    item.put("y", firstResult.get("y"));
+                } else {
+                    // 검색 결과 없음 (주소 정보 없음)
+                    item.put("address", "주소 정보 없음");
+                    item.put("placeUrl", "");
+                    item.put("distance", null);
+                }
+            }
+
+            // 3. 거리순 정렬 (거리가 있는 항목 우선)
+            recommendations.sort((o1, o2) -> {
+                String d1 = (String) o1.get("distance");
+                String d2 = (String) o2.get("distance");
+                if (d1 == null && d2 == null) return 0;
+                if (d1 == null) return 1;
+                if (d2 == null) return -1;
+                return Integer.compare(Integer.parseInt(d1), Integer.parseInt(d2));
+            });
+
+            return ResponseEntity.ok(recommendations);
+
+        } catch (Exception e) {
+            log.error("AI 추천 실패", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PostMapping("/save-recommendation")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> saveRecommendation(@RequestBody Map<String, Object> request) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            Integer recId = Integer.parseInt(request.get("recId").toString());
+            String schedDate = (String) request.get("schedDate");
+            String schedName = (String) request.get("schedName");
+            String mapAddress = (String) request.get("mapAddress");
+            String mapName = (String) request.get("mapName");
+            String mapContent = (String) request.get("mapContent");
+            String mapCategory = (String) request.get("mapCategory");
+
+            // 1. Schedule 저장
+            Schedule schedule = new Schedule();
+            schedule.setRecId(recId);
+            schedule.setSchedDate(LocalDate.parse(schedDate));
+            schedule.setSchedName(schedName);
+            schedule.setSchedStartTime("09:00"); // 기본값
+            schedule.setSchedEndTime("11:00");   // 기본값
+            scheduleService.createSchedule(schedule);
+
+            // 2. MapLocation 저장
+            MapLocation mapLocation = new MapLocation();
+            mapLocation.setRecId(recId);
+            mapLocation.setMapName(mapName);
+            // 주소 정보를 내용에 포함하여 저장 (DTO에 주소 필드가 없으므로)
+            String finalContent = mapContent;
+            if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
+                finalContent = "[주소: " + mapAddress + "]\n" + mapContent;
+            }
+            mapLocation.setMapContent(finalContent);
+            mapLocation.setMapCategory(mapCategory);
+            
+            // 좌표 정보 구하기 (사용자가 입력한 주소 기반)
+            if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
+                 Map<String, String> coords = kakaoMapService.getCoordinates(mapAddress);
+                 if(coords.containsKey("y")) mapLocation.setMapLatitude(new BigDecimal(coords.get("y")));
+                 if(coords.containsKey("x")) mapLocation.setMapLongitude(new BigDecimal(coords.get("x")));
+            }
+
+            mapService.register(mapLocation);
+            
+            // 3. MapCourse 저장 (산책 코스)
+            try {
+                String courseName = (String) request.get("courseName");
+                String courseType = (String) request.get("courseType");
+                String startLat = (String) request.get("startLat");
+                String startLng = (String) request.get("startLng");
+                String endLat = (String) request.get("endLat");
+                String endLng = (String) request.get("endLng");
+                String courseDistanceStr = (String) request.get("courseDistance");
+                
+                if (courseName != null && !courseName.isEmpty()) {
+                    MapCourse mapCourse = new MapCourse();
+                    mapCourse.setRecId(recId);
+                    mapCourse.setCourseName(courseName);
+                    mapCourse.setCourseType(courseType != null ? courseType : "WALK");
+                    
+                    // 경로 데이터 (JSON 형식: 시작점 -> 도착점)
+                    if (startLat != null && endLat != null) {
+                        String pathData = null;
+                        
+                        // 1. Kakao Directions API로 실제 경로 가져오기 시도
+                        try {
+                            Map<String, Object> routeResult = kakaoMapService.getRoute(startLng, startLat, endLng, endLat);
+                            
+                            if (routeResult.containsKey("path")) {
+                                @SuppressWarnings("unchecked")
+                                List<Map<String, Double>> path = (List<Map<String, Double>>) routeResult.get("path");
+                                double totalDist = ((Number) routeResult.get("totalDistance")).doubleValue();
+                                
+                                Map<String, Object> jsonMap = new HashMap<>();
+                                
+                                // 마커 (출발/도착)
+                                List<Map<String, Object>> markers = new ArrayList<>();
+                                markers.add(Map.of("lat", Double.parseDouble(startLat), "lng", Double.parseDouble(startLng), "type", "START", "title", "출발"));
+                                markers.add(Map.of("lat", Double.parseDouble(endLat), "lng", Double.parseDouble(endLng), "type", "END", "title", "도착"));
+                                
+                                jsonMap.put("markers", markers);
+                                jsonMap.put("path", path);
+                                jsonMap.put("totalDistance", totalDist);
+                                
+                                pathData = objectMapper.writeValueAsString(jsonMap);
+                            }
+                        } catch (Exception e) {
+                            log.warn("경로 탐색 API 실패, 직선 경로로 대체합니다.", e);
+                        }
+                        
+                        // 2. API 실패 시 직선 경로 (Fallback)
+                        if (pathData == null) {
+                            double dist = 0.0;
+                            try {
+                                if (courseDistanceStr != null && !courseDistanceStr.isEmpty()) {
+                                    dist = Double.parseDouble(courseDistanceStr);
+                                } else {
+                                    dist = calculateDistance(
+                                        Double.parseDouble(startLat), Double.parseDouble(startLng),
+                                        Double.parseDouble(endLat), Double.parseDouble(endLng)
+                                    );
+                                }
+                            } catch (Exception e) {
+                                log.warn("거리 계산 실패, 0으로 설정", e);
+                            }
+    
+                            // JSON 문자열 수동 생성
+                            pathData = String.format(
+                                "{\"points\":[" +
+                                    "{\"lat\":%s,\"lng\":%s,\"number\":0}," +
+                                    "{\"lat\":%s,\"lng\":%s,\"number\":1}" +
+                                "]," +
+                                "\"distances\":[" +
+                                    "{\"from\":0,\"to\":1,\"distance\":%.2f}" +
+                                "]," +
+                                "\"totalDistance\":%.2f}",
+                                startLat, startLng, endLat, endLng, dist, dist
+                            );
+                        }
+                        
+                        mapCourse.setCoursePathData(pathData);
+                    }
+                    
+                    mapCourseService.registerCourse(mapCourse);
+                }
+            } catch (Exception e) {
+                log.error("산책 코스 저장 실패 (일정은 저장됨)", e);
+                // 코스 저장이 실패해도 일정 저장은 성공했으므로 계속 진행
+            }
+
+            response.put("success", true);
+            response.put("message", "일정과 장소, 산책 코스가 추가되었습니다.");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            log.error("추천 저장 실패", e);
+            response.put("success", false);
+            response.put("message", "저장 실패: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     @GetMapping("/api/monthly")
@@ -391,5 +658,16 @@ public class ScheduleController {
             result.put("date", LocalDate.now().toString()); // 실패 시 오늘 날짜 반환
             return ResponseEntity.ok(result);
         }
+    }
+
+    private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371000; // Radius of the earth in meters
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 }

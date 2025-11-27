@@ -170,5 +170,58 @@ public class CareContentController {
             );
         }
     }
+
+    /**
+     * 키워드로 뉴스 검색 (API)
+     */
+    @GetMapping("/api/news-search")
+    @ResponseBody
+    public ResponseEntity<?> searchNews(@RequestParam String keyword) {
+        try {
+            if (keyword == null || keyword.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "검색어는 필수입니다.")
+                );
+            }
+            
+            Map<String, Object> result = naverSearchService.searchNews(keyword);
+            
+            return ResponseEntity.ok(result);
+            
+        } catch (Exception e) {
+            log.error("뉴스 검색 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "뉴스 검색 중 오류가 발생했습니다: " + e.getMessage())
+            );
+        }
+    }
+
+    /**
+     * 혜택 정보 AI 요약 (API)
+     */
+    @PostMapping("/api/summarize-benefit")
+    @ResponseBody
+    public ResponseEntity<?> summarizeBenefit(@RequestBody Map<String, String> requestBody) {
+        try {
+            String benefitName = requestBody.get("benefitName");
+            String description = requestBody.get("description");
+            
+            if (benefitName == null || benefitName.trim().isEmpty()) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("success", false, "message", "혜택명은 필수입니다.")
+                );
+            }
+            
+            String summary = aiCareContentService.summarizeBenefit(benefitName, description);
+            
+            return ResponseEntity.ok(Map.of("success", true, "summary", summary));
+            
+        } catch (Exception e) {
+            log.error("혜택 요약 실패", e);
+            return ResponseEntity.status(500).body(
+                    Map.of("success", false, "message", "요약 중 오류가 발생했습니다: " + e.getMessage())
+            );
+        }
+    }
 }
 

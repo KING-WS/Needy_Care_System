@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam; // [중요] 추가된 import
 
 /**
  * 노약자 전용 키오스크 컨트롤러
@@ -30,6 +31,18 @@ public class KioskController {
 
     @Value("${app.url.websocketurl}")
     private String websocketUrl;
+
+    /**
+     * [추가됨] 백그라운드 CCTV 카메라 페이지
+     * 설명: /kiosk/cam?kioskCode=... 요청을 처리합니다.
+     * 이 메소드가 없으면 'cam'이라는 단어를 키오스크 코드로 착각하여 에러가 발생합니다.
+     */
+    @GetMapping("/cam")
+    public String kioskCam(@RequestParam("kioskCode") String kioskCode, Model model) {
+        log.info("[Kiosk Cam] 백그라운드 카메라 실행 요청 - Code: {}", kioskCode);
+        model.addAttribute("kioskCode", kioskCode);
+        return "kiosk/cam";
+    }
 
     /**
      * 키오스크 메인 페이지 접속
