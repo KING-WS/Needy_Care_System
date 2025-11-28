@@ -33,13 +33,18 @@ public class CaregiverController {
     private final CareMatchingService careMatchingService;
 
     @RequestMapping("/list")
-    public String caregiverList(@RequestParam(defaultValue = "1") int pageNo, Model model) {
-        log.info("Caregiver list page accessed, pageNo: {}", pageNo);
+    public String caregiverList(@RequestParam(defaultValue = "1") int pageNo,
+                                @RequestParam(defaultValue = "caregiverId") String sort,
+                                @RequestParam(defaultValue = "asc") String order,
+                                Model model) {
+        log.info("Caregiver list page accessed, pageNo: {}, sort: {}, order: {}", pageNo, sort, order);
         try {
-            Page<Caregiver> page = caregiverService.getPage(pageNo);
+            Page<Caregiver> page = caregiverService.getPage(pageNo, sort, order);
             PageInfo<Caregiver> pageInfo = new PageInfo<>(page);
             model.addAttribute("page", pageInfo);
             model.addAttribute("caregiverList", pageInfo.getList());
+            model.addAttribute("sort", sort);
+            model.addAttribute("order", order);
         } catch (Exception e) {
             log.error("Error fetching caregiver list", e);
             model.addAttribute("errorMessage", "요양사 목록을 불러오는 중 오류가 발생했습니다.");

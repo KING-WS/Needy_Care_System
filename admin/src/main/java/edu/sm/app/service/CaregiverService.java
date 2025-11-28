@@ -19,8 +19,9 @@ public class CaregiverService {
         return caregiverRepository.selectAllCaregivers();
     }
 
-    public Page<Caregiver> getPage(int pageNo) {
-        PageHelper.startPage(pageNo, 5); // Show 5 caregivers per page
+    public Page<Caregiver> getPage(int pageNo, String sort, String order) {
+        PageHelper.startPage(pageNo, 10); // 1페이지당 요양사 10명 표시
+        PageHelper.orderBy(sort + " " + order);
         return (Page<Caregiver>) caregiverRepository.selectAllCaregivers();
     }
 

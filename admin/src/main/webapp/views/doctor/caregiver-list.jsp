@@ -2,6 +2,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<c:set var="currentSort" value="${sort}" />
+<c:set var="currentOrder" value="${order}" />
+
 <div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
@@ -17,11 +20,25 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>번호</th>
+                                    <th>
+                                        <a href="<c:url value='/caregiver/list?pageNo=${page.pageNum}&sort=caregiverId&order=${(currentSort eq "caregiverId" and currentOrder eq "asc") ? "desc" : "asc"}'/>" class="text-decoration-none text-dark">
+                                            번호
+                                            <c:if test="${currentSort eq 'caregiverId'}">
+                                                <i class="bi ${(currentOrder eq 'asc') ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
                                     <th>이름</th>
                                     <th>전화번호</th>
                                     <th>주소</th>
-                                    <th>경력</th>
+                                    <th>
+                                        <a href="<c:url value='/caregiver/list?pageNo=${page.pageNum}&sort=caregiverCareer&order=${(currentSort eq "caregiverCareer" and currentOrder eq "asc") ? "desc" : "asc"}'/>" class="text-decoration-none text-dark">
+                                            경력
+                                            <c:if test="${currentSort eq 'caregiverCareer'}">
+                                                <i class="bi ${(currentOrder eq 'asc') ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
+                                            </c:if>
+                                        </a>
+                                    </th>
                                     <th>자격증</th>
                                     <th>등록일</th>
                                     <th>관리</th>
@@ -63,17 +80,17 @@
                         <ul class="pagination justify-content-center">
                             <c:if test="${page.hasPreviousPage}">
                                 <li class="page-item">
-                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${page.prePage}'/>">이전</a>
+                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${page.prePage}&sort=${currentSort}&order=${currentOrder}'/>">이전</a>
                                 </li>
                             </c:if>
                             <c:forEach begin="1" end="${page.pages}" var="i">
                                 <li class="page-item <c:if test='${page.pageNum eq i}'>active</c:if>">
-                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${i}'/>">${i}</a>
+                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${i}&sort=${currentSort}&order=${currentOrder}'/>">${i}</a>
                                 </li>
                             </c:forEach>
                             <c:if test="${page.hasNextPage}">
                                 <li class="page-item">
-                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${page.nextPage}'/>">다음</a>
+                                    <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${page.nextPage}&sort=${currentSort}&order=${currentOrder}'/>">다음</a>
                                 </li>
                             </c:if>
                         </ul>
