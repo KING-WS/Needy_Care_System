@@ -17,7 +17,7 @@ public class CareMatching {
     private int recId;
     private String isDeleted;
 
-    // 화면 표시용으로, 요양사 및 수급자 이름을 담는 필드
+    // 화면 표시용으로, 요양사 및 돌봄 대상자 이름을 담는 필드
     private String caregiverName;
     private String recName;
 }
