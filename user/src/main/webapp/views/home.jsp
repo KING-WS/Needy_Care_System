@@ -11,6 +11,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- [필수] 웹소켓 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=9122c6ed65a3629b19d62bab6d93ffaf&libraries=services"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <style>
@@ -19,6 +24,60 @@
             --secondary-color: #2c3e50;
             --accent-color: #e74c3c;
             --light-bg: #f8f9fa;
+        }
+
+        /* [추가] 위험 알림 배너 스타일 */
+        #danger-alert-banner {
+            display: none; /* 평소엔 숨김 */
+            position: fixed;
+            top: 80px; /* 헤더 바로 아래 */
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 800px;
+            background-color: #dc3545; /* 빨간색 */
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.5);
+            z-index: 2000; /* 제일 위에 뜨도록 */
+            animation: slideDown 0.5s ease-out;
+            text-align: center;
+        }
+
+        #danger-alert-banner h4 {
+            margin: 0 0 10px 0;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        #danger-alert-banner p {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        #danger-alert-banner .btn-close-alert {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        @keyframes slideDown {
+            from { top: -100px; opacity: 0; }
+            to { top: 80px; opacity: 1; }
+        }
+
+        /* 깜빡임 애니메이션 클래스 */
+        .blinking {
+            animation: blinker 1s linear infinite;
+        }
+        @keyframes blinker {
+            50% { opacity: 0; }
         }
 
         * {
@@ -244,61 +303,6 @@
             display: block;
         }
 
-        /* Dashboard Section */
-        #user-dashboard {
-            min-height: calc(100vh - 80px);
-            padding: 30px 0;
-            background: #f8f9fa;
-        }
-
-        .dashboard-title {
-            font-size: 48px;
-            font-weight: bold;
-            color: var(--secondary-color);
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-subtitle {
-            font-size: 20px;
-            color: #666;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .dashboard-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            padding: 30px;
-            height: 100%;
-            text-align: center;
-            transition: all 0.3s;
-            background: white;
-        }
-
-        .dashboard-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-        }
-
-        .dashboard-card i {
-            font-size: 60px;
-            color: var(--primary-color);
-            margin-bottom: 20px;
-        }
-
-        .dashboard-card h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-            color: var(--secondary-color);
-        }
-
-        .dashboard-card p {
-            color: #666;
-            font-size: 15px;
-        }
-
         /* Footer */
         footer {
             background: var(--secondary-color);
@@ -452,7 +456,6 @@
             width: 100%;
         }
 
-        /* 말풍선 레이아웃 스타일 - 사용자 메시지를 완전히 오른쪽에 배치 */
         .chat-messages .chat-message.sent {
             flex-direction: row-reverse !important;
             justify-content: flex-end !important;
@@ -482,7 +485,6 @@
             margin-bottom: 2px;
         }
 
-        /* 아바타 스타일 - 사용자 메시지 아바타 숨김 */
         .chat-messages .chat-message.sent .message-avatar {
             display: none !important;
         }
@@ -506,7 +508,6 @@
             max-width: 85% !important;
         }
 
-        /* AI 봇 메시지 말풍선을 더 넓게 */
         .chat-messages .chat-message.received .message-content-wrapper {
             align-items: flex-start;
             max-width: 90% !important;
@@ -554,16 +555,13 @@
             line-height: 1.5;
             display: inline-block;
             max-width: 100%;
-            /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
         }
-        
-        /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
+
         .chat-messages .chat-message.received .message-bubble {
             min-width: 250px;
             max-width: 100%;
         }
 
-        /* 말풍선 스타일 - 최고 우선순위로 설정 (모든 외부 CSS 이후에 적용) */
         #chatMessages .chat-message.sent .message-bubble,
         .chat-modal #chatMessages .chat-message.sent .message-bubble {
             background: #0084ff !important;
@@ -664,7 +662,6 @@
             cursor: not-allowed;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .chat-modal {
                 width: calc(100% - 40px);
@@ -719,6 +716,16 @@
         </div>
     </nav>
 </header>
+
+<!-- [추가] 위험 알림 배너 (평소엔 숨김) -->
+<div id="danger-alert-banner">
+    <button class="btn-close-alert" onclick="$('#danger-alert-banner').fadeOut()"><i class="fas fa-times"></i></button>
+    <h4><i class="fas fa-exclamation-triangle blinking"></i> 위험 감지 경보</h4>
+    <p id="alert-content">감지된 내용이 여기에 표시됩니다.</p>
+    <div class="mt-3">
+        <a href="/cctv" class="btn btn-light btn-sm text-danger fw-bold">CCTV 확인하기</a>
+    </div>
+</div>
 
 <!-- Sidebar Toggle Button (only show when left menu exists) -->
 <c:if test="${left != null}">
@@ -807,22 +814,59 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script>
+    // [추가] 실시간 위험 알림 수신 로직 (웹소켓)
+    $(function() {
+        const socket = new SockJS('/adminchat');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.debug = null; // 디버그 로그 끄기
+
+        stompClient.connect({}, function(frame) {
+            console.log('알림 시스템 연결됨');
+
+            // 위험 알림 구독
+            stompClient.subscribe('/topic/alert', function(msg) {
+                const payload = JSON.parse(msg.body);
+
+                // 위험(DANGER)일 때만 배너 표시
+                if(payload.type === 'DANGER') {
+                    showDangerAlert(payload.message, payload.recName);
+                }
+            });
+        });
+
+        function showDangerAlert(message, name) {
+            const banner = $('#danger-alert-banner');
+            const content = $('#alert-content');
+
+            // 메시지 구성
+            const alertText = "[" + name + "]님에게 위험이 감지되었습니다!<br>" + message;
+
+            content.html(alertText);
+            banner.fadeIn().addClass('blinking'); // 나타나면서 깜빡임 효과
+
+            // 10초 후 자동으로 깜빡임 멈춤 (배너는 유지)
+            setTimeout(() => {
+                banner.removeClass('blinking');
+            }, 10000);
+        }
+    });
+
     // Sidebar Toggle Functionality
     document.addEventListener('DOMContentLoaded', function() {
+        // ... (기존 사이드바 로직 그대로 유지) ...
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
         const mainContent = document.getElementById('mainContent');
 
         if (sidebarToggle && sidebar) {
-            // Toggle sidebar on button click
             sidebarToggle.addEventListener('click', function() {
                 sidebar.classList.toggle('active');
                 sidebarOverlay.classList.toggle('active');
                 mainContent.classList.toggle('sidebar-active');
                 this.classList.toggle('active');
 
-                // Change icon
                 const icon = this.querySelector('i');
                 if (sidebar.classList.contains('active')) {
                     icon.classList.remove('fa-bars');
@@ -833,7 +877,6 @@
                 }
             });
 
-            // Close sidebar when clicking overlay
             sidebarOverlay.addEventListener('click', function() {
                 sidebar.classList.remove('active');
                 sidebarOverlay.classList.remove('active');
@@ -855,59 +898,48 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatBadge = document.getElementById('chatBadge');
 
-        // 사용자 이름 설정
         var userName = '사용자';
         <c:if test="${sessionScope.loginUser != null}">
         userName = '<c:out value="${sessionScope.loginUser.custName}" escapeXml="true"/>';
         </c:if>
 
-        // 첫 메시지 시간 설정
         const initialMessageTime = document.getElementById('initialMessageTime');
         if (initialMessageTime) {
             const now = new Date();
             initialMessageTime.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
         }
 
-        // Open chat modal
         if (floatingChatBtn) {
             floatingChatBtn.addEventListener('click', function() {
                 chatModal.classList.add('active');
                 chatInput.focus();
-                // Hide badge when chat is open
                 chatBadge.style.display = 'none';
             });
         }
 
-        // Close chat modal
         if (closeChatBtn) {
             closeChatBtn.addEventListener('click', function() {
                 chatModal.classList.remove('active');
             });
         }
 
-        // Send message function
         function sendMessage() {
             const message = chatInput.value.trim();
             if (message === '') return;
 
-            // Add sent message
             addMessage(message, 'sent');
-
-            // Clear input
             chatInput.value = '';
 
-            // 로딩 메시지 표시
             const loadingId = 'loading-' + Date.now();
             addMessage('AI 응답을 생성 중입니다...', 'received', loadingId);
 
-            // 실제 API 호출
             <c:choose>
-                <c:when test="${selectedRecipient != null}">
-                    const recId = ${selectedRecipient.recId};
-                </c:when>
-                <c:otherwise>
-                    const recId = null;
-                </c:otherwise>
+            <c:when test="${selectedRecipient != null}">
+            const recId = ${selectedRecipient.recId};
+            </c:when>
+            <c:otherwise>
+            const recId = null;
+            </c:otherwise>
             </c:choose>
 
             if (!recId) {
@@ -918,36 +950,27 @@
 
             fetch('/api/chat/ai/send', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    message: message,
-                    recId: recId
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, recId: recId })
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error('서버 응답 오류: ' + response.status);
+                    return response.json();
                 })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('서버 응답 오류: ' + response.status);
-                }
-                return response.json();
-            })
-            .then(data => {
-                removeMessage(loadingId);
-                const responseText = data.response || data.message || '응답을 받지 못했습니다.';
-                addMessage(responseText, 'received');
-            })
-            .catch(error => {
-                removeMessage(loadingId);
-                console.error('AI 메시지 전송 중 오류 발생:', error);
-                addMessage('죄송합니다. 응답을 생성하는 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', 'received');
-            });
+                .then(data => {
+                    removeMessage(loadingId);
+                    const responseText = data.response || data.message || '응답을 받지 못했습니다.';
+                    addMessage(responseText, 'received');
+                })
+                .catch(error => {
+                    removeMessage(loadingId);
+                    console.error('AI 메시지 전송 중 오류 발생:', error);
+                    addMessage('죄송합니다. 응답을 생성하는 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', 'received');
+                });
         }
 
-        // Add message to chat
         function addMessage(text, type, messageId) {
             const messageDiv = document.createElement('div');
-            // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
             if (type === 'sent' || type === 'received') {
                 messageDiv.classList.add(type);
@@ -956,10 +979,6 @@
                 messageDiv.id = messageId;
             }
 
-            // 디버깅: 클래스 확인
-            console.log('메시지 추가:', type, '클래스:', messageDiv.className, 'classList:', Array.from(messageDiv.classList));
-
-            // 아바타 생성
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (type === 'sent') {
@@ -968,76 +987,36 @@
                 avatar.innerHTML = '<i class="fas fa-robot"></i>';
             }
 
-            // 메시지 컨텐츠 래퍼
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'message-content-wrapper';
 
-            // 발신자 이름
             const sender = document.createElement('div');
             sender.className = 'message-sender';
             sender.textContent = type === 'sent' ? userName : 'AI 봇';
 
-            // 말풍선 래퍼 (말풍선 + 시간)
             const bubbleWrapper = document.createElement('div');
             bubbleWrapper.className = 'message-bubble-wrapper';
 
-            // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
 
-            // 시간
             const time = document.createElement('div');
             time.className = 'message-time';
             const now = new Date();
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
-            // 구조 조립
             bubbleWrapper.appendChild(bubble);
             bubbleWrapper.appendChild(time);
             contentWrapper.appendChild(sender);
             contentWrapper.appendChild(bubbleWrapper);
             messageDiv.appendChild(avatar);
             messageDiv.appendChild(contentWrapper);
-            
-            // 클래스가 제대로 추가되었는지 다시 확인 및 수정
-            if (!messageDiv.classList.contains('chat-message')) {
-                messageDiv.classList.add('chat-message');
-            }
-            if (type === 'sent' && !messageDiv.classList.contains('sent')) {
-                messageDiv.classList.add('sent');
-            }
-            if (type === 'received' && !messageDiv.classList.contains('received')) {
-                messageDiv.classList.add('received');
-            }
-            
-            chatMessages.appendChild(messageDiv);
 
-            // Scroll to bottom
+            chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // 스타일 적용 확인 (디버깅용)
-            setTimeout(() => {
-                const computedStyle = window.getComputedStyle(bubble);
-                const parentComputedStyle = window.getComputedStyle(messageDiv);
-                console.log('말풍선 스타일 확인:', {
-                    type: type,
-                    background: computedStyle.backgroundColor,
-                    color: computedStyle.color,
-                    bubbleClasses: bubble.className,
-                    messageDivClasses: messageDiv.className,
-                    messageDivClassList: Array.from(messageDiv.classList),
-                    hasReceived: messageDiv.classList.contains('received'),
-                    hasSent: messageDiv.classList.contains('sent'),
-                    parentBackground: parentComputedStyle.backgroundColor,
-                    // CSS 선택자 매칭 확인
-                    matchesSentSelector: messageDiv.matches('#chatMessages .chat-message.sent'),
-                    matchesReceivedSelector: messageDiv.matches('#chatMessages .chat-message.received')
-                });
-            }, 100);
         }
 
-        // Remove message from chat
         function removeMessage(messageId) {
             const messageElement = document.getElementById(messageId);
             if (messageElement) {
@@ -1045,12 +1024,10 @@
             }
         }
 
-        // Send button click
         if (chatSendBtn) {
             chatSendBtn.addEventListener('click', sendMessage);
         }
 
-        // Enter key press
         if (chatInput) {
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1059,8 +1036,6 @@
             });
         }
 
-        // Show notification badge (예시)
-        // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출
         function showNotification(count) {
             if (!chatModal.classList.contains('active')) {
                 chatBadge.textContent = count;

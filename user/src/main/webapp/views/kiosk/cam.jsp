@@ -11,12 +11,14 @@
   </style>
 </head>
 <body>
-<div class="status">REC ●</div>
+<div class="status">REC ● (AI 감시 중)</div>
 <video id="localVideo" autoplay muted playsinline></video>
+
+<!-- [추가] 화면 캡처용 숨겨진 캔버스 -->
+<canvas id="captureCanvas" style="display:none;"></canvas>
 
 <script>
   // [1] 여기서 방 번호 규칙을 정의합니다.
-  // JSP EL 태그를 사용하여 서버에서 전달받은 kioskCode를 자바스크립트 변수에 할당합니다.
   const ORIGINAL_CODE = "${kioskCode}";
 
   // URL 파라미터에서 카메라 번호(no)를 가져옵니다. (기본값은 1)
@@ -24,7 +26,6 @@
   const CAM_NO = urlParams.get('no') || '1';
 
   // [핵심] 뒤에 _CCTV + 번호를 붙여서 보호자가 들어올 방 번호를 만듭니다.
-  // 이 변수는 전역 변수라서 아래 모든 함수에서 공통으로 사용됩니다.
   const KIOSK_CODE = ORIGINAL_CODE + "_CCTV" + CAM_NO;
 
   // 웹소켓 연결 주소 설정 (HTTPS 환경 고려)
@@ -47,11 +48,56 @@
       localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
       document.getElementById('localVideo').srcObject = localStream;
       console.log("[Sender] 카메라 시작됨");
+
       connectSocket();
+
+      // [★핵심 추가] 5초마다 AI 분석 요청 자동 시작 (보호자가 없어도 분석함)
+      startAutoAnalysis();
+
     } catch (err) {
       console.error("[Sender] 카메라 접근 실패:", err);
       alert("카메라를 켤 수 없습니다: " + err.message);
     }
+  }
+
+  // [★추가된 함수] 스스로 영상을 캡처해서 서버로 보내는 함수
+  function startAutoAnalysis() {
+    console.log("[Auto Analysis] 자동 감시 시작 (5초 주기)");
+
+    setInterval(() => {
+      const video = document.getElementById('localVideo');
+      const canvas = document.getElementById('captureCanvas');
+
+      // 영상이 준비되지 않았으면 스킵
+      if (!video || video.readyState !== 4) return;
+
+      // 1. 현재 화면을 캔버스에 그리기 (캡처)
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // 2. 이미지를 Blob으로 변환하여 서버 전송
+      canvas.toBlob((blob) => {
+        if(!blob) return;
+
+        const formData = new FormData();
+        formData.append('attach', blob, 'frame.png');
+        // [중요] 누가 보냈는지(kioskCode) 알려줘야 서버가 보호자를 찾아서 알림을 보냄
+        formData.append('kioskCode', ORIGINAL_CODE);
+
+        // 3. 서버 분석 API 호출
+        fetch('/cctv/analyze', { method: "post", body: formData })
+                .then(res => res.json())
+                .then(result => {
+                  // 분석 결과 로그 (위험할 때만 콘솔 경고)
+                  if(result.alert && result.alert !== "없음") {
+                    console.warn("🚨 위험 감지됨:", result.alert);
+                  }
+                })
+                .catch(e => console.error("분석 전송 실패:", e));
+      }, 'image/png');
+    }, 5000); // 5초 주기
   }
 
   function connectSocket() {
@@ -116,7 +162,6 @@
   }
 
   // 페이지 로드 시 카메라 시작
-  // window.onload를 사용하여 DOM이 완전히 로드된 후 실행하도록 합니다.
   window.onload = startCamera;
 </script>
 </body>
