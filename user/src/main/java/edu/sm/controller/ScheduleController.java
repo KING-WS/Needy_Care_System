@@ -77,7 +77,6 @@ public class ScheduleController {
         }
 
         model.addAttribute("center", dir + "center");
-        model.addAttribute("left", dir + "left");
         return "home";
     }
 
@@ -108,7 +107,6 @@ public class ScheduleController {
         }
 
         model.addAttribute("center", dir + "recommend");
-        model.addAttribute("left", dir + "left");
         return "home";
     }
 
@@ -172,10 +170,44 @@ public class ScheduleController {
                 if (!searchResults.isEmpty()) {
                     Map<String, Object> firstResult = searchResults.get(0);
                     item.put("distance", firstResult.get("distance")); // 거리 (미터)
-                    item.put("address", firstResult.get("road_address_name"));
-                    item.put("placeUrl", firstResult.get("place_url"));
-                    item.put("x", firstResult.get("x"));
-                    item.put("y", firstResult.get("y"));
+                    
+                    // road_address_name이 없으면 address_name 사용
+                    String roadAddress = (String) firstResult.get("road_address_name");
+                    String addressName = (String) firstResult.get("address_name");
+                    String placeUrl = (String) firstResult.get("place_url");
+                    String x = (String) firstResult.get("x");
+                    String y = (String) firstResult.get("y");
+                    
+                    String finalAddress = null;
+                    
+                    // 1순위: road_address_name 사용
+                    if (roadAddress != null && !roadAddress.trim().isEmpty()) {
+                        finalAddress = roadAddress;
+                    } 
+                    // 2순위: address_name 사용
+                    else if (addressName != null && !addressName.trim().isEmpty()) {
+                        finalAddress = addressName;
+                    }
+                    
+                    // 주소가 없어도 place_url이나 좌표가 있으면 실제 존재하는 장소
+                    // 카카오맵에서 길찾기가 가능한 장소이므로 "주소 정보 없음"을 표시하지 않음
+                    if (finalAddress == null || finalAddress.trim().isEmpty()) {
+                        boolean hasValidLocation = (placeUrl != null && !placeUrl.trim().isEmpty()) || 
+                                                  (x != null && y != null && !x.trim().isEmpty() && !y.trim().isEmpty());
+                        
+                        if (hasValidLocation) {
+                            // 실제 존재하는 장소이므로 address_name이 있으면 사용, 없으면 빈 문자열
+                            // 프론트엔드에서 place_url이나 좌표가 있으면 "주소 정보 없음" 대신 다른 표시를 하도록 처리
+                            finalAddress = addressName != null && !addressName.trim().isEmpty() ? addressName : "";
+                        } else {
+                            finalAddress = "주소 정보 없음";
+                        }
+                    }
+                    
+                    item.put("address", finalAddress);
+                    item.put("placeUrl", placeUrl != null ? placeUrl : "");
+                    item.put("x", x);
+                    item.put("y", y);
                 } else {
                     // 검색 결과 없음 (주소 정보 없음)
                     item.put("address", "주소 정보 없음");

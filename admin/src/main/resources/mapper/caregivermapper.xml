@@ -50,4 +50,8 @@
         WHERE caregiver_id = #{caregiverId}
     </update>
 
+    <select id="selectCaregiverCount" resultType="int">
+        SELECT COUNT(*) FROM caregiver WHERE is_deleted = 'N'
+    </select>
+
 </mapper>

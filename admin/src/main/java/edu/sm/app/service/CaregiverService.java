@@ -31,4 +31,8 @@ public class CaregiverService {
     public void modify(Caregiver caregiver) {
         caregiverRepository.update(caregiver);
     }
+
+    public int getCaregiverCount() {
+        return caregiverRepository.selectCaregiverCount();
+    }
 }

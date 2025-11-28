@@ -149,7 +149,7 @@
         .navbar-nav {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -160,6 +160,7 @@
 
         .nav-item {
             margin: 0;
+            position: relative;
         }
 
         .nav-link {
@@ -168,10 +169,76 @@
             transition: color 0.3s;
             text-decoration: none;
             white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
         }
 
         .nav-link:hover {
             color: var(--primary-color) !important;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* 드롭다운 메뉴 */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            min-width: 200px;
+            padding: 8px 0;
+            margin-top: 5px;
+            z-index: 1000;
+            list-style: none;
+        }
+
+        .nav-item:hover .dropdown-menu,
+        .nav-item.dropdown-open .dropdown-menu {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .nav-item:hover .nav-link .fa-chevron-down,
+        .nav-item.dropdown-open .nav-link .fa-chevron-down {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
         }
 
         /* 오른쪽: 사용자 정보 */
@@ -223,63 +290,67 @@
             flex-basis: auto;
         }
 
-        /* Sidebar Toggle Button */
-        .sidebar-toggle {
-            position: fixed;
-            left: 20px;
-            top: 100px;
-            z-index: 1050;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: left 0.3s ease;
-            display: none;
-        }
-
-        .sidebar-toggle.show {
-            display: block;
-        }
-
-        .sidebar-toggle.active {
-            left: 320px;
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 80px;
-            width: 300px;
-            height: calc(100vh - 80px);
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: left 0.3s ease;
-            z-index: 1040;
-            overflow-y: auto;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        /* Main content margin when sidebar is open */
+        /* Main content */
         .main-content {
-            transition: margin-left 0.3s ease, padding 0.3s ease;
-            padding: 0 1rem 0 90px;
+            padding: 1rem;
             margin-top: 80px;
             flex: 1 0 auto;
             min-height: calc(100vh - 80px);
+        }
+
+        /* Dashboard Section */
+        #user-dashboard {
+            min-height: calc(100vh - 80px);
+            padding: 30px 0;
+            background: #f8f9fa;
+        }
+
+        .dashboard-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-subtitle {
+            font-size: 20px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            height: 100%;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-card i {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .dashboard-card p {
+            color: #666;
+            font-size: 15px;
         }
 
         .main-content.sidebar-active {
@@ -456,6 +527,7 @@
             width: 100%;
         }
 
+        /* 말풍선 레이아웃 스타일 - 사용자 메시지를 완전히 오른쪽에 배치 */
         .chat-messages .chat-message.sent {
             flex-direction: row-reverse !important;
             justify-content: flex-end !important;
@@ -485,6 +557,7 @@
             margin-bottom: 2px;
         }
 
+        /* 아바타 스타일 - 사용자 메시지 아바타 숨김 */
         .chat-messages .chat-message.sent .message-avatar {
             display: none !important;
         }
@@ -508,6 +581,7 @@
             max-width: 85% !important;
         }
 
+        /* AI 봇 메시지 말풍선을 더 넓게 */
         .chat-messages .chat-message.received .message-content-wrapper {
             align-items: flex-start;
             max-width: 90% !important;
@@ -557,6 +631,8 @@
             max-width: 100%;
         }
 
+
+        /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
         .chat-messages .chat-message.received .message-bubble {
             min-width: 250px;
             max-width: 100%;
@@ -674,6 +750,24 @@
                 bottom: 20px;
                 right: 20px;
             }
+
+            .navbar-nav {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                margin-top: 0;
+            }
         }
     </style>
 </head>
@@ -691,10 +785,53 @@
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/comm"/>"><i class="fas fa-comments"></i> 통신</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+
+                <!-- 통신 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/comm"/>">
+                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
+                    </ul>
+                </li>
+
+                <!-- 일정 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/schedule"/>">
+                        <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/schedule"/>"><i class="fas fa-home"></i> 일정메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
+                    </ul>
+                </li>
+
+                <!-- 식단관리 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/mealplan"/>">
+                        <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-home"></i> AI 식단 관리</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
+                    </ul>
+                </li>
+
+                <!-- CCTV 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/cctv"/>">
+                        <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
+                    </ul>
+                </li>
+
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -888,6 +1025,44 @@
                 icon.classList.add('fa-bars');
             });
         }
+        // Dropdown Menu Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // 드롭다운 메뉴 토글
+            const dropdownItems = document.querySelectorAll('.nav-item');
+            dropdownItems.forEach(item => {
+                const dropdownMenu = item.querySelector('.dropdown-menu');
+                if (dropdownMenu) {
+                    const navLink = item.querySelector('.nav-link');
+
+                    // 클릭으로 토글 (모바일 및 데스크톱 모두)
+                    navLink.addEventListener('click', function(e) {
+                        // 드롭다운 메뉴 항목을 클릭한 경우는 링크 이동 허용
+                        if (e.target.closest('.dropdown-item')) {
+                            return;
+                        }
+
+                        e.preventDefault();
+                        const isOpen = item.classList.contains('dropdown-open');
+
+                        // 다른 드롭다운 닫기
+                        dropdownItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('dropdown-open');
+                            }
+                        });
+
+                        // 현재 드롭다운 토글
+                        item.classList.toggle('dropdown-open', !isOpen);
+                    });
+
+                    // 외부 클릭 시 닫기
+                    document.addEventListener('click', function(e) {
+                        if (!item.contains(e.target)) {
+                            item.classList.remove('dropdown-open');
+                        }
+                    });
+                }
+            });
 
         // Chat Functionality
         const floatingChatBtn = document.getElementById('floatingChatBtn');
@@ -898,41 +1073,52 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatBadge = document.getElementById('chatBadge');
 
+        // 사용자 이름 설정
         var userName = '사용자';
         <c:if test="${sessionScope.loginUser != null}">
         userName = '<c:out value="${sessionScope.loginUser.custName}" escapeXml="true"/>';
         </c:if>
 
+        // 첫 메시지 시간 설정
         const initialMessageTime = document.getElementById('initialMessageTime');
         if (initialMessageTime) {
             const now = new Date();
             initialMessageTime.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
         }
 
+        // Open chat modal
         if (floatingChatBtn) {
             floatingChatBtn.addEventListener('click', function() {
                 chatModal.classList.add('active');
                 chatInput.focus();
+                // Hide badge when chat is open
                 chatBadge.style.display = 'none';
             });
         }
 
+        // Close chat modal
         if (closeChatBtn) {
             closeChatBtn.addEventListener('click', function() {
                 chatModal.classList.remove('active');
             });
         }
 
+        // Send message function
         function sendMessage() {
             const message = chatInput.value.trim();
             if (message === '') return;
 
+            // Add sent message
             addMessage(message, 'sent');
+
+            // Clear input
             chatInput.value = '';
 
+            // 로딩 메시지 표시
             const loadingId = 'loading-' + Date.now();
             addMessage('AI 응답을 생성 중입니다...', 'received', loadingId);
 
+            // 실제 API 호출
             <c:choose>
             <c:when test="${selectedRecipient != null}">
             const recId = ${selectedRecipient.recId};
@@ -1036,6 +1222,8 @@
             });
         }
 
+        // Show notification badge (예시)
+        // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출
         function showNotification(count) {
             if (!chatModal.classList.contains('active')) {
                 chatBadge.textContent = count;

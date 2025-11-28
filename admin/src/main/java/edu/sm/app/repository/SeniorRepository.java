@@ -10,4 +10,5 @@ public interface SeniorRepository {
     Senior select(int id);
     void insert(Senior senior);
     void update(Senior senior);
+    int selectSeniorCount();
 }

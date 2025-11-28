@@ -39,6 +39,10 @@
         <include refid="searchConditions"/>
     </select>
 
+    <select id="selectUserCount" resultType="int">
+        SELECT COUNT(*) FROM cust WHERE is_deleted = 'N'
+    </select>
+
     <select id="getpage" resultMap="userResultMap">
         <include refid="selectColumns"/>
         FROM cust
