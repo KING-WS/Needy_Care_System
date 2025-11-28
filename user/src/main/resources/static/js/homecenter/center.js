@@ -1272,7 +1272,7 @@ function addSpecialMarker(position, type, title) {
     var imageSrc, imageSize, imageOption;
     
     if (type === 'START') {
-        // 출발 마커 (파란색 핀)
+        // 출발 마커
         imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png';
         imageSize = new kakao.maps.Size(50, 45);
         imageOption = {offset: new kakao.maps.Point(15, 43)};
@@ -1520,17 +1520,43 @@ function searchLocation() {
 
     console.log('🔍 검색어:', keyword);
 
-    // Places 서비스 객체 생성
     var ps = new kakao.maps.services.Places();
-
-    // 현재 지도 중심 좌표 가져오기
     var center = map.getCenter();
 
-    // 키워드 검색 (현재 위치 기준)
     ps.keywordSearch(keyword, function(data, status) {
         if (status === kakao.maps.services.Status.OK) {
-            console.log('✅ 검색 성공! 결과:', data.length + '개');
-            displaySearchResults(data);
+            console.log('✅ 검색 성공! 원본 결과:', data.length + '개');
+
+            // --- 여기가 수정된 부분입니다 ---
+
+            // 1. 불필요한 장소를 거르기 위한 키워드 목록
+            const filterKeywords = ['주차장', '전기차', '충전소', '후문', '정문', '별관', '부설'];
+
+            // 2. 검색 결과를 필터링하고 우선순위 정렬
+            const filteredPlaces = data.filter(place => {
+                // 장소 이름에 필터 키워드가 포함되어 있으면 제외
+                for (const fk of filterKeywords) {
+                    if (place.place_name.includes(fk)) {
+                        return false;
+                    }
+                }
+                return true;
+            }).sort((a, b) => {
+                // 검색어와 이름이 정확히 일치하는 결과를 최상단으로
+                if (a.place_name === keyword) return -1;
+                if (b.place_name === keyword) return 1;
+                // 그 외에는 원래 순서 유지
+                return 0;
+            });
+
+            console.log('✨ 필터링 후 결과:', filteredPlaces.length + '개');
+
+            // 3. 필터링된 결과가 하나라도 있다면 그것을 사용하고, 없다면 원본 결과라도 보여주기 (Fallback)
+            const finalPlaces = filteredPlaces.length > 0 ? filteredPlaces : data;
+
+            displaySearchResults(finalPlaces);
+            // --- 수정 끝 ---
+
         } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
             console.log('❌ 검색 결과 없음');
             displayNoResults();
@@ -1540,8 +1566,8 @@ function searchLocation() {
         }
     }, {
         location: center,
-        radius: 5000, // 5km 반경 검색
-        size: 10 // 최대 10개 결과
+        radius: 5000,
+        size: 15 // 결과를 넉넉하게 받아 필터링
     });
 }
 
