@@ -90,7 +90,7 @@
         .navbar-nav {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -101,6 +101,7 @@
 
         .nav-item {
             margin: 0;
+            position: relative;
         }
 
         .nav-link {
@@ -109,10 +110,76 @@
             transition: color 0.3s;
             text-decoration: none;
             white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
         }
 
         .nav-link:hover {
             color: var(--primary-color) !important;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* 드롭다운 메뉴 */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            min-width: 200px;
+            padding: 8px 0;
+            margin-top: 5px;
+            z-index: 1000;
+            list-style: none;
+        }
+
+        .nav-item:hover .dropdown-menu,
+        .nav-item.dropdown-open .dropdown-menu {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .nav-item:hover .nav-link .fa-chevron-down,
+        .nav-item.dropdown-open .nav-link .fa-chevron-down {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
         }
 
         /* 오른쪽: 사용자 정보 */
@@ -164,84 +231,12 @@
             flex-basis: auto;
         }
 
-        /* Sidebar Toggle Button */
-        .sidebar-toggle {
-            position: fixed;
-            left: 20px;
-            top: 100px;
-            z-index: 1050;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: left 0.3s ease;
-            display: none;
-        }
-
-        .sidebar-toggle.show {
-            display: block;
-        }
-
-        .sidebar-toggle.active {
-            left: 320px;
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 80px;
-            width: 300px;
-            height: calc(100vh - 80px);
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: left 0.3s ease;
-            z-index: 1040;
-            overflow-y: auto;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        /* Main content margin when sidebar is open */
+        /* Main content */
         .main-content {
-            transition: margin-left 0.3s ease, padding 0.3s ease;
-            padding: 0 1rem 0 90px;
+            padding: 1rem;
             margin-top: 80px;
             flex: 1 0 auto;
             min-height: calc(100vh - 80px);
-        }
-
-        .main-content.sidebar-active {
-            margin-left: 302px; /* 300px sidebar + 2px gap */
-            padding: 0 1rem;
-        }
-
-        /* Overlay */
-        .sidebar-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1030;
-            display: none;
-        }
-
-        .sidebar-overlay.active {
-            display: block;
         }
 
         /* Dashboard Section */
@@ -556,7 +551,7 @@
             max-width: 100%;
             /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
         }
-        
+
         /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
         .chat-messages .chat-message.received .message-bubble {
             min-width: 250px;
@@ -677,6 +672,24 @@
                 bottom: 20px;
                 right: 20px;
             }
+            
+            .navbar-nav {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                margin-top: 0;
+            }
         }
     </style>
 </head>
@@ -694,10 +707,53 @@
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/comm"/>"><i class="fas fa-comments"></i> 통신</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+                
+                <!-- 통신 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/comm"/>">
+                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
+                    </ul>
+                </li>
+                
+                <!-- 일정 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/schedule"/>">
+                        <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/schedule"/>"><i class="fas fa-home"></i> 일정메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
+                    </ul>
+                </li>
+                
+                <!-- 식단관리 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/mealplan"/>">
+                        <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-home"></i> AI 식단 관리</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
+                    </ul>
+                </li>
+                
+                <!-- CCTV 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" href="<c:url value="/cctv"/>">
+                        <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
+                    </ul>
+                </li>
+                
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -719,25 +775,6 @@
         </div>
     </nav>
 </header>
-
-<!-- Sidebar Toggle Button (only show when left menu exists) -->
-<c:if test="${left != null}">
-    <button class="sidebar-toggle show" id="sidebarToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-</c:if>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- Left Sidebar (if exists) -->
-<c:if test="${left != null}">
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-sticky pt-3">
-            <jsp:include page="${left}.jsp"/>
-        </div>
-    </nav>
-</c:if>
 
 <!-- Main Content Area -->
 <div class="main-content" id="mainContent">
@@ -807,44 +844,44 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Sidebar Toggle Functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const mainContent = document.getElementById('mainContent');
-
-        if (sidebarToggle && sidebar) {
-            // Toggle sidebar on button click
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('active');
-                sidebarOverlay.classList.toggle('active');
-                mainContent.classList.toggle('sidebar-active');
-                this.classList.toggle('active');
-
-                // Change icon
-                const icon = this.querySelector('i');
-                if (sidebar.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
+        // Dropdown Menu Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // 드롭다운 메뉴 토글
+            const dropdownItems = document.querySelectorAll('.nav-item');
+            dropdownItems.forEach(item => {
+                const dropdownMenu = item.querySelector('.dropdown-menu');
+                if (dropdownMenu) {
+                    const navLink = item.querySelector('.nav-link');
+                    
+                    // 클릭으로 토글 (모바일 및 데스크톱 모두)
+                    navLink.addEventListener('click', function(e) {
+                        // 드롭다운 메뉴 항목을 클릭한 경우는 링크 이동 허용
+                        if (e.target.closest('.dropdown-item')) {
+                            return;
+                        }
+                        
+                        e.preventDefault();
+                        const isOpen = item.classList.contains('dropdown-open');
+                        
+                        // 다른 드롭다운 닫기
+                        dropdownItems.forEach(otherItem => {
+                            if (otherItem !== item) {
+                                otherItem.classList.remove('dropdown-open');
+                            }
+                        });
+                        
+                        // 현재 드롭다운 토글
+                        item.classList.toggle('dropdown-open', !isOpen);
+                    });
+                    
+                    // 외부 클릭 시 닫기
+                    document.addEventListener('click', function(e) {
+                        if (!item.contains(e.target)) {
+                            item.classList.remove('dropdown-open');
+                        }
+                    });
                 }
             });
-
-            // Close sidebar when clicking overlay
-            sidebarOverlay.addEventListener('click', function() {
-                sidebar.classList.remove('active');
-                sidebarOverlay.classList.remove('active');
-                mainContent.classList.remove('sidebar-active');
-                sidebarToggle.classList.remove('active');
-
-                const icon = sidebarToggle.querySelector('i');
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            });
-        }
 
         // Chat Functionality
         const floatingChatBtn = document.getElementById('floatingChatBtn');

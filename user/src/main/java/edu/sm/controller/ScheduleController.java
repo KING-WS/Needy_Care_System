@@ -77,7 +77,6 @@ public class ScheduleController {
         }
 
         model.addAttribute("center", dir + "center");
-        model.addAttribute("left", dir + "left");
         return "home";
     }
 
@@ -108,7 +107,6 @@ public class ScheduleController {
         }
 
         model.addAttribute("center", dir + "recommend");
-        model.addAttribute("left", dir + "left");
         return "home";
     }
 

@@ -71,7 +71,7 @@ public class CCTVController {
         }
 
         model.addAttribute("center", dir + "center");
-        model.addAttribute("left", dir + "left");
+        // left 메뉴 제거 - 상단바에서 바로 이동
         return "home";
     }
 
