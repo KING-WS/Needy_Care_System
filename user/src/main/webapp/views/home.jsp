@@ -685,7 +685,7 @@
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
                 <img src="/img/favicontitle.png" alt="Aventro Logo">
-                Aventro
+                Needy Care
             </a>
 
             <!-- 중앙: 메뉴 -->
