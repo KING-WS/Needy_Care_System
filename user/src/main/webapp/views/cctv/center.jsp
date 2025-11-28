@@ -151,6 +151,7 @@
             canvas.toBlob((blob) => {
                 const formData = new FormData();
                 formData.append('attach', blob, 'frame.png');
+                formData.append('kioskCode', "${cctv1}");
 
                 fetch('/cctv/analyze', { method: "post", body: formData })
                     .then(res => res.json())
