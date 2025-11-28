@@ -876,14 +876,7 @@
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- Left Sidebar (if exists) -->
-<c:if test="${left != null}">
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-sticky pt-3">
-            <jsp:include page="${left}.jsp"/>
-        </div>
-    </nav>
-</c:if>
+
 
 <!-- Main Content Area -->
 <div class="main-content" id="mainContent">
