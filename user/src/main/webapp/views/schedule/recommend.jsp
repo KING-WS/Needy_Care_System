@@ -39,15 +39,32 @@
         border-radius: 20px;
         font-size: 0.8rem;
     }
+    /* 💡 수정/유지된 스타일: 길찾기 버튼 스타일 */
     .btn-map {
         background-color: #fee500;
         color: #191919;
         border: none;
         font-weight: 600;
+        font-size: 0.9rem; /* 폰트 크기 CSS로 통합 */
+        padding: 8px 15px; /* 버튼 패딩 조정 */
     }
     .btn-map:hover {
         background-color: #fdd835;
     }
+    /* 💡 추가된 스타일: 검색 버튼 스타일 */
+    .btn-outline-secondary {
+        border: 1px solid #ced4da;
+        color: #6c757d;
+        font-weight: 600;
+        font-size: 0.9rem; /* 폰트 크기 CSS로 통합 */
+        padding: 8px 15px; /* 버튼 패딩 조정 */
+        min-width: 0; /* flex 컨테이너에서 최소 너비 확보 */
+    }
+    .btn-outline-secondary:hover {
+        background-color: #e9ecef;
+        color: #495057;
+    }
+
     .summary-content {
         display: none;
         background-color: #f8f9fa;
@@ -257,7 +274,7 @@
                 <span class="visually-hidden">Loading...</span>
             </div>
             <h5 class="mt-3 fw-bold text-secondary">AI가 대상자의 건강 상태를 분석하고 있습니다...</h5>
-            <p class="text-muted">최적의 장소와 행사를 찾고 있으니 잠시만 기다려주세요.</p>
+            <p class="text-muted">장소를 찾고 있으니 잠시만 기다려주세요.</p>
         </div>
 
         <div id="recommendation-results" class="row g-4">
@@ -403,7 +420,12 @@
                         const cardCol = document.createElement('div');
                         cardCol.className = 'col-lg-4 col-md-6';
 
-                        const address = item.address || '주소 정보 없음';
+                        // place_url이나 좌표가 있으면 실제 존재하는 장소이므로 "주소 정보 없음" 표시하지 않음
+                        const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') ||
+                            (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
+                        const address = item.address && item.address.trim() !== ''
+                            ? item.address
+                            : (hasValidLocation ? '' : '주소 정보 없음');
                         const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
 
                         cardCol.innerHTML = `
@@ -413,39 +435,47 @@
                                 <span class="badge badge-category">\${item.mapCategory}</span>
                             </div>
                             <div class="card-body d-flex flex-column">
-                                <p class="card-text text-muted mb-2"><i class="fas fa-map-marker-alt text-danger"></i> \${address} \${distance}</p>
+                                <p class="card-text text-muted mb-2">
+                                    \${address ? `<i class="fas fa-map-marker-alt text-danger"></i> \${address} ` : ''}\${distance}
+                    </p>
 
-                                <div class="mt-auto pt-3">
-                                    <button class="btn btn-outline-primary w-100 mb-2 btn-summary-toggle">
-                                        <i class="fas fa-align-left"></i> AI 요약 보기
-                                    </button>
-                                    <div class="summary-content mb-3">
-                                        <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>
-                                        \${item.mapContent}
-                                    </div>
+                        <div class="mt-auto pt-3">
+                            <button class="btn btn-outline-primary w-100 mb-2 btn-summary-toggle">
+                                <i class="fas fa-align-left"></i> AI 요약 보기
+                            </button>
+                            <div class="summary-content mb-3">
+                                <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>
+                                \${item.mapContent}
+                            </div>
 
-                                    <div class="d-flex gap-2">
-                                        <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
-                                            <i class="fas fa-directions"></i> 길찾기
-                                        </a>
-                                        <button class="btn btn-success flex-grow-1 btn-add-schedule"
-                                            data-mapname="\${item.mapName}"
-                                            data-mapcontent="\${item.mapContent}"
-                                            data-mapcategory="\${item.mapCategory}"
-                                            data-mapaddress="\${address}"
-                                            data-coursetype="\${item.courseType || 'WALK'}"
-                                            data-startlat="\${item.startLat}"
-                                            data-startlng="\${item.startLng}"
-                                            data-endlat="\${item.y}"
-                                            data-endlng="\${item.x}"
-                                            data-distance="\${item.distance || 0}">
-                                            <i class="fas fa-plus"></i> 추가
-                                        </button>
-                                    </div>
-                                </div>
+                            <div class="d-flex gap-2 mb-2">
+                                <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
+                                    <i class="fas fa-directions"></i> 길찾기
+                                </a>
+                                <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
+                                    <i class="fas fa-search"></i> 검색
+                                </a>
+                            </div>
+
+                            <div class="d-grid">
+                                <button class="btn btn-success w-100 btn-add-schedule"
+                                        data-mapname="\${item.mapName}"
+                                        data-mapcontent="\${item.mapContent}"
+                                        data-mapcategory="\${item.mapCategory}"
+                                        data-mapaddress="\${address}"
+                                        data-coursetype="\${item.courseType || 'WALK'}"
+                                        data-startlat="\${item.startLat}"
+                                        data-startlng="\${item.startLng}"
+                                        data-endlat="\${item.y}"
+                                        data-endlng="\${item.x}"
+                                        data-distance="\${item.distance || 0}">
+                                    <i class="fas fa-plus"></i> 일정에 추가
+                                </button>
                             </div>
                         </div>
-                    `;
+                    </div>
+                    </div>
+                        `;
 
                         resultsContainer.appendChild(cardCol);
                     });
