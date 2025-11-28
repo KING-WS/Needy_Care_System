@@ -198,13 +198,11 @@
             list-style: none;
         }
 
-        .nav-item:hover .dropdown-menu,
         .nav-item.dropdown-open .dropdown-menu {
             display: block;
             animation: fadeInDown 0.3s ease;
         }
 
-        .nav-item:hover .nav-link .fa-chevron-down,
         .nav-item.dropdown-open .nav-link .fa-chevron-down {
             transform: rotate(180deg);
             transition: transform 0.3s ease;
@@ -790,7 +788,7 @@
                 
                 <!-- 통신 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/comm"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -802,7 +800,7 @@
                 
                 <!-- 일정 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/schedule"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -813,7 +811,7 @@
                 
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/mealplan"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -826,7 +824,7 @@
                 
                 <!-- CCTV 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/cctv"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -1020,44 +1018,42 @@
                 icon.classList.add('fa-bars');
             });
         }
-        // Dropdown Menu Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // 드롭다운 메뉴 토글
-            const dropdownItems = document.querySelectorAll('.nav-item');
-            dropdownItems.forEach(item => {
-                const dropdownMenu = item.querySelector('.dropdown-menu');
-                if (dropdownMenu) {
-                    const navLink = item.querySelector('.nav-link');
-                    
-                    // 클릭으로 토글 (모바일 및 데스크톱 모두)
-                    navLink.addEventListener('click', function(e) {
-                        // 드롭다운 메뉴 항목을 클릭한 경우는 링크 이동 허용
-                        if (e.target.closest('.dropdown-item')) {
-                            return;
-                        }
-                        
-                        e.preventDefault();
-                        const isOpen = item.classList.contains('dropdown-open');
-                        
-                        // 다른 드롭다운 닫기
-                        dropdownItems.forEach(otherItem => {
-                            if (otherItem !== item) {
-                                otherItem.classList.remove('dropdown-open');
-                            }
-                        });
-                        
-                        // 현재 드롭다운 토글
-                        item.classList.toggle('dropdown-open', !isOpen);
-                    });
-                    
-                    // 외부 클릭 시 닫기
-                    document.addEventListener('click', function(e) {
-                        if (!item.contains(e.target)) {
-                            item.classList.remove('dropdown-open');
+        // Dropdown Menu Functionality (Hover-based with outside click to close)
+        const dropdownNavItems = document.querySelectorAll('.nav-item');
+
+        dropdownNavItems.forEach(item => {
+            const dropdownMenu = item.querySelector('.dropdown-menu');
+            if (dropdownMenu) {
+                item.addEventListener('mouseenter', function() {
+                    // Close any other open dropdowns
+                    dropdownNavItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('dropdown-open');
                         }
                     });
+                    // Open the current one
+                    item.classList.add('dropdown-open');
+                });
+            }
+        });
+
+        // Add a single event listener to the document to close dropdowns on outside click
+        document.addEventListener('click', function(e) {
+            let isClickInsideDropdown = false;
+            // Check if the click is inside any nav-item that contains a dropdown
+            dropdownNavItems.forEach(item => {
+                if (item.contains(e.target) && item.querySelector('.dropdown-menu')) {
+                    isClickInsideDropdown = true;
                 }
             });
+
+            // If the click is not inside any dropdown-related nav-item, close all dropdowns
+            if (!isClickInsideDropdown) {
+                dropdownNavItems.forEach(item => {
+                    item.classList.remove('dropdown-open');
+                });
+            }
+        });
 
         // Chat Functionality
         const floatingChatBtn = document.getElementById('floatingChatBtn');
