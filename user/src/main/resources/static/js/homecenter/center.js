@@ -1273,12 +1273,12 @@ function addSpecialMarker(position, type, title) {
     
     if (type === 'START') {
         // 출발 마커 (파란색 핀)
-        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png';
+        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png';
         imageSize = new kakao.maps.Size(50, 45);
         imageOption = {offset: new kakao.maps.Point(15, 43)};
     } else {
         // 도착 마커 (빨간색 핀)
-        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/red_b.png';
+        imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/blue_b.png';
         imageSize = new kakao.maps.Size(50, 45);
         imageOption = {offset: new kakao.maps.Point(15, 43)};
     }
