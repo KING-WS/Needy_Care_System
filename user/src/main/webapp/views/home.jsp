@@ -198,13 +198,11 @@
             list-style: none;
         }
 
-        .nav-item:hover .dropdown-menu,
         .nav-item.dropdown-open .dropdown-menu {
             display: block;
             animation: fadeInDown 0.3s ease;
         }
 
-        .nav-item:hover .nav-link .fa-chevron-down,
         .nav-item.dropdown-open .nav-link .fa-chevron-down {
             transform: rotate(180deg);
             transition: transform 0.3s ease;
@@ -752,18 +750,18 @@
                 bottom: 20px;
                 right: 20px;
             }
-            
+
             .navbar-nav {
                 gap: 10px;
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            
+
             .nav-link {
                 font-size: 13px;
                 padding: 6px 8px;
             }
-            
+
             .dropdown-menu {
                 position: static;
                 box-shadow: none;
@@ -787,10 +785,10 @@
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-                
+
                 <!-- 통신 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/comm"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -799,10 +797,10 @@
                         <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
                     </ul>
                 </li>
-                
+
                 <!-- 일정 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/schedule"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -810,10 +808,10 @@
                         <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
                     </ul>
                 </li>
-                
+
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/mealplan"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
@@ -823,17 +821,17 @@
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
-                
+
                 <!-- CCTV 드롭다운 -->
                 <li class="nav-item">
-                    <a class="nav-link" href="<c:url value="/cctv"/>">
+                    <a class="nav-link" role="button">
                         <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
                     </ul>
                 </li>
-                
+
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -957,36 +955,19 @@
             console.log('알림 시스템 연결됨');
 
             // 위험 알림 구독
-            stompClient.connect({}, function(frame) {
-            console.log('알림 시스템 연결됨');
-
-            // 위험 알림 구독
             stompClient.subscribe('/topic/alert', function(msg) {
-                console.log("새로운 알림 메시지 수신:", msg);
                 const payload = JSON.parse(msg.body);
-                console.log("파싱된 알림 내용(payload):", payload);
 
                 // 위험(DANGER)일 때만 배너 표시
                 if(payload.type === 'DANGER') {
-                    console.log("위험(DANGER) 알림 확인, 배너 표시 함수 호출");
                     showDangerAlert(payload.message, payload.recName);
-                } else {
-                    console.log("수신된 알림 타입이 'DANGER'가 아님:", payload.type);
                 }
             });
-        }, function(error) {
-            console.error('STOMP 연결 실패:', error);
         });
 
         function showDangerAlert(message, name) {
-            console.log("showDangerAlert 함수 실행. 배너를 표시합니다.", { message, name });
             const banner = $('#danger-alert-banner');
             const content = $('#alert-content');
-
-            if (banner.length === 0) {
-                console.error("'#danger-alert-banner' 요소를 찾을 수 없습니다.");
-                return;
-            }
 
             // 메시지 구성
             const alertText = "[" + name + "]님에게 위험이 감지되었습니다!<br>" + message;
@@ -1037,44 +1018,42 @@
                 icon.classList.add('fa-bars');
             });
         }
-        // Dropdown Menu Functionality
-        document.addEventListener('DOMContentLoaded', function() {
-            // 드롭다운 메뉴 토글
-            const dropdownItems = document.querySelectorAll('.nav-item');
-            dropdownItems.forEach(item => {
-                const dropdownMenu = item.querySelector('.dropdown-menu');
-                if (dropdownMenu) {
-                    const navLink = item.querySelector('.nav-link');
-                    
-                    // 클릭으로 토글 (모바일 및 데스크톱 모두)
-                    navLink.addEventListener('click', function(e) {
-                        // 드롭다운 메뉴 항목을 클릭한 경우는 링크 이동 허용
-                        if (e.target.closest('.dropdown-item')) {
-                            return;
-                        }
-                        
-                        e.preventDefault();
-                        const isOpen = item.classList.contains('dropdown-open');
-                        
-                        // 다른 드롭다운 닫기
-                        dropdownItems.forEach(otherItem => {
-                            if (otherItem !== item) {
-                                otherItem.classList.remove('dropdown-open');
-                            }
-                        });
-                        
-                        // 현재 드롭다운 토글
-                        item.classList.toggle('dropdown-open', !isOpen);
-                    });
-                    
-                    // 외부 클릭 시 닫기
-                    document.addEventListener('click', function(e) {
-                        if (!item.contains(e.target)) {
-                            item.classList.remove('dropdown-open');
+        // Dropdown Menu Functionality (Hover-based with outside click to close)
+        const dropdownNavItems = document.querySelectorAll('.nav-item');
+
+        dropdownNavItems.forEach(item => {
+            const dropdownMenu = item.querySelector('.dropdown-menu');
+            if (dropdownMenu) {
+                item.addEventListener('mouseenter', function() {
+                    // Close any other open dropdowns
+                    dropdownNavItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('dropdown-open');
                         }
                     });
+                    // Open the current one
+                    item.classList.add('dropdown-open');
+                });
+            }
+        });
+
+        // Add a single event listener to the document to close dropdowns on outside click
+        document.addEventListener('click', function(e) {
+            let isClickInsideDropdown = false;
+            // Check if the click is inside any nav-item that contains a dropdown
+            dropdownNavItems.forEach(item => {
+                if (item.contains(e.target) && item.querySelector('.dropdown-menu')) {
+                    isClickInsideDropdown = true;
                 }
             });
+
+            // If the click is not inside any dropdown-related nav-item, close all dropdowns
+            if (!isClickInsideDropdown) {
+                dropdownNavItems.forEach(item => {
+                    item.classList.remove('dropdown-open');
+                });
+            }
+        });
 
         // Chat Functionality
         const floatingChatBtn = document.getElementById('floatingChatBtn');
@@ -1216,7 +1195,7 @@
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
             // 구조 조립
-            bubbleWrapper.appendChild(bubble);
+            bubbleWrapper.appendChild(풍선껌);
             bubbleWrapper.appendChild(time);
             contentWrapper.appendChild(sender);
             contentWrapper.appendChild(bubbleWrapper);
