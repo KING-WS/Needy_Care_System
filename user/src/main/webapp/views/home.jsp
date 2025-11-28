@@ -629,8 +629,8 @@
             line-height: 1.5;
             display: inline-block;
             max-width: 100%;
+            /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
         }
-
 
         /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
         .chat-messages .chat-message.received .message-bubble {
@@ -638,6 +638,7 @@
             max-width: 100%;
         }
 
+        /* 말풍선 스타일 - 최고 우선순위로 설정 (모든 외부 CSS 이후에 적용) */
         #chatMessages .chat-message.sent .message-bubble,
         .chat-modal #chatMessages .chat-message.sent .message-bubble {
             background: #0084ff !important;
@@ -738,6 +739,7 @@
             cursor: not-allowed;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             .chat-modal {
                 width: calc(100% - 40px);
@@ -750,18 +752,18 @@
                 bottom: 20px;
                 right: 20px;
             }
-
+            
             .navbar-nav {
                 gap: 10px;
                 flex-wrap: wrap;
                 justify-content: center;
             }
-
+            
             .nav-link {
                 font-size: 13px;
                 padding: 6px 8px;
             }
-
+            
             .dropdown-menu {
                 position: static;
                 box-shadow: none;
@@ -785,7 +787,7 @@
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-
+                
                 <!-- 통신 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" href="<c:url value="/comm"/>">
@@ -797,7 +799,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- 일정 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" href="<c:url value="/schedule"/>">
@@ -808,7 +810,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" href="<c:url value="/mealplan"/>">
@@ -821,7 +823,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- CCTV 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" href="<c:url value="/cctv"/>">
@@ -831,7 +833,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
                     </ul>
                 </li>
-
+                
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -1033,28 +1035,28 @@
                 const dropdownMenu = item.querySelector('.dropdown-menu');
                 if (dropdownMenu) {
                     const navLink = item.querySelector('.nav-link');
-
+                    
                     // 클릭으로 토글 (모바일 및 데스크톱 모두)
                     navLink.addEventListener('click', function(e) {
                         // 드롭다운 메뉴 항목을 클릭한 경우는 링크 이동 허용
                         if (e.target.closest('.dropdown-item')) {
                             return;
                         }
-
+                        
                         e.preventDefault();
                         const isOpen = item.classList.contains('dropdown-open');
-
+                        
                         // 다른 드롭다운 닫기
                         dropdownItems.forEach(otherItem => {
                             if (otherItem !== item) {
                                 otherItem.classList.remove('dropdown-open');
                             }
                         });
-
+                        
                         // 현재 드롭다운 토글
                         item.classList.toggle('dropdown-open', !isOpen);
                     });
-
+                    
                     // 외부 클릭 시 닫기
                     document.addEventListener('click', function(e) {
                         if (!item.contains(e.target)) {
@@ -1155,8 +1157,10 @@
                 });
         }
 
+        // Add message to chat
         function addMessage(text, type, messageId) {
             const messageDiv = document.createElement('div');
+            // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
             if (type === 'sent' || type === 'received') {
                 messageDiv.classList.add(type);
@@ -1165,6 +1169,10 @@
                 messageDiv.id = messageId;
             }
 
+            // 디버깅: 클래스 확인
+            console.log('메시지 추가:', type, '클래스:', messageDiv.className, 'classList:', Array.from(messageDiv.classList));
+
+            // 아바타 생성
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (type === 'sent') {
@@ -1173,25 +1181,31 @@
                 avatar.innerHTML = '<i class="fas fa-robot"></i>';
             }
 
+            // 메시지 컨텐츠 래퍼
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'message-content-wrapper';
 
+            // 발신자 이름
             const sender = document.createElement('div');
             sender.className = 'message-sender';
             sender.textContent = type === 'sent' ? userName : 'AI 봇';
 
+            // 말풍선 래퍼 (말풍선 + 시간)
             const bubbleWrapper = document.createElement('div');
             bubbleWrapper.className = 'message-bubble-wrapper';
 
+            // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
 
+            // 시간
             const time = document.createElement('div');
             time.className = 'message-time';
             const now = new Date();
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
+            // 구조 조립
             bubbleWrapper.appendChild(bubble);
             bubbleWrapper.appendChild(time);
             contentWrapper.appendChild(sender);
@@ -1203,6 +1217,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // Remove message from chat
         function removeMessage(messageId) {
             const messageElement = document.getElementById(messageId);
             if (messageElement) {
@@ -1210,10 +1225,12 @@
             }
         }
 
+        // Send button click
         if (chatSendBtn) {
             chatSendBtn.addEventListener('click', sendMessage);
         }
 
+        // Enter key press
         if (chatInput) {
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
