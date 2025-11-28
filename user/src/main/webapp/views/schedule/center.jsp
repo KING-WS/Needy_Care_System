@@ -820,12 +820,14 @@
             specialNotesRequired.style.display = 'inline';
             specialNotesInput.placeholder = '원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기, 쇼핑몰 가기 등)';
             specialNotesHint.textContent = '맞춤형 모드: 입력한 활동을 중심으로 노약자의 건강 상태를 고려하여 시간표를 추천합니다.';
-            specialNotesHint.style.color = '#667eea';
+            specialNotesHint.style.color = '#FF00FF'; // Keep custom mode color
+            specialNotesHint.style.fontSize = '20px'; // Increase font size for custom mode
         } else {
             specialNotesRequired.style.display = 'none';
             specialNotesInput.placeholder = '추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 병원 방문이 있습니다.';
-            specialNotesHint.textContent = '기본 모드: 입력하지 않으시면 대상자의 기존 건강 정보를 기반으로 추천합니다.';
-            specialNotesHint.style.color = '#a0aec0';
+            specialNotesHint.textContent = '기본 모드: 입력하지 않으시면 대상자의 기존 건강 정보를 데이터베이스에서 추출해 그 기반을 ai가 얻어 사용자에게 딱 맞는 스케쥴을 추천합니다.';
+            specialNotesHint.style.color = '#FF00FF'; // Change to red for basic mode
+            specialNotesHint.style.fontSize = '20px'; // Increase font size for basic mode
         }
     }
     
