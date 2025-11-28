@@ -34,8 +34,8 @@ public class CaregiverController {
 
     @RequestMapping("/list")
     public String caregiverList(@RequestParam(defaultValue = "1") int pageNo,
-                                @RequestParam(defaultValue = "caregiverId") String sort,
-                                @RequestParam(defaultValue = "asc") String order,
+                                @RequestParam(defaultValue = "caregiverRegdate") String sort,
+                                @RequestParam(defaultValue = "desc") String order,
                                 Model model) {
         log.info("Caregiver list page accessed, pageNo: {}, sort: {}, order: {}", pageNo, sort, order);
         try {
@@ -52,7 +52,7 @@ public class CaregiverController {
         model.addAttribute("center", "doctor/caregiver-list");
         return "index";
     }
-
+    
     @GetMapping("/detail/{id}")
     public String caregiverDetail(@PathVariable("id") int id, Model model) {
         log.info("Caregiver detail page accessed for id: {}", id);

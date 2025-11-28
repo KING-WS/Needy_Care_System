@@ -2,6 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<%-- 변수 설정 --%>
 <c:set var="currentSort" value="${sort}" />
 <c:set var="currentOrder" value="${order}" />
 
@@ -20,27 +21,38 @@
                         <table class="table table-hover">
                             <thead class="table-light">
                                 <tr>
+                                    <%-- 각 헤더에 정렬 링크 추가 --%>
                                     <th>
-                                        <a href="<c:url value='/caregiver/list?pageNo=${page.pageNum}&sort=caregiverId&order=${(currentSort eq "caregiverId" and currentOrder eq "asc") ? "desc" : "asc"}'/>" class="text-decoration-none text-dark">
+                                        <c:set var="orderForId" value="${(currentSort eq 'caregiverId' and currentOrder eq 'asc') ? 'desc' : 'asc'}" />
+                                        <a href="<c:url value='/caregiver/list?sort=caregiverId&order=${orderForId}'/>" class="text-decoration-none text-dark">
                                             번호
-                                            <c:if test="${currentSort eq 'caregiverId'}">
-                                                <i class="bi ${(currentOrder eq 'asc') ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
-                                            </c:if>
+                                            <c:if test="${currentSort eq 'caregiverId'}"><i class="bi ${currentOrder eq 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}"></i></c:if>
                                         </a>
                                     </th>
-                                    <th>이름</th>
+                                    <th>
+                                        <c:set var="orderForName" value="${(currentSort eq 'caregiverName' and currentOrder eq 'asc') ? 'desc' : 'asc'}" />
+                                        <a href="<c:url value='/caregiver/list?sort=caregiverName&order=${orderForName}'/>" class="text-decoration-none text-dark">
+                                            이름
+                                            <c:if test="${currentSort eq 'caregiverName'}"><i class="bi ${currentOrder eq 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}"></i></c:if>
+                                        </a>
+                                    </th>
                                     <th>전화번호</th>
                                     <th>주소</th>
                                     <th>
-                                        <a href="<c:url value='/caregiver/list?pageNo=${page.pageNum}&sort=caregiverCareer&order=${(currentSort eq "caregiverCareer" and currentOrder eq "asc") ? "desc" : "asc"}'/>" class="text-decoration-none text-dark">
+                                        <c:set var="orderForCareer" value="${(currentSort eq 'caregiverCareer' and currentOrder eq 'asc') ? 'desc' : 'asc'}" />
+                                        <a href="<c:url value='/caregiver/list?sort=caregiverCareer&order=${orderForCareer}'/>" class="text-decoration-none text-dark">
                                             경력
-                                            <c:if test="${currentSort eq 'caregiverCareer'}">
-                                                <i class="bi ${(currentOrder eq 'asc') ? 'bi-arrow-up' : 'bi-arrow-down'}"></i>
-                                            </c:if>
+                                            <c:if test="${currentSort eq 'caregiverCareer'}"><i class="bi ${currentOrder eq 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}"></i></c:if>
                                         </a>
                                     </th>
                                     <th>자격증</th>
-                                    <th>등록일</th>
+                                    <th>
+                                        <c:set var="orderForRegdate" value="${(currentSort eq 'caregiverRegdate' and currentOrder eq 'asc') ? 'desc' : 'asc'}" />
+                                        <a href="<c:url value='/caregiver/list?sort=caregiverRegdate&order=${orderForRegdate}'/>" class="text-decoration-none text-dark">
+                                            등록일
+                                            <c:if test="${currentSort eq 'caregiverRegdate'}"><i class="bi ${currentOrder eq 'asc' ? 'bi-arrow-up' : 'bi-arrow-down'}"></i></c:if>
+                                        </a>
+                                    </th>
                                     <th>관리</th>
                                 </tr>
                             </thead>
@@ -76,6 +88,7 @@
                         </table>
                     </div>
                     
+                    <%-- 페이지네이션: 정렬 상태 유지 --%>
                     <nav aria-label="Page navigation" class="mt-3">
                         <ul class="pagination justify-content-center">
                             <c:if test="${page.hasPreviousPage}">
@@ -83,7 +96,7 @@
                                     <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${page.prePage}&sort=${currentSort}&order=${currentOrder}'/>">이전</a>
                                 </li>
                             </c:if>
-                            <c:forEach begin="1" end="${page.pages}" var="i">
+                            <c:forEach items="${page.navigatepageNums}" var="i">
                                 <li class="page-item <c:if test='${page.pageNum eq i}'>active</c:if>">
                                     <a class="page-link" href="<c:url value='/caregiver/list?pageNo=${i}&sort=${currentSort}&order=${currentOrder}'/>">${i}</a>
                                 </li>
