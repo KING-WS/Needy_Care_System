@@ -957,19 +957,36 @@
             console.log('알림 시스템 연결됨');
 
             // 위험 알림 구독
+            stompClient.connect({}, function(frame) {
+            console.log('알림 시스템 연결됨');
+
+            // 위험 알림 구독
             stompClient.subscribe('/topic/alert', function(msg) {
+                console.log("새로운 알림 메시지 수신:", msg);
                 const payload = JSON.parse(msg.body);
+                console.log("파싱된 알림 내용(payload):", payload);
 
                 // 위험(DANGER)일 때만 배너 표시
                 if(payload.type === 'DANGER') {
+                    console.log("위험(DANGER) 알림 확인, 배너 표시 함수 호출");
                     showDangerAlert(payload.message, payload.recName);
+                } else {
+                    console.log("수신된 알림 타입이 'DANGER'가 아님:", payload.type);
                 }
             });
+        }, function(error) {
+            console.error('STOMP 연결 실패:', error);
         });
 
         function showDangerAlert(message, name) {
+            console.log("showDangerAlert 함수 실행. 배너를 표시합니다.", { message, name });
             const banner = $('#danger-alert-banner');
             const content = $('#alert-content');
+
+            if (banner.length === 0) {
+                console.error("'#danger-alert-banner' 요소를 찾을 수 없습니다.");
+                return;
+            }
 
             // 메시지 구성
             const alertText = "[" + name + "]님에게 위험이 감지되었습니다!<br>" + message;
