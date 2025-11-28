@@ -2,34 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <div class="container-fluid p-4 p-lg-5">
-    <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0">Dashboard</h1>
-            <p class="text-muted mb-0">Welcome back! Here's what's happening.</p>
-        </div>
-        <div class="d-flex gap-2">
-            <button type="button" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-2"></i>
-                New Item
-            </button>
-            <button type="button" class="btn btn-outline-secondary" 
-                    data-bs-toggle="tooltip" 
-                    title="Refresh data">
-                <i class="bi bi-arrow-clockwise icon-hover"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" 
-                    data-bs-toggle="tooltip" 
-                    title="Export data">
-                <i class="bi bi-download icon-hover"></i>
-            </button>
-            <button type="button" class="btn btn-outline-secondary" 
-                    data-bs-toggle="tooltip" 
-                    title="Settings">
-                <i class="bi bi-gear icon-hover"></i>
-            </button>
-        </div>
-    </div>
 
     <!-- Stats Cards -->
     <div class="row g-4 mb-4">
@@ -43,11 +15,11 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Total Users</h6>
-                            <h3 class="mb-0">12,426</h3>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i> +12.5%
-                            </small>
+                            <h6 class="mb-0 text-muted">고객수</h6>
+                            <h3 class="mb-0">${userCount}명</h3>
+<%--                            <small class="text-success">--%>
+<%--                                <i class="bi bi-arrow-up"></i> +12.5%--%>
+<%--                            </small>--%>
                         </div>
                     </div>
                 </div>
@@ -60,15 +32,15 @@
                     <div class="d-flex align-items-center">
                         <div class="flex-shrink-0">
                             <div class="stats-icon bg-success bg-opacity-10 text-success">
-                                <i class="bi bi-graph-up"></i>
+                                <i class="bi bi-people"></i>
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Revenue</h6>
-                            <h3 class="mb-0">$54,320</h3>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i> +8.2%
-                            </small>
+                            <h6 class="mb-0 text-muted">노약자수</h6>
+                            <h3 class="mb-0">${seniorCount}명</h3>
+<%--                            <small class="text-success">--%>
+<%--                                <i class="bi bi-people"></i> +8.2%--%>
+<%--                            </small>--%>
                         </div>
                     </div>
                 </div>
@@ -85,11 +57,11 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Orders</h6>
-                            <h3 class="mb-0">1,852</h3>
-                            <small class="text-danger">
-                                <i class="bi bi-arrow-down"></i> -2.1%
-                            </small>
+                            <h6 class="mb-0 text-muted">요양사수</h6>
+                            <h3 class="mb-0">${caregiverCount}명</h3>
+<%--                            <small class="text-danger">--%>
+<%--                                <i class="bi bi-arrow-down"></i> -2.1%--%>
+<%--                            </small>--%>
                         </div>
                     </div>
                 </div>
@@ -106,11 +78,11 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">Avg. Response</h6>
-                            <h3 class="mb-0">2.3s</h3>
-                            <small class="text-success">
-                                <i class="bi bi-arrow-up"></i> +5.4%
-                            </small>
+                            <h6 class="mb-0 text-muted">읽지 않는 Q&A</h6>
+                            <h3 class="mb-0">3건</h3>
+<%--                            <small class="text-success">--%>
+<%--                                <i class="bi bi-arrow-up"></i> +5.4%--%>
+<%--                            </small>--%>
                         </div>
                     </div>
                 </div>
@@ -123,13 +95,13 @@
         <div class="col-lg-8">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Revenue Overview</h5>
-                    <div class="btn-group btn-group-sm" role="group">
-                        <button type="button" class="btn btn-outline-primary active">7D</button>
-                        <button type="button" class="btn btn-outline-primary">30D</button>
-                        <button type="button" class="btn btn-outline-primary">90D</button>
-                        <button type="button" class="btn btn-outline-primary">1Y</button>
-                    </div>
+                    <h5 class="card-title mb-0">실시간 사용자 접속 추이</h5>
+<%--                    <div class="btn-group btn-group-sm" role="group">--%>
+<%--                        <button type="button" class="btn btn-outline-primary active">7D</button>--%>
+<%--                        <button type="button" class="btn btn-outline-primary">30D</button>--%>
+<%--                        <button type="button" class="btn btn-outline-primary">90D</button>--%>
+<%--                        <button type="button" class="btn btn-outline-primary">1Y</button>--%>
+<%--                    </div>--%>
                 </div>
                 <div class="card-body">
                     <canvas id="revenueChart" height="250"></canvas>
@@ -140,7 +112,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Recent Activity</h5>
+                    <h5 class="card-title mb-0">알림 관리</h5>
                 </div>
                 <div class="card-body">
                     <div class="activity-feed">

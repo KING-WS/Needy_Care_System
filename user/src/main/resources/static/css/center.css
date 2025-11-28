@@ -220,6 +220,11 @@
     color: #777;
     margin-bottom: 20px;
     line-height: 1.6;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: none;
+    border: 1px solid #eee;
 }
 
 /* ========================================
@@ -1860,4 +1865,64 @@
     line-height: 1.6;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* 1. 이름과 뱃지를 감싸는 틀: 양옆 정렬 & 위쪽 기준 정렬 */
+.location-name-wrapper {
+    display: flex;
+    justify-content: space-between; /* 이름은 왼쪽, 뱃지는 오른쪽 끝으로 */
+    align-items: flex-start;        /* 텍스트가 두 줄이 되어도 뱃지는 항상 위쪽에 고정 */
+    gap: 8px;                       /* 이름과 뱃지 사이 최소 간격 */
+    width: 100%;
+}
+
+/* 2. 장소 이름: 무조건 왼쪽 정렬 */
+.location-name {
+    text-align: left !important;    /* 강제 왼쪽 정렬 */
+    word-break: keep-all;           /* 단어 중간에 줄바꿈 되지 않도록 설정 (한글 최적화) */
+    line-height: 1.4;
+    flex-grow: 1;                   /* 공간 차지 */
+    font-size: 15px;
+    font-weight: 600;               /* 글자 두께 */
+    color: #333;               /* 글자 크기 통일 (필요시 조절) */
+}
+
+/* 3. 카테고리 뱃지(실내활동 등): 모양 고정 */
+.location-category {
+    white-space: nowrap;            /* 뱃지 안의 글자가 줄바꿈되지 않게 함 */
+    flex-shrink: 0;                 /* 이름이 길어져도 뱃지 크기가 찌그러지지 않음 */
+    font-size: 12px;                /* 뱃지 글자 크기 통일 */
+    padding: 4px 8px;               /* 내부 여백 통일 */
+    height: fit-content;            /* 높이를 내용물에 맞춤 */
+    margin-top: 2px;                /* 이름 텍스트와 시각적 높이 줄맞춤 */
+    text-align: center;             /* 뱃지 내부 글자 가운데 정렬 */
+    min-width: 40px;                /* 최소 너비 지정 (글자가 짧아도 너무 작아지지 않게) */
+}
+
+/* 1. 목록 컨테이너: 스크롤바와 내용 사이에 여백 주기 */
+.map-address-panel {
+    overflow-y: auto;          /* 세로 스크롤 허용 */
+    padding-right: 10px;       /* 스크롤바와 내용 사이 여백 (잘림 방지) */
+    box-sizing: border-box;    /* 여백 포함 크기 계산 */
+    height: 100%;              /* 높이 꽉 채우기 */
+}
+
+/* 2. (선택사항) 투박한 스크롤바를 얇고 예쁘게 변경 */
+.map-address-panel::-webkit-scrollbar {
+    width: 6px;                /* 스크롤바 너비를 얇게 (기본은 약 17px) */
+}
+
+.map-address-panel::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* 스크롤바 색상 (회색) */
+    border-radius: 3px;        /* 둥근 모서리 */
+}
+
+.map-address-panel::-webkit-scrollbar-track {
+    background-color: transparent; /* 스크롤바 배경 투명 */
+}
+
+/* 3. 리스트 아이템: 가로 폭이 넘치지 않도록 안전장치 */
+.map-location-item {
+    margin-right: 2px;         /* 혹시 모를 잘림 방지용 미세 여백 */
+    width: auto;               /* 가로 폭 자동 조절 */
 }

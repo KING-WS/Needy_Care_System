@@ -43,11 +43,6 @@
                 <i class="fas fa-robot"></i> AI 장소 추천
             </a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value="/comm/video"/>">
-                <i class="fas fa-video"></i> 일정3
-            </a>
-        </li>
     </ul>
 </div>
 

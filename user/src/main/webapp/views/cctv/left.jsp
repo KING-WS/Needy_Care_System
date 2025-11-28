@@ -34,17 +34,7 @@
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
             <a class="nav-link" href="<c:url value="/cctv"/>">
-                <i class="fas fa-home"></i> 통신 메인
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value="/cctv/chat"/>">
-                <i class="fas fa-comments-dots"></i> 채팅
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="<c:url value="/cctv/video"/>">
-                <i class="fas fa-video"></i> 화상통화
+                <i class="fas fa-home"></i> 다중 모니터링
             </a>
         </li>
     </ul>
