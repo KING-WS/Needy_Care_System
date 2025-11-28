@@ -29,7 +29,7 @@
 
     <link href="<c:url value='/css/main.css'/>" rel="stylesheet">
 
-    <title>Metis - Modern Bootstrap Admin</title>
+    <title>Needy Care Admin</title>
 
     <meta name="theme-color" content="#6366f1">
 
@@ -67,7 +67,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="<c:url value='/'/>">
                     <img src="<c:url value='/assets/images/logo.svg'/>" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
-                    <h1 class="h4 mb-0 fw-bold text-primary">Metis</h1>
+                    <h1 class="h4 mb-0 fw-bold text-primary">Needy Care</h1>
                 </a>
 
                 <div class="search-container flex-grow-1 mx-4">
