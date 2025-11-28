@@ -12,13 +12,13 @@ import java.util.List;
 public interface CareMatchingRepository {
 
     /**
-     * 현재 매칭되어 있는 요양사-수급자 목록을 조회합니다.
+     * 현재 매칭되어 있는 요양사-돌봄 대상자 목록을 조회합니다.
      * @return CareMatching 리스트
      */
     List<CareMatching> selectMatchedPairs();
 
     /**
-     * 아직 매칭되지 않은 수급자(어르신) 목록을 조회합니다.
+     * 아직 매칭되지 않은 돌봄 대상자 목록을 조회합니다.
      * @return Senior 리스트
      */
     List<Senior> selectUnassignedSeniors();
@@ -30,7 +30,7 @@ public interface CareMatchingRepository {
     List<Caregiver> selectUnassignedCaregivers();
 
     /**
-     * 새로운 요양사-수급자 매칭을 생성합니다.
+     * 새로운 요양사-돌봄 대상자 매칭을 생성합니다.
      * @param careMatching 매칭 정보
      */
     void insertMatch(CareMatching careMatching);
