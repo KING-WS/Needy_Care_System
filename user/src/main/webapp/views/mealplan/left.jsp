@@ -34,6 +34,11 @@
     <h5><i class="fas fa-utensils"></i> 식단 관리</h5>
     <ul class="nav nav-pills flex-column">
         <li class="nav-item">
+            <a class="nav-link" href="<c:url value='/mealplan'/>">
+                <i class="fas fa-home"></i> AI 식단 관리
+            </a>
+        </li>
+        <li class="nav-item">
             <a class="nav-link" href="<c:url value='/mealplan/ai-check'/>">
                 <i class="fas fa-shield-alt"></i> AI 식단 안전성 검사
             </a>
