@@ -120,4 +120,4 @@
   window.onload = startCamera;
 </script>
 </body>
-</html>
+</html>a
