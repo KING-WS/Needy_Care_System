@@ -165,7 +165,7 @@
 
         .nav-link {
             color: var(--secondary-color) !important;
-            font-weight: 500;
+            font-weight: 700;
             transition: color 0.3s;
             text-decoration: none;
             white-space: nowrap;
@@ -768,6 +768,11 @@
                 border: 1px solid #e0e0e0;
                 margin-top: 0;
             }
+        }
+        
+        .calendar-title {
+            font-size: 1rem !important; /* 크기를 키움 (기존보다 약 1.5배) */
+            font-weight: 700 !important;   /* 굵게 (Bold) */
         }
     </style>
 </head>
