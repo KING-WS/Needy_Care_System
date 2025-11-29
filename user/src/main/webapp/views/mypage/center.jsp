@@ -95,9 +95,9 @@
                             </a>
                         </li>
                         <li style="margin-bottom: 12px;">
-                            <a href="<c:url value="/mypage/settings"/>" style="text-decoration: none; color: var(--secondary-color); display: flex; align-items: center; padding: 10px; border-radius: 8px; transition: all 0.3s;">
-                                <i class="fas fa-cog" style="margin-right: 10px; color: var(--primary-color);"></i>
-                                환경 설정
+                            <a href="<c:url value="/recipient/list"/>" style="text-decoration: none; color: var(--secondary-color); display: flex; align-items: center; padding: 10px; border-radius: 8px; transition: all 0.3s;">
+                                <i class="fas bi-people-fill" style="margin-right: 10px; color: var(--primary-color);"></i>
+                                노약자 관리
                             </a>
                         </li>
                     </ul>

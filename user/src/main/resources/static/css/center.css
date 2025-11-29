@@ -30,11 +30,17 @@
     position: relative;
 }
 
-
-
 /* card-xlarge는 card-wrapper 높이만큼 채움 */
 .dashboard-card.card-xlarge {
     height: 100% !important;
+    min-height: 0 !important; /* 최소 높이 제한 해제 */
+    max-height: none !important; /* 최대 높이 제한 해제 */
+
+    /* ... 나머지 기존 스타일은 그대로 유지 ... */
+
+    padding: 20px;
+    display: block;
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -112,12 +118,13 @@
 }
 
 .card-xlarge {
-    height: 800px !important;
-    min-height: 800px !important;
-    max-height: 800px !important;
+    /* [수정됨]: 고정 높이 800px을 100%로 변경하여 동적 높이 지원 */
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
 }
 
-/* 지도 카드 스타일 전체 컨테이너 */
+/* [삭제됨]: 이전에 800px을 강제하던 중복 블록을 제거합니다.
 .dashboard-card.card-xlarge {
     padding: 20px;
     display: block;
@@ -131,6 +138,7 @@
     max-height: 800px !important;
     transition: all 0.3s ease;
 }
+*/
 
 /* 장식용 그라디언트 원 (오늘의 일정/식단표와 유사한 스타일) */
 .dashboard-card.card-xlarge::before,
@@ -213,6 +221,7 @@
 .map-title-icon i {
     font-size: 16px !important;
     color: #667eea;
+    margin-bottom: 0 !important;
 }
 
 .map-desc {
@@ -220,6 +229,11 @@
     color: #777;
     margin-bottom: 20px;
     line-height: 1.6;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: none;
+    border: 1px solid #eee;
 }
 
 /* ========================================
@@ -601,15 +615,6 @@
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
-.map-tab i {
-    font-size: 16px !important;
-    transition: transform 0.3s ease;
-}
-
-.map-tab:hover i {
-    transform: scale(1.1);
-}
-
 .map-tab.active {
     background: #7F7FBF;
     color: white;
@@ -852,6 +857,9 @@
     flex: 1;
     width: 100%;
 }
+.col-lg-6 .card-wrapper {
+    height: 100%;
+}
 
 #user-dashboard {
     display: flex;
@@ -1056,14 +1064,15 @@
    ======================================== */
 
 .calendar-card {
-    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    height: 100%;
+    /* ... 기존 스타일 유지 ... */
+    display: flex; /* Flexbox 활성화 */
+    flex-direction: column; /* 수직 정렬 */
+
+    /* min-height를 card-large 높이로 고정 */
+    min-height: 560px !important;
+    height: 560px !important;
+    /* max-height 제거 */
+
     box-shadow: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1145,6 +1154,7 @@
     margin-bottom: 0;
 }
 
+
 .calendar-month {
     font-size: 13px;
     font-weight: 600;
@@ -1156,9 +1166,17 @@
 
 .calendar-grid {
     display: grid;
+    /* 가로 7칸을 균등하게 강제 분할 */
     grid-template-columns: repeat(7, 1fr);
+
+    /* 세로 행 높이를 자동으로 균등하게 분할 (이 부분이 핵심) */
+    grid-auto-rows: minmax(0, 1fr);
+
     gap: 5px;
-    flex: 1;
+    flex: 1; /* 남은 공간 차지 */
+    width: 100%; /* 너비 꽉 채우기 */
+    height: 100%; /* 높이 꽉 채우기 */
+    min-height: 0; /* Flexbox 내부에서 자식 요소 크기 계산 버그 방지 */
 }
 
 .calendar-day-header {
@@ -1173,16 +1191,17 @@
 }
 
 .calendar-day {
-    aspect-ratio: 1;
+    width: 100%;  /* 그리드 칸 너비에 맞춤 */
+    height: 100%; /* 그리드 칸 높이에 맞춤 */
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 11px; /* 글자 크기는 필요시 vw 단위나 미디어 쿼리로 조정 가능 */
     border-radius: 8px;
     position: relative;
     cursor: pointer;
     transition: all 0.2s ease;
-    max-height: 45px;
     color: #666;
     background: #e0e7ff;
 }
@@ -1417,7 +1436,7 @@
 
 .meal-item {
     background: #ffffff;
-    border-radius: 10px;
+    border-left: 4px solid #ff6b6b;
     padding: 8px 12px;
     display: flex;
     align-items: center;
@@ -1860,4 +1879,64 @@
     line-height: 1.6;
     white-space: pre-wrap;
     word-wrap: break-word;
+}
+
+/* 1. 이름과 뱃지를 감싸는 틀: 양옆 정렬 & 위쪽 기준 정렬 */
+.location-name-wrapper {
+    display: flex;
+    justify-content: space-between; /* 이름은 왼쪽, 뱃지는 오른쪽 끝으로 */
+    align-items: flex-start;        /* 텍스트가 두 줄이 되어도 뱃지는 항상 위쪽에 고정 */
+    gap: 8px;                       /* 이름과 뱃지 사이 최소 간격 */
+    width: 100%;
+}
+
+/* 2. 장소 이름: 무조건 왼쪽 정렬 */
+.location-name {
+    text-align: left !important;    /* 강제 왼쪽 정렬 */
+    word-break: keep-all;           /* 단어 중간에 줄바꿈 되지 않도록 설정 (한글 최적화) */
+    line-height: 1.4;
+    flex-grow: 1;                   /* 공간 차지 */
+    font-size: 15px;
+    font-weight: 600;               /* 글자 두께 */
+    color: #333;               /* 글자 크기 통일 (필요시 조절) */
+}
+
+/* 3. 카테고리 뱃지(실내활동 등): 모양 고정 */
+.location-category {
+    white-space: nowrap;            /* 뱃지 안의 글자가 줄바꿈되지 않게 함 */
+    flex-shrink: 0;                 /* 이름이 길어져도 뱃지 크기가 찌그러지지 않음 */
+    font-size: 12px;                /* 뱃지 글자 크기 통일 */
+    padding: 4px 8px;               /* 내부 여백 통일 */
+    height: fit-content;            /* 높이를 내용물에 맞춤 */
+    margin-top: 2px;                /* 이름 텍스트와 시각적 높이 줄맞춤 */
+    text-align: center;             /* 뱃지 내부 글자 가운데 정렬 */
+    min-width: 40px;                /* 최소 너비 지정 (글자가 짧아도 너무 작아지지 않게) */
+}
+
+/* 1. 목록 컨테이너: 스크롤바와 내용 사이에 여백 주기 */
+.map-address-panel {
+    overflow-y: auto;          /* 세로 스크롤 허용 */
+    padding-right: 10px;       /* 스크롤바와 내용 사이 여백 (잘림 방지) */
+    box-sizing: border-box;    /* 여백 포함 크기 계산 */
+    height: 100%;              /* 높이 꽉 채우기 */
+}
+
+/* 2. (선택사항) 투박한 스크롤바를 얇고 예쁘게 변경 */
+.map-address-panel::-webkit-scrollbar {
+    width: 6px;                /* 스크롤바 너비를 얇게 (기본은 약 17px) */
+}
+
+.map-address-panel::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* 스크롤바 색상 (회색) */
+    border-radius: 3px;        /* 둥근 모서리 */
+}
+
+.map-address-panel::-webkit-scrollbar-track {
+    background-color: transparent; /* 스크롤바 배경 투명 */
+}
+
+/* 3. 리스트 아이템: 가로 폭이 넘치지 않도록 안전장치 */
+.map-location-item {
+    margin-right: 2px;         /* 혹시 모를 잘림 방지용 미세 여백 */
+    width: auto;               /* 가로 폭 자동 조절 */
 }

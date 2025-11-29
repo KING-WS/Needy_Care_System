@@ -437,11 +437,10 @@
                     <label class="form-label">
                         <i class="fas fa-list-alt"></i> 특이사항 (선택)
                     </label>
-                    <textarea id="aiSpecialNotes" class="form-control" rows="4" 
-                              placeholder="추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
-                    <small class="form-hint">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
-                </div>
-                <div id="aiRecommendationResult" class="form-group" style="display: none;">
+                    <textarea id="aiSpecialNotes" class="form-control" rows="4"
+                                                  placeholder="추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
+                                        <small class="form-hint" style="color: #dc3545; font-size: 14px;">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
+                                    </div>                <div id="aiRecommendationResult" class="form-group" style="display: none;">
                     <div id="aiRecommendationBasis" style="display: none; margin-bottom: 15px; padding: 12px; background-color: #f0f7ff; border-left: 4px solid #4facfe; border-radius: 4px; font-size: 13px; color: #555;">
                         <!-- 추천 근거가 여기에 표시됩니다. -->
                     </div>

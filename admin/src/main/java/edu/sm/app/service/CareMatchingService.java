@@ -25,8 +25,8 @@ public class CareMatchingService {
     }
 
     /**
-     * 매칭되지 않은 모든 수급자를 가져옵니다.
-     * @return 수급자 정보 리스트
+     * 매칭되지 않은 모든 돌봄 대상자를 가져옵니다.
+     * @return 돌봄 대상자 정보 리스트
      */
     public List<Senior> getUnassignedSeniors() {
         return careMatchingRepository.selectUnassignedSeniors();

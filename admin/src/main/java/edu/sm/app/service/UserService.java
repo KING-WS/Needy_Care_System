@@ -56,4 +56,8 @@ public class UserService implements SmService<User, Integer> {
         PageHelper.startPage(pageNo, 3); // 3: 한화면에 출력되는 개수
         return custRepository.getpageSearch(custSearch);
     }
+
+    public int getUserCount() {
+        return custRepository.selectUserCount();
+    }
 }
