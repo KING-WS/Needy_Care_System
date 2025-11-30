@@ -100,16 +100,8 @@ public class AiMealSafetyService {
                         노약자 정보:
                         %s
                         
-                        반드시 다음 JSON 형식으로만 응답해주세요:
-                        {
-                          "isSafe": true/false,
-                          "safetyLevel": "SAFE" | "WARNING" | "DANGER",
-                          "message": "안전성 검사 결과 메시지 (환자가 이 음식을 먹을 수 있는지 명확히 알려주세요)",
-                          "warnings": ["주의사항1", "주의사항2", ...],
-                          "recommendations": ["권장사항1", "권장사항2", ...],
-                          "detectedFoods": ["감지된 음식1", "감지된 음식2", ...]
-                        }
-                        """, imageAnalysisResult != null ? imageAnalysisResult : "", prompt.toString());
+                        %s
+                        """, imageAnalysisResult != null ? imageAnalysisResult : "", prompt.toString(), createAnalysisPrompt());
                     
                     @SuppressWarnings("null")
                     String response = chatClient.prompt()
@@ -191,6 +183,7 @@ public class AiMealSafetyService {
                 {
                   "isSafe": true/false,
                   "safetyLevel": "SAFE" | "WARNING" | "DANGER",
+                  "reason": "safetyLevel이 'SAFE'가 아닐 경우, 왜 위험하거나 주의가 필요한지에 대한 구체적인 이유 (예: '고혈압 환자에게는 나트륨 함량이 너무 높습니다.')",
                   "message": "안전성 검사 결과 메시지 (환자가 이 음식을 먹을 수 있는지 명확히 알려주세요)",
                   "warnings": ["주의사항1", "주의사항2", ...],
                   "recommendations": ["권장사항1", "권장사항2", ...],
@@ -199,6 +192,7 @@ public class AiMealSafetyService {
                 
                 - isSafe: 안전 여부 (true/false)
                 - safetyLevel: 안전 수준 (SAFE: 안전, WARNING: 주의 필요, DANGER: 위험)
+                - reason: 'WARNING' 또는 'DANGER'일 경우, 그 이유를 명확하고 구체적으로 작성해주세요. 'SAFE'일 경우 빈 문자열("")로 두세요.
                 - message: 사용자에게 보여줄 메시지 (환자가 먹을 수 있는지 명확히 표시)
                 - warnings: 주의사항 목록
                 - recommendations: 권장사항 목록
@@ -224,4 +218,3 @@ public class AiMealSafetyService {
         return null;
     }
 }
-

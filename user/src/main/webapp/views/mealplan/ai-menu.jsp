@@ -6,29 +6,29 @@
         padding: 20px 0 100px 0;
         background: #FFFFFF;
     }
-    
+
     .ai-menu-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 20px;
     }
-    
+
     .page-header {
         margin-bottom: 30px;
     }
-    
+
     .page-header h1 {
         font-size: 36px;
         font-weight: bold;
         color: var(--secondary-color);
         margin-bottom: 10px;
     }
-    
+
     .page-header p {
         font-size: 16px;
         color: #666;
     }
-    
+
     .usage-guide-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border-radius: 12px;
@@ -37,7 +37,7 @@
         color: white;
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
     }
-    
+
     .usage-guide-card h3 {
         color: white;
         font-size: 22px;
@@ -47,13 +47,13 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .usage-guide-list {
         list-style: none;
         padding: 0;
         margin: 0;
     }
-    
+
     .usage-guide-item {
         display: flex;
         align-items: start;
@@ -64,33 +64,33 @@
         border-radius: 8px;
         backdrop-filter: blur(10px);
     }
-    
+
     .usage-guide-item:last-child {
         margin-bottom: 0;
     }
-    
+
     .usage-guide-icon {
         font-size: 20px;
         min-width: 30px;
         text-align: center;
     }
-    
+
     .usage-guide-text {
         flex: 1;
         line-height: 1.6;
     }
-    
+
     .usage-guide-text strong {
         display: block;
         margin-bottom: 5px;
         font-size: 16px;
     }
-    
+
     .usage-guide-text span {
         font-size: 14px;
         opacity: 0.95;
     }
-    
+
     .camera-container {
         background: #fff;
         border-radius: 15px;
@@ -98,13 +98,13 @@
         padding: 30px;
         margin-bottom: 20px;
     }
-    
+
     .camera-section {
         display: flex;
         flex-direction: column;
         gap: 20px;
     }
-    
+
     .camera-preview {
         width: 100%;
         max-width: 600px;
@@ -114,24 +114,24 @@
         background: #000;
         position: relative;
     }
-    
+
     #videoElement {
         width: 100%;
         height: auto;
         display: block;
     }
-    
+
     #canvasElement {
         display: none;
     }
-    
+
     .camera-controls {
         display: flex;
         gap: 10px;
         justify-content: center;
         flex-wrap: wrap;
     }
-    
+
     .btn-camera {
         padding: 12px 24px;
         border: none;
@@ -144,35 +144,35 @@
         align-items: center;
         gap: 8px;
     }
-    
+
     .btn-camera-primary {
         background: var(--primary-color);
         color: white;
     }
-    
+
     .btn-camera-primary:hover {
         background: var(--primary-color-dark);
         transform: translateY(-2px);
     }
-    
+
     .btn-camera-secondary {
         background: #6c757d;
         color: white;
     }
-    
+
     .btn-camera-secondary:hover {
         background: #5a6268;
     }
-    
+
     .btn-camera-danger {
         background: #dc3545;
         color: white;
     }
-    
+
     .btn-camera-danger:hover {
         background: #c82333;
     }
-    
+
     .result-container {
         background: #fff;
         border-radius: 15px;
@@ -184,24 +184,24 @@
         opacity: 0;
         min-height: 100px;
     }
-    
+
     .result-container.show {
         display: block !important;
         visibility: visible !important;
         opacity: 1 !important;
     }
-    
+
     .result-section {
         margin-bottom: 40px;
         display: block;
         visibility: visible;
         opacity: 1;
     }
-    
+
     .result-section:last-child {
         margin-bottom: 0;
     }
-    
+
     .result-section h3 {
         font-size: 24px;
         color: #2c3e50;
@@ -212,14 +212,14 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .recipe-info {
         background: #f8f9fa;
         border-radius: 12px;
         padding: 20px;
         margin-bottom: 25px;
     }
-    
+
     .recipe-info-item {
         display: flex;
         align-items: center;
@@ -227,28 +227,28 @@
         margin-bottom: 10px;
         font-size: 16px;
     }
-    
+
     .recipe-info-item:last-child {
         margin-bottom: 0;
     }
-    
+
     .recipe-info-label {
         font-weight: 600;
         color: #495057;
         min-width: 100px;
     }
-    
+
     .recipe-info-value {
         color: #2c3e50;
     }
-    
+
     .ingredients-list {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
         margin-top: 10px;
     }
-    
+
     .ingredient-tag {
         padding: 8px 16px;
         background: #e7f3ff;
@@ -256,13 +256,13 @@
         font-size: 14px;
         color: #495057;
     }
-    
+
     .steps-list {
         list-style: none;
         padding: 0;
         margin: 0;
     }
-    
+
     .step-item {
         background: #fff;
         border-left: 4px solid var(--primary-color);
@@ -271,7 +271,7 @@
         margin-bottom: 15px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
-    
+
     .step-number {
         display: inline-block;
         width: 30px;
@@ -284,7 +284,7 @@
         font-weight: 700;
         margin-right: 15px;
     }
-    
+
     .step-description {
         display: inline-block;
         vertical-align: top;
@@ -293,13 +293,13 @@
         line-height: 1.6;
         color: #333;
     }
-    
+
     .tips-list {
         list-style: none;
         padding: 0;
         margin: 0;
     }
-    
+
     .tip-item {
         padding: 12px;
         margin-bottom: 10px;
@@ -310,7 +310,7 @@
         align-items: start;
         gap: 10px;
     }
-    
+
     .safety-badge {
         padding: 8px 16px;
         border-radius: 20px;
@@ -319,24 +319,29 @@
         display: inline-block;
         margin-left: 10px;
     }
-    
+
     .safety-badge.safe {
         background: #d4edda;
         color: #155724;
     }
-    
+
     .safety-badge.warning {
         background: #fff3cd;
         color: #856404;
     }
-    
+
     .safety-badge.danger {
         background: #f8d7da;
         color: #721c24;
     }
     
+    .safety-badge.unknown {
+        background: #e9ecef;
+        color: #495057;
+    }
+
     .safety-message {
-        font-size: 18px;
+        font-size: 16px;
         line-height: 1.8;
         color: #333;
         margin-bottom: 20px;
@@ -346,22 +351,22 @@
         font-weight: 500;
         border-left: 4px solid var(--primary-color);
     }
-    
+
     .warnings-list, .recommendations-list {
         margin-top: 15px;
     }
-    
+
     .warnings-list h4, .recommendations-list h4 {
         font-size: 18px;
         color: #2c3e50;
         margin-bottom: 10px;
     }
-    
+
     .warnings-list ul, .recommendations-list ul {
         list-style: none;
         padding: 0;
     }
-    
+
     .warnings-list li, .recommendations-list li {
         padding: 10px;
         margin-bottom: 8px;
@@ -370,27 +375,27 @@
         align-items: start;
         gap: 10px;
     }
-    
+
     .warnings-list li {
         background: #fff3cd;
         color: #856404;
     }
-    
+
     .recommendations-list li {
         background: #d1ecf1;
         color: #0c5460;
     }
-    
+
     .loading {
         text-align: center;
         padding: 40px;
         display: none;
     }
-    
+
     .loading.show {
         display: block;
     }
-    
+
     .spinner {
         border: 4px solid #f3f3f3;
         border-top: 4px solid var(--primary-color);
@@ -400,7 +405,7 @@
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
-    
+
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
@@ -575,8 +580,8 @@
                     <i class="fas fa-keyboard"></i> 음식 이름으로 분석하기
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text" 
-                           id="foodNameInput" 
+                    <input type="text"
+                           id="foodNameInput"
                            placeholder="예: 김치찌개, 된장찌개, 비빔밥 등"
                            style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;"
                            onkeypress="if(event.key === 'Enter') analyzeMealByText()">
@@ -597,7 +602,7 @@
                     <video id="videoElement" autoplay playsinline></video>
                     <canvas id="canvasElement"></canvas>
                 </div>
-                
+
                 <div class="camera-controls">
                     <button class="btn-camera btn-camera-primary" onclick="startCamera()">
                         <i class="fas fa-video"></i> 카메라 시작
@@ -622,6 +627,15 @@
         <div class="result-container" id="resultContainer">
             <!-- 레시피 섹션 -->
             <div class="result-section" id="recipeSection">
+                <!-- AI 가이드 섹션 (추가) -->
+                <div id="aiGuideSection" style="margin-bottom: 25px; display: none;">
+                    <h3 id="aiGuideTitle" style="font-size: 25px; color: #2c3e50; margin-bottom: 15px;">
+                        <i class="fas fa-robot"></i> AI 가이드
+                    </h3>
+                    <div id="aiGuideContent" class="safety-message" style="background: #e7f3ff; color: #004085; border-left-color: #667eea;">
+                        <!-- AI 가이드 내용이 여기에 들어갑니다. -->
+                    </div>
+                </div>
                 <h3><i class="fas fa-book"></i> 조리법</h3>
                 <div id="recipeContent"></div>
             </div>
@@ -843,20 +857,20 @@
         })
         .then(response => {
             console.log('응답 상태:', response.status);
-            
+
             if (!response.ok) {
                 return response.json().then(errData => {
                     throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
                 });
             }
-            
+
             return response.json();
         })
         .then(data => {
             document.getElementById('loadingDiv').classList.remove('show');
-            
+
             console.log('API 응답 데이터:', data);
-            
+
             if (data.success) {
                 displayResults(data);
             } else {
@@ -909,7 +923,7 @@
             document.getElementById('loadingDiv').classList.remove('show');
 
             console.log('API 응답 데이터:', data);
-            
+
             if (data.success) {
                 displayResults(data);
             } else {
@@ -969,9 +983,20 @@
 
     function displayRecipe(recipe) {
         const recipeContent = document.getElementById('recipeContent');
-        if (!recipeContent) {
-            console.error('recipeContent 요소를 찾을 수 없습니다!');
+        const aiGuideSection = document.getElementById('aiGuideSection');
+        const aiGuideContent = document.getElementById('aiGuideContent');
+
+        if (!recipeContent || !aiGuideSection || !aiGuideContent) {
+            console.error('필수 요소를 찾을 수 없습니다!');
             return;
+        }
+
+        // AI 가이드 표시
+        if (recipe.aiGuide) {
+            aiGuideContent.textContent = recipe.aiGuide;
+            aiGuideSection.style.display = 'block';
+        } else {
+            aiGuideSection.style.display = 'none';
         }
 
         let html = '';
@@ -1100,26 +1125,56 @@
     function displaySafety(safetyData) {
         const safetyContent = document.getElementById('safetyContent');
         const badge = document.getElementById('safetyBadge');
+        const aiGuideSection = document.getElementById('aiGuideSection');
+        const aiGuideTitle = document.getElementById('aiGuideTitle');
+        const aiGuideContent = document.getElementById('aiGuideContent');
 
-        if (!safetyContent || !badge) {
-            console.error('safetyContent 또는 safetyBadge 요소를 찾을 수 없습니다!');
+        if (!safetyContent || !badge || !aiGuideSection || !aiGuideTitle || !aiGuideContent) {
+            console.error('필수 요소를 찾을 수 없습니다!');
             return;
         }
 
         let html = '';
 
         // 안전성 배지
-        const safetyLevel = safetyData.safetyLevel || 'SAFE';
+        const safetyLevel = safetyData.safetyLevel || 'UNKNOWN';
 
         if (safetyLevel === 'SAFE') {
             badge.className = 'safety-badge safe';
             badge.textContent = '안전';
+            // AI 가이드 원상 복구
+            aiGuideTitle.innerHTML = '<i class="fas fa-robot"></i> AI 가이드';
+            aiGuideContent.style.background = '#e7f3ff';
+            aiGuideContent.style.color = '#004085';
+            aiGuideContent.style.borderLeftColor = '#667eea';
+            if (currentRecipeData && currentRecipeData.aiGuide) {
+                aiGuideContent.textContent = currentRecipeData.aiGuide;
+                aiGuideSection.style.display = 'block';
+            }
         } else if (safetyLevel === 'WARNING') {
             badge.className = 'safety-badge warning';
             badge.textContent = '주의 필요';
-        } else {
+            // AI 가이드를 주의 사유로 변경
+            aiGuideTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 섭취 주의 사유';
+            aiGuideContent.textContent = safetyData.reason || '특별한 주의가 필요합니다.';
+            aiGuideContent.style.background = '#fff3cd';
+            aiGuideContent.style.color = '#856404';
+            aiGuideContent.style.borderLeftColor = '#ffc107';
+            aiGuideSection.style.display = 'block';
+        } else if (safetyLevel === 'DANGER') {
             badge.className = 'safety-badge danger';
             badge.textContent = '위험';
+            // AI 가이드를 섭취 불가 사유로 변경
+            aiGuideTitle.innerHTML = '<i class="fas fa-times-circle"></i> 섭취 불가 사유';
+            aiGuideContent.textContent = safetyData.reason || '섭취에 위험 요소가 있습니다.';
+            aiGuideContent.style.background = '#f8d7da';
+            aiGuideContent.style.color = '#721c24';
+            aiGuideContent.style.borderLeftColor = '#dc3545';
+            aiGuideSection.style.display = 'block';
+        } else { // UNKNOWN
+            badge.className = 'safety-badge unknown';
+            badge.textContent = '검사 필요';
+            aiGuideSection.style.display = 'none'; // 대상자 미선택 시 AI 가이드 숨김
         }
 
         // 메시지
@@ -1129,16 +1184,18 @@
             messageStyle = 'background: #f8d7da; color: #721c24; border-left-color: #dc3545;';
         } else if (safetyLevel === 'WARNING') {
             messageStyle = 'background: #fff3cd; color: #856404; border-left-color: #ffc107;';
-        } else {
+        } else if (safetyLevel === 'SAFE') {
             messageStyle = 'background: #d4edda; color: #155724; border-left-color: #28a745;';
+        } else { // UNKNOWN
+            messageStyle = 'background: #e9ecef; color: #495057; border-left-color: #6c757d;';
         }
 
         html += '<div class="safety-message" style="' + messageStyle + '">';
         html += '<strong>' + escapeHtml(message) + '</strong>';
         html += '</div>';
 
-        // 감지된 음식
-        if (safetyData.detectedFoods && Array.isArray(safetyData.detectedFoods) && safetyData.detectedFoods.length > 0) {
+        // 감지된 음식 (UNKNOWN 아닐 때만)
+        if (safetyLevel !== 'UNKNOWN' && safetyData.detectedFoods && Array.isArray(safetyData.detectedFoods) && safetyData.detectedFoods.length > 0) {
             html += '<div class="detected-foods" style="margin-top: 20px; margin-bottom: 20px;">';
             html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 10px;">';
             html += '<i class="fas fa-utensils"></i> 감지된 음식';
@@ -1150,8 +1207,8 @@
             html += '</div></div>';
         }
 
-        // 주의사항
-        if (safetyData.warnings && Array.isArray(safetyData.warnings) && safetyData.warnings.length > 0) {
+        // 주의사항 (UNKNOWN 아닐 때만)
+        if (safetyLevel !== 'UNKNOWN' && safetyData.warnings && Array.isArray(safetyData.warnings) && safetyData.warnings.length > 0) {
             html += '<div class="warnings-list">';
             html += '<h4><i class="fas fa-exclamation-triangle"></i> 주의사항</h4>';
             html += '<ul>';
@@ -1161,8 +1218,8 @@
             html += '</ul></div>';
         }
 
-        // 권장사항
-        if (safetyData.recommendations && Array.isArray(safetyData.recommendations) && safetyData.recommendations.length > 0) {
+        // 권장사항 (UNKNOWN 아닐 때만)
+        if (safetyLevel !== 'UNKNOWN' && safetyData.recommendations && Array.isArray(safetyData.recommendations) && safetyData.recommendations.length > 0) {
             html += '<div class="recommendations-list">';
             html += '<h4><i class="fas fa-lightbulb"></i> 권장사항</h4>';
             html += '<ul>';
@@ -1276,12 +1333,12 @@
                         // 객체지만 이름 속성을 찾지 못한 경우 객체를 문자열로 변환 시도하지 않음
                         namePart = '재료 ' + (index + 1);
                     }
-                    
+
                     // 양 추출
                     if (ing.amount) {
                         amountPart = ' (' + ing.amount + ')';
                     }
-                    
+
                     // 칼로리 추출
                     if (ing.calories) {
                         caloriesPart = ' - ' + ing.calories + 'kcal';
@@ -1290,7 +1347,7 @@
                     // 문자열인 경우
                     namePart = String(ing);
                 }
-                
+
                 recipeText += (index + 1) + '. ' + namePart + amountPart + caloriesPart + '\n';
             });
             recipeText += '\n';
@@ -1302,14 +1359,14 @@
             recipe.steps.forEach((step, index) => {
                 let stepNum = index + 1;
                 let stepDesc = '';
-                
+
                 if (typeof step === 'object' && step !== null) {
                     stepNum = (step.stepNumber !== undefined && step.stepNumber !== null) ? step.stepNumber : (index + 1);
                     stepDesc = step.description || step.desc || step.step || '';
                 } else {
                     stepDesc = String(step);
                 }
-                
+
                 if (stepDesc) {
                     recipeText += stepNum + '. ' + stepDesc + '\n';
                 }
@@ -1342,7 +1399,7 @@
 
         // 모달 찾기
         let modal = document.getElementById('saveRecipeModal');
-        
+
         // 모달이 body에 없으면 body로 이동 (레이아웃 문제 방지)
         if (modal && modal.parentElement && modal.parentElement !== document.body) {
             document.body.appendChild(modal);
@@ -1355,7 +1412,7 @@
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         document.getElementById('saveMealDate').value = `${year}-${month}-${day}`;
-        
+
         document.getElementById('saveMealType').value = '';
         document.getElementById('saveMealMenu').value = currentRecipeData.foodName || '';
 
