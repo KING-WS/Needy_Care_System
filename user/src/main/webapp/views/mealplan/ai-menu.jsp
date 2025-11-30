@@ -20,77 +20,16 @@
     }
 
     .page-header h1 {
-        font-size: 36px;
-        font-weight: bold;
+        font-size: 38px;
+        font-weight: 800;
         color: var(--secondary-color);
         margin-bottom: 10px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .page-header p {
         font-size: 16px;
         color: #666;
-    }
-
-    .usage-guide-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        padding: 25px;
-        margin-bottom: 30px;
-        color: white;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .usage-guide-card h3 {
-        color: white;
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .usage-guide-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .usage-guide-item {
-        display: flex;
-        align-items: start;
-        gap: 15px;
-        margin-bottom: 15px;
-        padding: 12px;
-        background: rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        backdrop-filter: blur(10px);
-    }
-
-    .usage-guide-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .usage-guide-icon {
-        font-size: 20px;
-        min-width: 30px;
-        text-align: center;
-    }
-
-    .usage-guide-text {
-        flex: 1;
-        line-height: 1.6;
-    }
-
-    .usage-guide-text strong {
-        display: block;
-        margin-bottom: 5px;
-        font-size: 16px;
-    }
-
-    .usage-guide-text span {
-        font-size: 14px;
-        opacity: 0.95;
     }
 
     .camera-container {
@@ -601,53 +540,9 @@
     <div class="ai-menu-container">
         <div class="page-header">
             <h1>
-                <i class="fas fa-robot"></i> AI식단 메뉴
+                <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 식단 메뉴
             </h1>
             <p>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</p>
-        </div>
-
-        <div class="usage-guide-card">
-            <h3>
-                <i class="fas fa-info-circle"></i> 사용방법
-            </h3>
-            <ul class="usage-guide-list">
-                <li class="usage-guide-item">
-                    <div class="usage-guide-icon">
-                        <i class="fas fa-keyboard"></i>
-                    </div>
-                    <div class="usage-guide-text">
-                        <strong>텍스트 입력 방식</strong>
-                        <span>음식 이름을 입력하고 "분석하기" 버튼을 클릭하면 AI가 레시피와 안전성 검사 결과를 제공합니다.</span>
-                    </div>
-                </li>
-                <li class="usage-guide-item">
-                    <div class="usage-guide-icon">
-                        <i class="fas fa-camera"></i>
-                    </div>
-                    <div class="usage-guide-text">
-                        <strong>사진 촬영 방식</strong>
-                        <span>"카메라 시작" 버튼을 눌러 카메라를 활성화한 후, "사진 촬영" 버튼으로 음식을 촬영하면 자동으로 분석이 시작됩니다.</span>
-                    </div>
-                </li>
-                <li class="usage-guide-item">
-                    <div class="usage-guide-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div class="usage-guide-text">
-                        <strong>안전성 검사</strong>
-                        <span>AI가 돌봄 대상자의 건강 상태를 고려하여 음식의 안전성을 자동으로 검사하고 주의사항을 제공합니다.</span>
-                    </div>
-                </li>
-                <li class="usage-guide-item">
-                    <div class="usage-guide-icon">
-                        <i class="fas fa-book"></i>
-                    </div>
-                    <div class="usage-guide-text">
-                        <strong>레시피 제공</strong>
-                        <span>조리 시간, 난이도, 필요한 재료, 조리 순서, 조리 팁 등 상세한 레시피 정보를 제공합니다.</span>
-                    </div>
-                </li>
-            </ul>
         </div>
 
         <div class="camera-container" style="margin-bottom: 20px;">

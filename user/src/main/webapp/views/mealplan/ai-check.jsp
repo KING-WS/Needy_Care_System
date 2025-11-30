@@ -47,39 +47,6 @@
     /* =========================================
        2. 입력 및 컨트롤 영역
        ========================================= */
-    .recipient-select-card {
-        /* [수정됨] 흰색 배경을 투명도가 있는 흰색으로 변경하여 섹션 배경색이 비치도록 함 */
-        background: rgba(255,255,255,0.85);
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border: 1px solid #e0e0e0;
-    }
-
-    .recipient-select-label {
-        font-weight: 700;
-        color: var(--primary-color);
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.1rem;
-    }
-
-    .recipient-select {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e9ecef;
-        border-radius: 10px;
-        font-size: 16px;
-        transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .recipient-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-    }
-
     .camera-container {
         /* [수정됨] 흰색 배경을 투명도가 있는 흰색으로 변경하여 섹션 배경색이 비치도록 함 */
         background: rgba(255,255,255,0.85);
@@ -390,21 +357,6 @@
             </h1>
             <p>카메라로 음식을 촬영하거나 설명을 입력하여 돌봄 대상자의 식단 안전성을 검사하세요</p>
         </div>
-
-        <c:if test="${not empty recipientList}">
-            <div class="recipient-select-card">
-                <label class="recipient-select-label">
-                    <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
-                </label>
-                <select id="recipientSelect" class="recipient-select" onchange="changeRecipient()">
-                    <c:forEach items="${recipientList}" var="rec">
-                        <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                                ${rec.recName}
-                        </option>
-                    </c:forEach>
-                </select>
-            </div>
-        </c:if>
 
         <div class="camera-container">
             <div class="camera-section">

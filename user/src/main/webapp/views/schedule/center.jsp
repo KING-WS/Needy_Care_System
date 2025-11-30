@@ -6,9 +6,9 @@
 <section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
     <div class="container-fluid" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
         <div class="row">
-            <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-calendar-alt"></i> Needy 일정 관리
+            <div class="col-12 mb-4 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-calendar-alt" style="color: var(--primary-color);"></i> Needy 일정 관리
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
                     <i class="fas fa-user-md"></i> ${sessionScope.loginUser.custName} 님의 Needy 스케줄
@@ -16,30 +16,13 @@
             </div>
         </div>
 
-        <!-- 노약자 선택 영역 추가 -->
-        <c:if test="${not empty recipientList}">
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="card" style="border-radius: 12px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                        <div class="card-body" style="padding: 20px;">
-                            <label style="font-weight: 600; color: #2d3748; margin-bottom: 10px;">
-                                <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
-                            </label>
-                            <select id="recipientSelect" class="form-select" style="font-size: 15px; padding: 10px;" onchange="changeRecipient()">
-                                <c:forEach items="${recipientList}" var="rec">
-                                    <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                                            ${rec.recName}
-                                    </option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </div>
+        <div class="row">
+            <div class="col-lg-10">
+                <div class="calendar-card">
+                    <div id="calendar"></div>
                 </div>
             </div>
-        </c:if>
-
-        <div class="row">
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-2 mb-4">
                 <div class="stats-card">
                     <div class="stat-item" style="background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);">
                         <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
@@ -72,138 +55,126 @@
                     <span>AI 일정 추천</span>
                 </button>
             </div>
-
-            <div class="col-lg-9">
-                <div class="calendar-card">
-                    <div id="calendar"></div>
-                </div>
-            </div>
         </div>
     </div>
 </section>
 
 <!-- 날짜별 일정 상세 모달 -->
-<div class="modal fade" id="dayDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content day-detail-modal">
-            <div class="modal-header">
-                <h5 class="modal-title" id="dayDetailTitle">
-                    <i class="fas fa-calendar-day"></i> 날짜
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<div class="modal-overlay" id="dayDetailModal">
+    <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-header">
+            <h5 class="modal-title" id="dayDetailTitle">
+                <i class="fas fa-calendar-day"></i> 날짜
+            </h5>
+            <button type="button" class="modal-close-btn" onclick="closeDayDetailModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body" id="dayDetailBody">
+            <div class="day-schedule-info">
+                <h6 id="scheduleTitle">일정 제목</h6>
             </div>
-            <div class="modal-body" id="dayDetailBody">
-                <div class="day-schedule-info">
-                    <h6 id="scheduleTitle">일정 제목</h6>
-                </div>
-                <hr>
-                <div id="hourlySchedulesContainer"></div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="addHourlyBtn">
-                    <i class="fas fa-plus"></i> 시간대별 일정 추가
-                </button>
-                <button type="button" class="btn btn-secondary" id="editScheduleBtn">
-                    <i class="fas fa-edit"></i> 일정 수정
-                </button>
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i> 닫기
-                </button>
-            </div>
+            <hr>
+            <div id="hourlySchedulesContainer"></div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="addHourlyBtn">
+                <i class="fas fa-plus"></i> 시간대별 일정 추가
+            </button>
+            <button type="button" class="btn btn-secondary" id="editScheduleBtn">
+                <i class="fas fa-edit"></i> 일정 수정
+            </button>
+            <button type="button" class="btn btn-cancel" onclick="closeDayDetailModal()">
+                <i class="fas fa-times"></i> 닫기
+            </button>
         </div>
     </div>
 </div>
 
 <!-- 일정 등록/수정 모달 -->
-<div class="modal fade" id="scheduleModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content medical-modal">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleModalTitle">
-                    <i class="fas fa-plus-circle"></i> 일정 등록
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="scheduleForm">
-                    <input type="hidden" id="schedId">
-                    <input type="hidden" id="selectedDate">
+<div class="modal-overlay" id="scheduleModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="scheduleModalTitle">
+                <i class="fas fa-plus-circle"></i> 일정 등록
+            </h5>
+            <button type="button" class="modal-close-btn" onclick="closeScheduleModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="scheduleForm">
+                <input type="hidden" id="schedId">
+                <input type="hidden" id="selectedDate">
 
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-heading"></i> 일정 제목</label>
-                        <input type="text" class="form-control" id="schedName" placeholder="예: 오늘의 일정" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i> 취소
-                </button>
-                <button type="button" class="btn btn-danger" id="deleteScheduleBtn" style="display:none;">
-                    <i class="fas fa-trash"></i> 삭제
-                </button>
-                <button type="button" class="btn btn-primary" id="saveScheduleBtn">
-                    <i class="fas fa-save"></i> 저장
-                </button>
-            </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-heading"></i> 일정 제목</label>
+                    <input type="text" class="form-control" id="schedName" placeholder="예: 오늘의 일정" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeScheduleModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button type="button" class="btn btn-danger" id="deleteScheduleBtn" style="display:none;">
+                <i class="fas fa-trash"></i> 삭제
+            </button>
+            <button type="button" class="btn btn-primary" id="saveScheduleBtn">
+                <i class="fas fa-save"></i> 저장
+            </button>
         </div>
     </div>
 </div>
 
 <!-- 시간대별 일정 등록/수정 모달 -->
-<div class="modal fade" id="hourlyModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content medical-modal">
-            <div class="modal-header">
-                <h5 class="modal-title" id="hourlyModalTitle">
-                    <i class="fas fa-plus-circle"></i> 시간대별 일정 추가
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="hourlyForm">
-                    <input type="hidden" id="hourlySchedId">
-                    <input type="hidden" id="parentSchedId">
+<div class="modal-overlay" id="hourlyModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="hourlyModalTitle">
+                <i class="fas fa-plus-circle"></i> 시간대별 일정 추가
+            </h5>
+            <button type="button" class="modal-close-btn" onclick="closeHourlyModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="hourlyForm">
+                <input type="hidden" id="hourlySchedId">
+                <input type="hidden" id="parentSchedId">
 
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-heading"></i> 제목</label>
-                        <input type="text" class="form-control" id="hourlySchedName" placeholder="예: 점심 식사" required>
-                    </div>
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-heading"></i> 제목</label>
+                    <input type="text" class="form-control" id="hourlySchedName" placeholder="예: 점심 식사" required>
+                </div>
 
-                    <div class="row">
-                        <div class="col-6 mb-3">
-                            <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
-                            <div class="d-flex">
-                                <select id="hourlyStartHour" class="form-select me-2"></select>
-                                <select id="hourlyStartMinute" class="form-select"></select>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
-                            <div class="d-flex">
-                                <select id="hourlyEndHour" class="form-select me-2"></select>
-                                <select id="hourlyEndMinute" class="form-select"></select>
-                            </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label"><i class="fas fa-clock"></i> 시작 시간</label>
+                        <div class="d-flex">
+                            <select id="hourlyStartHour" class="form-select me-2"></select>
+                            <select id="hourlyStartMinute" class="form-select"></select>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <label class="form-label"><i class="fas fa-align-left"></i> 상세 내용</label>
-                        <textarea class="form-control" id="hourlySchedContent" rows="3" placeholder="상세 내용을 입력하세요"></textarea>
+                    <div class="col-6 mb-3">
+                        <label class="form-label"><i class="fas fa-clock"></i> 종료 시간</label>
+                        <div class="d-flex">
+                            <select id="hourlyEndHour" class="form-select me-2"></select>
+                            <select id="hourlyEndMinute" class="form-select"></select>
+                        </div>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i> 취소
-                </button>
-                <button type="button" class="btn btn-danger" id="deleteHourlyBtn" style="display:none;">
-                    <i class="fas fa-trash"></i> 삭제
-                </button>
-                <button type="button" class="btn btn-primary" id="saveHourlyBtn">
-                    <i class="fas fa-save"></i> 저장
-                </button>
-            </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label"><i class="fas fa-align-left"></i> 상세 내용</label>
+                    <textarea class="form-control" id="hourlySchedContent" rows="3" placeholder="상세 내용을 입력하세요"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-cancel" onclick="closeHourlyModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button type="button" class="btn btn-danger" id="deleteHourlyBtn" style="display:none;">
+                <i class="fas fa-trash"></i> 삭제
+            </button>
+            <button type="button" class="btn btn-primary" id="saveHourlyBtn">
+                <i class="fas fa-save"></i> 저장
+            </button>
         </div>
     </div>
 </div>
@@ -256,8 +227,8 @@
                         <i class="fas fa-list-alt"></i> 특이사항 <span class="required" id="specialNotesRequired" style="display: none;">*</span>
                     </label>
                     <textarea id="aiSpecialNotes" class="form-control" rows="4" 
-                              placeholder="기본 모드: 추가 고려사항 입력 (예: 오늘은 병원 방문이 있습니다.)&#10;맞춤형 모드: 원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기 등)"></textarea>
-                    <small class="form-hint" id="specialNotesHint">기본 모드: 입력하지 않으시면 대상자의 기존 건강 정보를 기반으로 추천합니다.</small>
+                              placeholder="기본 모드: 추가 고려사항 입력 (예: 오늘은 병원 방문이 있습니다.)&#10;맞춤형 모드: 원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기, 쇼핑몰 가기 등)"></textarea>
+                    <small class="form-hint" id="specialNotesHint">기본 모드: 입력하지 않으시면 대상자의 기존 건강 정보를 데이터베이스에서 추출해 그 기반을 ai가 얻어 사용자에게 딱 맞는 스케쥴을 추천합니다.</small>
                 </div>
                 <div id="aiScheduleResult" class="form-group" style="display: none;">
                     <!-- AI 추천 결과가 여기에 표시됩니다. -->
@@ -279,7 +250,7 @@
 <script src='https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.10/locales/ko.global.min.js'></script>
 
 <script>
-    let calendar, dayDetailModal, scheduleModal, hourlyModal;
+    let calendar;
     let currentSchedule = null;
 
     // ✅ 수정: Controller에서 model로 전달받은 selectedRecipient 사용
@@ -302,9 +273,6 @@
         }
 
         const calendarEl = document.getElementById('calendar');
-        dayDetailModal = new bootstrap.Modal(document.getElementById('dayDetailModal'));
-        scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
-        hourlyModal = new bootstrap.Modal(document.getElementById('hourlyModal'));
 
         calendar = new FullCalendar.Calendar(calendarEl, {
             locale: 'ko',
@@ -331,7 +299,7 @@
             },
 
             events: function(fetchInfo, successCallback, failureCallback) {
-                const selectedRecId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId;
+                const selectedRecId = currentRecId;
 
                 if (!selectedRecId || selectedRecId === 0 || selectedRecId === "0") {
                     const error = new Error("돌봄 대상자 ID가 없습니다. ID: " + selectedRecId);
@@ -405,7 +373,7 @@
         // 시간대별 일정 버튼
         document.getElementById('addHourlyBtn').addEventListener('click', () => openHourlyModal('create'));
         document.getElementById('editScheduleBtn').addEventListener('click', () => {
-            dayDetailModal.hide();
+            closeDayDetailModal();
             setTimeout(() => openScheduleModal('edit', null, currentSchedule), 300);
         });
         document.getElementById('saveHourlyBtn').addEventListener('click', saveHourlySchedule);
@@ -456,7 +424,7 @@
                 document.getElementById('scheduleTitle').textContent = schedule.schedName;
 
                 loadHourlySchedules(schedId);
-                dayDetailModal.show();
+                document.getElementById('dayDetailModal').classList.add('show');
             })
             .catch(err => {
                 console.error('Error fetching schedule details:', err);
@@ -474,25 +442,30 @@
                 if (data.length === 0) {
                     container.innerHTML = '<p class="text-center text-muted">등록된 시간대별 일정이 없습니다.</p>';
                 } else {
-                                                    let html = '<div class="hourly-list">';
-                                                    data.forEach(function(hourly) {
-                                                        var onclick_handler = hourly.hourlySchedId ? 'onclick="editHourlySchedule(' + hourly.hourlySchedId + ')"' : '';
-                                                        html +=
-                                                            '<div class="hourly-item" ' + onclick_handler + '>' +
-                                                                '<div class="hourly-time">' +
-                                                                    '<i class="fas fa-clock"></i> ' +
-                                                                    (hourly.hourlySchedStartTime || '') + ' - ' + (hourly.hourlySchedEndTime || '') +
-                                                                '</div>' +
-                                                                '<div class="hourly-content">' +
-                                                                    '<h6>' + (hourly.hourlySchedName || '') + '</h6>' +
-                                                                    '<p>' + (hourly.hourlySchedContent || '') + '</p>' +
-                                                                '</div>' +
-                                                            '</div>';
-                                                    });
-                                                    html += '</div>';
-                                                    container.innerHTML = html;
-                                                }            });
+                    let html = '<div class="hourly-list">';
+                    data.forEach(function(hourly) {
+                        var onclick_handler = hourly.hourlySchedId ? 'onclick="editHourlySchedule(' + hourly.hourlySchedId + ')"' : '';
+                        html +=
+                            '<div class="hourly-item" ' + onclick_handler + '>' +
+                                '<div class="hourly-time">' +
+                                    '<i class="fas fa-clock"></i> ' +
+                                    (hourly.hourlySchedStartTime || '') + ' - ' + (hourly.hourlySchedEndTime || '') +
+                                '</div>' +
+                                '<div class="hourly-content">' +
+                                    '<h6>' + (hourly.hourlySchedName || '') + '</h6>' +
+                                    '<p>' + (hourly.hourlySchedContent || '') + '</p>' +
+                                '</div>' +
+                            '</div>';
+                    });
+                    html += '</div>';
+                    container.innerHTML = html;
+                }
+            });
     }
+
+    function closeDayDetailModal() { document.getElementById('dayDetailModal').classList.remove('show'); }
+    function closeScheduleModal() { document.getElementById('scheduleModal').classList.remove('show'); }
+    function closeHourlyModal() { document.getElementById('hourlyModal').classList.remove('show'); }
 
     // 일정 등록/수정 모달 열기
     function openScheduleModal(mode, date, schedule) {
@@ -509,7 +482,7 @@
             document.getElementById('schedName').value = schedule.schedName;
             document.getElementById('selectedDate').value = schedule.schedDate;
         }
-        scheduleModal.show();
+        document.getElementById('scheduleModal').classList.add('show');
     }
 
     // 일정 저장
@@ -524,7 +497,7 @@
         }
 
         const data = {
-            recId: document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId,
+            recId: currentRecId,
             schedName: schedName,
             schedDate: schedDate
         };
@@ -543,8 +516,7 @@
             .then(result => {
                 if (result.success) {
                     alert(schedId ? '수정되었습니다.' : '등록되었습니다.');
-                    scheduleModal.hide();
-                    // [FIX] Re-fetch events from the server to ensure consistency
+                    closeScheduleModal();
                     calendar.refetchEvents();
                 } else {
                     alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
@@ -566,9 +538,8 @@
             .then(result => {
                 if (result.success) {
                     alert('삭제되었습니다.');
-                    scheduleModal.hide();
-                    dayDetailModal.hide(); // 상세 모달도 닫기
-                    // [FIX] Re-fetch events from the server to ensure consistency
+                    closeScheduleModal();
+                    closeDayDetailModal(); // 상세 모달도 닫기
                     calendar.refetchEvents();
                 } else {
                     alert('삭제에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
@@ -594,12 +565,11 @@
             document.getElementById('hourlySchedContent').value = '';
             document.getElementById('parentSchedId').value = currentSchedule.schedId;
         }
-        hourlyModal.show();
+        document.getElementById('hourlyModal').classList.add('show');
     }
 
     // 시간대별 일정 수정 모달 열기
     function editHourlySchedule(hourlySchedId) {
-        // [BUG FIX] Use the correct endpoint for fetching a single hourly schedule
         fetch('/schedule/api/hourly/detail/' + hourlySchedId)
             .then(res => res.json())
             .then(hourly => {
@@ -625,8 +595,8 @@
 
                 document.getElementById('hourlySchedContent').value = hourly.hourlySchedContent || '';
                 document.getElementById('parentSchedId').value = hourly.schedId;
-                dayDetailModal.hide();
-                hourlyModal.show();
+                closeDayDetailModal();
+                document.getElementById('hourlyModal').classList.add('show');
             })
             .catch(err => {
                 console.error('Error fetching hourly schedule:', err);
@@ -670,8 +640,7 @@
             .then(result => {
                 if (result.success) {
                     alert(hourlySchedId ? '수정되었습니다.' : '등록되었습니다.');
-                    hourlyModal.hide();
-                    // Re-open the detail modal with updated hourly schedules
+                    closeHourlyModal();
                     loadScheduleDetail(schedId);
                 } else {
                     alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
@@ -695,8 +664,7 @@
             .then(result => {
                 if (result.success) {
                     alert('삭제되었습니다.');
-                    hourlyModal.hide();
-                    // Re-open the detail modal with updated hourly schedules
+                    closeHourlyModal();
                     loadScheduleDetail(schedId);
                 } else {
                     alert('삭제에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
@@ -840,7 +808,7 @@
     
     // AI 일정 추천 받기
     function getAiScheduleRecommendation() {
-        const recId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId;
+        const recId = currentRecId;
         let targetDate = document.getElementById('aiScheduleDate').value;
         const specialNotes = document.getElementById('aiSpecialNotes').value;
         const recommendMode = document.querySelector('input[name="recommendMode"]:checked').value;
@@ -972,7 +940,7 @@
     
     // AI 추천 일정 적용하기
     function applyAiScheduleRecommendation(targetDate) {
-        const recId = document.getElementById('recipientSelect') ? document.getElementById('recipientSelect').value : currentRecId;
+        const recId = currentRecId;
         
         if (!window.aiRecommendedSchedules || window.aiRecommendedSchedules.length === 0) {
             alert('적용할 일정이 없습니다.');

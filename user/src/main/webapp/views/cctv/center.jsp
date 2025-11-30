@@ -42,11 +42,13 @@
 
         /* 헤더 섹션 */
         .header-section h1 {
-            color: var(--text-dark); /* 제목색을 검정으로 변경 */
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--secondary-color);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             text-transform: uppercase;
             letter-spacing: 1.5px;
             margin-bottom: 10px;
-            text-shadow: none;
         }
 
         #activity-status {
@@ -147,7 +149,7 @@
     <div class="container-fluid dashboard-container" style="max-width: 1400px; margin: 0 auto;">
         <div class="row mb-2 header-section">
             <div class="col-12 text-center">
-                <h1><i class="fas fa-shield-alt" style="color: var(--accent-blue);"></i> 다중 보안 모니터링 시스템</h1>
+                <h1><i class="fas fa-shield-alt" style="color: var(--primary-color);"></i> 다중 보안 모니터링 시스템</h1>
                 <div id="activity-status">시스템 정상 가동 중... AI 분석 대기</div>
             </div>
         </div>

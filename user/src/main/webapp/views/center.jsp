@@ -20,11 +20,11 @@
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
                                 <i class="bi bi-heart-pulse-fill card-title-icon"></i>
-                                <div class="calendar-header">
-                                    <div class="calendar-title">
-                                        건강 정보
-                                    </div>
-                                </div>
+<%--                                <div class="calendar-header">--%>
+<%--                                    <div class="calendar-title">--%>
+<%--                                        건강 정보--%>
+<%--                                    </div>--%>
+<%--                                </div>--%>
                                 <div class="health-card-content">
                                 <!-- 왼쪽: 프로필 정보 -->
                                 <div class="health-card-left">
@@ -142,13 +142,13 @@
                         %>
                         
                         <i class="bi bi-calendar-event card-title-icon"></i>
-                        <div class="calendar-header">
-                            <div class="calendar-title">
-                                일정
-                            </div>
-                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>
-                        </div>
-                        
+<%--                        <div class="calendar-header">--%>
+<%--                            <div class="calendar-title">--%>
+<%--                                일정--%>
+<%--                            </div>--%>
+<%--                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>--%>
+<%--                        </div>--%>
+<%--                        --%>
                         <div class="calendar-grid">
                             <!-- 요일 헤더 -->
                             <div class="calendar-day-header">일</div>
