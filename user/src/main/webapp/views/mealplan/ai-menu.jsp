@@ -13,8 +13,10 @@
         padding: 0 20px;
     }
 
+    /* [수정] 페이지 헤더 중앙 정렬 */
     .page-header {
         margin-bottom: 30px;
+        text-align: center;
     }
 
     .page-header h1 {
@@ -105,24 +107,54 @@
         gap: 20px;
     }
 
+    /* [수정] 카메라 프리뷰 스타일 업데이트 (ai-check.jsp 스타일 적용) */
     .camera-preview {
         width: 100%;
         max-width: 600px;
         margin: 0 auto;
         border-radius: 12px;
         overflow: hidden;
-        background: #000;
+        background: #f8f9fa; /* 밝은 회색 배경 */
         position: relative;
+        /* 외곽선 스타일 적용 */
+        box-shadow: 0 0 0 2px #d2d5d9;
+        aspect-ratio: 16 / 9;
+
+        /* 내부 아이콘 중앙 정렬 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     #videoElement {
         width: 100%;
-        height: auto;
-        display: block;
+        height: 100%; /* 부모 꽉 채우기 */
+        object-fit: cover;
+        display: none; /* 초기에는 숨김 */
     }
 
     #canvasElement {
         display: none;
+    }
+
+    /* [추가] 카메라 대기 화면 (아이콘 및 텍스트) */
+    .camera-placeholder {
+        text-align: center;
+        color: #adb5bd;
+        z-index: 1;
+        transition: opacity 0.3s;
+    }
+
+    .camera-placeholder i {
+        font-size: 60px;
+        margin-bottom: 15px;
+        color: #ced4da;
+    }
+
+    .camera-placeholder p {
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
     }
 
     .camera-controls {
@@ -132,45 +164,78 @@
         flex-wrap: wrap;
     }
 
+    /* [수정] 버튼 공통 스타일 (애니메이션 포함) */
     .btn-camera {
-        padding: 12px 24px;
+        padding: 12px 28px; /* 패딩 조정 */
         border: none;
-        border-radius: 8px;
+        border-radius: 30px; /* 캡슐형 */
         font-size: 16px;
-        font-weight: 600;
+        font-weight: 700; /* 폰트 굵게 */
         cursor: pointer;
-        transition: all 0.3s;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
+        /* [수정] 애니메이션 부드럽게 */
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
     }
 
+    /* [추가] 버튼 눌렀을 때(Active) 공통 효과: 살짝 눌림 + 그림자 제거 */
+    .btn-camera:active {
+        transform: translateY(1px);
+        box-shadow: none;
+        outline: none;
+    }
+
+    /* --- Primary 버튼 (파란색) --- */
     .btn-camera-primary {
         background: var(--primary-color);
         color: white;
     }
-
     .btn-camera-primary:hover {
-        background: var(--primary-color-dark);
+        background: #2980b9;
         transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+    /* [수정] 클릭 시 색상 고정 */
+    .btn-camera-primary:active,
+    .btn-camera-primary:focus {
+        background: #2980b9 !important;
+        color: white !important;
     }
 
+    /* --- Secondary 버튼 (회색) --- */
     .btn-camera-secondary {
-        background: #6c757d;
+        background: #95a5a6;
         color: white;
     }
-
     .btn-camera-secondary:hover {
-        background: #5a6268;
+        background: #7f8c8d;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+    /* [수정] 클릭 시 색상 고정 */
+    .btn-camera-secondary:active,
+    .btn-camera-secondary:focus {
+        background: #7f8c8d !important;
+        color: white !important;
     }
 
+    /* --- Danger 버튼 (빨간색) --- */
     .btn-camera-danger {
-        background: #dc3545;
+        background: #e74c3c;
         color: white;
     }
-
     .btn-camera-danger:hover {
-        background: #c82333;
+        background: #c0392b;
+        transform: translateY(-2px);
+        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+    }
+    /* [수정] 클릭 시 색상 고정 */
+    .btn-camera-danger:active,
+    .btn-camera-danger:focus {
+        background: #c0392b !important;
+        color: white !important;
     }
 
     .result-container {
@@ -334,7 +399,7 @@
         background: #f8d7da;
         color: #721c24;
     }
-    
+
     .safety-badge.unknown {
         background: #e9ecef;
         color: #495057;
@@ -442,16 +507,21 @@
     }
     /* 모달 배경 (어두운 영역) - 핵심: position: fixed */
     .modal-overlay {
-        position: fixed;        /* 스크롤과 상관없이 화면에 고정 */
+        position: fixed;
+        /* 스크롤과 상관없이 화면에 고정 */
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
-        display: none;          /* 기본적으로 숨김 */
-        justify-content: center; /* 가로 중앙 정렬 */
-        align-items: center;     /* 세로 중앙 정렬 */
-        z-index: 9999;          /* 다른 요소들보다 위에 뜨도록 설정 */
+        display: none;
+        /* 기본적으로 숨김 */
+        justify-content: center;
+        /* 가로 중앙 정렬 */
+        align-items: center;
+        /* 세로 중앙 정렬 */
+        z-index: 9999;
+        /* 다른 요소들보다 위에 뜨도록 설정 */
     }
 
     /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
@@ -463,12 +533,18 @@
     .modal-content {
         background-color: white;
         padding: 0;             /* 내부 여백 제거 (헤더/푸터 분리를 위해) */
-        border-radius: 12px;    /* 둥근 모서리 */
-        width: 90%;             /* 모바일 대응 */
-        max-width: 500px;       /* 최대 너비 제한 */
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2); /* 그림자 효과 */
-        overflow: hidden;       /* 내부 내용 넘침 방지 */
-        animation: slideIn 0.3s ease-out; /* 부드럽게 나타나는 애니메이션 */
+        border-radius: 12px;
+        /* 둥근 모서리 */
+        width: 90%;
+        /* 모바일 대응 */
+        max-width: 500px;
+        /* 최대 너비 제한 */
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        /* 그림자 효과 */
+        overflow: hidden;
+        /* 내부 내용 넘침 방지 */
+        animation: slideIn 0.3s ease-out;
+        /* 부드럽게 나타나는 애니메이션 */
     }
 
     /* 모달 헤더/바디/푸터 스타일 (디자인 개선) */
@@ -490,7 +566,8 @@
 
     .modal-body {
         padding: 20px;
-        max-height: 70vh; /* 화면이 작을 때 스크롤 생기도록 */
+        max-height: 70vh;
+        /* 화면이 작을 때 스크롤 생기도록 */
         overflow-y: auto;
     }
 
@@ -513,14 +590,15 @@
 
     /* 애니메이션 효과 */
     @keyframes slideIn {
-        from { transform: translateY(-20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
+        from { transform: translateY(-20px);
+            opacity: 0; }
+        to { transform: translateY(0); opacity: 1;
+        }
     }
 </style>
 
 <section class="ai-menu-section">
     <div class="ai-menu-container">
-        <!-- 헤더 -->
         <div class="page-header">
             <h1>
                 <i class="fas fa-robot"></i> AI식단 메뉴
@@ -528,7 +606,6 @@
             <p>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</p>
         </div>
 
-        <!-- 사용방법 안내 -->
         <div class="usage-guide-card">
             <h3>
                 <i class="fas fa-info-circle"></i> 사용방법
@@ -573,7 +650,6 @@
             </ul>
         </div>
 
-        <!-- 텍스트 입력 섹션 -->
         <div class="camera-container" style="margin-bottom: 20px;">
             <div class="camera-section">
                 <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
@@ -592,7 +668,6 @@
             </div>
         </div>
 
-        <!-- 카메라 섹션 -->
         <div class="camera-container">
             <div class="camera-section">
                 <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
@@ -601,6 +676,11 @@
                 <div class="camera-preview">
                     <video id="videoElement" autoplay playsinline></video>
                     <canvas id="canvasElement"></canvas>
+
+                    <div id="cameraPlaceholder" class="camera-placeholder">
+                        <i class="fas fa-camera"></i>
+                        <p>음식 촬영</p>
+                    </div>
                 </div>
 
                 <div class="camera-controls">
@@ -617,30 +697,24 @@
             </div>
         </div>
 
-        <!-- 로딩 -->
         <div class="loading" id="loadingDiv">
             <div class="spinner"></div>
             <p>AI가 음식을 분석하고 레시피를 생성하고 있습니다...</p>
         </div>
 
-        <!-- 결과 -->
         <div class="result-container" id="resultContainer">
-            <!-- 레시피 섹션 -->
             <div class="result-section" id="recipeSection">
-                <!-- AI 가이드 섹션 (추가) -->
                 <div id="aiGuideSection" style="margin-bottom: 25px; display: none;">
                     <h3 id="aiGuideTitle" style="font-size: 25px; color: #2c3e50; margin-bottom: 15px;">
                         <i class="fas fa-robot"></i> AI 가이드
                     </h3>
                     <div id="aiGuideContent" class="safety-message" style="background: #e7f3ff; color: #004085; border-left-color: #667eea;">
-                        <!-- AI 가이드 내용이 여기에 들어갑니다. -->
                     </div>
                 </div>
                 <h3><i class="fas fa-book"></i> 조리법</h3>
                 <div id="recipeContent"></div>
             </div>
 
-            <!-- 안전성 검사 섹션 -->
             <div class="result-section" id="safetySection">
                 <h3>
                     <i class="fas fa-shield-alt"></i> 안전성 검사 결과
@@ -652,7 +726,6 @@
     </div>
 </section>
 
-<!-- AI 레시피 저장 모달 -->
 <div class="modal-overlay" id="saveRecipeModal" style="display: none; z-index: 1050;">
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
@@ -722,32 +795,34 @@
     let currentRecId = <c:choose><c:when test="${not empty selectedRecipient and not empty selectedRecipient.recId}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
     let stream = null;
     let capturedImage = null;
-    let currentFoodName = null;  // 현재 분석 중인 음식명 저장
-    let currentRecipeData = null; // AI가 분석한 레시피 데이터 저장
+    let currentFoodName = null;
+    let currentRecipeData = null;
 
     function startCamera() {
         const video = document.getElementById('videoElement');
+        const placeholder = document.getElementById('cameraPlaceholder');
         const captureBtn = document.getElementById('captureBtn');
         const stopBtn = document.getElementById('stopBtn');
 
-        // 이미 실행 중인 스트림이 있으면 먼저 정리
+        // 이미 실행 중인 스트림 정리
         if (stream) {
             stream.getTracks().forEach(track => track.stop());
             stream = null;
         }
 
-        // 기존 촬영된 이미지 제거
+        // 기존 촬영 이미지 제거
         const existingImg = document.querySelector('#capturedImage');
         if (existingImg) {
             existingImg.remove();
         }
-        video.style.display = 'block';
-        capturedImage = null;
 
-        // 결과 숨기기
+        // [수정] 문구를 먼저 확실히 숨기고 비디오를 보여줍니다.
+        if(placeholder) placeholder.style.display = 'none';
+        video.style.display = 'block';
+
+        capturedImage = null;
         document.getElementById('resultContainer').classList.remove('show');
 
-        // 카메라 접근 요청
         navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
@@ -764,13 +839,16 @@
             })
             .catch(function(err) {
                 console.error('카메라 접근 오류:', err);
-                alert('카메라 접근에 실패했습니다. 카메라 권한을 확인해주세요.\n' + err.message);
+                alert('카메라 접근 실패: ' + err.message);
+
+                // 실패 시 원상복구
+                video.style.display = 'none';
+                if(placeholder) placeholder.style.display = 'flex'; // 중앙 정렬을 위해 flex로 표시
             });
     }
 
     function capturePhoto() {
         const video = document.getElementById('videoElement');
-
         if (!video.srcObject) {
             alert('먼저 카메라를 시작해주세요.');
             return;
@@ -785,8 +863,10 @@
 
         capturedImage = canvas.toDataURL('image/jpeg', 0.8);
 
-        // 촬영된 이미지 미리보기
+        // [수정] 촬영 시 비디오 숨기고 플레이스홀더도 숨기기
         video.style.display = 'none';
+        const placeholder = document.getElementById('cameraPlaceholder');
+        if(placeholder) placeholder.style.display = 'none';
 
         const existingImg = document.querySelector('#capturedImage');
         if (existingImg) {
@@ -796,7 +876,8 @@
         const img = document.createElement('img');
         img.src = capturedImage;
         img.style.width = '100%';
-        img.style.height = 'auto';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
         img.id = 'capturedImage';
         img.style.display = 'block';
 
@@ -816,11 +897,15 @@
         }
 
         const video = document.getElementById('videoElement');
+        const placeholder = document.getElementById('cameraPlaceholder');
+
         video.srcObject = null;
+        video.style.display = 'none';
 
         const capturedImg = document.querySelector('#capturedImage');
         if (!capturedImg) {
-            video.style.display = 'block';
+            // [수정] 촬영된 이미지가 없으면 플레이스홀더(아이콘) 다시 표시
+            if(placeholder) placeholder.style.display = 'flex';
         }
 
         document.getElementById('captureBtn').disabled = true;
@@ -839,11 +924,9 @@
 
         // 음식명 저장
         currentFoodName = foodName;
-
         // 로딩 표시
         document.getElementById('loadingDiv').classList.add('show');
         document.getElementById('resultContainer').classList.remove('show');
-
         // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
@@ -855,33 +938,33 @@
                 mealDescription: foodName
             })
         })
-        .then(response => {
-            console.log('응답 상태:', response.status);
+            .then(response => {
+                console.log('응답 상태:', response.status);
 
-            if (!response.ok) {
-                return response.json().then(errData => {
-                    throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
-                });
-            }
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
+                    });
+                }
 
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('loadingDiv').classList.remove('show');
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('loadingDiv').classList.remove('show');
 
-            console.log('API 응답 데이터:', data);
+                console.log('API 응답 데이터:', data);
 
-            if (data.success) {
-                displayResults(data);
-            } else {
-                alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            document.getElementById('loadingDiv').classList.remove('show');
-            console.error('Error:', error);
-            alert('분석 중 오류가 발생했습니다: ' + error.message);
-        });
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingDiv').classList.remove('show');
+                console.error('Error:', error);
+                alert('분석 중 오류가 발생했습니다: ' + error.message);
+            });
     }
 
     function analyzeMeal() {
@@ -896,7 +979,6 @@
 
         // Base64 이미지에서 데이터 부분만 추출
         const imageBase64 = capturedImage.split(',')[1];
-
         // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
@@ -908,33 +990,33 @@
                 imageBase64: imageBase64
             })
         })
-        .then(response => {
-            console.log('응답 상태:', response.status);
+            .then(response => {
+                console.log('응답 상태:', response.status);
 
-            if (!response.ok) {
-                return response.json().then(errData => {
-                    throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
-                });
-            }
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
+                    });
+                }
 
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('loadingDiv').classList.remove('show');
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('loadingDiv').classList.remove('show');
 
-            console.log('API 응답 데이터:', data);
+                console.log('API 응답 데이터:', data);
 
-            if (data.success) {
-                displayResults(data);
-            } else {
-                alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            document.getElementById('loadingDiv').classList.remove('show');
-            console.error('Error:', error);
-            alert('분석 중 오류가 발생했습니다: ' + error.message);
-        });
+                if (data.success) {
+                    displayResults(data);
+                } else {
+                    alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingDiv').classList.remove('show');
+                console.error('Error:', error);
+                alert('분석 중 오류가 발생했습니다: ' + error.message);
+            });
     }
 
     function displayResults(data) {
@@ -951,10 +1033,10 @@
         container.style.opacity = '1';
         container.style.height = 'auto';
         container.style.minHeight = '100px';
-
         // 레시피 표시
         if (data.recipe && data.recipe.success && data.recipe.recipe) {
-            currentRecipeData = data.recipe.recipe; // 전역 변수에 레시피 데이터 저장
+            currentRecipeData = data.recipe.recipe;
+            // 전역 변수에 레시피 데이터 저장
             displayRecipe(currentRecipeData);
             document.getElementById('recipeSection').style.display = 'block';
 
@@ -1000,7 +1082,6 @@
         }
 
         let html = '';
-
         // 음식 이름
         if (recipe.foodName) {
             html += '<div class="recipe-info">';
@@ -1008,7 +1089,6 @@
             html += '<span class="recipe-info-label"><i class="fas fa-utensils"></i> 음식명:</span>';
             html += '<span class="recipe-info-value"><strong style="font-size: 20px;">' + escapeHtml(recipe.foodName) + '</strong></span>';
             html += '</div>';
-
             if (recipe.cookingTime) {
                 html += '<div class="recipe-info-item">';
                 html += '<span class="recipe-info-label"><i class="fas fa-clock"></i> 조리 시간:</span>';
@@ -1128,17 +1208,14 @@
         const aiGuideSection = document.getElementById('aiGuideSection');
         const aiGuideTitle = document.getElementById('aiGuideTitle');
         const aiGuideContent = document.getElementById('aiGuideContent');
-
         if (!safetyContent || !badge || !aiGuideSection || !aiGuideTitle || !aiGuideContent) {
             console.error('필수 요소를 찾을 수 없습니다!');
             return;
         }
 
         let html = '';
-
         // 안전성 배지
         const safetyLevel = safetyData.safetyLevel || 'UNKNOWN';
-
         if (safetyLevel === 'SAFE') {
             badge.className = 'safety-badge safe';
             badge.textContent = '안전';
@@ -1193,7 +1270,6 @@
         html += '<div class="safety-message" style="' + messageStyle + '">';
         html += '<strong>' + escapeHtml(message) + '</strong>';
         html += '</div>';
-
         // 감지된 음식 (UNKNOWN 아닐 때만)
         if (safetyLevel !== 'UNKNOWN' && safetyData.detectedFoods && Array.isArray(safetyData.detectedFoods) && safetyData.detectedFoods.length > 0) {
             html += '<div class="detected-foods" style="margin-top: 20px; margin-bottom: 20px;">';
@@ -1399,7 +1475,6 @@
 
         // 모달 찾기
         let modal = document.getElementById('saveRecipeModal');
-
         // 모달이 body에 없으면 body로 이동 (레이아웃 문제 방지)
         if (modal && modal.parentElement && modal.parentElement !== document.body) {
             document.body.appendChild(modal);
@@ -1412,13 +1487,11 @@
         const month = String(today.getMonth() + 1).padStart(2, '0');
         const day = String(today.getDate()).padStart(2, '0');
         document.getElementById('saveMealDate').value = `${year}-${month}-${day}`;
-
         document.getElementById('saveMealType').value = '';
         document.getElementById('saveMealMenu').value = currentRecipeData.foodName || '';
 
         // 레시피 내용 채우기 (새로운 포맷 함수 사용)
         document.getElementById('saveMealRecipe').value = formatRecipeForSaving(currentRecipeData);
-
         let totalCalories = currentRecipeData.totalCalories || 0;
         if (totalCalories === 0 && currentRecipeData.ingredients && Array.isArray(currentRecipeData.ingredients)) {
             totalCalories = currentRecipeData.ingredients.reduce((sum, ing) => {
@@ -1429,7 +1502,6 @@
             }, 0);
         }
         document.getElementById('saveMealCalories').value = totalCalories > 0 ? totalCalories : '';
-
         // 모달 보이기
         if (modal) {
             modal.style.display = 'flex';
@@ -1445,7 +1517,6 @@
         const mealType = document.getElementById('saveMealType').value;
         const mealMenu = document.getElementById('saveMealMenu').value;
         const mealCalories = document.getElementById('saveMealCalories').value;
-
         if (!mealDate || !mealType) {
             alert('날짜와 식사 구분을 선택해주세요.');
             return;
@@ -1453,7 +1524,6 @@
 
         // 포맷팅된 레시피 텍스트를 textarea에서 직접 가져옴
         const mealRecipe = document.getElementById('saveMealRecipe').value;
-
         const data = {
             recId: currentRecId,
             mealDate: mealDate,
@@ -1470,19 +1540,19 @@
             },
             body: JSON.stringify(data)
         })
-        .then(response => response.json())
-        .then(result => {
-            if (result.success) {
-                alert('AI 레시피가 식단에 성공적으로 저장되었습니다.');
-                closeSaveRecipeModal();
-            } else {
-                alert('식단 저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('식단 저장 중 오류가 발생했습니다.');
-        });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('AI 레시피가 식단에 성공적으로 저장되었습니다.');
+                    closeSaveRecipeModal();
+                } else {
+                    alert('식단 저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('식단 저장 중 오류가 발생했습니다.');
+            });
     }
 
 
