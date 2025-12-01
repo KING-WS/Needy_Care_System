@@ -12,7 +12,8 @@
                 CONCAT('사용자 ''', cust_name, ''' 님이 등록되었습니다.') as message,
                 cust_regdate as timestamp,
                 'bi-person-plus-fill' as iconClass,
-                'bg-primary' as bgClass
+                'bg-primary' as bgClass,
+                CONCAT('/customer/detail?id=', cust_id) as link
             FROM cust
 
             UNION ALL
@@ -22,7 +23,8 @@
                 CONCAT('어르신 ''', rec_name, ''' 님이 등록되었습니다.') as message,
                 rec_regdate as timestamp,
                 'bi-person-wheelchair' as iconClass,
-                'bg-info' as bgClass
+                'bg-info' as bgClass,
+                CONCAT('/senior/detail/', rec_id) as link
             FROM Care_Recipient
 
             UNION ALL
@@ -32,7 +34,8 @@
                 CONCAT('요양보호사 ''', caregiver_name, ''' 님이 등록되었습니다.') as message,
                 caregiver_regdate as timestamp,
                 'bi-heart-fill' as iconClass,
-                'bg-success' as bgClass
+                'bg-success' as bgClass,
+                CONCAT('/caregiver/detail/', caregiver_id) as link
             FROM caregiver
 
             UNION ALL
@@ -42,7 +45,8 @@
                 CONCAT('긴급: ', cr.rec_name, '님 - ', al.alert_msg) as message,
                 al.alert_regdate as timestamp,
                 'bi-exclamation-triangle-fill' as iconClass,
-                'bg-danger' as bgClass
+                'bg-danger' as bgClass,
+                '/admin/alerts' as link
             FROM Alert_Log al
             JOIN Care_Recipient cr ON al.rec_id = cr.rec_id
             WHERE al.alert_type = 'EMERGENCY'

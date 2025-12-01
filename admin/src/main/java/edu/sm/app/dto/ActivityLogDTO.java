@@ -17,4 +17,5 @@ public class ActivityLogDTO {
     private Date timestamp;
     private String iconClass;
     private String bgClass;
+    private String link;
 }

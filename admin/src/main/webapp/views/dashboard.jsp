@@ -1,6 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<style>
+    .activity-link:hover .activity-item {
+        background-color: var(--bs-light-bg-subtle);
+    }
+</style>
+
 <div class="container-fluid p-4 p-lg-5">
 
     <!-- Stats Cards -->
@@ -112,7 +118,7 @@
         <div class="col-lg-4">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">최신 활동</h5>
+                    <h5 class="card-title mb-0">활동 피드</h5>
                 </div>
                 <div class="card-body">
                     <div class="activity-feed">
@@ -342,15 +348,17 @@ function initActivityFeed() {
 
             data.forEach(item => {
                 const itemHtml = `
-                    <div class="activity-item">
-                        <div class="activity-icon \${item.bgClass} bg-opacity-10 text-primary">
-                            <i class="bi \${item.iconClass}"></i>
+                    <a href="\${item.link}" class="text-decoration-none text-body activity-link">
+                        <div class="activity-item">
+                            <div class="activity-icon \${item.bgClass} bg-opacity-10 text-primary">
+                                <i class="bi \${item.iconClass}"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p class="mb-1">\${item.message}</p>
+                                <small class="text-muted">\${formatTimeAgo(item.timestamp)}</small>
+                            </div>
                         </div>
-                        <div class="activity-content">
-                            <p class="mb-1">\${item.message}</p>
-                            <small class="text-muted">\${formatTimeAgo(item.timestamp)}</small>
-                        </div>
-                    </div>
+                    </a>
                 `;
                 feedContainer.insertAdjacentHTML('beforeend', itemHtml);
             });
