@@ -149,7 +149,7 @@
         .navbar-nav {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 20px;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -160,18 +160,83 @@
 
         .nav-item {
             margin: 0;
+            position: relative;
         }
 
         .nav-link {
             color: var(--secondary-color) !important;
-            font-weight: 500;
+            font-weight: 700;
             transition: color 0.3s;
             text-decoration: none;
             white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
         }
 
         .nav-link:hover {
             color: var(--primary-color) !important;
+            background-color: rgba(52, 152, 219, 0.1);
+        }
+
+        /* 드롭다운 메뉴 */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 8px;
+            min-width: 200px;
+            padding: 8px 0;
+            margin-top: 5px;
+            z-index: 1000;
+            list-style: none;
+        }
+
+        .nav-item.dropdown-open .dropdown-menu {
+            display: block;
+            animation: fadeInDown 0.3s ease;
+        }
+
+        .nav-item.dropdown-open .nav-link .fa-chevron-down {
+            transform: rotate(180deg);
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        .dropdown-item i {
+            margin-right: 8px;
+            width: 16px;
         }
 
         /* 오른쪽: 사용자 정보 */
@@ -183,7 +248,7 @@
         }
 
         .user-name {
-            color: var(--primary-color);
+            color: var(--primary-color) !important;
             font-weight: 600;
             font-size: 16px;
             transition: all 0.3s;
@@ -191,7 +256,7 @@
         }
 
         .user-name:hover {
-            color: var(--secondary-color);
+            color: var(--secondary-color) !important;
             transform: translateY(-2px);
         }
 
@@ -223,63 +288,67 @@
             flex-basis: auto;
         }
 
-        /* Sidebar Toggle Button */
-        .sidebar-toggle {
-            position: fixed;
-            left: 20px;
-            top: 100px;
-            z-index: 1050;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: left 0.3s ease;
-            display: none;
-        }
-
-        .sidebar-toggle.show {
-            display: block;
-        }
-
-        .sidebar-toggle.active {
-            left: 320px;
-        }
-
-        .sidebar-toggle:hover {
-            background: var(--secondary-color);
-            transform: scale(1.1);
-        }
-
-        /* Sidebar Styles */
-        .sidebar {
-            position: fixed;
-            left: -300px;
-            top: 80px;
-            width: 300px;
-            height: calc(100vh - 80px);
-            background: white;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-            transition: left 0.3s ease;
-            z-index: 1040;
-            overflow-y: auto;
-        }
-
-        .sidebar.active {
-            left: 0;
-        }
-
-        /* Main content margin when sidebar is open */
+        /* Main content */
         .main-content {
-            transition: margin-left 0.3s ease, padding 0.3s ease;
-            padding: 0 1rem 0 90px;
+            padding: 1rem;
             margin-top: 80px;
             flex: 1 0 auto;
             min-height: calc(100vh - 80px);
+        }
+
+        /* Dashboard Section */
+        #user-dashboard {
+            min-height: calc(100vh - 80px);
+            padding: 30px 0;
+            background: #f8f9fa;
+        }
+
+        .dashboard-title {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-subtitle {
+            font-size: 20px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .dashboard-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+            height: 100%;
+            text-align: center;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .dashboard-card i {
+            font-size: 60px;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .dashboard-card h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--secondary-color);
+        }
+
+        .dashboard-card p {
+            color: #666;
+            font-size: 15px;
         }
 
         .main-content.sidebar-active {
@@ -456,6 +525,7 @@
             width: 100%;
         }
 
+        /* 말풍선 레이아웃 스타일 - 사용자 메시지를 완전히 오른쪽에 배치 */
         .chat-messages .chat-message.sent {
             flex-direction: row-reverse !important;
             justify-content: flex-end !important;
@@ -485,6 +555,7 @@
             margin-bottom: 2px;
         }
 
+        /* 아바타 스타일 - 사용자 메시지 아바타 숨김 */
         .chat-messages .chat-message.sent .message-avatar {
             display: none !important;
         }
@@ -508,6 +579,7 @@
             max-width: 85% !important;
         }
 
+        /* AI 봇 메시지 말풍선을 더 넓게 */
         .chat-messages .chat-message.received .message-content-wrapper {
             align-items: flex-start;
             max-width: 90% !important;
@@ -555,13 +627,16 @@
             line-height: 1.5;
             display: inline-block;
             max-width: 100%;
+            /* 기본 스타일은 제거 - 각 타입별로 명시적으로 설정 */
         }
 
+        /* AI 봇 메시지 말풍선을 더 넓고 읽기 편하게 */
         .chat-messages .chat-message.received .message-bubble {
             min-width: 250px;
             max-width: 100%;
         }
 
+        /* 말풍선 스타일 - 최고 우선순위로 설정 (모든 외부 CSS 이후에 적용) */
         #chatMessages .chat-message.sent .message-bubble,
         .chat-modal #chatMessages .chat-message.sent .message-bubble {
             background: #0084ff !important;
@@ -662,6 +737,7 @@
             cursor: not-allowed;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             .chat-modal {
                 width: calc(100% - 40px);
@@ -674,6 +750,29 @@
                 bottom: 20px;
                 right: 20px;
             }
+            
+            .navbar-nav {
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-link {
+                font-size: 13px;
+                padding: 6px 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                margin-top: 0;
+            }
+        }
+        
+        .calendar-title {
+            font-size: 1.5rem !important; /* 크기를 키움 (기존보다 약 1.5배) */
+            font-weight: 700 !important;   /* 굵게 (Bold) */
         }
     </style>
 </head>
@@ -684,17 +783,59 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
-                <img src="/img/favicontitle.png" alt="Aventro Logo">
-                Aventro
+                <img src="/img/favicontitle.png" alt="Aventro Logo">돌봄 SYSTEM
             </a>
 
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/comm"/>"><i class="fas fa-comments"></i> 통신</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> 식단관리</a></li>
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+                
+                <!-- 통신 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" role="button">
+                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
+                    </ul>
+                </li>
+                
+                <!-- 일정 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" role="button">
+                        <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/schedule"/>"><i class="fas fa-home"></i> 일정메인</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
+                    </ul>
+                </li>
+                
+                <!-- 식단관리 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" role="button">
+                        <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-home"></i> AI 식단 관리</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
+                    </ul>
+                </li>
+                
+                <!-- CCTV 드롭다운 -->
+                <li class="nav-item">
+                    <a class="nav-link" role="button">
+                        <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
+                    </ul>
+                </li>
+                
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -737,14 +878,7 @@
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- Left Sidebar (if exists) -->
-<c:if test="${left != null}">
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-sticky pt-3">
-            <jsp:include page="${left}.jsp"/>
-        </div>
-    </nav>
-</c:if>
+
 
 <!-- Main Content Area -->
 <div class="main-content" id="mainContent">
@@ -888,6 +1022,42 @@
                 icon.classList.add('fa-bars');
             });
         }
+        // Dropdown Menu Functionality (Hover-based with outside click to close)
+        const dropdownNavItems = document.querySelectorAll('.nav-item');
+
+        dropdownNavItems.forEach(item => {
+            const dropdownMenu = item.querySelector('.dropdown-menu');
+            if (dropdownMenu) {
+                item.addEventListener('mouseenter', function() {
+                    // Close any other open dropdowns
+                    dropdownNavItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove('dropdown-open');
+                        }
+                    });
+                    // Open the current one
+                    item.classList.add('dropdown-open');
+                });
+            }
+        });
+
+        // Add a single event listener to the document to close dropdowns on outside click
+        document.addEventListener('click', function(e) {
+            let isClickInsideDropdown = false;
+            // Check if the click is inside any nav-item that contains a dropdown
+            dropdownNavItems.forEach(item => {
+                if (item.contains(e.target) && item.querySelector('.dropdown-menu')) {
+                    isClickInsideDropdown = true;
+                }
+            });
+
+            // If the click is not inside any dropdown-related nav-item, close all dropdowns
+            if (!isClickInsideDropdown) {
+                dropdownNavItems.forEach(item => {
+                    item.classList.remove('dropdown-open');
+                });
+            }
+        });
 
         // Chat Functionality
         const floatingChatBtn = document.getElementById('floatingChatBtn');
@@ -898,41 +1068,52 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatBadge = document.getElementById('chatBadge');
 
+        // 사용자 이름 설정
         var userName = '사용자';
         <c:if test="${sessionScope.loginUser != null}">
         userName = '<c:out value="${sessionScope.loginUser.custName}" escapeXml="true"/>';
         </c:if>
 
+        // 첫 메시지 시간 설정
         const initialMessageTime = document.getElementById('initialMessageTime');
         if (initialMessageTime) {
             const now = new Date();
             initialMessageTime.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
         }
 
+        // Open chat modal
         if (floatingChatBtn) {
             floatingChatBtn.addEventListener('click', function() {
                 chatModal.classList.add('active');
                 chatInput.focus();
+                // Hide badge when chat is open
                 chatBadge.style.display = 'none';
             });
         }
 
+        // Close chat modal
         if (closeChatBtn) {
             closeChatBtn.addEventListener('click', function() {
                 chatModal.classList.remove('active');
             });
         }
 
+        // Send message function
         function sendMessage() {
             const message = chatInput.value.trim();
             if (message === '') return;
 
+            // Add sent message
             addMessage(message, 'sent');
+
+            // Clear input
             chatInput.value = '';
 
+            // 로딩 메시지 표시
             const loadingId = 'loading-' + Date.now();
             addMessage('AI 응답을 생성 중입니다...', 'received', loadingId);
 
+            // 실제 API 호출
             <c:choose>
             <c:when test="${selectedRecipient != null}">
             const recId = ${selectedRecipient.recId};
@@ -969,8 +1150,10 @@
                 });
         }
 
+        // Add message to chat
         function addMessage(text, type, messageId) {
             const messageDiv = document.createElement('div');
+            // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
             if (type === 'sent' || type === 'received') {
                 messageDiv.classList.add(type);
@@ -979,6 +1162,10 @@
                 messageDiv.id = messageId;
             }
 
+            // 디버깅: 클래스 확인
+            console.log('메시지 추가:', type, '클래스:', messageDiv.className, 'classList:', Array.from(messageDiv.classList));
+
+            // 아바타 생성
             const avatar = document.createElement('div');
             avatar.className = 'message-avatar';
             if (type === 'sent') {
@@ -987,25 +1174,31 @@
                 avatar.innerHTML = '<i class="fas fa-robot"></i>';
             }
 
+            // 메시지 컨텐츠 래퍼
             const contentWrapper = document.createElement('div');
             contentWrapper.className = 'message-content-wrapper';
 
+            // 발신자 이름
             const sender = document.createElement('div');
             sender.className = 'message-sender';
             sender.textContent = type === 'sent' ? userName : 'AI 봇';
 
+            // 말풍선 래퍼 (말풍선 + 시간)
             const bubbleWrapper = document.createElement('div');
             bubbleWrapper.className = 'message-bubble-wrapper';
 
+            // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
             bubble.textContent = text;
 
+            // 시간
             const time = document.createElement('div');
             time.className = 'message-time';
             const now = new Date();
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
+            // 구조 조립
             bubbleWrapper.appendChild(bubble);
             bubbleWrapper.appendChild(time);
             contentWrapper.appendChild(sender);
@@ -1017,6 +1210,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
+        // Remove message from chat
         function removeMessage(messageId) {
             const messageElement = document.getElementById(messageId);
             if (messageElement) {
@@ -1024,10 +1218,12 @@
             }
         }
 
+        // Send button click
         if (chatSendBtn) {
             chatSendBtn.addEventListener('click', sendMessage);
         }
 
+        // Enter key press
         if (chatInput) {
             chatInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
@@ -1036,6 +1232,8 @@
             });
         }
 
+        // Show notification badge (예시)
+        // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출
         function showNotification(count) {
             if (!chatModal.classList.contains('active')) {
                 chatBadge.textContent = count;

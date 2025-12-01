@@ -5,8 +5,10 @@ import com.github.pagehelper.PageInfo;
 import edu.sm.app.dto.CareMatching;
 import edu.sm.app.dto.Caregiver;
 import edu.sm.app.dto.Senior;
+import edu.sm.app.service.AiRecommendationService;
 import edu.sm.app.service.CareMatchingService;
 import edu.sm.app.service.CaregiverService;
+import edu.sm.app.service.SeniorService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -31,6 +34,8 @@ public class CaregiverController {
 
     private final CaregiverService caregiverService;
     private final CareMatchingService careMatchingService;
+    private final SeniorService seniorService;
+    private final AiRecommendationService aiRecommendationService;
 
     @RequestMapping("/list")
     public String caregiverList(@RequestParam(defaultValue = "1") int pageNo,
@@ -146,6 +151,20 @@ public class CaregiverController {
             // Redirect with an error message if needed
         }
         return "redirect:/caregiver/manage";
+    }
+
+    @GetMapping("/recommendations/{recId}")
+    @ResponseBody
+    public List<Caregiver> getRecommendations(@PathVariable("recId") int recId) {
+        log.info("Request for AI recommendations for senior id: {}", recId);
+        try {
+            Senior senior = seniorService.get(recId);
+            List<Caregiver> availableCaregivers = careMatchingService.getUnassignedCaregivers();
+            return aiRecommendationService.getRecommendations(senior, availableCaregivers);
+        } catch (Exception e) {
+            log.error("Error getting AI recommendations", e);
+            return List.of(); // Return an empty list on error
+        }
     }
 }
 

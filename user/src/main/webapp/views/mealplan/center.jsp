@@ -93,35 +93,15 @@
     <div class="container-fluid">
         <!-- 헤더 -->
         <div class="row mb-4">
-            <div class="col-12">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-utensils"></i> 식단 관리
+            <div class="col-12 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-utensils" style="color: var(--primary-color);"></i> 식단 관리
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
                     <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
                 </p>
             </div>
         </div>
-
-        <!-- 노약자 선택 영역 -->
-        <c:if test="${not empty recipientList}">
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="recipient-select-card">
-                        <label class="recipient-select-label">
-                            <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
-                        </label>
-                        <select id="recipientSelect" class="recipient-select" onchange="changeRecipient()">
-                            <c:forEach items="${recipientList}" var="rec">
-                                <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                                    ${rec.recName}
-                                </option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </c:if>
 
         <!-- 대상자가 없는 경우 -->
         <c:if test="${empty selectedRecipient}">
@@ -437,11 +417,10 @@
                     <label class="form-label">
                         <i class="fas fa-list-alt"></i> 특이사항 (선택)
                     </label>
-                    <textarea id="aiSpecialNotes" class="form-control" rows="4" 
-                              placeholder="추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
-                    <small class="form-hint">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
-                </div>
-                <div id="aiRecommendationResult" class="form-group" style="display: none;">
+                    <textarea id="aiSpecialNotes" class="form-control" rows="4"
+                                                  placeholder="추가적으로 고려할 사항이 있다면 입력해주세요. 예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
+                                        <small class="form-hint" style="color: #dc3545; font-size: 14px;">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
+                                    </div>                <div id="aiRecommendationResult" class="form-group" style="display: none;">
                     <div id="aiRecommendationBasis" style="display: none; margin-bottom: 15px; padding: 12px; background-color: #f0f7ff; border-left: 4px solid #4facfe; border-radius: 4px; font-size: 13px; color: #555;">
                         <!-- 추천 근거가 여기에 표시됩니다. -->
                     </div>
@@ -511,4 +490,3 @@
         loadMeals();
     }
 </script>
-

@@ -47,22 +47,17 @@ public class AiCaloriesAnalysisService {
             
             위 정보를 바탕으로 다음 항목을 포함한 종합 분석을 제공해주세요:
             
-            1. 현재 상태 평가: "부족", "적정", "과다" 중 하나로 판단
-            2. 종합 분석 내용: 현재 칼로리 섭취 상태에 대한 상세 분석 (200자 이내)
-            3. 권장 일일 칼로리: 노약자의 나이, 성별, 활동량을 고려한 권장 칼로리 (kcal 단위)
-            4. 조절 방안: 칼로리를 조절하기 위한 일반적인 방안 (100자 이내)
-            5. 구체적인 식단 조절 제안: 현재 상태에 맞는 구체적인 식단 조절 방법 (200자 이내)
-            
             응답은 반드시 다음 JSON 형식으로만 제공해주세요:
             {
               "status": "부족|적정|과다",
-              "analysis": "종합 분석 내용",
+              "aiAnalysis": "현재 칼로리 섭취 상태(부족, 적정, 과다)를 첫 문장에 명시하고, 그에 대한 상세 분석과 최종 요약 가이드를 포함하여 하나의 완성된 문단으로 작성해주세요.",
               "recommendedCalories": 권장칼로리숫자,
               "adjustmentPlan": "조절 방안",
               "dietSuggestion": "구체적인 식단 조절 제안"
             }
             
             중요:
+            - aiAnalysis는 사용자가 가장 먼저 보게 될 핵심 요약 정보입니다. 긍정적이고 이해하기 쉬운 어조로 작성해주세요.
             - 노약자의 경우 일반 성인보다 칼로리 요구량이 낮을 수 있으므로 이를 고려해주세요.
             - 병력이나 건강 요구사항이 있으면 이를 반영해주세요.
             - 모든 텍스트는 한글로 작성해주세요.
@@ -185,7 +180,7 @@ public class AiCaloriesAnalysisService {
             Map<String, Object> result = new HashMap<>();
             result.put("success", true);
             result.put("status", analysisResult.getOrDefault("status", "적정").toString());
-            result.put("analysis", analysisResult.getOrDefault("analysis", "분석 결과를 생성할 수 없습니다.").toString());
+            result.put("aiAnalysis", analysisResult.getOrDefault("aiAnalysis", "AI 분석 결과를 생성할 수 없습니다.").toString());
             
             Object recommendedCaloriesObj = analysisResult.getOrDefault("recommendedCalories", 2000);
             int recommendedCalories = 2000;
@@ -216,4 +211,3 @@ public class AiCaloriesAnalysisService {
         }
     }
 }
-

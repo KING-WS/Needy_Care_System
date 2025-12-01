@@ -1,5 +1,12 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<spring:eval expression="@environment.getProperty('app.api.kakao-js-key')" var="kakaoJsKey"/>
+
+<!-- CSS 파일 링크 -->
+<link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
 
 <style>
     /* =========================================
@@ -213,49 +220,148 @@
         align-items: center;
         gap: 8px;
     }
+
+
 </style>
 
 <section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
     <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
 
         <div class="row">
-            <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-robot"></i> AI 장소 추천
+            <div class="col-12 mb-4 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 장소 추천
                 </h1>
             </div>
         </div>
 
-        <div class="row mb-4 justify-content-center">
-            <div class="col-lg-12">
-                <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
-                    <div class="card-body">
-                        <h3 style="color: #333; font-size: 22px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                            <i class="fas fa-info-circle text-primary"></i> AI 장소 추천 사용 가이드
-                        </h3>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            <li style="display: flex; align-items: start; gap: 15px; margin-bottom: 15px;">
-                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-user-check"></i></div>
-                                <div>
-                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">1. 대상자 확인</strong>
-                                    <span style="font-size: 14px; color: #555;">현재 선택된 <strong>${selectedRecipient.recName}</strong> 님의 건강 상태와 선호도에 따라 맞춤형 장소가 추천됩니다. (대상자 변경은 홈 화면에서 가능)</span>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card-wrapper">
+                    <div class="dashboard-card card-xlarge">
+                        <div class="map-layout">
+                            <!-- 왼쪽 : 제목 + 주소 목록 안내 -->
+                            <div class="map-left">
+                                <div class="map-title">
+                                    <span class="map-title-icon">
+                                        <i class="fas fa-location-dot"></i>
+                                    </span>
+                                    <span>케어 지도</span>
                                 </div>
-                            </li>
-                            <li style="display: flex; align-items: start; gap: 15px; margin-bottom: 15px;">
-                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-magic"></i></div>
-                                <div>
-                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">2. 추천 시작</strong>
-                                    <span style="font-size: 14px; color: #555;">'노약자 맞춤 추천 시작' 버튼을 클릭하면 AI가 분석을 시작합니다. 잠시만 기다려주세요.</span>
+                                <div class="map-address-panel" id="mapLocationList">
+                                    <div class="map-location-items">
+                                        <!-- 노약자 집 주소 (항상 표시, 고정) -->
+                                        <c:if test="${not empty selectedRecipient && not empty selectedRecipient.recAddress}">
+                                            <div class="map-location-item home-location" onclick="focusHomeMarker()">
+                                                <div class="location-info">
+                                                    <div class="location-name-wrapper">
+                                                        <div class="location-name" style="font-weight: 600;">
+                                                        ${selectedRecipient.recName}님의 집
+                                                    </div>
+                                                        <div class="location-category">집</div>
+                                                    </div>
+                                                </div>
+                                                    <div class="location-address">
+                                                        ${selectedRecipient.recAddress}
+                                                    </div>
+                                                </div>
+                                        
+                                        <!-- 구분선 -->
+                                            <c:if test="${not empty maps}">
+                                                <div class="home-location-divider"></div>
+                                            </c:if>
+                                        </c:if>
+                                        
+                                        <!-- 저장된 장소 목록 또는 빈 상태 -->
+                                        <c:choose>
+                                            <c:when test="${empty maps}">
+                                                <div class="empty-map-list" style="padding: 20px;">
+                                                    <i class="bi bi-pin-map" style="font-size: 30px; color: #ccc; margin-bottom: 8px;"></i>
+                                                    <p style="color: #999; font-size: 13px; margin: 0;">지도를 클릭하여<br/>장소를 추가해보세요!</p>
+                                                </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:forEach var="map" items="${maps}">
+                                                    <div class="map-location-item" data-map-id="${map.mapId}"
+                                                         data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}"
+                                                         onclick="showLocationDetail(${map.mapId})">
+                                                        <div class="location-info">
+                                                            <div class="location-name-wrapper">
+                                                            <div class="location-name">${map.mapName}</div>
+                                                            <div class="location-category">${map.mapCategory}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
+                                                            주소 조회 중...
+                                                        </div>
+                                                        <button class="location-delete-btn" onclick="event.stopPropagation(); deleteLocation(${map.mapId})">
+                                                            <i class="bi bi-x-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:otherwise>
+                                        </c:choose>
+                                        
+                                        <!-- 산책코스 목록 (기본 숨김) -->
+                                        <div id="courseListContainer" style="display: none;">
+                                            <c:if test="${not empty courses}">
+                                                <div class="home-location-divider"></div>
+                                                <c:forEach var="course" items="${courses}">
+                                                    <div class="map-location-item course-item" data-course-id="${course.courseId}" onclick="showCourseDetail(${course.courseId})">
+                                                        <div class="location-info">
+                                                            <div class="location-name-wrapper">
+                                                                <div class="location-name">${course.courseName}</div>
+                                                                <div class="location-category course-category">${course.courseType}</div>
+                                                            </div>
+                                                        </div>
+                                                        <button class="location-delete-btn" onclick="event.stopPropagation(); deleteCourse(${course.courseId})">
+                                                            <i class="bi bi-x-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:if>
+                                        </div>
+                                    </div>
                                 </div>
-                            </li>
-                            <li style="display: flex; align-items: start; gap: 15px;">
-                                <div style="font-size: 20px; min-width: 30px; text-align: center; color: #667eea;"><i class="fas fa-calendar-plus"></i></div>
-                                <div>
-                                    <strong style="display: block; margin-bottom: 5px; font-size: 16px;">3. 결과 확인 및 저장</strong>
-                                    <span style="font-size: 14px; color: #555;">추천된 장소의 'AI 요약 보기'로 상세 정보를 확인하고, '추가' 버튼을 눌러 간편하게 일정과 지도에 저장할 수 있습니다.</span>
+                            </div>
+
+                            <!-- 오른쪽 : 탭 + 검색 + 지도 -->
+                            <div class="map-right">
+                                <!-- 헤더: 탭 + 검색 -->
+                                <div class="map-header">
+                                    <div class="map-tabs">
+                                        <button type="button" class="map-tab active" onclick="switchMapTab(this, 'mymap')">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                            <span>내 지도</span>
+                                        </button>
+                                        <button type="button" class="map-tab" onclick="switchMapTab(this, 'course')">
+                                            <i class="fas fa-walking"></i>
+                                            <span>산책 코스</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- 검색 영역 -->
+                                    <div class="map-search-container">
+                                        <div class="map-search-wrapper">
+                                            <input type="text" 
+                                                   id="mapSearchInput" 
+                                                   class="map-search-input" 
+                                                   placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
+                                                   onkeypress="if(event.key==='Enter') searchLocation()">
+                                            <button type="button" class="map-search-btn" onclick="searchLocation()">
+                                                <i class="bi bi-search"></i>
+                                            </button>
+                                        </div>
+                                        <!-- 검색 결과 드롭다운 -->
+                                        <div id="searchResults" class="search-results"></div>
+                                    </div>
                                 </div>
-                            </li>
-                        </ul>
+                                
+                                <div class="map-area">
+                                    <div id="map"></div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -374,20 +480,235 @@
     </div>
 </div>
 
+<!-- 장소 추가 모달 -->
+<div class="map-modal-overlay" id="mapModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-pin-map-fill"></i>
+                <span>장소 추가</span>
+            </div>
+            <button class="map-modal-close" onclick="closeMapModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-location-info" id="modalLocationInfo">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="modalAddress">주소 조회 중...</span>
+            </div>
+            <form id="mapLocationForm">
+                <input type="hidden" id="modalLat" name="latitude">
+                <input type="hidden" id="modalLng" name="longitude">
+                <input type="hidden" id="modalRecId" name="recId" value="${recipient.recId}">
+                
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        장소 이름<span class="required">*</span>
+                    </label>
+                    <input type="text" class="modal-form-input" id="modalMapName" 
+                           name="mapName" placeholder="예: 우리 동네 병원" required maxlength="100">
+                </div>
+                
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        카테고리<span class="required">*</span>
+                    </label>
+                    <select class="modal-form-select" id="modalCategory" name="mapCategory" required>
+                        <option value="">선택하세요</option>
+                        <option value="병원">병원</option>
+                        <option value="약국">약국</option>
+                        <option value="마트">마트/편의점</option>
+                        <option value="공원">공원</option>
+                        <option value="복지관">복지관</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+                
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        메모
+                    </label>
+                    <textarea class="modal-form-textarea" id="modalContent" 
+                              name="mapContent" placeholder="이 장소에 대한 메모를 남겨보세요..." maxlength="500"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeMapModal()">취소</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveMapLocation()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- 장소 상세 정보 모달 -->
+<div class="map-modal-overlay" id="locationDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>장소 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeLocationDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-location-info" id="detailLocationAddress">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="detailAddress">주소 조회 중...</span>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="detailLocationDistance" style="color: #667eea; font-weight: 600; font-size: 16px; margin-bottom: 10px;">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">장소 이름</label>
+                <div class="modal-form-readonly" id="detailLocationName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">카테고리</label>
+                <div class="modal-form-readonly" id="detailLocationCategory">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">메모</label>
+                <div class="modal-form-readonly" id="detailLocationContent">-</div>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-delete" onclick="deleteLocationFromModal()">삭제</button>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLocationDetailModal()">닫기</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="viewLocationOnMap()">지도에서 보기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 산책코스 상세 정보 모달 -->
+<div class="map-modal-overlay" id="courseDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-walking"></i>
+                <span>산책코스 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeCourseDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-form-group">
+                <label class="modal-form-label">코스 이름</label>
+                <div class="modal-form-readonly" id="detailCourseName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">코스 타입</label>
+                <div class="modal-form-readonly" id="detailCourseType">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">총 거리</label>
+                <div class="modal-form-readonly" id="detailCourseDistance">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">지점 수</label>
+                <div class="modal-form-readonly" id="detailCoursePoints">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">등록일</label>
+                <div class="modal-form-readonly" id="detailCourseRegdate">-</div>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="viewCourseOnMap()">지도에서 보기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 검색 결과 상세 정보 모달 -->
+<div class="map-modal-overlay" id="searchResultDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>검색 장소 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeSearchResultDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-form-group">
+                <label class="modal-form-label">장소 이름</label>
+                <div class="modal-form-readonly" id="searchResultName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">카테고리</label>
+                <div class="modal-form-readonly" id="searchResultCategory">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">주소</label>
+                <div class="modal-form-readonly" id="searchResultAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">집 주소</label>
+                <div class="modal-form-readonly" id="searchResultHomeAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="searchResultDistance" style="color: #667eea; font-weight: 600; font-size: 16px;">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">메모</label>
+                <textarea class="modal-form-input" id="searchResultMemo" 
+                          placeholder="이 장소에 대한 메모를 입력하세요 (선택사항)" 
+                          rows="3" style="resize: vertical;"></textarea>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveSearchResultLocation()">저장</button>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSearchResultDetailModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 카카오맵 API (services 라이브러리 포함) -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+
+<!-- SockJS & StompJS for real-time location -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<!-- Map 관련 JavaScript 파일 -->
+<script src="/js/homecenter/center.js"></script>
+
 <script>
+    // JSP 변수 - 노약자 정보
+    var recipientAddress = '<c:out value="${selectedRecipient.recAddress}" escapeXml="false"/>';
+    var recipientName = '<c:out value="${selectedRecipient.recName}" escapeXml="false"/>';
+    <c:choose>
+        <c:when test="${not empty selectedRecipient.recPhotoUrl}">
+            <c:set var="jsPhotoUrl" value="${selectedRecipient.recPhotoUrl}${fn:contains(selectedRecipient.recPhotoUrl, '?') ? '&' : '?'}v=${selectedRecipient.recId}"/>
+            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+        </c:when>
+        <c:otherwise>
+            var recipientPhotoUrl = '';
+        </c:otherwise>
+    </c:choose>
+    var defaultRecId = <c:choose><c:when test="${not empty selectedRecipient}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
+
     document.addEventListener('DOMContentLoaded', function() {
         const recommendBtn = document.getElementById('recommendBtn');
         const resultsContainer = document.getElementById('recommendation-results');
         const loadingSpinner = document.getElementById('loadingSpinner');
         const modalElement = document.getElementById('addScheduleModal');
         const modal = new bootstrap.Modal(modalElement);
+        let recommendMarkers = []; // AI 추천 마커만 관리하는 배열
 
         // 오늘 날짜로 초기화
         document.getElementById('schedDate').valueAsDate = new Date();
 
         // 1. 추천 시작 버튼 클릭
         recommendBtn.addEventListener('click', function() {
-            // JSP EL로 recId 가져오기 (null 처리)
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
 
             if (!recId) {
@@ -401,99 +722,147 @@
 
             fetch('/schedule/ai-recommend', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ recId: parseInt(recId) })
             })
-                .then(response => response.json())
-                .then(data => {
-                    loadingSpinner.style.display = 'none';
-                    recommendBtn.disabled = false;
+            .then(response => response.json())
+            .then(data => {
+                loadingSpinner.style.display = 'none';
+                recommendBtn.disabled = false;
 
-                    if (!data || data.length === 0) {
-                        resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">추천 결과가 없습니다.</h4></div>';
-                        return;
-                    }
+                if (!data || data.length === 0) {
+                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">추천 결과가 없습니다.</h4></div>';
+                    return;
+                }
 
-                    data.forEach((item, index) => {
-                        const cardCol = document.createElement('div');
-                        cardCol.className = 'col-lg-4 col-md-6';
+                displayRecommendationsOnMap(data); // 지도에 AI 추천 마커 표시
+                
+                data.forEach((item, index) => {
+                    const cardCol = document.createElement('div');
+                    cardCol.className = 'col-lg-4 col-md-6';
+                    
+                    const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') || (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
+                    const address = item.address && item.address.trim() !== '' ? item.address : (hasValidLocation ? '' : '주소 정보 없음');
+                    const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
 
-                        // place_url이나 좌표가 있으면 실제 존재하는 장소이므로 "주소 정보 없음" 표시하지 않음
-                        const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') ||
-                            (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
-                        const address = item.address && item.address.trim() !== ''
-                            ? item.address
-                            : (hasValidLocation ? '' : '주소 정보 없음');
-                        const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
-
-                        cardCol.innerHTML = `
-                        <div class="card recommend-card">
-                            <div class="card-header-custom d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
-                                <span class="badge badge-category">\${item.mapCategory}</span>
-                            </div>
-                            <div class="card-body d-flex flex-column">
-                                <p class="card-text text-muted mb-2">
-                                    \${address ? `<i class="fas fa-map-marker-alt text-danger"></i> \${address} ` : ''}\${distance}
-                    </p>
-
-                        <div class="mt-auto pt-3">
-                            <button class="btn btn-outline-primary w-100 mb-2 btn-summary-toggle">
-                                <i class="fas fa-align-left"></i> AI 요약 보기
-                            </button>
-                            <div class="summary-content mb-3">
-                                <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>
-                                \${item.mapContent}
-                            </div>
-
-                            <div class="d-flex gap-2 mb-2">
-                                <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
-                                    <i class="fas fa-directions"></i> 길찾기
-                                </a>
-                                <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
-                                    <i class="fas fa-search"></i> 검색
-                                </a>
-                            </div>
-
-                            <div class="d-grid">
-                                <button class="btn btn-success w-100 btn-add-schedule"
-                                        data-mapname="\${item.mapName}"
-                                        data-mapcontent="\${item.mapContent}"
-                                        data-mapcategory="\${item.mapCategory}"
-                                        data-mapaddress="\${address}"
-                                        data-coursetype="\${item.courseType || 'WALK'}"
-                                        data-startlat="\${item.startLat}"
-                                        data-startlng="\${item.startLng}"
-                                        data-endlat="\${item.y}"
-                                        data-endlng="\${item.x}"
-                                        data-distance="\${item.distance || 0}">
-                                    <i class="fas fa-plus"></i> 일정에 추가
+                    cardCol.innerHTML = `
+                    <div class="card recommend-card" data-index="\${index}">
+                        <div class="card-header-custom d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
+                            <span class="badge badge-category">\${item.mapCategory}</span>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            <p class="card-text text-muted mb-2">
+                                \${address ? `<i class="fas fa-map-marker-alt text-danger"></i> \${address} ` : ''}\${distance}
+                            </p>
+                            <div class="mt-auto pt-3">
+                                <button class="btn btn-outline-primary w-100 mb-2 btn-summary-toggle">
+                                    <i class="fas fa-align-left"></i> AI 요약 보기
                                 </button>
+                                <div class="summary-content mb-3">
+                                    <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>
+                                    \${item.mapContent}
+                                </div>
+                                <div class="d-flex gap-2 mb-2">
+                                    <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1">
+                                        <i class="fas fa-directions"></i> 길찾기
+                                    </a>
+                                    <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
+                                        <i class="fas fa-search"></i> 검색
+                                    </a>
+                                </div>
+                                <div class="d-grid">
+                                    <button class="btn btn-success w-100 btn-add-schedule"
+                                            data-mapname="\${item.mapName}" data-mapcontent="\${item.mapContent}"
+                                            data-mapcategory="\${item.mapCategory}" data-mapaddress="\${address}"
+                                            data-coursetype="\${item.courseType || 'WALK'}" data-startlat="\${item.startLat}"
+                                            data-startlng="\${item.startLng}" data-endlat="\${item.y}"
+                                            data-endlng="\${item.x}" data-distance="\${item.distance || 0}">
+                                        <i class="fas fa-plus"></i> 일정에 추가
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    </div>
-                        `;
-
-                        resultsContainer.appendChild(cardCol);
-                    });
-
-                    // 동적 생성된 버튼에 이벤트 리스너 연결
-                    addCardEventListeners();
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    loadingSpinner.style.display = 'none';
-                    recommendBtn.disabled = false;
-                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
+                    </div>`;
+                    resultsContainer.appendChild(cardCol);
                 });
+
+                addCardEventListeners();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingSpinner.style.display = 'none';
+                recommendBtn.disabled = false;
+                resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
+            });
         });
 
-        // 2. 동적 생성된 카드 버튼 이벤트
+        // AI 추천 결과를 지도에 표시하는 함수
+        function displayRecommendationsOnMap(places) {
+            // 기존 AI 추천 마커들 제거
+            recommendMarkers.forEach(marker => marker.setMap(null));
+            recommendMarkers = [];
+
+            const bounds = new kakao.maps.LatLngBounds();
+
+            // 집 마커가 있으면 bounds에 추가
+            if (window.homeMarker) {
+                bounds.extend(window.homeMarker.getPosition());
+            }
+
+            places.forEach((place, i) => {
+                if (place.y && place.x) {
+                    const position = new kakao.maps.LatLng(place.y, place.x);
+                    
+                    const imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'; 
+                    const imageSize = new kakao.maps.Size(24, 35); 
+                    const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+                    const marker = new kakao.maps.Marker({
+                        map: map, // center.js에서 생성된 메인 지도 사용
+                        position: position,
+                        title: place.mapName,
+                        image: markerImage 
+                    });
+                    
+                    recommendMarkers.push(marker);
+                    bounds.extend(position);
+
+                    const infowindow = new kakao.maps.InfoWindow({
+                        content: `<div style="padding:5px;font-size:12px;color:blue;">[추천] \${place.mapName}</div>`
+                    });
+
+                    kakao.maps.event.addListener(marker, 'mouseover', function() {
+                        infowindow.open(map, marker);
+                    });
+                    kakao.maps.event.addListener(marker, 'mouseout', function() {
+                        infowindow.close();
+                    });
+                }
+            });
+
+            if (recommendMarkers.length > 0) {
+                map.setBounds(bounds);
+            }
+        }
+
+        // 카드와 마커 상호작용
         function addCardEventListeners() {
-            // 요약 보기 토글
+            document.querySelectorAll('.recommend-card').forEach(card => {
+                card.addEventListener('mouseover', function() {
+                    const index = this.dataset.index;
+                    if (recommendMarkers[index]) {
+                        recommendMarkers[index].setZIndex(100);
+                    }
+                });
+                card.addEventListener('mouseout', function() {
+                    const index = this.dataset.index;
+                    if (recommendMarkers[index]) {
+                        recommendMarkers[index].setZIndex(0);
+                    }
+                });
+            });
+
             document.querySelectorAll('.btn-summary-toggle').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const summary = this.nextElementSibling;
@@ -507,51 +876,37 @@
                 });
             });
 
-            // 추가 버튼 (모달 열기)
             document.querySelectorAll('.btn-add-schedule').forEach(btn => {
                 btn.addEventListener('click', function() {
+                    // ... (기존 모달 열기 로직)
                     const mapName = this.dataset.mapname;
                     const mapContent = this.dataset.mapcontent;
                     const mapCategory = this.dataset.mapcategory;
                     const mapAddress = this.dataset.mapaddress;
                     const courseType = this.dataset.coursetype;
                     const distance = this.dataset.distance;
-
-                    // 좌표 데이터
                     const startLat = this.dataset.startlat;
                     const startLng = this.dataset.startlng;
                     const endLat = this.dataset.endlat;
                     const endLng = this.dataset.endlng;
 
-                    // 모달 hidden input 설정
                     document.getElementById('modalMapName').value = mapName;
                     document.getElementById('modalMapContent').value = mapContent;
                     document.getElementById('modalMapCategory').value = mapCategory;
-
-                    // 모달 표시 데이터 설정 (텍스트)
                     document.getElementById('displayMapName').textContent = mapName;
                     document.getElementById('displayMapCategory').textContent = mapCategory;
                     document.getElementById('displayMapContent').textContent = mapContent;
-
-                    // 폼 기본값 채우기
                     document.getElementById('schedName').value = mapName + " 방문";
-
-                    // 코스 정보 설정
                     document.getElementById('courseName').value = mapName + " 방문 코스";
                     document.getElementById('courseType').value = courseType;
                     document.getElementById('displayCourseType').textContent = courseType;
-
-                    // 좌표 및 거리 설정 (Hidden)
                     document.getElementById('startLat').value = startLat;
                     document.getElementById('startLng').value = startLng;
                     document.getElementById('endLat').value = endLat;
                     document.getElementById('endLng').value = endLng;
                     document.getElementById('courseDistance').value = distance;
-
                     const addrInput = document.getElementById('mapAddress');
                     addrInput.value = mapAddress;
-
-                    // 주소 정보가 불분명할 경우 수정 가능하도록 처리
                     if (!mapAddress || mapAddress === '주소 정보 없음' || mapAddress === 'null') {
                         addrInput.value = '';
                         addrInput.placeholder = '주소를 직접 입력해주세요';
@@ -561,16 +916,14 @@
                         addrInput.readOnly = true;
                         addrInput.style.backgroundColor = '#f8f9fa';
                     }
-
                     modal.show();
                 });
             });
         }
 
-        // 3. 모달 저장 버튼 클릭
+        // 모달 저장 버튼 클릭
         document.getElementById('saveRecommendBtn').addEventListener('click', function() {
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
-
             const data = {
                 recId: recId,
                 schedDate: document.getElementById('schedDate').value,
@@ -579,8 +932,6 @@
                 mapName: document.getElementById('modalMapName').value,
                 mapContent: document.getElementById('modalMapContent').value,
                 mapCategory: document.getElementById('modalMapCategory').value,
-
-                // 산책 코스 데이터
                 courseName: document.getElementById('courseName').value,
                 courseType: document.getElementById('courseType').value,
                 startLat: document.getElementById('startLat').value,
@@ -592,24 +943,135 @@
 
             fetch('/schedule/save-recommendation', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert(result.message);
-                        modal.hide();
-                    } else {
-                        alert(result.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('저장 중 오류가 발생했습니다.');
-                });
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(result.message);
+                    modal.hide();
+                } else {
+                    alert(result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('저장 중 오류가 발생했습니다.');
+            });
         });
     });
+    
+    // 저장된 마커들 표시 (JSP forEach 사용)
+    function loadSavedMarkers() {
+        var savedMapsJson = '<c:out value="${not empty maps ? true : false}" escapeXml="false"/>';
+        if (savedMapsJson === 'true') {
+            var savedMaps = [];
+            <c:forEach var="mapItem" items="${maps}" varStatus="status">
+            savedMaps.push({
+                mapId: parseInt('${mapItem.mapId}'),
+                mapName: '<c:out value="${mapItem.mapName}" escapeXml="false"/>',
+                mapCategory: '<c:out value="${mapItem.mapCategory}" escapeXml="false"/>',
+                lat: parseFloat('${mapItem.mapLatitude}'),
+                lng: parseFloat('${mapItem.mapLongitude}')
+            });
+            </c:forEach>
+            
+            // 외부 JS 파일의 함수 호출
+            loadSavedMarkersWithData(savedMaps);
+        }
+    }
+    
+    // 페이지 로드 시 초기화
+    window.addEventListener('load', function() {
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            initializeMap(); // 지도 초기화
+            loadHomeMarker(); // 집 마커 표시
+            loadSavedMarkers(); // 저장된 장소들 표시
+            // 집 마커가 로드된 후 노약자 위치 마커 표시
+            setTimeout(function() {
+                // 함수가 존재할 때만 실행하도록 변경
+                if (typeof loadRecipientLocationMarker === 'function') {
+                    loadRecipientLocationMarker();
+                } else {
+                    console.warn('loadRecipientLocationMarker 함수를 찾을 수 없습니다.');
+                }
+            }, 1000);
+        }
+        
+        // 저장된 장소들의 주소 가져오기
+        loadMapLocationAddresses();
+    });
+    
+    // 저장된 장소들의 주소를 가져와서 표시하는 함수
+    function loadMapLocationAddresses() {
+        if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
+            return;
+        }
+        
+        var geocoder = new kakao.maps.services.Geocoder();
+        var addressElements = document.querySelectorAll('.map-location-item .location-address[data-lat][data-lng]');
+        
+        addressElements.forEach(function(element) {
+            var lat = parseFloat(element.getAttribute('data-lat'));
+            var lng = parseFloat(element.getAttribute('data-lng'));
+            
+            if (isNaN(lat) || isNaN(lng)) {
+                element.textContent = '주소 정보 없음';
+                return;
+            }
+            
+            // 좌표를 주소로 변환
+            geocoder.coord2Address(lng, lat, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    var addr = result[0].address.address_name;
+                    element.textContent = addr;
+                } else {
+                    element.textContent = '위도: ' + lat.toFixed(6) + ', 경도: ' + lng.toFixed(6);
+                }
+            });
+        });
+    }
+
+    // --- 실시간 위치 업데이트 스크립트 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        if (defaultRecId && typeof Stomp !== 'undefined') {
+            connectAndSubscribeForLocation();
+        } else {
+            console.log("실시간 위치 업데이트를 위한 사용자 정보 또는 Stomp 라이브러리를 찾을 수 없습니다.");
+        }
+    });
+
+    function connectAndSubscribeForLocation() {
+        const socket = new SockJS('/adminchat'); // 서버의 STOMP 엔드포인트
+        const stompClient = Stomp.over(socket);
+        stompClient.debug = null; // 디버그 로그 비활성화
+
+        stompClient.connect({}, function (frame) {
+            console.log('✅ Real-time location WS Connected: ' + frame);
+            
+            // recipient-specific 토픽 구독
+            const topic = '/topic/location/' + defaultRecId;
+            stompClient.subscribe(topic, function (message) {
+                try {
+                    const locationData = JSON.parse(message.body);
+                    console.log('📍 Real-time Location:', locationData);
+
+                    // center.js에 정의된 마커 이동 함수 호출
+                    if (typeof updateRecipientMarker === 'function') {
+                        updateRecipientMarker(locationData.latitude, locationData.longitude);
+                    } else {
+                        // 함수가 없으면 직접 이동 (비상용)
+                        moveMarkerDirectly(locationData.latitude, locationData.longitude);
+                    }
+                    
+                } catch (e) {
+                    console.error('위치 데이터 파싱 오류:', e);
+                }
+            });
+        }, function(error) {
+            console.log('⚠️ 위치 정보 소켓 연결이 끊겼습니다. 5초 후 재연결합니다...');
+            setTimeout(connectAndSubscribeForLocation, 5000);
+        });
+    }
 </script>

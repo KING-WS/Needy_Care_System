@@ -85,7 +85,7 @@ public class MealPlanController {
         }
 
         model.addAttribute("center", dir + "center");
-        model.addAttribute("left", dir + "left");
+        // left 메뉴 제거 - 상단바에서 바로 이동
         return "home";
     }
 
@@ -422,13 +422,6 @@ public class MealPlanController {
             String imageBase64 = (String) requestBody.get("imageBase64");
             String mealDescription = (String) requestBody.get("mealDescription");
 
-            if (recId == null) {
-                return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
-                );
-            }
-
-            // 이미지 또는 음식 설명 중 하나는 필수
             boolean hasImage = imageBase64 != null && !imageBase64.trim().isEmpty();
             boolean hasDescription = mealDescription != null && !mealDescription.trim().isEmpty();
 
@@ -438,7 +431,7 @@ public class MealPlanController {
                 );
             }
 
-            log.info("AI 식단 메뉴 분석 시작 - recId: {}, 이미지: {}, 텍스트: {}", 
+            log.info("AI 식단 메뉴 분석 시작 - recId: {}, 이미지: {}, 텍스트: {}",
                     recId, hasImage, hasDescription);
 
             Map<String, Object> recipeResult;
@@ -446,17 +439,22 @@ public class MealPlanController {
 
             // 레시피 생성
             if (hasImage) {
-                // 이미지 기반 레시피 생성
                 recipeResult = aiMealRecipeService.getRecipeFromImage(imageBase64);
-                log.info("레시피 생성 결과 (이미지) - success: {}", recipeResult.get("success"));
             } else {
-                // 텍스트 기반 레시피 생성
                 recipeResult = aiMealRecipeService.getRecipeFromText(mealDescription);
-                log.info("레시피 생성 결과 (텍스트) - success: {}", recipeResult.get("success"));
             }
-            
-            // 안전성 검사 (이미지가 있으면 이미지 사용, 없으면 텍스트 사용)
-            safetyResult = aiMealSafetyService.checkMealSafety(recId, imageBase64, mealDescription);
+            log.info("레시피 생성 결과 - success: {}", recipeResult.get("success"));
+
+            // 안전성 검사
+            if (recId != null) {
+                safetyResult = aiMealSafetyService.checkMealSafety(recId, imageBase64, mealDescription);
+            } else {
+                // recId가 없으면 안전성 검사를 수행할 수 없다는 의미의 기본 응답 생성
+                Map<String, Object> data = new HashMap<>();
+                data.put("safetyLevel", "UNKNOWN");
+                data.put("message", "안전성 검사를 위해 돌봄 대상자를 선택해주세요.");
+                safetyResult = Map.of("success", true, "data", data);
+            }
             log.info("안전성 검사 결과 - success: {}", safetyResult.get("success"));
 
             // 결과 통합
@@ -465,9 +463,9 @@ public class MealPlanController {
             result.put("recipe", recipeResult);
             result.put("safety", safetyResult);
 
-            log.info("AI 식단 메뉴 분석 완료 - 레시피 성공: {}, 안전성 성공: {}", 
+            log.info("AI 식단 메뉴 분석 완료 - 레시피 성공: {}, 안전성 성공: {}",
                     recipeResult.get("success"), safetyResult.get("success"));
-            
+
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             log.error("AI 식단 메뉴 분석 실패", e);
@@ -476,6 +474,7 @@ public class MealPlanController {
             );
         }
     }
+
 
     /**
      * 칼로리 분석 페이지
@@ -818,4 +817,3 @@ public class MealPlanController {
         }
     }
 }
-
