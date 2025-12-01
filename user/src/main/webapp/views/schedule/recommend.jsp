@@ -584,7 +584,7 @@
         if (map) {
             var moveLatLon = new kakao.maps.LatLng(lat, lng);
             map.panTo(moveLatLon); // 부드럽게 이동
-            
+
             // 해당 인덱스의 오버레이 열기
             if (typeof overlays !== 'undefined' && overlays[index]) {
                 closeAllOverlays(); // 다른 오버레이 닫기
@@ -662,13 +662,13 @@
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
             if (!recId) { alert("추천을 위한 대상자 정보가 없습니다."); return; }
             resultsContainer.innerHTML = '';
-            
+
             // 로딩 모달 표시
             const loadingModalElement = document.getElementById('loadingModal');
             const loadingModal = new bootstrap.Modal(loadingModalElement);
             loadingModal.show();
             recommendBtn.disabled = true;
-            
+
             fetch('/schedule/ai-recommend', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
