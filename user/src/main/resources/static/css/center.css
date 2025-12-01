@@ -1940,3 +1940,89 @@
     margin-right: 2px;         /* 혹시 모를 잘림 방지용 미세 여백 */
     width: auto;               /* 가로 폭 자동 조절 */
 }
+
+/* [기존 center.css 내용 유지] ... */
+
+/* =========================================
+   [추가] 저장된 장소 커스텀 오버레이 스타일 (AI 추천과 유사한 디자인)
+   ========================================= */
+.place-overlay-wrap {
+    position: absolute;
+    bottom: 45px; /* 마커 바로 위 */
+    left: -100px; /* 중앙 정렬 */
+    width: 200px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+    font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+    z-index: 1000;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.place-overlay-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 10px 15px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.place-overlay-close {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+}
+.place-overlay-close:hover { opacity: 1; }
+
+.place-overlay-body {
+    padding: 15px;
+    text-align: center;
+}
+
+.place-overlay-category {
+    display: inline-block;
+    background: #f0f4ff;
+    color: #667eea;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.place-overlay-content {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.place-overlay-btn {
+    width: 100%;
+    padding: 8px 0;
+    background: #fff;
+    border: 1px solid #667eea;
+    color: #667eea;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.place-overlay-btn:hover {
+    background: #667eea;
+    color: #fff;
+}

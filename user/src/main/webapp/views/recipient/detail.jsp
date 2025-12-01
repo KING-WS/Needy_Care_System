@@ -1,15 +1,16 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <style>
     /* ---------------------------------------------------- */
     /* 1. 글로벌 스타일 및 변수 정의 */
     /* ---------------------------------------------------- */
     :root {
-        --primary-color: #3498db; /* 요청하신 주 색상 */
+        --primary-color: #3498db; /* 통일된 주 색상 */
         --secondary-color: #343a40;
-        --secondary-bg: #F0F8FF; /* 요청하신 보조 배경색 */
+        --secondary-bg: #F0F8FF;
         --card-bg: white;
         --danger-color: #e74c3c;
     }
@@ -292,12 +293,12 @@
     .btn-primary {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 10px rgba(90, 90, 236, 0.4);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
     }
 
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(90, 90, 236, 0.6);
+        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
     }
 
     .btn-secondary {
@@ -550,6 +551,7 @@
     </div>
 </div>
 
+<script src="/js/homecenter/center.js"></script>
 <script>
     // 나이 계산
     document.addEventListener('DOMContentLoaded', function() {
@@ -633,4 +635,26 @@
 
         document.body.appendChild(modal);
     }
+
+    // JSP 변수를 JavaScript 변수로 설정
+    var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
+    var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
+    <c:choose>
+        <c:when test="${not empty recipient.recPhotoUrl}">
+            <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+        </c:when>
+        <c:otherwise>
+            var recipientPhotoUrl = '';
+        </c:otherwise>
+    </c:choose>
+    var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
+
+    // 페이지 로드 시 지도 초기화
+    window.addEventListener('load', function() {
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            initializeMap();
+            loadHomeMarker();
+        }
+    });
 </script>

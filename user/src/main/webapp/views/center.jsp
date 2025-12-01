@@ -311,7 +311,7 @@
                                 <div class="map-address-panel" id="mapLocationList">
                                     <div class="map-location-items">
                                         <!-- 노약자 집 주소 (항상 표시, 고정) -->
-                                        <c:if test="${not empty recipient && not empty recipient.recAddress}">
+                                        <c:if test="${not empty recipient}">
                                             <div class="map-location-item home-location" onclick="focusHomeMarker()">
                                                 <div class="location-info">
                                                     <div class="location-name-wrapper">
@@ -322,12 +322,19 @@
                                                     </div>
                                                 </div>
                                                     <div class="location-address">
-                                                        ${recipient.recAddress}
+                                                        <c:choose>
+                                                            <c:when test="${not empty recipient.recAddress && recipient.recAddress != ''}">
+                                                                ${recipient.recAddress}
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span style="color: #999; font-style: italic;">주소가 등록되지 않았습니다</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </div>
                                                 </div>
                                         
                                         <!-- 구분선 -->
-                                            <c:if test="${not empty maps}">
+                                            <c:if test="${not empty maps || not empty courses}">
                                                 <div class="home-location-divider"></div>
                                             </c:if>
                                         </c:if>
@@ -361,6 +368,26 @@
                                                 </c:forEach>
                                             </c:otherwise>
                                         </c:choose>
+                                        
+                                        <!-- 산책코스 목록 (기본 숨김) -->
+                                        <div id="courseListContainer" style="display: none;">
+                                            <c:if test="${not empty courses}">
+                                                <div class="home-location-divider"></div>
+                                                <c:forEach var="course" items="${courses}">
+                                                    <div class="map-location-item course-item" data-course-id="${course.courseId}" onclick="showCourseDetail(${course.courseId})">
+                                                        <div class="location-info">
+                                                            <div class="location-name-wrapper">
+                                                                <div class="location-name">${course.courseName}</div>
+                                                                <div class="location-category course-category">${course.courseType}</div>
+                                                            </div>
+                                                        </div>
+                                                        <button class="location-delete-btn" onclick="event.stopPropagation(); deleteCourse(${course.courseId})">
+                                                            <i class="bi bi-x-circle"></i>
+                                                        </button>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:if>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -474,9 +501,12 @@
                 </div>
             </form>
         </div>
-        <div class="map-modal-footer">
-            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseModal()">취소</button>
-            <button type="button" class="modal-btn modal-btn-save" onclick="saveCourseToServer()">저장</button>
+        <div class="map-modal-overlay" id="locationDetailModal">
+            <div class="map-modal-footer">
+                <button type="button" class="modal-btn modal-btn-delete" onclick="deleteLocationFromModal()">삭제</button>
+                <button type="button" class="modal-btn modal-btn-save" onclick="editLocationFromModal()" style="margin-right: 5px;">수정</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLocationDetailModal()">닫기</button>
+            </div>
         </div>
     </div>
 </div>

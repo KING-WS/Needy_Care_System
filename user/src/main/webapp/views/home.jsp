@@ -179,7 +179,7 @@
 
         .nav-link:hover {
             color: var(--primary-color) !important;
-            background-color: rgba(90, 90, 236, 0.1);
+            background-color: rgba(52, 152, 219, 0.1);
         }
 
         /* 드롭다운 메뉴 */
