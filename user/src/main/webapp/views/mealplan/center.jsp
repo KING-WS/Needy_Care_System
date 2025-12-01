@@ -93,35 +93,15 @@
     <div class="container-fluid">
         <!-- 헤더 -->
         <div class="row mb-4">
-            <div class="col-12">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-utensils"></i> 식단 관리
+            <div class="col-12 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-utensils" style="color: var(--primary-color);"></i> 식단 관리
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
                     <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
                 </p>
             </div>
         </div>
-
-        <!-- 노약자 선택 영역 -->
-        <c:if test="${not empty recipientList}">
-            <div class="row mb-3">
-                <div class="col-12">
-                    <div class="recipient-select-card">
-                        <label class="recipient-select-label">
-                            <i class="fas fa-user-injured"></i> 돌봄 대상자 선택
-                        </label>
-                        <select id="recipientSelect" class="recipient-select" onchange="changeRecipient()">
-                            <c:forEach items="${recipientList}" var="rec">
-                                <option value="${rec.recId}" ${rec.recId == selectedRecipient.recId ? 'selected' : ''}>
-                                    ${rec.recName}
-                                </option>
-                            </c:forEach>
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </c:if>
 
         <!-- 대상자가 없는 경우 -->
         <c:if test="${empty selectedRecipient}">
@@ -510,4 +490,3 @@
         loadMeals();
     }
 </script>
-

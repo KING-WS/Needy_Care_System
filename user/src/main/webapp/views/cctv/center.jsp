@@ -1,153 +1,143 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCTV 관제 시스템</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    :root {
+        /* === 배경 및 텍스트를 라이트 모드로 변경 === */
+        --bg-light: #ffffff;      /* 전체 배경 (순백색) */
+        --panel-light: #f8f9fa;   /* 대시보드 배경 (아주 밝은 회색) */
+        --text-dark: #212529;     /* 텍스트 색상 (짙은 검정) */
 
-    <style>
-        :root {
-            /* === 배경 및 텍스트를 라이트 모드로 변경 === */
-            --bg-light: #ffffff;      /* 전체 배경 (순백색) */
-            --panel-light: #f8f9fa;   /* 대시보드 배경 (아주 밝은 회색) */
-            --text-dark: #212529;     /* 텍스트 색상 (짙은 검정) */
+        /* 기존 CCTV 모니터링 디자인 요소 유지 */
+        --accent-blue: #007bff; /* 포인트 컬러 변경 (Bootstrap Blue) */
+        --alert-red: #dc3545;
+        --bezel-color: #343a40; /* 모니터 베젤 (짙은 회색) */
+    }
 
-            /* 기존 CCTV 모니터링 디자인 요소 유지 */
-            --accent-blue: #007bff; /* 포인트 컬러 변경 (Bootstrap Blue) */
-            --alert-red: #dc3545;
-            --bezel-color: #343a40; /* 모니터 베젤 (짙은 회색) */
-        }
+    body {
+        background-color: var(--bg-light); /* 흰색 배경 적용 */
+        color: var(--text-dark);          /* 짙은 검정 텍스트 적용 */
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-light); /* 흰색 배경 적용 */
-            color: var(--text-dark);          /* 짙은 검정 텍스트 적용 */
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
+    /* 메인 대시보드 컨테이너 */
+    .dashboard-container {
+        background-color: var(--panel-light); /* 밝은 섹션 배경 적용 */
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* 밝은 배경에 맞는 그림자 */
+        margin-top: 30px;
+        border: 1px solid #dee2e6; /* 연한 테두리 */
+    }
 
-        /* 메인 대시보드 컨테이너 */
-        .dashboard-container {
-            background-color: var(--panel-light); /* 밝은 섹션 배경 적용 */
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* 밝은 배경에 맞는 그림자 */
-            margin-top: 30px;
-            border: 1px solid #dee2e6; /* 연한 테두리 */
-        }
+    /* 헤더 섹션 */
+    .header-section h1 {
+        font-size: 38px;
+        font-weight: 800;
+        color: var(--secondary-color);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 10px;
+    }
 
-        /* 헤더 섹션 */
-        .header-section h1 {
-            color: var(--text-dark); /* 제목색을 검정으로 변경 */
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 10px;
-            text-shadow: none;
-        }
+    #activity-status {
+        font-size: 1.1em;
+        color: #6c757d; /* 차분한 회색 */
+        font-weight: 500;
+        margin-bottom: 20px;
+    }
+    #activity-status::before {
+        content: '●';
+        color: var(--accent-blue);
+        margin-right: 8px;
+        font-size: 0.8em;
+    }
 
-        #activity-status {
-            font-size: 1.1em;
-            color: #6c757d; /* 차분한 회색 */
-            font-weight: 500;
-            margin-bottom: 20px;
-        }
-        #activity-status::before {
-            content: '●';
-            color: var(--accent-blue);
-            margin-right: 8px;
-            font-size: 0.8em;
-        }
+    /* 알림 박스 스타일 (경고색은 유지) */
+    #alert-box {
+        font-size: 1.3em; font-weight: bold; padding: 15px; border-radius: 8px;
+        display: none; margin-bottom: 25px; text-align: center;
+        background-color: #f8d7da; /* 연한 붉은 배경 */
+        border: 2px solid var(--alert-red);
+        color: var(--alert-red);
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.2);
+    }
+    .alert-active {
+        display: block !important;
+        animation: pulse-red 1.5s infinite;
+    }
+    @keyframes pulse-red {
+        0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+        70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    }
 
-        /* 알림 박스 스타일 (경고색은 유지) */
-        #alert-box {
-            font-size: 1.3em; font-weight: bold; padding: 15px; border-radius: 8px;
-            display: none; margin-bottom: 25px; text-align: center;
-            background-color: #f8d7da; /* 연한 붉은 배경 */
-            border: 2px solid var(--alert-red);
-            color: var(--alert-red);
-            box-shadow: 0 0 15px rgba(220, 53, 69, 0.2);
-        }
-        .alert-active {
-            display: block !important;
-            animation: pulse-red 1.5s infinite;
-        }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-        }
+    /* 비디오 컨테이너 스타일 (모니터 느낌 - 내부 스타일 유지) */
+    .video-monitor {
+        background: #000;
+        padding: 10px;
+        border-radius: 12px;
+        border: 4px solid var(--bezel-color);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.3);
+        margin-bottom: 20px;
+    }
 
-        /* 비디오 컨테이너 스타일 (모니터 느낌 - 내부 스타일 유지) */
-        .video-monitor {
-            background: #000;
-            padding: 10px;
-            border-radius: 12px;
-            border: 4px solid var(--bezel-color);
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-        }
+    .video-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding: 0 5px;
+    }
+    /* 모니터 제목은 어두운 배경 위에 있으므로 밝은 색상 유지 */
+    .video-label { font-size: 1.1em; font-weight: bold; color: #ccc; }
 
-        .video-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding: 0 5px;
-        }
-        /* 모니터 제목은 어두운 배경 위에 있으므로 밝은 색상 유지 */
-        .video-label { font-size: 1.1em; font-weight: bold; color: #ccc; }
+    .live-indicator {
+        color: var(--alert-red);
+        font-size: 0.8em;
+        font-weight: bold;
+        display: flex; align-items: center;
+    }
+    .live-dot {
+        height: 10px; width: 10px; background-color: var(--alert-red);
+        border-radius: 50%; display: inline-block; margin-right: 5px;
+        animation: blink-dot 1s ease-in-out infinite;
+    }
+    @keyframes blink-dot { 50% { opacity: 0.3; } }
 
-        .live-indicator {
-            color: var(--alert-red);
-            font-size: 0.8em;
-            font-weight: bold;
-            display: flex; align-items: center;
-        }
-        .live-dot {
-            height: 10px; width: 10px; background-color: var(--alert-red);
-            border-radius: 50%; display: inline-block; margin-right: 5px;
-            animation: blink-dot 1s ease-in-out infinite;
-        }
-        @keyframes blink-dot { 50% { opacity: 0.3; } }
+    /* 비디오 래퍼 및 스캔라인 효과 */
+    .video-wrapper {
+        position: relative;
+        width: 100%;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #333;
+    }
+    video { width: 100%; height: auto; display: block; background: #111; }
 
-        /* 비디오 래퍼 및 스캔라인 효과 */
-        .video-wrapper {
-            position: relative;
-            width: 100%;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #333;
-        }
-        video { width: 100%; height: auto; display: block; background: #111; }
-
-        /* CCTV 스캔라인 오버레이 효과 */
-        .video-wrapper::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: repeating-linear-gradient(
-                    0deg,
-                    rgba(0, 0, 0, 0.15) 0px,
-                    rgba(0, 0, 0, 0.15) 1px,
-                    transparent 1px,
-                    transparent 3px
-            );
-            pointer-events: none; /* 클릭 통과 */
-            z-index: 2;
-        }
-    </style>
-</head>
-<body>
+    /* CCTV 스캔라인 오버레이 효과 */
+    .video-wrapper::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.15) 0px,
+                rgba(0, 0, 0, 0.15) 1px,
+                transparent 1px,
+                transparent 3px
+        );
+        pointer-events: none; /* 클릭 통과 */
+        z-index: 2;
+    }
+</style>
 
 <section style="padding: 20px 0;">
     <div class="container-fluid dashboard-container" style="max-width: 1400px; margin: 0 auto;">
         <div class="row mb-2 header-section">
             <div class="col-12 text-center">
-                <h1><i class="fas fa-shield-alt" style="color: var(--accent-blue);"></i> 다중 보안 모니터링 시스템</h1>
+                <h1><i class="fas fa-shield-alt" style="color: var(--primary-color);"></i> 다중 보안 모니터링 시스템</h1>
                 <div id="activity-status">시스템 정상 가동 중... AI 분석 대기</div>
             </div>
         </div>
@@ -302,7 +292,7 @@
 
             if(result.activity) statusEl.text(result.activity);
 
-            if (result.alert && result.alert !== "없음") {
+            if (result.alert && result.alert !== '없음') {
                 // 아이콘 추가하여 경고 메시지 표시
                 alertEl.html('<i class="fas fa-exclamation-triangle"></i> ' + result.alert).addClass('alert-active');
             } else {
@@ -348,5 +338,3 @@
         }
     });
 </script>
-</body>
-</html>

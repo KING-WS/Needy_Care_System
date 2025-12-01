@@ -248,7 +248,7 @@
         }
 
         .user-name {
-            color: var(--primary-color);
+            color: var(--primary-color) !important;
             font-weight: 600;
             font-size: 16px;
             transition: all 0.3s;
@@ -256,7 +256,7 @@
         }
 
         .user-name:hover {
-            color: var(--secondary-color);
+            color: var(--secondary-color) !important;
             transform: translateY(-2px);
         }
 
@@ -771,7 +771,7 @@
         }
         
         .calendar-title {
-            font-size: 1rem !important; /* 크기를 키움 (기존보다 약 1.5배) */
+            font-size: 1.5rem !important; /* 크기를 키움 (기존보다 약 1.5배) */
             font-weight: 700 !important;   /* 굵게 (Bold) */
         }
     </style>
@@ -783,8 +783,7 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
-                <img src="/img/favicontitle.png" alt="Aventro Logo">
-                Aventro
+                <img src="/img/favicontitle.png" alt="Aventro Logo">돌봄 SYSTEM
             </a>
 
             <!-- 중앙: 메뉴 -->

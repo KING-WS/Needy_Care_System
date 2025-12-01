@@ -2,71 +2,120 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
-    .care-container {
-        padding: 30px;
+    /* ---------------------------------------------------- */
+    /* 1. 글로벌 스타일 및 변수 추가 */
+    /* ---------------------------------------------------- */
+    :root {
+        --primary-color: #007bff; /* 파란색 계열의 주 색상 */
+        --secondary-color: #343a40; /* 진한 회색 계열의 보조 색상 */
+        --success-color: #28a745;
+        --warning-color: #ffc107;
+        --danger-color: #dc3545;
+        --light-bg: #f8f9fa; /* 밝은 배경색 */
+        --card-bg: white;
     }
+
+    body {
+        background-color: var(--light-bg);
+    }
+
+    /* ---------------------------------------------------- */
+    /* 2. 레이아웃 컨테이너 스타일 개선 */
+    /* ---------------------------------------------------- */
+    .care-container {
+        padding: 30px 15px; /* 양쪽 패딩 추가 */
+        max-width: 1200px; /* 최대 너비 설정 */
+        margin: 0 auto; /* 중앙 정렬 */
+    }
+
+    /* ---------------------------------------------------- */
+    /* 3. 카드 스타일 개선 */
+    /* ---------------------------------------------------- */
     .care-card {
-        background: white;
+        background: var(--card-bg);
         border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        /* box-shadow 강화 및 입체감 부여 */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e9ecef; /* 경계선 추가 */
         padding: 30px;
         margin-bottom: 30px;
-        transition: transform 0.3s;
+        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
+
     .care-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-7px); /* 호버 시 이동 거리 증가 */
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* 호버 시 그림자 강화 */
     }
+
+    /* ---------------------------------------------------- */
+    /* 4. 섹션 헤더 스타일 개선 */
+    /* ---------------------------------------------------- */
     .section-header {
         margin-bottom: 25px;
         padding-bottom: 15px;
-        border-bottom: 2px solid #f0f0f0;
+        /* border-bottom 스타일 변경: 더 굵고 색상 변화 */
+        border-bottom: 3px solid var(--primary-color);
+        opacity: 0.8; /* 경계선의 투명도 조절 */
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
     }
+
     .section-header i {
         color: var(--primary-color);
-        font-size: 24px;
+        font-size: 26px; /* 아이콘 크기 약간 증가 */
     }
+
     .section-header h3 {
         margin: 0;
-        font-size: 22px;
-        font-weight: 600;
+        font-size: 24px; /* 제목 크기 약간 증가 */
+        font-weight: 700; /* 폰트 두께 강화 */
         color: var(--secondary-color);
     }
+
+    /* ---------------------------------------------------- */
+    /* 5. AI 조언 박스 스타일 유지 및 개선 */
+    /* ---------------------------------------------------- */
     .advice-box {
-        background: linear-gradient(135deg, #f6f9fc 0%, #f1f4f8 100%);
+        /* 배경 그라데이션 유지 */
+        background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
         border-radius: 12px;
         padding: 25px;
+        /* border-left 색상 주 색상으로 변경 */
         border-left: 5px solid var(--primary-color);
     }
     .advice-text {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #444;
+        font-size: 20px; /* 폰트 크기 약간 증가 */
+        line-height: 1.7;
+        color: var(--secondary-color);
         white-space: pre-line;
     }
+
+    /* ---------------------------------------------------- */
+    /* 6. 비디오 그리드/카드 스타일 개선 */
+    /* ---------------------------------------------------- */
     .video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 최소 너비 약간 감소 */
+        gap: 20px; /* 간격 조정 */
     }
     .video-card {
-        background: white;
-        border-radius: 10px;
+        background: var(--card-bg);
+        border-radius: 12px; /* 둥근 모서리 약간 증가 */
         overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        transition: all 0.3s;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
         cursor: pointer;
-        border: 1px solid #eee;
+        border: 1px solid #dee2e6;
     }
     .video-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color); /* 호버 시 경계선 색상 변경 */
     }
     .video-thumb {
         width: 100%;
-        height: 180px;
+        height: 160px; /* 썸네일 높이 약간 감소 */
         background-color: #000;
         position: relative;
     }
@@ -79,19 +128,27 @@
         padding: 15px;
     }
     .video-title {
-        font-weight: 600;
-        font-size: 16px;
-        margin-bottom: 8px;
+        font-weight: 700;
+        font-size: 17px;
+        margin-bottom: 5px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        height: 48px;
+        height: 44px;
+        color: var(--secondary-color);
     }
     .video-channel {
-        font-size: 13px;
-        color: #666;
+        font-size: 14px;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        gap: 5px;
     }
+
+    /* ---------------------------------------------------- */
+    /* 7. 블로그/혜택 리스트 스타일 개선 */
+    /* ---------------------------------------------------- */
     .blog-list {
         display: flex;
         flex-direction: column;
@@ -100,29 +157,32 @@
     .blog-item {
         display: flex;
         align-items: center;
-        padding: 15px;
-        background: white;
-        border: 1px solid #eee;
-        border-radius: 10px;
-        transition: all 0.2s;
+        padding: 15px 20px;
+        background: var(--card-bg);
+        border: 1px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
         text-decoration: none;
         color: inherit;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
     }
     .blog-item:hover {
         background: #f8f9fa;
         border-color: var(--primary-color);
         transform: translateX(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
     .blog-icon {
-        width: 60px;
-        height: 60px;
-        background: #e3f2fd;
-        border-radius: 10px;
+        width: 50px; /* 크기 약간 감소 */
+        height: 50px;
+        background: #e9f5ff; /* 연한 파란색 배경 */
+        border-radius: 8px; /* 모서리 둥글게 */
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 15px;
         color: var(--primary-color);
+        font-size: 20px;
         overflow: hidden;
         flex-shrink: 0;
     }
@@ -133,34 +193,69 @@
     }
     .blog-content h5 {
         margin: 0 0 5px 0;
-        font-size: 16px;
+        font-size: 17px;
         font-weight: 600;
+        color: var(--secondary-color);
     }
     .blog-content p {
         margin: 0;
-        font-size: 13px;
-        color: #666;
+        font-size: 14px;
+        color: #6c757d;
     }
+    .blog-content small {
+        font-size: 12px;
+        color: #adb5bd;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 8. 로딩 스피너 및 유틸리티 스타일 추가 */
+    /* ---------------------------------------------------- */
     .loading-spinner {
         display: none;
         text-align: center;
-        padding: 50px;
+        padding: 80px;
+        position: relative;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.7); /* 반투명 배경 */
+        border-radius: 15px;
     }
     .spinner-border {
-        width: 3rem;
-        height: 3rem;
+        width: 4rem;
+        height: 4rem;
+        border-width: 0.4em;
+    }
+    .loading-spinner h5 {
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: var(--primary-color) !important;
+    }
+
+    /* 혜택 정보 AI 요약 버튼 스타일 */
+    .btn-outline-primary.active {
+        color: white;
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
     }
 </style>
 
 <div class="care-container">
-    <!-- 상단: 대상자 선택 -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="fas fa-heartbeat text-danger me-2"></i>맞춤 돌봄 콘텐츠</h2>
+    <div class="text-center mb-4">
+        <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+            <i class="fas fa-heartbeat" style="color: var(--primary-color);"></i> 맞춤 돌봄 콘텐츠
+        </h1>
+        <p style="font-size: 16px; color: #666; margin-top: 10px;">
+            AI가 분석한 ${selectedRecipient.recName}님을 위한 맞춤 콘텐츠입니다.
+        </p>
+    </div>
+
+    <div class="d-flex justify-content-end align-items-center mb-4">
         <div class="d-flex gap-2">
-            <select id="recipientSelect" class="form-select" style="width: 200px;" onchange="changeRecipient(this.value)">
+            <select id="recipientSelect" class="form-select" style="width: 200px;"
+                    onchange="changeRecipient(this.value)">
                 <c:forEach var="r" items="${recipientList}">
-                    <option value="${r.recId}" ${r.recId == selectedRecipient.recId ? 'selected' : ''}>
-                        ${r.recName}
+                    <option value="${r.recId}" ${r.recId == selectedRecipient.recId ?
+                            'selected' : ''}>
+                            ${r.recName}
                     </option>
                 </c:forEach>
             </select>
@@ -170,7 +265,6 @@
         </div>
     </div>
 
-    <!-- 로딩 스피너 -->
     <div id="loadingSpinner" class="loading-spinner">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -178,9 +272,7 @@
         <h5 class="mt-3 text-muted">AI가 노약자분의 건강 상태를 분석하여<br>최적의 돌봄 콘텐츠를 찾고 있습니다...</h5>
     </div>
 
-    <!-- 메인 콘텐츠 영역 -->
     <div id="contentArea" style="display: none;">
-        <!-- 1. AI 돌봄 조언 -->
         <div class="care-card" data-aos="fade-up">
             <div class="section-header">
                 <i class="fas fa-robot"></i>
@@ -188,41 +280,34 @@
             </div>
             <div class="advice-box">
                 <div id="careAdvice" class="advice-text">
-                    <!-- AI 조언 내용이 여기에 들어갑니다 -->
                 </div>
             </div>
         </div>
 
-        <!-- 2. 추천 영상 -->
         <div class="care-card" data-aos="fade-up" data-aos-delay="100">
             <div class="section-header">
                 <i class="fab fa-youtube text-danger"></i>
                 <h3>추천 돌봄 교육 영상</h3>
             </div>
             <div id="videoGrid" class="video-grid">
-                <!-- 영상 카드들이 여기에 동적으로 추가됩니다 -->
             </div>
         </div>
 
-        <!-- 3. 관련 정보 검색 -->
         <div class="care-card" data-aos="fade-up" data-aos-delay="200">
             <div class="section-header">
                 <i class="fas fa-search text-primary"></i>
                 <h3>추천 돌봄 교육 블로그</h3>
             </div>
             <div id="blogList" class="blog-list">
-                <!-- 블로그/정보 링크들이 여기에 동적으로 추가됩니다 -->
             </div>
         </div>
 
-        <!-- 4. 노약자 혜택 인사이트 -->
         <div class="care-card" data-aos="fade-up" data-aos-delay="300">
             <div class="section-header">
                 <i class="fas fa-hand-holding-heart text-warning"></i>
                 <h3>노약자 혜택 인사이트</h3>
             </div>
             <div id="benefitList" class="blog-list">
-                <!-- 혜택 정보들이 여기에 동적으로 추가됩니다 -->
             </div>
         </div>
     </div>
@@ -340,9 +425,9 @@
                     `;
                     $(`#\${placeholderId}`).replaceWith(html);
                 } else {
-                     // 검색 실패 또는 결과 없음 시 대체 UI (API 키 없음 등)
-                     const searchUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(keyword);
-                     $(`#\${placeholderId}`).replaceWith(`
+                    // 검색 실패 또는 결과 없음 시 대체 UI (API 키 없음 등)
+                    const searchUrl = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(keyword);
+                    $(`#\${placeholderId}`).replaceWith(`
                         <div class="video-card" onclick="window.open('\${searchUrl}', '_blank')" style="cursor: pointer; transition: transform 0.2s;">
                             <div class="video-thumb d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(45deg, #282828, #3d3d3d);">
                                 <i class="fab fa-youtube fa-3x text-danger mb-2" style="filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));"></i>
@@ -377,7 +462,7 @@
             }
         });
     }
-    
+
     function searchAndAppendBlog(keyword, index) {
         const placeholderId = `blog-placeholder-\${index}`;
         // 로딩 중 표시 (플레이스홀더)
@@ -400,10 +485,10 @@
                 if (response.success && response.items && response.items.length > 0) {
                     const item = response.items[0]; // 첫 번째 검색 결과만 사용
                     // 썸네일이 있으면 이미지 표시, 없으면 아이콘 표시
-                    const iconHtml = item.thumbnail ? 
-                        `<img src="\${item.thumbnail}" class="blog-thumbnail" alt="thumbnail" onerror="this.src='';this.parentElement.innerHTML='<i class=\\'fas fa-book-medical\\'></i>'">` : 
+                    const iconHtml = item.thumbnail ?
+                        `<img src="\${item.thumbnail}" class="blog-thumbnail" alt="thumbnail" onerror="this.src='';this.parentElement.innerHTML='<i class=\\'fas fa-book-medical\\'></i>'">` :
                         `<i class="fas fa-book-medical"></i>`;
-                    
+
                     const html = `
                         <a href="\${item.link}" target="_blank" class="blog-item">
                             <div class="blog-icon" style="\${item.thumbnail ? 'padding:0; overflow:hidden;' : ''}">
@@ -455,6 +540,7 @@
             }
         });
     }
+
     function searchAndAppendBenefit(keyword, index) {
         // ID 중복 방지를 위해 문자열 결합 방식 사용
         const placeholderId = 'benefit-placeholder-' + index;
@@ -494,9 +580,10 @@
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <h5 title="\${safeTitle}" style="margin-bottom: 5px;">\${item.title}</h5>
-                                                <small class="text-muted">\${item.source || '뉴스'} | \${item.date || ''}</small>
+                                                <small class="text-muted">\${item.source ||
+                                                    '뉴스'} | \${item.date || ''}</small>
                                             </div>
-                                            <button class="btn btn-sm btn-outline-primary ms-2 text-nowrap" 
+                                            <button class="btn btn-sm btn-outline-primary ms-2 text-nowrap"
                                                     onclick="toggleSummary(this, '\${summaryId}')"
                                                     data-title="\${safeTitle}"
                                                     data-desc="\${safeDesc}">
@@ -538,7 +625,8 @@
                     }
                 },
                 error: function() {
-                    const searchUrl = 'https://search.naver.com/search.naver?where=news&query=' + encodeURIComponent(keyword);
+                    const searchUrl =
+                        'https://search.naver.com/search.naver?where=news&query=' + encodeURIComponent(keyword);
                     const html = `
                         <a href="\${searchUrl}" target="_blank" class="blog-item">
                             <div class="blog-icon" style="background: #fff3cd; color: #ffc107;">
@@ -576,14 +664,13 @@
             // 이미 로드된 내용이 없으면 AI 요청
             if (contentDiv.text().trim() === '') {
                 contentDiv.html('<div class="d-flex align-items-center"><div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div> AI가 혜택 정보를 분석하고 있습니다...</div>');
-                
                 $.ajax({
                     url: '/care/api/summarize-benefit',
                     type: 'POST',
                     contentType: 'application/json',
-                    data: JSON.stringify({ 
-                        benefitName: title, 
-                        description: desc 
+                    data: JSON.stringify({
+                        benefitName: title,
+                        description: desc
                     }),
                     success: function(response) {
                         if (response.success) {
