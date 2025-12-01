@@ -106,7 +106,7 @@ function loadSavedMarkersWithData(savedMaps) {
 // 카테고리별 마커 이미지 생성 (SVG 아이콘 사용)
 function getMarkerImageByCategory(category) {
     var iconColor, iconSymbol;
-    
+
     // 카테고리별 아이콘 설정
     switch (category) {
         case '병원':
@@ -135,7 +135,7 @@ function getMarkerImageByCategory(category) {
             iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>';
             break;
     }
-    
+
     // SVG 마커 이미지 생성
     var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
         '<defs><filter id="shadow' + category + '" x="-50%" y="-50%" width="200%" height="200%">' +
@@ -147,12 +147,12 @@ function getMarkerImageByCategory(category) {
         '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '"/>' +
         iconSymbol +
         '</g></svg>';
-    
+
     var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
     var imageSize = new kakao.maps.Size(48, 56);
     var imageOption = {offset: new kakao.maps.Point(24, 56)};
     var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-    
+
     return markerImage;
 }
 
@@ -291,7 +291,7 @@ function focusMarker(lat, lng) {
     courseMarkers.forEach(item => {
         if (item.infowindow) item.infowindow.close();
     });
-    
+
     var position = new kakao.maps.LatLng(lat, lng);
     map.setCenter(position);
     map.setLevel(3);
@@ -330,7 +330,7 @@ function showLocationDetail(mapId) {
     courseMarkers.forEach(item => {
         if (item.infowindow) item.infowindow.close();
     });
-    
+
     const item = markers.find(m => m.mapId === mapId);
     if (item) {
         const position = item.marker.getPosition();
