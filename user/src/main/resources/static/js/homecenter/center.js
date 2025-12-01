@@ -110,7 +110,7 @@ function getMarkerImageByCategory(category) {
     // 카테고리별 아이콘 설정
     switch (category) {
         case '병원':
-            iconColor = '#e74c3c'; // 빨간색
+            iconColor = '#3498db'; // 파란색
             iconSymbol = '<path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="' + iconColor + '"/><circle cx="24" cy="26" r="3" fill="#fff"/><rect x="20" y="30" width="8" height="2" fill="#fff"/><rect x="22" y="28" width="4" height="2" fill="#fff"/>';
             break;
         case '약국':
@@ -119,19 +119,24 @@ function getMarkerImageByCategory(category) {
             break;
         case '마트':
         case '편의점':
-            iconColor = '#f39c12'; // 주황색
+            iconColor = '#3498db'; // 파란색
             iconSymbol = '<rect x="10" y="8" width="28" height="32" rx="2" fill="' + iconColor + '"/><rect x="14" y="14" width="20" height="3" fill="#fff"/><rect x="14" y="20" width="16" height="3" fill="#fff"/><rect x="14" y="26" width="20" height="3" fill="#fff"/><circle cx="36" cy="12" r="3" fill="#fff"/>';
             break;
         case '공원':
-            iconColor = '#27ae60'; // 초록색
+            iconColor = '#3498db'; // 파란색
             iconSymbol = '<path d="M24 8C16 8 10 14 10 22c0 8 6 14 14 14s14-6 14-14c0-8-6-14-14-14zm0 20c-3 0-6-3-6-6s3-6 6-6 6 3 6 6-3 6-6 6z" fill="' + iconColor + '"/><circle cx="18" cy="20" r="2" fill="#fff"/><circle cx="24" cy="20" r="2" fill="#fff"/><circle cx="30" cy="20" r="2" fill="#fff"/>';
             break;
         case '복지관':
-            iconColor = '#9b59b6'; // 보라색
+            iconColor = '#3498db'; // 파란색
             iconSymbol = '<path d="M24 8L14 18v18h20V18z" fill="' + iconColor + '"/><rect x="18" y="24" width="12" height="2" fill="#fff"/><rect x="18" y="28" width="12" height="2" fill="#fff"/><rect x="18" y="32" width="8" height="2" fill="#fff"/><circle cx="24" cy="16" r="2" fill="#fff"/>';
             break;
+        // AI 추천 장소에 대한 별 마커 추가
+        case 'AI_RECOMMEND':
+            iconColor = '#FFD700'; // 금색
+            iconSymbol = '<path d="M24 2l-6.18 12.52L2 16.18l10.91 9.98L9.82 42 24 34.48 38.18 42l-3.09-15.84L46 16.18l-15.82-1.66L24 2z" fill="' + iconColor + '" stroke="#DAA520" stroke-width="2"/>';
+            break;
         default:
-            iconColor = '#95a5a6'; // 회색
+            iconColor = '#3498db'; // 파란색
             iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>';
             break;
     }
@@ -611,6 +616,13 @@ function displaySearchResults(places) {
         item.infowindow && item.infowindow.close();
     });
     searchMarkers = [];
+
+    // 빨간색 마커 이미지 생성
+    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+        imageSize = new kakao.maps.Size(31, 35),
+        imageOption = {offset: new kakao.maps.Point(15, 34)};
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
     places.forEach(place => {
         var item = document.createElement('div');
         item.className = 'search-result-item';
@@ -619,16 +631,26 @@ function displaySearchResults(places) {
         item.innerHTML = `<div class="search-result-icon"><i class="${icon}"></i></div><div class="search-result-info"><div class="search-result-name">${place.place_name}</div><div class="search-result-address">${place.address_name}</div><span class="search-result-category">${getCategoryText(place.category_name)}</span></div>`;
         resultsContainer.appendChild(item);
         var markerPosition = new kakao.maps.LatLng(place.y, place.x);
-        var marker = new kakao.maps.Marker({ position: markerPosition, map: map });
+        
+        // 생성된 빨간색 마커 이미지로 마커 생성
+        var marker = new kakao.maps.Marker({ 
+            position: markerPosition, 
+            map: map,
+            image: markerImage 
+        });
+        
         var infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:10px;font-size:13px;text-align:center;min-width:150px;"><strong>${place.place_name}</strong><br/><span style="color:#666;font-size:11px;">${place.address_name}</span></div>` });
+        
         kakao.maps.event.addListener(marker, 'click', () => {
             searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
             markers.forEach(item => item.infowindow && item.infowindow.close());
             if (homeInfowindow) homeInfowindow.close();
             showSearchResultDetailModal(place);
         });
+        
         searchMarkers.push({ marker: marker, infowindow: infowindow, place: place });
     });
+    
     resultsContainer.classList.add('show');
     if (places.length > 0) {
         map.setCenter(new kakao.maps.LatLng(places[0].y, places[0].x));

@@ -109,9 +109,17 @@
         window.adminMapMarkers = [];
 
         const markerPosition = new kakao.maps.LatLng(lat, lng);
+
+        // 빨간색 마커 이미지 생성
+        var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+            imageSize = new kakao.maps.Size(31, 35),
+            imageOption = {offset: new kakao.maps.Point(15, 34)};
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
         const marker = new kakao.maps.Marker({
             position: markerPosition,
-            map: currentMap
+            map: currentMap,
+            image: markerImage
         });
 
         markers.push(marker);
