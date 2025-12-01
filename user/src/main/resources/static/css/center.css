@@ -94,6 +94,7 @@
 .dashboard-card.card-xlarge:hover {
     box-shadow: none;
     cursor: default;
+    transform: none;
 }
 
 .dashboard-card.card-xlarge:hover i:not(.card-title-icon) {

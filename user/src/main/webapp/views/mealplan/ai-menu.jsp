@@ -647,12 +647,13 @@
             <h1>
                 <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 식단 메뉴
             </h1>
-            <p>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</p>
+            <br>
+            <h5>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</h5>
         </div>
 
         <div class="camera-container" style="margin-bottom: 20px;">
             <div class="camera-section">
-                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 25px;">
                     <i class="fas fa-keyboard"></i> 음식 이름으로 분석하기
                 </h3>
                 <div style="display: flex; gap: 10px; align-items: center;">
@@ -670,7 +671,7 @@
 
         <div class="camera-container">
             <div class="camera-section">
-                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
+                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 25px;">
                     <i class="fas fa-camera"></i> 사진으로 분석하기
                 </h3>
                 <div class="camera-preview">

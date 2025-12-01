@@ -97,9 +97,10 @@
                 <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
                     <i class="fas fa-utensils" style="color: var(--primary-color);"></i> 식단 관리
                 </h1>
-                <p style="font-size: 16px; color: #666; margin-top: 10px;">
-                    <i class="fas fa-user"></i> ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
-                </p>
+                <br>
+                <h5>
+                    ${sessionScope.loginUser.custName} 님의 식단 관리 시스템
+                </h5>
             </div>
         </div>
 

@@ -243,27 +243,28 @@
         <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
             <i class="fas fa-heartbeat" style="color: var(--primary-color);"></i> 맞춤 돌봄 콘텐츠
         </h1>
-        <p style="font-size: 16px; color: #666; margin-top: 10px;">
+        <br>
+        <h5>
             AI가 분석한 ${selectedRecipient.recName}님을 위한 맞춤 콘텐츠입니다.
-        </p>
+        </h5>
     </div>
 
-    <div class="d-flex justify-content-end align-items-center mb-4">
-        <div class="d-flex gap-2">
-            <select id="recipientSelect" class="form-select" style="width: 200px;"
-                    onchange="changeRecipient(this.value)">
-                <c:forEach var="r" items="${recipientList}">
-                    <option value="${r.recId}" ${r.recId == selectedRecipient.recId ?
-                            'selected' : ''}>
-                            ${r.recName}
-                    </option>
-                </c:forEach>
-            </select>
-            <button class="btn btn-primary" onclick="analyzeContent()">
-                <i class="fas fa-sync-alt"></i> 분석 새로고침
-            </button>
-        </div>
-    </div>
+<%--    <div class="d-flex justify-content-end align-items-center mb-4">--%>
+<%--        <div class="d-flex gap-2">--%>
+<%--            <select id="recipientSelect" class="form-select" style="width: 200px;"--%>
+<%--                    onchange="changeRecipient(this.value)">--%>
+<%--                <c:forEach var="r" items="${recipientList}">--%>
+<%--                    <option value="${r.recId}" ${r.recId == selectedRecipient.recId ?--%>
+<%--                            'selected' : ''}>--%>
+<%--                            ${r.recName}--%>
+<%--                    </option>--%>
+<%--                </c:forEach>--%>
+<%--            </select>--%>
+<%--            <button class="btn btn-primary" onclick="analyzeContent()">--%>
+<%--                <i class="fas fa-sync-alt"></i> 분석 새로고침--%>
+<%--            </button>--%>
+<%--        </div>--%>
+<%--    </div>--%>
 
     <div id="loadingSpinner" class="loading-spinner">
         <div class="spinner-border text-primary" role="status">

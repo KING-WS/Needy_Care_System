@@ -384,7 +384,8 @@
             <h1>
                 <i class="fas fa-shield-alt" style="color: var(--primary-color);"></i> AI 식단 안전성 검사
             </h1>
-            <p>카메라로 음식을 촬영하거나 설명을 입력하여 돌봄 대상자의 식단 안전성을 검사하세요</p>
+            <br>
+            <h5>카메라로 음식을 촬영하거나 설명을 입력하여 돌봄 대상자의 식단 안전성을 검사하세요</h5>
         </div>
 
         <div class="camera-container">
