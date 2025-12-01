@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.ActivityLogRepository">
+
+    <select id="getRecentActivities" resultType="edu.sm.app.dto.ActivityLogDTO">
+        SELECT * FROM (
+            SELECT
+                'USER_REG' as type,
+                CONCAT('사용자 ''', cust_name, ''' 님이 등록되었습니다.') as message,
+                cust_regdate as timestamp,
+                'bi-person-plus-fill' as iconClass,
+                'bg-primary' as bgClass
+            FROM cust
+
+            UNION ALL
+
+            SELECT
+                'SENIOR_REG' as type,
+                CONCAT('어르신 ''', rec_name, ''' 님이 등록되었습니다.') as message,
+                rec_regdate as timestamp,
+                'bi-person-wheelchair' as iconClass,
+                'bg-info' as bgClass
+            FROM Care_Recipient
+
+            UNION ALL
+
+            SELECT
+                'CAREGIVER_REG' as type,
+                CONCAT('요양보호사 ''', caregiver_name, ''' 님이 등록되었습니다.') as message,
+                caregiver_regdate as timestamp,
+                'bi-heart-fill' as iconClass,
+                'bg-success' as bgClass
+            FROM caregiver
+
+            UNION ALL
+
+            SELECT
+                'ALERT' as type,
+                CONCAT('긴급: ', cr.rec_name, '님 - ', al.alert_msg) as message,
+                al.alert_regdate as timestamp,
+                'bi-exclamation-triangle-fill' as iconClass,
+                'bg-danger' as bgClass
+            FROM Alert_Log al
+            JOIN Care_Recipient cr ON al.rec_id = cr.rec_id
+            WHERE al.alert_type = 'EMERGENCY'
+        ) as recent_activities
+        ORDER BY timestamp DESC
+        LIMIT 5
+    </select>
+
+</mapper>

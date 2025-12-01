@@ -70,12 +70,6 @@
                     <h1 class="h4 mb-0 fw-bold text-primary">Needy Care</h1>
                 </a>
 
-                <div class="search-container flex-grow-1 mx-4">
-                    <div class="position-relative">
-                        <input type="search" class="form-control" placeholder="Search... (Ctrl+K)" aria-label="Search">
-                        <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
-                    </div>
-                </div>
 
                 <div class="navbar-nav flex-row">
                     <button class="btn btn-outline-secondary me-2" type="button" onclick="toggleTheme()" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Toggle theme">
