@@ -122,7 +122,7 @@
                     <li class="nav-item">
                         <a class="nav-link ${empty center ? 'active' : ''}" href="<c:url value='/'/>">
                             <i class="bi bi-grid-1x2"></i>
-                            <span>Dashboard</span>
+                            <span>대시보드</span>
                         </a>
                     </li>
 
@@ -131,7 +131,7 @@
                            aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}"
                            aria-controls="websocketSubmenu">
                             <i class="bi bi-wifi"></i>
-                            <span>Web Socket</span>
+                            <span>온라인 서비스</span>
                             <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>
                         </a>
                         <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">
@@ -139,7 +139,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">
                                         <i class="bi bi-chat-dots"></i>
-                                        <span>Web Socket Chat</span>
+                                        <span>온라인 채팅</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -162,7 +162,7 @@
                     <li class="nav-item">
                         <a class="nav-link ${center == 'chart' ? 'active' : ''}" href="<c:url value='/chart'/>">
                             <i class="bi bi-bar-chart-line"></i>
-                            <span>chart</span>
+                            <span>실적</span>
                         </a>
                     </li>
 
