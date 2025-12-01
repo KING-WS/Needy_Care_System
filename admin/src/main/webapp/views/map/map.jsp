@@ -430,14 +430,32 @@
             zIndex: 1000
         });
 
-        // 인포윈도우 생성
+        // 💡 인포윈도우 디자인 수정
+        const content = `
+            <div style="padding: 0; margin:0; width: 280px; font-family: 'Noto Sans KR', sans-serif; -webkit-font-smoothing: antialiased; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px;">
+                    <h5 style="font-size: 16px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-user-circle" style="font-size: 1.1em;"></i>
+                        \${recName}
+                    </h5>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="font-weight: 600; color: #495057; font-size: 13px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                         <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
+                         <span>주소</span>
+                    </div>
+                    <p style="font-size: 14px; color: #333; margin: 0; padding-left: 20px; line-height: 1.5;">
+                        \${recAddress}
+                    </p>
+                </div>
+            </div>
+        `;
+
         const infowindow = new kakao.maps.InfoWindow({
-            content: '<div style="padding:10px;min-width:150px;">' +
-                     '<div style="font-weight:bold;font-size:14px;margin-bottom:5px;">' + recName + '</div>' +
-                     '<div style="font-size:12px;color:#666;">' + recAddress + '</div>' +
-                     '</div>',
+            content: content,
             removable: true
         });
+
 
         // 마커 클릭 이벤트
         kakao.maps.event.addListener(marker, 'click', function() {
