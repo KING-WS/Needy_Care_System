@@ -1948,12 +1948,11 @@
    ========================================= */
 .place-overlay-wrap {
     position: absolute;
-    bottom: 45px; /* 마커 바로 위 */
-    left: -100px; /* 중앙 정렬 */
-    width: 200px;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    bottom: 70px; /* [수정] 마커와 겹치지 않도록 값을 45px에서 70px로 상향 조정 */
+
+    background: transparent;
+    box-shadow: none;
+
     overflow: hidden;
     font-family: 'Malgun Gothic', 'Dotum', sans-serif;
     z-index: 1000;

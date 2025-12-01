@@ -77,7 +77,11 @@ function loadHomeMarker() {
             var homeImage = new kakao.maps.MarkerImage(homeImageSrc, homeImageSize, homeImageOption);
             homeMarker = new kakao.maps.Marker({ map: map, position: coords, image: homeImage, title: recipientName + '님의 집' });
             homeInfowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:15px;font-size:14px;min-width:200px;text-align:center;"><div style="font-weight:700;color:#e74c3c;margin-bottom:5px;"><i class="bi bi-house-heart-fill"></i> ${recipientName}님의 집</div><div style="font-size:12px;color:#666;">${cleanAddress}</div></div>`,
+                content: `<div style="padding:15px;font-size:14px;min-width:200px;text-align:center;">
+                <div style="font-weight:700;color:#333;margin-bottom:8px;">${recipientName}님의 집</div>
+                <div style="display:inline-block;padding:5px 12px;background:#e74c3c;color:white;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:8px;">집</div>
+                <div style="font-size:12px;color:#666;">${cleanAddress}</div>
+                </div>`,
                 removable: false
             });
             kakao.maps.event.addListener(homeMarker, 'click', function() {
@@ -105,41 +109,8 @@ function loadSavedMarkersWithData(savedMaps) {
 
 // 카테고리별 마커 이미지 생성 (SVG 아이콘 사용)
 function getMarkerImageByCategory(category) {
-    var iconColor, iconSymbol;
-
-    // 카테고리별 아이콘 설정
-    switch (category) {
-        case '병원':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="' + iconColor + '"/><circle cx="24" cy="26" r="3" fill="#fff"/><rect x="20" y="30" width="8" height="2" fill="#fff"/><rect x="22" y="28" width="4" height="2" fill="#fff"/>';
-            break;
-        case '약국':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<rect x="12" y="8" width="24" height="32" rx="2" fill="' + iconColor + '"/><rect x="18" y="14" width="12" height="2" fill="#fff"/><rect x="18" y="18" width="12" height="2" fill="#fff"/><rect x="18" y="22" width="8" height="2" fill="#fff"/><circle cx="28" cy="26" r="2" fill="#fff"/>';
-            break;
-        case '마트':
-        case '편의점':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<rect x="10" y="8" width="28" height="32" rx="2" fill="' + iconColor + '"/><rect x="14" y="14" width="20" height="3" fill="#fff"/><rect x="14" y="20" width="16" height="3" fill="#fff"/><rect x="14" y="26" width="20" height="3" fill="#fff"/><circle cx="36" cy="12" r="3" fill="#fff"/>';
-            break;
-        case '공원':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<path d="M24 8C16 8 10 14 10 22c0 8 6 14 14 14s14-6 14-14c0-8-6-14-14-14zm0 20c-3 0-6-3-6-6s3-6 6-6 6 3 6 6-3 6-6 6z" fill="' + iconColor + '"/><circle cx="18" cy="20" r="2" fill="#fff"/><circle cx="24" cy="20" r="2" fill="#fff"/><circle cx="30" cy="20" r="2" fill="#fff"/>';
-            break;
-        case '복지관':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<path d="M24 8L14 18v18h20V18z" fill="' + iconColor + '"/><rect x="18" y="24" width="12" height="2" fill="#fff"/><rect x="18" y="28" width="12" height="2" fill="#fff"/><rect x="18" y="32" width="8" height="2" fill="#fff"/><circle cx="24" cy="16" r="2" fill="#fff"/>';
-            break;
-        // AI 추천 장소에 대한 별 마커 추가
-        case 'AI_RECOMMEND':
-            iconColor = '#FFD700'; // 금색
-            iconSymbol = '<path d="M24 2l-6.18 12.52L2 16.18l10.91 9.98L9.82 42 24 34.48 38.18 42l-3.09-15.84L46 16.18l-15.82-1.66L24 2z" fill="' + iconColor + '" stroke="#DAA520" stroke-width="2"/>';
-            break;
-        default:
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>';
-            break;
-    }
+    var iconColor = '#3498db'; // 모든 마커에 사용할 기본 파란색
+    var iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>'; // 기본 원형 아이콘
 
     // SVG 마커 이미지 생성
     var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
@@ -154,8 +125,8 @@ function getMarkerImageByCategory(category) {
         '</g></svg>';
 
     var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-    var imageSize = new kakao.maps.Size(48, 56);
-    var imageOption = {offset: new kakao.maps.Point(24, 56)};
+    var imageSize = new kakao.maps.Size(50, 45);
+    var imageOption = {offset: new kakao.maps.Point(15, 43)};
     var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
     return markerImage;

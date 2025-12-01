@@ -687,6 +687,8 @@
                     data.forEach((item, index) => {
                         const cardCol = document.createElement('div');
                         cardCol.className = 'col-lg-4 col-md-6';
+                        cardCol.dataset.lat = item.y;
+                        cardCol.dataset.lng = item.x;
                         const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') || (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
                         const address = item.address && item.address.trim() !== '' ? item.address : (hasValidLocation ? '' : '주소 정보 없음');
                         const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
@@ -813,6 +815,14 @@
                 card.addEventListener('mouseout', function() {
                     const index = this.dataset.index;
                     if (recommendMarkers[index]) { recommendMarkers[index].setZIndex(0); }
+                });
+                card.addEventListener('dblclick', function() {
+                    const lat = this.dataset.lat;
+                    const lng = this.dataset.lng;
+                    const index = this.dataset.index;
+                    if (lat && lng && index) {
+                        moveMapToLocation(lat, lng, index);
+                    }
                 });
             });
 
