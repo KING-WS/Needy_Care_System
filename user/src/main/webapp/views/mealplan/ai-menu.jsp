@@ -444,23 +444,20 @@
         color: #ff6b6b;
         font-size: 18px;
     }
-    /* 모달 배경 (어두운 영역) - 핵심: position: fixed */
+
+    /* 모달 (mealplan.css 기반) */
     .modal-overlay {
+        display: none;
         position: fixed;
-        /* 스크롤과 상관없이 화면에 고정 */
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.5); /* 반투명 검은 배경 */
-        display: none;
-        /* 기본적으로 숨김 */
-        justify-content: center;
-        /* 가로 중앙 정렬 */
-        align-items: center;
-        /* 세로 중앙 정렬 */
+        background: rgba(0, 0, 0, 0.6);
         z-index: 9999;
-        /* 다른 요소들보다 위에 뜨도록 설정 */
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
     }
 
     /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
@@ -468,71 +465,179 @@
         display: flex !important;
     }
 
-    /* 모달 내용 박스 (하얀색 박스) */
-    .modal-content {
-        background-color: white;
-        padding: 0;             /* 내부 여백 제거 (헤더/푸터 분리를 위해) */
-        border-radius: 12px;
-        /* 둥근 모서리 */
-        width: 90%;
-        /* 모바일 대응 */
-        max-width: 500px;
-        /* 최대 너비 제한 */
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        /* 그림자 효과 */
-        overflow: hidden;
-        /* 내부 내용 넘침 방지 */
-        animation: slideIn 0.3s ease-out;
-        /* 부드럽게 나타나는 애니메이션 */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
     }
 
-    /* 모달 헤더/바디/푸터 스타일 (디자인 개선) */
+    .modal-content {
+        background: white;
+        border-radius: 20px;
+        width: 90%;
+        max-width: 600px; /* 너비를 mealplan.css와 맞춤 */
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     .modal-header {
-        padding: 15px 20px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #eee;
+        padding: 25px 30px;
+        border-bottom: 2px solid #f7fafc;
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        justify-content: space-between;
     }
 
     .modal-title {
+        font-size: 22px;
+        font-weight: 700;
+        color: #2d3748;
         margin: 0;
-        font-size: 18px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    .modal-body {
-        padding: 20px;
-        max-height: 70vh;
-        /* 화면이 작을 때 스크롤 생기도록 */
-        overflow-y: auto;
-    }
-
-    .modal-footer {
-        padding: 15px 20px;
-        border-top: 1px solid #eee;
         display: flex;
-        justify-content: flex-end;
+        align-items: center;
         gap: 10px;
     }
 
-    /* 닫기 버튼 스타일 */
-    .modal-close-btn {
-        background: none;
-        border: none;
-        font-size: 20px;
-        cursor: pointer;
-        color: #666;
+    .modal-title i {
+        color: #667eea;
     }
 
-    /* 애니메이션 효과 */
-    @keyframes slideIn {
-        from { transform: translateY(-20px);
-            opacity: 0; }
-        to { transform: translateY(0); opacity: 1;
-        }
+    .modal-close-btn {
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: #f7fafc;
+        color: #718096;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close-btn:hover {
+        background: #ff6b6b;
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    .modal-body {
+        padding: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 8px;
+    }
+
+    .form-label i {
+        color: #667eea;
+        margin-right: 5px;
+    }
+
+    .required {
+        color: #ff6b6b;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control::placeholder {
+        color: #cbd5e0;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-hint {
+        display: block;
+        font-size: 12px;
+        color: #a0aec0;
+        margin-top: 5px;
+    }
+
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 2px solid #f7fafc;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .btn {
+        padding: 12px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cancel {
+        background: #f7fafc;
+        color: #718096;
+    }
+
+    .btn-cancel:hover {
+        background: #e2e8f0;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
     }
 </style>
 
@@ -590,11 +695,6 @@
                     </button>
                 </div>
             </div>
-        </div>
-
-        <div class="loading" id="loadingDiv">
-            <div class="spinner"></div>
-            <p>AI가 음식을 분석하고 레시피를 생성하고 있습니다...</p>
         </div>
 
         <div class="result-container" id="resultContainer">
@@ -685,6 +785,14 @@
     </div>
 </div>
 
+<!-- AI 분석 로딩 모달 -->
+<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 1060; backdrop-filter: blur(5px);">
+    <div style="background: white; border-radius: 20px; text-align: center; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div class="spinner"></div>
+        <p style="font-size: 18px; font-weight: 600; color: #2d3748; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 14px; color: #718096; margin: 0;">잠시만 기다려주세요.</p>
+    </div>
+</div>
 
 <script>
     let currentRecId = <c:choose><c:when test="${not empty selectedRecipient and not empty selectedRecipient.recId}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
@@ -819,8 +927,8 @@
 
         // 음식명 저장
         currentFoodName = foodName;
-        // 로딩 표시
-        document.getElementById('loadingDiv').classList.add('show');
+        // 로딩 모달 표시
+        document.getElementById('loadingModal').style.display = 'flex';
         document.getElementById('resultContainer').classList.remove('show');
         // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
         fetch('/mealplan/api/ai-menu', {
@@ -845,7 +953,7 @@
                 return response.json();
             })
             .then(data => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
 
                 console.log('API 응답 데이터:', data);
 
@@ -856,7 +964,7 @@
                 }
             })
             .catch(error => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
                 console.error('Error:', error);
                 alert('분석 중 오류가 발생했습니다: ' + error.message);
             });
@@ -868,8 +976,8 @@
             return;
         }
 
-        // 로딩 표시
-        document.getElementById('loadingDiv').classList.add('show');
+        // 로딩 모달 표시
+        document.getElementById('loadingModal').style.display = 'flex';
         document.getElementById('resultContainer').classList.remove('show');
 
         // Base64 이미지에서 데이터 부분만 추출
@@ -897,7 +1005,7 @@
                 return response.json();
             })
             .then(data => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
 
                 console.log('API 응답 데이터:', data);
 
@@ -908,7 +1016,7 @@
                 }
             })
             .catch(error => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
                 console.error('Error:', error);
                 alert('분석 중 오류가 발생했습니다: ' + error.message);
             });

@@ -38,8 +38,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
      */
     @Override
     public void register(MealPlan mealPlan) throws Exception {
-        log.info("식단 등록 - 노약자ID: {}, 날짜: {}, 구분: {}", 
-            mealPlan.getRecId(), mealPlan.getMealDate(), mealPlan.getMealType());
+        log.info("식단 등록 - 노약자ID: {}, 날짜: {}, 구분: {}",
+                mealPlan.getRecId(), mealPlan.getMealDate(), mealPlan.getMealType());
         mealPlanRepository.insert(mealPlan);
     }
 
@@ -49,8 +49,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
      */
     @Override
     public void modify(MealPlan mealPlan) throws Exception {
-        log.info("식단 수정 - ID: {}, 메뉴: {}, 칼로리: {}", 
-            mealPlan.getMealId(), mealPlan.getMealMenu(), mealPlan.getMealCalories());
+        log.info("식단 수정 - ID: {}, 메뉴: {}, 칼로리: {}",
+                mealPlan.getMealId(), mealPlan.getMealMenu(), mealPlan.getMealCalories());
         mealPlanRepository.update(mealPlan);
     }
 
@@ -303,7 +303,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
         Map<String, Object> result = new HashMap<>();
         result.put("recommendation", recommendation);
         result.put("basis", basis.toString());
-        
+
         return result;
     }
 }

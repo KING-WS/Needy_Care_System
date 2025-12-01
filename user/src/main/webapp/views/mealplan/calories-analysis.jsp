@@ -2,6 +2,18 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <style>
+
+    :root {
+        /* 사용자 정의 변수가 있다면 여기에 정의되어야 합니다.
+ (예: Spring/JSP 설정) [cite_start][cite: 1, 2] */
+        /* 임시 컬러 변수 (원래 코드에서 정의되지 않아 임의 지정) */
+        --primary-color: #3498db;
+        --primary-color-dark: #2980b9;
+        --secondary-color: #2c3e50;
+        --warning-light: #fef9e7;
+        --danger-light: #fcebeb;
+    }
+
     .calories-analysis-section {
         padding: 20px 0 100px 0;
         background: #FFFFFF;
@@ -212,7 +224,7 @@
     }
     
     .btn-analyze {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-color);
         color: white;
         border: none;
         padding: 15px 40px;
@@ -221,12 +233,12 @@
         border-radius: 50px;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
     }
     
     .btn-analyze:hover {
+        background: var(--primary-color-dark);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
     }
     
     .btn-analyze:disabled {
@@ -367,6 +379,36 @@
         color: #e74c3c;
         font-weight: 700;
     }
+
+    /* 모달 (mealplan.css 기반) */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
+    .modal-overlay[style*="display: flex"] {
+        display: flex !important;
+    }
+
+    .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary-color);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
 </style>
 
 <div class="calories-analysis-section">
@@ -453,11 +495,6 @@
                     </button>
                 </div>
                 
-                <div class="analysis-loading" id="analysisLoading" style="display: none;">
-                    <i class="fas fa-spinner"></i>
-                    <p>AI가 칼로리 데이터를 분석하는 중...</p>
-                </div>
-                
                 <div class="ai-analysis-result" id="analysisResult">
                     <!-- AI 종합 분석 가이드 (수정) -->
                     <div class="result-card" id="aiGuideCard" style="display: none;">
@@ -504,6 +541,15 @@
                 <p>칼로리 분석을 하려면 먼저 돌봄 대상자를 등록해주세요.</p>
             </div>
         </c:if>
+    </div>
+</div>
+
+<!-- AI 분석 로딩 모달 -->
+<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 1060; backdrop-filter: blur(5px);">
+    <div style="background: white; border-radius: 20px; text-align: center; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div class="spinner"></div>
+        <p style="font-size: 18px; font-weight: 600; color: #2d3748; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 14px; color: #718096; margin: 0;">잠시만 기다려주세요.</p>
     </div>
 </div>
 
@@ -973,12 +1019,11 @@
         }
         
         const btnAnalyze = document.getElementById('btnAnalyze');
-        const analysisLoading = document.getElementById('analysisLoading');
         const analysisResult = document.getElementById('analysisResult');
         
         // 버튼 비활성화 및 로딩 표시
         btnAnalyze.disabled = true;
-        analysisLoading.style.display = 'block';
+        document.getElementById('loadingModal').style.display = 'flex';
         analysisResult.classList.remove('show');
         
         // API 호출
@@ -993,7 +1038,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            analysisLoading.style.display = 'none';
+            document.getElementById('loadingModal').style.display = 'none';
             btnAnalyze.disabled = false;
             
             if (data.success) {
@@ -1004,7 +1049,7 @@
             }
         })
         .catch(error => {
-            analysisLoading.style.display = 'none';
+            document.getElementById('loadingModal').style.display = 'none';
             btnAnalyze.disabled = false;
             console.error('AI 분석 에러:', error);
             alert('AI 분석 중 오류가 발생했습니다: ' + error.message);

@@ -91,6 +91,36 @@
         const zoomControl = new kakao.maps.ZoomControl();
         map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
+        // 지도 클릭 이벤트: 모든 인포윈도우 닫기
+        kakao.maps.event.addListener(map, 'click', function() {
+            seniorMarkers.forEach(function(item) {
+                if (item.infowindow) {
+                    item.infowindow.close();
+                }
+            });
+        });
+
+        // 지도 더블클릭 이벤트: 장소 추가
+        kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
+            // 더블클릭한 위치의 좌표
+            const latlng = mouseEvent.latLng;
+
+            // 간단한 확인창으로 장소 추가 여부 확인
+            if (confirm('이 위치에 새로운 장소를 추가하시겠습니까?')) {
+                const placeName = prompt('장소의 이름을 입력하세요:', '새로운 장소');
+                if (placeName) {
+                    // 여기에 실제로 장소를 추가하는 로직을 구현합니다.
+                    // 예: addMarker(latlng.getLat(), latlng.getLng(), placeName);
+                    // 현재는 addMarker가 기존 마커를 지우므로, 새로운 함수를 만들거나 addMarker를 수정해야 합니다.
+                    // 임시로 alert를 사용하여 확인
+                    alert('"' + placeName + '" 장소가 위도 ' + latlng.getLat() + ', 경도 ' + latlng.getLng() + '에 추가 요청되었습니다.');
+
+                    // 새로운 마커를 추가하는 함수를 호출 (기존 addMarker는 마커를 하나만 표시하므로, 여러 개를 표시하도록 수정 필요)
+                    // addNewPlaceMarker(latlng.getLat(), latlng.getLng(), placeName);
+                }
+            }
+        });
+        
         // 노약자 마커 로드
         loadSeniorMarkers();
     }

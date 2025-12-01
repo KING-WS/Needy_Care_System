@@ -347,6 +347,35 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
+
+    /* 모달 (mealplan.css 기반) */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
+    .modal-overlay[style*="display: flex"] {
+        display: flex !important;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
 </style>
 
 <section class="ai-check-section">
@@ -385,12 +414,6 @@
             </div>
         </div>
 
-        <div class="loading" id="loadingDiv">
-            <div class="spinner"></div>
-            <p style="font-size: 18px; font-weight: 600; color: var(--secondary-color);">AI가 음식을 분석하고 있습니다...</p>
-            <p style="font-size: 14px; color: #999;">분석이 완료될 때까지 잠시만 기다려주세요.</p>
-        </div>
-
         <div class="result-container" id="resultContainer" style="margin-top: 20px;">
             <div class="result-header">
                 <h3><i class="fas fa-clipboard-check"></i> 검사 결과</h3>
@@ -425,6 +448,15 @@
         </div>
     </div>
 </section>
+
+<!-- AI 분석 로딩 모달 -->
+<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 1060; backdrop-filter: blur(5px);">
+    <div style="background: white; border-radius: 20px; text-align: center; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        <div class="spinner"></div>
+        <p style="font-size: 18px; font-weight: 600; color: #2d3748; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 14px; color: #718096; margin: 0;">잠시만 기다려주세요.</p>
+    </div>
+</div>
 
 <script>
     let currentRecId = ${selectedRecipient != null ? selectedRecipient.recId : 'null'};
@@ -574,7 +606,7 @@
         }
 
         // 로딩 표시
-        document.getElementById('loadingDiv').classList.add('show');
+        document.getElementById('loadingModal').style.display = 'flex';
         document.getElementById('resultContainer').classList.remove('show');
 
         // Base64 이미지에서 데이터 부분만 추출
@@ -595,7 +627,7 @@
         })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
 
                 if (data.success) {
                     displayResult(data.data);
@@ -604,7 +636,7 @@
                 }
             })
             .catch(error => {
-                document.getElementById('loadingDiv').classList.remove('show');
+                document.getElementById('loadingModal').style.display = 'none';
                 console.error('Error:', error);
                 alert('검사 중 오류가 발생했습니다.');
             });
