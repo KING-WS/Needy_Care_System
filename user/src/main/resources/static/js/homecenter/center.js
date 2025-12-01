@@ -191,6 +191,37 @@ function openMapModal(lat, lng) {
     document.getElementById('mapLocationForm').reset();
 }
 
+// 검색 결과로부터 장소 추가 모달 열기
+function openAddPlaceModalFromSearch(place) {
+    // 모든 InfoWindow 닫기
+    searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
+
+    const lat = place.y;
+    const lng = place.x;
+
+    // '장소 수정'과 동일한 모달을 사용하되, 제목을 '장소 추가'로 설정
+    document.querySelector('#mapModal .map-modal-title span').textContent = '장소 추가';
+    
+    // 좌표 및 주소 정보 설정
+    document.getElementById('modalLat').value = lat;
+    document.getElementById('modalLng').value = lng;
+    document.getElementById('modalAddress').textContent = place.address_name || `위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}`;
+    
+    // 장소 이름, 카테고리 등 폼 데이터 설정
+    document.getElementById('modalMapName').value = place.place_name || '';
+    document.getElementById('modalCategory').value = convertCategoryForSave(place.category_name); // 카테고리 자동 변환
+    document.getElementById('modalContent').value = ''; // 메모는 비워둠
+
+    // 모달 표시
+    document.getElementById('mapModal').classList.add('show');
+    
+    // 임시 마커가 있다면 제거
+    if (tempMarker) {
+        tempMarker.setMap(null);
+        tempMarker = null;
+    }
+}
+
 // 모달 닫기
 function closeMapModal() {
     document.getElementById('mapModal').classList.remove('show');
@@ -610,13 +641,32 @@ function displaySearchResults(places) {
             image: markerImage 
         });
         
-        var infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:10px;font-size:13px;text-align:center;min-width:150px;"><strong>${place.place_name}</strong><br/><span style="color:#666;font-size:11px;">${place.address_name}</span></div>` });
+        // 인포윈도우 컨텐츠 수정
+        const placeCategory = getCategoryText(place.category_name);
+        const infowindowContent = `
+            <div style="padding:12px;font-size:13px;min-width:180px;text-align:center;">
+                <div style="font-weight:700;color:#333;margin-bottom:5px;">${place.place_name}</div>
+                <div style="display:inline-block;padding:3px 10px;background:#e8eaf6;color:#667eea;border-radius:12px;font-size:11px;margin-bottom:8px;">
+                    ${placeCategory}
+                </div>
+                <button onclick='openAddPlaceModalFromSearch(${JSON.stringify(place)})' 
+                        style="display:block;margin-top:10px;background:#667eea;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;width:100%;font-size:12px;transition:background 0.2s;">
+                    장소 추가
+                </button>
+            </div>`;
+
+        var infowindow = new kakao.maps.InfoWindow({
+            content: infowindowContent
+        });
         
         kakao.maps.event.addListener(marker, 'click', () => {
+            // 다른 모든 인포윈도우 닫기
             searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
             markers.forEach(item => item.infowindow && item.infowindow.close());
             if (homeInfowindow) homeInfowindow.close();
-            showSearchResultDetailModal(place);
+
+            // 현재 마커의 인포윈도우 열기
+            infowindow.open(map, marker);
         });
         
         searchMarkers.push({ marker: marker, infowindow: infowindow, place: place });
