@@ -2025,3 +2025,6 @@
     background: #667eea;
     color: #fff;
 }
+.ai-recommend-search {
+    max-width: 600px !important;
+}

@@ -352,10 +352,11 @@
                                         </button>
                                     </div>
 
-                                    <div class="map-search-container d-flex align-items-center gap-2">
+                                    <div class="map-search-container ai-recommend-search d-flex align-items-center gap-2">
                                         <div class="map-search-wrapper flex-grow-1">
-                                            <input type="text" id="mapSearchInput" class="map-search-input" placeholder="병원, 약국, 공원 등 장소를 검색하세요..." onkeypress="if(event.key==='Enter') searchLocation()">
+                                            <input type="text" id="mapSearchInput" class="map-search-input" placeholder="병원, 약국, 공원 등 장소를 검색..." onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn" onclick="searchLocation()"><i class="bi bi-search"></i></button>
+                                            <button type="button" id="aiSearchBtn" class="map-search-btn" style="right: 42px;"><i class="fas fa-robot"></i></button>
                                         </div>
                                         <button id="recommendBtn" class="btn btn-recommend-ai">
                                             맞춤 추천
@@ -684,57 +685,113 @@
                         return;
                     }
                     displayRecommendationsOnMap(data);
-                    data.forEach((item, index) => {
-                        const cardCol = document.createElement('div');
-                        cardCol.className = 'col-lg-4 col-md-6';
-                        cardCol.dataset.lat = item.y;
-                        cardCol.dataset.lng = item.x;
-                        const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') || (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
-                        const address = item.address && item.address.trim() !== '' ? item.address : (hasValidLocation ? '' : '주소 정보 없음');
-                        const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
-
-                        // 💡 [수정] 검색 버튼 클릭 시 지도 이동 기능 추가
-                        cardCol.innerHTML = `
-    <div class="card recommend-card" data-index="\${index}">
-        <div class="card-header-custom d-flex justify-content-between align-items-center">
-            <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
-            <span class="badge badge-category">\${item.mapCategory}</span>
-        </div>
-        <div class="card-body d-flex flex-column">
-            <p class="card-text text-muted mb-2">\${address ? `<i class="fas fa-map-marker-alt text-danger"></i> \${address} ` : ''}\${distance}</p>
-                        <div class="mt-auto pt-3">
-                            <div class="summary-content mb-3" style="display: block;">
-                            <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>\${item.mapContent}
-                    </div>
-                        <div class="d-flex flex-column" style="gap: 10px;">
-                            <div class="d-flex w-100" style="gap: 10px;">
-                                <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1"><i class="fas fa-directions"></i> 길찾기</a>
-                                <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
-                                    <i class="fas fa-search"></i> 검색
-                                </a>                            </div>
-                            <button class="btn btn-primary w-100 btn-add-schedule" data-mapname="\${item.mapName}" data-mapcontent="\${item.mapContent}" data-mapcategory="\${item.mapCategory}" data-mapaddress="\${address}" data-coursetype="\${item.courseType || 'WALK'}" data-startlat="\${item.startLat}" data-startlng="\${item.startLng}" data-endlat="\${item.y}" data-endlng="\${item.x}" data-distance="\${item.distance || 0}">
-                                <i class="fas fa-plus"></i> 일정 추가
-                            </button>
-                        </div>
-                    </div>
-                    </div>
-                    </div>`;
-                    resultsContainer.appendChild(cardCol);
+                    renderRecommendationCards(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // 로딩 모달 닫기
+                    const loadingModalElement = document.getElementById('loadingModal');
+                    const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
+                    if (loadingModal) {
+                        loadingModal.hide();
+                    }
+                    recommendBtn.disabled = false;
+                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
                 });
-                addCardEventListeners();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                // 로딩 모달 닫기
-                const loadingModalElement = document.getElementById('loadingModal');
-                const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
-                if (loadingModal) {
-                    loadingModal.hide();
-                }
-                recommendBtn.disabled = false;
-                resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
-            });
         });
+
+        const aiSearchBtn = document.getElementById('aiSearchBtn');
+        aiSearchBtn.addEventListener('click', function() {
+            const keyword = document.getElementById('mapSearchInput').value;
+            if (!keyword || keyword.trim() === '') {
+                alert("검색어를 입력해주세요.");
+                return;
+            }
+
+            const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
+            if (!recId) {
+                alert("추천을 위한 대상자 정보가 없습니다.");
+                return;
+            }
+            resultsContainer.innerHTML = '';
+
+            // 로딩 모달 표시
+            const loadingModalElement = document.getElementById('loadingModal');
+            const loadingModal = new bootstrap.Modal(loadingModalElement);
+            loadingModal.show();
+            aiSearchBtn.disabled = true;
+
+            fetch('/schedule/ai-keyword-recommend', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ recId: parseInt(recId), keyword: keyword })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // 로딩 모달 닫기
+                    loadingModal.hide();
+                    aiSearchBtn.disabled = false;
+                    if (!data || data.length === 0) {
+                        resultsContainer.innerHTML = `<div class="col-12 text-center py-5"><h4 class="text-muted">'\${keyword}'에 대한 AI 추천 결과가 없습니다.</h4></div>`;
+                        return;
+                    }
+                    displayRecommendationsOnMap(data);
+                    renderRecommendationCards(data);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // 로딩 모달 닫기
+                    const loadingModalElement = document.getElementById('loadingModal');
+                    const loadingModal = bootstrap.Modal.getInstance(loadingModalElement);
+                    if (loadingModal) {
+                        loadingModal.hide();
+                    }
+                    aiSearchBtn.disabled = false;
+                    resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
+                });
+        });
+
+        function renderRecommendationCards(data) {
+            resultsContainer.innerHTML = '';
+             data.forEach((item, index) => {
+                const cardCol = document.createElement('div');
+                cardCol.className = 'col-lg-4 col-md-6';
+                cardCol.dataset.lat = item.y;
+                cardCol.dataset.lng = item.x;
+                const hasValidLocation = (item.placeUrl && item.placeUrl.trim() !== '') || (item.x && item.y && item.x.trim() !== '' && item.y.trim() !== '');
+                const address = item.address && item.address.trim() !== '' ? item.address : (hasValidLocation ? '' : '주소 정보 없음');
+                const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
+
+                // 💡 [수정] 검색 버튼 클릭 시 지도 이동 기능 추가
+                cardCol.innerHTML = `
+<div class="card recommend-card" data-index="\${index}">
+<div class="card-header-custom d-flex justify-content-between align-items-center">
+    <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
+    <span class="badge badge-category">\${item.mapCategory}</span>
+</div>
+<div class="card-body d-flex flex-column">
+    <p class="card-text text-muted mb-2">\${address ? `<i class="fas fa-map-marker-alt text-danger"></i> \${address} ` : ''}\${distance}</p>
+                <div class="mt-auto pt-3">
+                    <div class="summary-content mb-3" style="display: block;">
+                    <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>\${item.mapContent}
+            </div>
+                <div class="d-flex flex-column" style="gap: 10px;">
+                    <div class="d-flex w-100" style="gap: 10px;">
+                        <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1"><i class="fas fa-directions"></i> 길찾기</a>
+                        <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
+                            <i class="fas fa-search"></i> 검색
+                        </a>                            </div>
+                    <button class="btn btn-primary w-100 btn-add-schedule" data-mapname="\${item.mapName}" data-mapcontent="\${item.mapContent}" data-mapcategory="\${item.mapCategory}" data-mapaddress="\${address}" data-coursetype="\${item.courseType || 'WALK'}" data-startlat="\${item.startLat}" data-startlng="\${item.startLng}" data-endlat="\${item.y}" data-endlng="\${item.x}" data-distance="\${item.distance || 0}">
+                        <i class="fas fa-plus"></i> 일정 추가
+                    </button>
+                </div>
+            </div>
+            </div>
+            </div>`;
+            resultsContainer.appendChild(cardCol);
+        });
+        addCardEventListeners();
+    }
 
         // 💡 [수정] AI 추천 결과를 지도에 표시하는 함수 (심플한 CustomOverlay)
         function displayRecommendationsOnMap(places) {

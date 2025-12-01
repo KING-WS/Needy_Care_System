@@ -242,6 +242,89 @@ public class ScheduleController {
         }
     }
 
+    @PostMapping("/ai-keyword-recommend")
+    @ResponseBody
+    public ResponseEntity<List<Map<String, Object>>> aiKeywordRecommend(@RequestBody AiKeywordRecommendRequest request, HttpSession session) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        try {
+            Integer recId = request.getRecId();
+            String keyword = request.getKeyword();
+            Recipient recipient = recipientService.getRecipientById(recId);
+
+            if (recipient == null) {
+                return ResponseEntity.ok(List.of());
+            }
+
+            // 1. AI 키워드 기반 추천
+            List<Map<String, Object>> recommendations = aiCareContentService.recommendPlacesByKeyword(recipient, keyword);
+
+            // 2. 위치 기반 정보 보정 (기존 로직 재사용)
+            String address = recipient.getRecAddress();
+            String lat = null;
+            String lng = null;
+
+            if (address != null && !address.isEmpty()) {
+                Map<String, String> userCoords = kakaoMapService.getCoordinates(address);
+                lat = userCoords.get("y");
+                lng = userCoords.get("x");
+            }
+
+            for (Map<String, Object> item : recommendations) {
+                String placeName = (String) item.get("mapName");
+                List<Map<String, Object>> searchResults = new ArrayList<>();
+
+                if (lat != null && lng != null) {
+                    item.put("startLat", lat);
+                    item.put("startLng", lng);
+                    item.put("startAddress", address);
+                    searchResults = kakaoMapService.searchPlace(placeName, lat, lng);
+                }
+
+                if (searchResults.isEmpty()) {
+                    searchResults = kakaoMapService.searchPlace(placeName, null, null);
+                }
+
+                if (!searchResults.isEmpty()) {
+                    Map<String, Object> firstResult = searchResults.get(0);
+                    item.put("distance", firstResult.get("distance"));
+                    String roadAddress = (String) firstResult.get("road_address_name");
+                    String addressName = (String) firstResult.get("address_name");
+                    String placeUrl = (String) firstResult.get("place_url");
+                    String x = (String) firstResult.get("x");
+                    String y = (String) firstResult.get("y");
+                    String finalAddress = (roadAddress != null && !roadAddress.trim().isEmpty()) ? roadAddress : addressName;
+                    item.put("address", finalAddress);
+                    item.put("placeUrl", placeUrl != null ? placeUrl : "");
+                    item.put("x", x);
+                    item.put("y", y);
+                } else {
+                    item.put("address", "주소 정보 없음");
+                    item.put("placeUrl", "");
+                    item.put("distance", null);
+                }
+            }
+
+            recommendations.sort((o1, o2) -> {
+                String d1 = (String) o1.get("distance");
+                String d2 = (String) o2.get("distance");
+                if (d1 == null && d2 == null) return 0;
+                if (d1 == null) return 1;
+                if (d2 == null) return -1;
+                return Integer.compare(Integer.parseInt(d1), Integer.parseInt(d2));
+            });
+
+            return ResponseEntity.ok(recommendations);
+
+        } catch (Exception e) {
+            log.error("AI 키워드 추천 실패", e);
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
     @PostMapping("/save-recommendation")
     @ResponseBody
     public ResponseEntity<Map<String, Object>> saveRecommendation(@RequestBody Map<String, Object> request) {
