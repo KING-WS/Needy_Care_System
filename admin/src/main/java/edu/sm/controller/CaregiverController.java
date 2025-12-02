@@ -106,6 +106,19 @@ public class CaregiverController {
         return "index";
     }
 
+    @PostMapping("/addimpl")
+    public String caregiverAddImpl(Caregiver caregiver, Model model) {
+        log.info("Registering caregiver: {}", caregiver);
+        try {
+            caregiverService.register(caregiver);
+            log.info("Caregiver registration successful");
+        } catch (Exception e) {
+            log.error("Error registering caregiver", e);
+            model.addAttribute("errorMessage", "요양사 등록 중 오류가 발생했습니다.");
+        }
+        return "redirect:/caregiver/list";
+    }
+
     @GetMapping("/manage")
     public String caregiverManage(Model model) {
         log.info("Caregiver manage page accessed");

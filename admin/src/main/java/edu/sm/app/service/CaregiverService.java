@@ -33,6 +33,11 @@ public class CaregiverService {
         caregiverRepository.update(caregiver);
     }
 
+    public void register(Caregiver caregiver) throws Exception {
+        caregiver.setIsDeleted("N");
+        caregiverRepository.insert(caregiver);
+    }
+
     public int getCaregiverCount() {
         return caregiverRepository.selectCaregiverCount();
     }
