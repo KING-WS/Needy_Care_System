@@ -19,6 +19,7 @@ public class MapLocation {
     private Integer mapId;              // 장소ID (PK)
     private Integer recId;              // 노약자ID (FK)
     private String mapName;             // 장소이름
+    private String mapAddress;          // 주소
     private String mapContent;          // 내용
     private String mapCategory;         // 카테고리 (CUS-014: 병원, 학교 등)
     private BigDecimal mapLatitude;     // 위도 (지도 좌표)
