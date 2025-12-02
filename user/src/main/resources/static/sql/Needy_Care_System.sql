@@ -225,6 +225,7 @@ CREATE TABLE Map (
                      map_id INT NOT NULL AUTO_INCREMENT,
                      rec_id INT NOT NULL,
                      map_name VARCHAR(100) NOT NULL,
+                     map_address VARCHAR(100) NOT NULL, -- 카카오 맵의 주소이름 추가
                      map_content TEXT,
                      map_category VARCHAR(50),
                      map_latitude DECIMAL(10,7) NOT NULL,
