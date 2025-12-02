@@ -1,405 +1,346 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<style>
+<link rel="stylesheet" href="<c:url value='/css/mealplan.css'/>" />
 
+<style>
+    /* ---------------------------------------------------- */
+    /* 1. 디자인 시스템 */
+    /* ---------------------------------------------------- */
     :root {
-        /* 사용자 정의 변수가 있다면 여기에 정의되어야 합니다.
- (예: Spring/JSP 설정) [cite_start][cite: 1, 2] */
-        /* 임시 컬러 변수 (원래 코드에서 정의되지 않아 임의 지정) */
-        --primary-color: #3498db;
-        --primary-color-dark: #2980b9;
-        --secondary-color: #2c3e50;
-        --warning-light: #fef9e7;
-        --danger-light: #fcebeb;
+        --primary-color: #3498db;   /* 메인 블루 (아이콘 색상과 동일) */
+        --secondary-color: #343a40;
+        --secondary-bg: #F0F8FF;
+        --card-bg: white;
+        --danger-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f1c40f;
+    }
+
+    body {
+        background-color: #f8f9fa;
     }
 
     .calories-analysis-section {
-        padding: 20px 0 100px 0;
-        background: #FFFFFF;
-    }
-    
-    .calories-analysis-container {
-        max-width: 1200px;
+        max-width: 1400px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 40px 20px 100px 20px;
     }
-    
+
+    /* ---------------------------------------------------- */
+    /* 2. 헤더 & 카드 스타일 */
+    /* ---------------------------------------------------- */
     .page-header {
-        margin-bottom: 30px;
         text-align: center;
+        margin-bottom: 40px;
+        padding-bottom: 0;
+        border-bottom: none;
     }
-    
+
     .page-header h1 {
         font-size: 38px;
         font-weight: 800;
-        color: var(--secondary-color);
-        margin-bottom: 10px;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        margin-bottom: 10px;
+        color: var(--secondary-color);
     }
-    
+
     .page-header p {
         font-size: 16px;
-        color: #666;
+        color: #7f8c8d;
     }
-    
+
+    /* 카드 공통 스타일 */
+    .chart-container, .ai-analysis-section, .stat-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        margin-bottom: 30px;
+        border: none;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 3. 통계 카드 (Grid) - [수정됨] */
+    /* ---------------------------------------------------- */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
         margin-bottom: 30px;
     }
-    
+
     .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 20px; /* 패딩 약간 줄임 */
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-left: 4px solid;
+        margin-bottom: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
     }
-    
+
     .stat-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
     }
-    
-    .stat-card.today {
-        border-left-color: #667eea;
-    }
-    
-    .stat-card.week {
-        border-left-color: #764ba2;
-    }
-    
-    .stat-card.month {
-        border-left-color: #f093fb;
-    }
-    
+
+    .stat-card::before { display: none; }
+
+    /* [수정] 통계 헤더: 아이콘과 간격 1px, 텍스트 스타일 변경 */
     .stat-header {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        margin-bottom: 10px; /* 간격 줄임 */
+        justify-content: flex-start; /* 왼쪽 정렬로 변경하여 붙임 */
+        gap: 1px; /* [요청] 아이콘과의 간격 1px */
+        margin-bottom: 15px;
     }
-    
+
+    /* [수정] 통계 제목: 검은색, 굵게 */
     .stat-title {
-        font-size: 15px; /* 약간 줄임 */
-        color: #666;
-        font-weight: 500;
+        font-size: 16px;
+        color: #000000; /* [요청] 검은색 */
+        font-weight: 800; /* [요청] 굵게 */
+        text-transform: uppercase;
+        margin-right: 5px; /* 시각적 균형을 위해 약간의 여백 추가 (원하시면 제거 가능) */
     }
-    
+
     .stat-icon {
-        font-size: 24px; /* 약간 줄임 */
-        opacity: 0.7;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        padding: 0;
     }
-    
-    .stat-card.today .stat-icon {
-        color: #667eea;
-    }
-    
-    .stat-card.week .stat-icon {
-        color: #764ba2;
-    }
-    
-    .stat-card.month .stat-icon {
-        color: #f093fb;
-    }
-    
+
+    .stat-card.today .stat-icon { color: #3498db; background: #e3f2fd; }
+    .stat-card.week .stat-icon { color: #e67e22; background: #fdf2e9; }
+    .stat-card.month .stat-icon { color: #2ecc71; background: #e8f8f5; }
+
     .stat-value-container {
         display: flex;
-        align-items: baseline; /* 기준선을 맞춤 */
-        gap: 8px; /* 숫자와 단위 사이 간격 */
+        align-items: baseline;
+        gap: 8px;
     }
-    
+
     .stat-value {
-        font-size: 32px; /* 약간 줄임 */
-        font-weight: bold;
-        color: #2c3e50;
-        margin: 0; /* margin 제거 */
+        font-size: 36px;
+        font-weight: 800;
+        color: var(--secondary-color);
     }
-    
+
     .stat-unit {
-        font-size: 16px; /* 약간 키움 */
-        color: #999;
-        font-weight: 500;
+        font-size: 16px;
+        color: #95a5a6;
+        font-weight: 600;
     }
-    
-    .chart-container {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-    
-    .chart-header {
-        margin-bottom: 20px;
-    }
-    
-    .chart-header h2 {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2c3e50;
+
+    /* ---------------------------------------------------- */
+    /* 4. 차트 & AI 섹션 - [수정됨] */
+    /* ---------------------------------------------------- */
+    .chart-header h2, .ai-analysis-header h2 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--secondary-color);
         margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
-    
-    .chart-header p {
+
+    .chart-header h2 i, .ai-analysis-header h2 i {
+        color: var(--primary-color);
+    }
+
+    .chart-header p, .ai-analysis-header p {
         font-size: 14px;
-        color: #666;
+        color: #7f8c8d;
     }
-    
+
     .chart-wrapper {
         position: relative;
         height: 400px;
-        margin-top: 20px;
+        margin-top: 25px;
     }
-    
-    .loading {
+
+    /* [수정] AI 분석 버튼: 아이콘 색상(Primary Blue) 적용 */
+    .btn-analyze {
+        background: var(--primary-color); /* [요청] 아이콘 색상(#3498db) 적용 */
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        font-size: 16px;
+        font-weight: 700;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-analyze:hover {
+        background: #2980b9; /* 호버 시 약간 진하게 */
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+    }
+
+    .btn-analyze:disabled {
+        background: #bdc3c7;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* [수정] AI 결과 카드 영역: 초기에는 안 보이게 설정 */
+    .ai-analysis-result {
+        display: none; /* [요청] 버튼 누르기 전에는 숨김 */
+        margin-top: 30px;
+    }
+
+    .ai-analysis-result.show {
+        display: block; /* 버튼 누르고 데이터 오면 보임 */
+        animation: fadeIn 0.5s ease;
+    }
+
+    .result-card {
+        background: var(--secondary-bg);
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        border: 1px solid rgba(52, 152, 219, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .result-card:hover {
+        background: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .result-card-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        border-bottom: 2px solid rgba(0,0,0,0.05);
+        padding-bottom: 10px;
+    }
+
+    .result-card-title i {
+        margin-right: 10px;
+        font-size: 20px;
+        color: var(--primary-color);
+    }
+
+    .result-card-content {
+        font-size: 16px;
+        color: #495057;
+        line-height: 1.7;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 30px;
+        font-size: 14px;
+        font-weight: 700;
+        margin-left: auto;
+    }
+
+    .status-badge.부족 { background: #fff3cd; color: #856404; }
+    .status-badge.적정 { background: #d4edda; color: #155724; }
+    .status-badge.과다 { background: #f8d7da; color: #721c24; }
+
+    .recommended-calories {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary-color);
+    }
+
+    #aiGuideCard {
+        background: #e7f3ff;
+        border-left: 5px solid var(--primary-color);
+    }
+    #aiGuideCard .result-card-title {
+        color: #0056b3;
+        border-bottom-color: rgba(52, 152, 219, 0.2);
+    }
+
+    /* ---------------------------------------------------- */
+    /* 5. 로딩 & Empty State */
+    /* ---------------------------------------------------- */
+    .loading, .analysis-loading {
         text-align: center;
         padding: 50px;
-        color: #666;
+        color: #95a5a6;
     }
-    
-    .loading i {
-        font-size: 48px;
+    .loading i, .analysis-loading i {
+        font-size: 40px;
         margin-bottom: 20px;
+        color: var(--primary-color);
         animation: spin 1s linear infinite;
     }
-    
+
+    .empty-state {
+        background: white;
+        border-radius: 20px;
+        padding: 80px 20px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .empty-state i {
+        font-size: 60px;
+        color: #e0e0e0;
+        margin-bottom: 20px;
+    }
+    .empty-state h3 {
+        font-size: 22px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 10px;
+    }
+    .empty-state p {
+        color: #7f8c8d;
+    }
+
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #999;
-    }
-    
-    .empty-state i {
-        font-size: 64px;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-    
-    .empty-state h3 {
-        font-size: 20px;
-        margin-bottom: 10px;
-        color: #666;
-    }
-    
-    .empty-state p {
-        font-size: 14px;
-    }
-    
-    .ai-analysis-section {
-        background: white;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-    
-    .ai-analysis-header {
-        margin-bottom: 20px;
-    }
-    
-    .ai-analysis-header h2 {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-    
-    .ai-analysis-header p {
-        font-size: 14px;
-        color: #666;
-    }
-    
-    .ai-analysis-button {
-        text-align: center;
-        margin: 30px 0;
-    }
-    
-    .btn-analyze {
-        background: var(--primary-color);
-        color: white;
-        border: none;
-        padding: 15px 40px;
-        font-size: 18px;
-        font-weight: bold;
-        border-radius: 50px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-analyze:hover {
-        background: var(--primary-color-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
-    }
-    
-    .btn-analyze:disabled {
-        background: #ccc;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .ai-analysis-result {
-        display: none;
-        margin-top: 30px;
-    }
-    
-    .ai-analysis-result.show {
-        display: block;
-        animation: fadeIn 0.5s ease;
-    }
-    
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    .result-card {
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
-        border-left: 4px solid;
-    }
-    
-    .result-card.status {
-        border-left-color: #667eea;
-    }
-    
-    .result-card.status.부족 {
-        border-left-color: #f39c12;
-    }
-    
-    .result-card.status.적정 {
-        border-left-color: #27ae60;
-    }
-    
-    .result-card.status.과다 {
-        border-left-color: #e74c3c;
-    }
-    
-    .result-card-title {
-        font-size: 16px;
-        font-weight: bold;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-    }
-    
-    .result-card-title i {
-        margin-right: 8px;
-        font-size: 18px;
-    }
-    
-    .result-card-content {
-        font-size: 15px;
-        color: #555;
-        line-height: 1.6;
-    }
-    
-    .status-badge {
-        display: inline-block;
-        padding: 5px 15px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: bold;
-        margin-left: 10px;
-    }
-    
-    .status-badge.부족 {
-        background: #fff3cd;
-        color: #856404;
-    }
-    
-    .status-badge.적정 {
-        background: #d4edda;
-        color: #155724;
-    }
-    
-    .status-badge.과다 {
-        background: #f8d7da;
-        color: #721c24;
-    }
-    
-    .recommended-calories {
-        font-size: 28px;
-        font-weight: bold;
-        color: #667eea;
-        margin-top: 5px;
-    }
-    
-    .analysis-loading {
-        text-align: center;
-        padding: 40px;
-        color: #666;
-    }
-    
-    .analysis-loading i {
-        font-size: 48px;
-        margin-bottom: 20px;
-        animation: spin 1s linear infinite;
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    /* AI 가이드 카드 스타일 */
-    #aiGuideCard {
-        background: #e8f5fb;
-        color: #333;
-        border: none;
-        border-radius: 15px;
-        padding: 25px;
-        margin-bottom: 25px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    }
-    #aiGuideCard .result-card-title {
-        color: #0056b3;
-        font-size: 20px;
-    }
-    #aiGuideCard .result-card-content {
-        font-size: 17px;
-        font-weight: 500;
-        color: #495057;
-    }
-    .highlight-keyword {
-        color: #e74c3c;
-        font-weight: 700;
-    }
-
-    /* 모달 (mealplan.css 기반) */
+    /* ---------------------------------------------------- */
+    /* 6. 모달 스타일 */
+    /* ---------------------------------------------------- */
     .modal-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 9999;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 9999; /* 헤더보다 높게 설정 */
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.3s ease;
+        backdrop-filter: blur(3px);
     }
+    .modal-overlay[style*="display: flex"] { display: flex !important; }
 
-    /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
-    .modal-overlay[style*="display: flex"] {
-        display: flex !important;
+    .loading-modal-content {
+        background: white;
+        border-radius: 20px;
+        text-align: center;
+        padding: 40px 50px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     }
-
     .spinner {
         border: 4px solid #f3f3f3;
         border-top: 4px solid var(--primary-color);
@@ -409,6 +350,7 @@
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
+
 </style>
 
 <div class="calories-analysis-section">
@@ -417,10 +359,9 @@
             <h1><i class="fas fa-chart-line" style="color: var(--primary-color);"></i> 칼로리 분석</h1>
             <p>노약자의 식단 칼로리를 분석하고 시각화합니다.</p>
         </div>
-        
+
         <c:if test="${selectedRecipient != null}">
-            
-            <!-- 현재 선택된 recId를 hidden으로 저장 -->
+
             <c:if test="${selectedRecipient != null}">
                 <input type="hidden" id="currentRecIdValue" value="${selectedRecipient.recId}" />
                 <div id="recipientHealthInfo" style="display: none;">
@@ -430,35 +371,34 @@
                     <span data-type="healthNeeds">${selectedRecipient.recHealthNeeds}</span>
                 </div>
             </c:if>
-            
-            <!-- 통계 카드 -->
+
             <div class="stats-grid">
                 <div class="stat-card today">
                     <div class="stat-header">
                         <span class="stat-title">오늘 총 칼로리</span>
-                        <i class="fas fa-sun stat-icon"></i>
+                        <div class="stat-icon"><i class="fas fa-sun"></i></div>
                     </div>
                     <div class="stat-value-container">
                         <div class="stat-value" id="todayCalories">-</div>
                         <div class="stat-unit">kcal</div>
                     </div>
                 </div>
-                
+
                 <div class="stat-card week">
                     <div class="stat-header">
                         <span class="stat-title">이번주 총 칼로리</span>
-                        <i class="fas fa-calendar-week stat-icon"></i>
+                        <div class="stat-icon"><i class="fas fa-calendar-week"></i></div>
                     </div>
                     <div class="stat-value-container">
                         <div class="stat-value" id="weekCalories">-</div>
                         <div class="stat-unit">kcal</div>
                     </div>
                 </div>
-                
+
                 <div class="stat-card month">
                     <div class="stat-header">
                         <span class="stat-title">이번달 총 칼로리</span>
-                        <i class="fas fa-calendar-alt stat-icon"></i>
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
                     </div>
                     <div class="stat-value-container">
                         <div class="stat-value" id="monthCalories">-</div>
@@ -466,8 +406,7 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- 차트 컨테이너 -->
+
             <div class="chart-container">
                 <div class="chart-header">
                     <h2 id="chartTitle"><i class="fas fa-chart-area"></i> 일별 칼로리 추이</h2>
@@ -481,22 +420,20 @@
                     <canvas id="caloriesChart"></canvas>
                 </div>
             </div>
-            
-            <!-- AI 분석 섹션 -->
+
             <div class="ai-analysis-section">
                 <div class="ai-analysis-header">
                     <h2><i class="fas fa-robot"></i> AI 칼로리 분석</h2>
                     <p>AI가 최근 칼로리 섭취 데이터를 분석하여 건강 상태를 평가하고 조절 방안을 제시합니다.</p>
                 </div>
-                
+
                 <div class="ai-analysis-button">
                     <button class="btn-analyze" id="btnAnalyze" onclick="startAiAnalysis()">
                         <i class="fas fa-magic"></i> AI 분석 시작하기
                     </button>
                 </div>
-                
+
                 <div class="ai-analysis-result" id="analysisResult">
-                    <!-- AI 종합 분석 가이드 (수정) -->
                     <div class="result-card" id="aiGuideCard" style="display: none;">
                         <div class="result-card-title">
                             <i class="fas fa-robot"></i> AI 종합 분석
@@ -504,8 +441,7 @@
                         </div>
                         <div class="result-card-content" id="aiGuideContent"></div>
                     </div>
-                    
-                    <!-- 권장 일일 칼로리 -->
+
                     <div class="result-card">
                         <div class="result-card-title">
                             <i class="fas fa-bullseye"></i> 권장 일일 칼로리
@@ -514,16 +450,14 @@
                             <div class="recommended-calories" id="recommendedCalories"></div>
                         </div>
                     </div>
-                    
-                    <!-- 조절 방안 -->
+
                     <div class="result-card">
                         <div class="result-card-title">
                             <i class="fas fa-balance-scale"></i> 조절 방안
                         </div>
                         <div class="result-card-content" id="adjustmentPlanContent"></div>
                     </div>
-                    
-                    <!-- 구체적인 식단 조절 제안 -->
+
                     <div class="result-card">
                         <div class="result-card-title">
                             <i class="fas fa-utensils"></i> 구체적인 식단 조절 제안
@@ -533,7 +467,7 @@
                 </div>
             </div>
         </c:if>
-        
+
         <c:if test="${selectedRecipient == null}">
             <div class="empty-state">
                 <i class="fas fa-user-slash"></i>
@@ -544,65 +478,54 @@
     </div>
 </div>
 
-<!-- AI 분석 로딩 모달 -->
-<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 1060; backdrop-filter: blur(5px);">
-    <div style="background: white; border-radius: 20px; text-align: center; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 9999;">
+    <div class="loading-modal-content">
         <div class="spinner"></div>
-        <p style="font-size: 18px; font-weight: 600; color: #2d3748; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
-        <p style="font-size: 14px; color: #718096; margin: 0;">잠시만 기다려주세요.</p>
+        <p style="font-size: 18px; font-weight: 700; color: #2c3e50; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 14px; color: #7f8c8d; margin: 0;">잠시만 기다려주세요.</p>
     </div>
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
     let caloriesChart = null;
-    let currentPeriod = 'default'; // 현재 선택된 기간
-    
+    let currentPeriod = 'default';
+
     // recId 가져오기 함수
     function getRecId() {
-        // 1. select 요소에서 가져오기
         const recipientSelect = document.getElementById('recipientSelect');
         if (recipientSelect && recipientSelect.value) {
             return recipientSelect.value;
         }
-        
-        // 2. hidden input에서 가져오기
         const hiddenRecId = document.getElementById('currentRecIdValue');
         if (hiddenRecId && hiddenRecId.value) {
             return hiddenRecId.value;
         }
-        
         return null;
     }
-    
-    // 칼로리 차트 로드 (기본: 최근 30일)
+
+    // 칼로리 차트 로드
     function loadCaloriesChart() {
         const recId = getRecId();
-        
+
         if (!recId || recId === 'null' || recId === null || recId === '') {
             console.error('recId가 유효하지 않습니다.');
             showError('대상자 정보가 없습니다.');
             return;
         }
-        
+
         currentPeriod = 'default';
         const loadingDiv = document.getElementById('chartLoading');
         loadingDiv.style.display = 'block';
-        
+
         fetch('<c:url value="/mealplan/api/calories-chart"/>?recId=' + recId)
             .then(response => {
-                console.log('응답 상태:', response.status, response.statusText);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
             })
             .then(data => {
-                console.log('차트 데이터 응답:', data);
                 loadingDiv.style.display = 'none';
-                
                 if (data.success && data.labels && data.data) {
                     if (data.labels.length === 0) {
                         showEmptyChart();
@@ -611,52 +534,39 @@
                         renderChart(data.labels, data.data, 'default', isMealType);
                     }
                 } else {
-                    console.error('차트 데이터 로드 실패:', data);
                     const errorMsg = data.message || '차트 데이터를 불러올 수 없습니다.';
                     showError(errorMsg);
                 }
             })
             .catch(error => {
                 loadingDiv.style.display = 'none';
-                console.error('차트 로드 에러:', error);
                 showError('차트 데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
             });
     }
-    
+
     // 페이지 로드 시 데이터 로드
     document.addEventListener('DOMContentLoaded', function() {
         const recId = getRecId();
-        console.log('페이지 로드 - recId:', recId);
-        
         if (recId && recId !== 'null' && recId !== null && recId !== '' && recId !== undefined) {
             loadCaloriesStats();
-            // 약간의 지연을 두어 DOM이 완전히 로드되도록 함
             setTimeout(() => {
-                loadCaloriesChart(); // 기본: 최근 30일
+                loadCaloriesChart();
             }, 100);
         } else {
             console.error('recId를 가져올 수 없습니다.');
         }
     });
-    
+
     // 기간별 차트 로드
     function loadChartByPeriod(period) {
-        // recId 가져오기
         const recId = getRecId();
-        
-        // recId 유효성 검사
         if (!recId || recId === 'null' || recId === null || recId === '' || recId === undefined) {
-            console.error('recId가 유효하지 않습니다:', recId);
             alert('대상자 정보가 없습니다. 대상자를 선택해주세요.');
             return;
         }
-        
-        console.log('차트 로드 - recId:', recId, 'period:', period);
-        
+
         currentPeriod = period;
         const chartWrapper = document.querySelector('.chart-wrapper');
-        
-        // 차트 영역 초기화
         chartWrapper.innerHTML = `
             <div class="loading" id="chartLoading">
                 <i class="fas fa-spinner"></i>
@@ -664,15 +574,13 @@
             </div>
             <canvas id="caloriesChart"></canvas>
         `;
-        
-        // 초기화 후 loadingDiv 다시 가져오기
+
         const loadingDiv = document.getElementById('chartLoading');
         loadingDiv.style.display = 'block';
-        
-        // 기간에 따른 시작일과 종료일 계산
+
         const today = new Date();
         let startDate, endDate, title, description;
-        
+
         switch(period) {
             case 'today':
                 startDate = new Date(today);
@@ -681,177 +589,125 @@
                 description = '오늘 섭취한 칼로리를 식사별로 표시합니다.';
                 break;
             case 'week':
-                // 이번주 월요일부터 오늘까지
                 const dayOfWeek = today.getDay();
-                const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1); // 월요일
+                const diff = today.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
                 startDate = new Date(today.getFullYear(), today.getMonth(), diff);
                 endDate = new Date(today);
                 title = '<i class="fas fa-calendar-week"></i> 이번주 칼로리';
                 description = '이번주(월요일~오늘) 일별 칼로리 소비량을 그래프로 표시합니다.';
                 break;
             case 'month':
-                // 이번달 1일부터 오늘까지
                 startDate = new Date(today.getFullYear(), today.getMonth(), 1);
                 endDate = new Date(today);
                 title = '<i class="fas fa-calendar-alt"></i> 이번달 칼로리';
                 description = '이번달 일별 칼로리 소비량을 그래프로 표시합니다.';
                 break;
             default:
-                // 최근 30일
                 startDate = new Date(today);
                 startDate.setDate(startDate.getDate() - 29);
                 endDate = new Date(today);
                 title = '<i class="fas fa-chart-area"></i> 일별 칼로리 추이';
                 description = '최근 30일간의 일별 칼로리 소비량을 그래프로 표시합니다.';
         }
-        
-        // 날짜를 YYYY-MM-DD 형식으로 변환
+
         const formatDate = (date) => {
-            if (!date || isNaN(date.getTime())) {
-                console.error('유효하지 않은 날짜:', date);
-                return null;
-            }
+            if (!date || isNaN(date.getTime())) return null;
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             return `${year}-${month}-${day}`;
         };
-        
+
         const startDateStr = formatDate(startDate);
         const endDateStr = formatDate(endDate);
-        
-        // 날짜 유효성 검사
+
         if (!startDateStr || !endDateStr) {
-            console.error('날짜 변환 실패:', { startDate, endDate, startDateStr, endDateStr });
             showError('날짜 계산 중 오류가 발생했습니다.');
             return;
         }
-        
-        console.log('날짜 범위:', { startDateStr, endDateStr });
-        
-        // 차트 제목과 설명 업데이트
+
         document.getElementById('chartTitle').innerHTML = title;
         document.getElementById('chartDescription').textContent = description;
-        
-        // API 호출 (recId 사용)
+
         const apiUrl = `<c:url value="/mealplan/api/calories-chart"/>?recId=${recId}&startDate=${startDateStr}&endDate=${endDateStr}`;
-        console.log('차트 데이터 요청:', apiUrl);
-        
+
         fetch(apiUrl)
             .then(response => {
-                console.log('응답 상태:', response.status, response.statusText);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.json();
             })
             .then(data => {
-                console.log('차트 데이터 응답:', data);
                 loadingDiv.style.display = 'none';
-                
                 if (data.success && data.labels && data.data) {
                     if (data.labels.length === 0) {
                         showEmptyChart();
                     } else {
-                        // 식사별 데이터인지 확인
                         const isMealType = data.isMealType || false;
                         renderChart(data.labels, data.data, period, isMealType);
                     }
                 } else {
-                    console.error('차트 데이터 로드 실패:', data);
                     const errorMsg = data.message || '차트 데이터를 불러올 수 없습니다.';
                     showError(errorMsg);
                 }
             })
             .catch(error => {
                 loadingDiv.style.display = 'none';
-                console.error('차트 로드 에러:', error);
                 showError('차트 데이터를 불러오는 중 오류가 발생했습니다: ' + error.message);
             });
     }
-    
-    // 대상자 변경
-    function changeRecipient() {
-        const recId = document.getElementById('recipientSelect').value;
-        location.href = '<c:url value="/mealplan/calories-analysis"/>?recId=' + recId;
-    }
-    
+
     // 칼로리 통계 로드
     function loadCaloriesStats() {
         const recId = getRecId();
-        
-        if (!recId || recId === 'null' || recId === null || recId === '') {
-            console.error('recId가 유효하지 않습니다.');
-            return;
-        }
-        
+        if (!recId || recId === 'null' || recId === null || recId === '') return;
+
         fetch('<c:url value="/mealplan/api/calories-stats"/>?recId=' + recId)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    document.getElementById('todayCalories').textContent = 
-                        formatNumber(data.todayCalories || 0);
-                    document.getElementById('weekCalories').textContent = 
-                        formatNumber(data.weekCalories || 0);
-                    document.getElementById('monthCalories').textContent = 
-                        formatNumber(data.monthCalories || 0);
+                    document.getElementById('todayCalories').textContent = formatNumber(data.todayCalories || 0);
+                    document.getElementById('weekCalories').textContent = formatNumber(data.weekCalories || 0);
+                    document.getElementById('monthCalories').textContent = formatNumber(data.monthCalories || 0);
                 } else {
-                    console.error('통계 로드 실패:', data.message);
                     showError('통계 데이터를 불러올 수 없습니다.');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
                 showError('통계 데이터를 불러오는 중 오류가 발생했습니다.');
             });
     }
-    
-    
+
     // 차트 렌더링
     function renderChart(labels, data, period, isMealType = false) {
         const ctx = document.getElementById('caloriesChart');
-        
-        // 기존 차트가 있으면 제거
-        if (caloriesChart) {
-            caloriesChart.destroy();
-        }
-        
-        // 라벨 포맷팅 (기간에 따라 다르게 표시)
+        if (caloriesChart) caloriesChart.destroy();
+
         let formattedLabels;
         if (isMealType) {
-            // 식사별 데이터인 경우 (오늘)
-            formattedLabels = labels; // 아침, 점심, 저녁 그대로 사용
+            formattedLabels = labels;
         } else {
-            // 날짜 포맷팅
             formattedLabels = labels.map(label => {
                 const date = new Date(label);
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
-                
                 if (period === 'week') {
-                    // 주간은 요일 포함
                     const weekdays = ['일', '월', '화', '수', '목', '금', '토'];
                     const weekday = weekdays[date.getDay()];
                     return month + '/' + day + ' (' + weekday + ')';
                 } else {
-                    // 기본: MM/DD
                     return month + '/' + day;
                 }
             });
         }
-        
-        // 차트 타입 결정 (식사별은 막대 차트, 일별은 선 차트)
+
         const chartType = isMealType ? 'bar' : 'line';
-        
-        // 차트 색상 설정
         let chartColors;
         if (isMealType) {
-            // 식사별 막대 차트 색상
             chartColors = {
                 backgroundColor: [
-                    'rgba(102, 126, 234, 0.8)',  // 아침
-                    'rgba(118, 75, 162, 0.8)',   // 점심
-                    'rgba(240, 147, 251, 0.8)'   // 저녁
+                    'rgba(102, 126, 234, 0.8)',
+                    'rgba(118, 75, 162, 0.8)',
+                    'rgba(240, 147, 251, 0.8)'
                 ],
                 borderColor: [
                     'rgb(102, 126, 234)',
@@ -860,36 +716,33 @@
                 ]
             };
         } else {
-            // 일별 선 차트 색상
             chartColors = {
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderColor: 'rgb(102, 126, 234)'
+                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                borderColor: '#3498db'
             };
         }
-        
+
         const datasetConfig = {
             label: isMealType ? '식사별 칼로리 (kcal)' : '칼로리 (kcal)',
             data: data,
             borderWidth: 3,
             pointRadius: 4,
             pointHoverRadius: 6,
-            pointBackgroundColor: chartColors.borderColor,
-            pointBorderColor: '#fff',
+            pointBackgroundColor: isMealType ? chartColors.borderColor : '#fff',
+            pointBorderColor: isMealType ? '#fff' : chartColors.borderColor,
             pointBorderWidth: 2
         };
-        
+
         if (isMealType) {
-            // 막대 차트 설정
             datasetConfig.backgroundColor = chartColors.backgroundColor;
             datasetConfig.borderColor = chartColors.borderColor;
         } else {
-            // 선 차트 설정
             datasetConfig.backgroundColor = chartColors.backgroundColor;
             datasetConfig.borderColor = chartColors.borderColor;
             datasetConfig.fill = true;
             datasetConfig.tension = 0.4;
         }
-        
+
         caloriesChart = new Chart(ctx, {
             type: chartType,
             data: {
@@ -904,23 +757,15 @@
                         display: true,
                         position: 'top',
                         labels: {
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            },
+                            font: { size: 14, weight: 'bold' },
                             color: '#2c3e50'
                         }
                     },
                     tooltip: {
                         backgroundColor: 'rgba(0, 0, 0, 0.8)',
                         padding: 12,
-                        titleFont: {
-                            size: 16,
-                            weight: 'bold'
-                        },
-                        bodyFont: {
-                            size: 14
-                        },
+                        titleFont: { size: 16, weight: 'bold' },
+                        bodyFont: { size: 14 },
                         callbacks: {
                             label: function(context) {
                                 return '칼로리: ' + formatNumber(context.parsed.y) + ' kcal';
@@ -934,53 +779,36 @@
                         title: {
                             display: true,
                             text: '칼로리 (kcal)',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            },
+                            font: { size: 14, weight: 'bold' },
                             color: '#2c3e50'
                         },
                         ticks: {
-                            font: {
-                                size: 12
-                            },
+                            font: { size: 12 },
                             color: '#666',
-                            callback: function(value) {
-                                return formatNumber(value);
-                            }
+                            callback: function(value) { return formatNumber(value); }
                         },
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: {
                         title: {
                             display: true,
                             text: '날짜',
-                            font: {
-                                size: 14,
-                                weight: 'bold'
-                            },
+                            font: { size: 14, weight: 'bold' },
                             color: '#2c3e50'
                         },
                         ticks: {
-                            font: {
-                                size: 12
-                            },
+                            font: { size: 12 },
                             color: '#666',
                             maxRotation: 45,
                             minRotation: 45
                         },
-                        grid: {
-                            display: false
-                        }
+                        grid: { display: false }
                     }
                 }
             }
         });
     }
-    
-    // 빈 차트 표시
+
     function showEmptyChart() {
         const chartWrapper = document.querySelector('.chart-wrapper');
         chartWrapper.innerHTML = `
@@ -991,8 +819,7 @@
             </div>
         `;
     }
-    
-    // 에러 표시
+
     function showError(message) {
         const chartWrapper = document.querySelector('.chart-wrapper');
         chartWrapper.innerHTML = `
@@ -1003,60 +830,53 @@
             </div>
         `;
     }
-    
-    // 숫자 포맷팅 (천 단위 구분)
+
     function formatNumber(num) {
         return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-    
-    // AI 분석 시작
+
     function startAiAnalysis() {
         const recId = getRecId();
-        
         if (!recId || recId === 'null' || recId === null || recId === '') {
             alert('대상자 정보가 없습니다. 대상자를 선택해주세요.');
             return;
         }
-        
+
         const btnAnalyze = document.getElementById('btnAnalyze');
         const analysisResult = document.getElementById('analysisResult');
-        
-        // 버튼 비활성화 및 로딩 표시
+
         btnAnalyze.disabled = true;
         document.getElementById('loadingModal').style.display = 'flex';
         analysisResult.classList.remove('show');
-        
-        // API 호출
+
         fetch('<c:url value="/mealplan/api/calories-analysis"/>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                recId: parseInt(recId) || recId  // 숫자로 변환 시도
+                recId: parseInt(recId) || recId
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById('loadingModal').style.display = 'none';
-            btnAnalyze.disabled = false;
-            
-            if (data.success) {
-                // 결과 표시
-                displayAnalysisResult(data);
-            } else {
-                alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            document.getElementById('loadingModal').style.display = 'none';
-            btnAnalyze.disabled = false;
-            console.error('AI 분석 에러:', error);
-            alert('AI 분석 중 오류가 발생했습니다: ' + error.message);
-        });
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loadingModal').style.display = 'none';
+                btnAnalyze.disabled = false;
+
+                if (data.success) {
+                    displayAnalysisResult(data);
+                } else {
+                    alert('분석 중 오류가 발생했습니다: ' + (data.message || '알 수 없는 오류'));
+                }
+            })
+            .catch(error => {
+                document.getElementById('loadingModal').style.display = 'none';
+                btnAnalyze.disabled = false;
+                console.error('AI 분석 에러:', error);
+                alert('AI 분석 중 오류가 발생했습니다: ' + error.message);
+            });
     }
-    
-    // 분석 결과 표시
+
     function displayAnalysisResult(data) {
         const analysisResult = document.getElementById('analysisResult');
         const aiGuideCard = document.getElementById('aiGuideCard');
@@ -1065,8 +885,7 @@
         const recommendedCalories = document.getElementById('recommendedCalories');
         const adjustmentPlanContent = document.getElementById('adjustmentPlanContent');
         const dietSuggestionContent = document.getElementById('dietSuggestionContent');
-        
-        // AI 종합 분석 가이드 표시
+
         if (data.aiAnalysis) {
             aiGuideContent.textContent = data.aiAnalysis;
             aiGuideCard.style.display = 'block';
@@ -1074,22 +893,16 @@
             aiGuideCard.style.display = 'none';
         }
 
-        // 상태 설정
         const status = data.status || '적정';
         statusBadge.textContent = status;
         statusBadge.className = 'status-badge ' + status;
-        
-        // 권장 칼로리
+
         const recommended = data.recommendedCalories || 2000;
         recommendedCalories.textContent = formatNumber(recommended) + ' kcal';
-        
-        // 조절 방안
+
         adjustmentPlanContent.textContent = data.adjustmentPlan || '조절 방안이 없습니다.';
-        
-        // 식단 조절 제안
         dietSuggestionContent.textContent = data.dietSuggestion || '식단 조절 제안이 없습니다.';
-        
-        // 결과 영역 표시
+
         analysisResult.classList.add('show');
     }
 </script>

@@ -8,6 +8,31 @@
 <link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
 
 <style>
+    /* 지도 탭 버튼 스타일 (center.jsp와 동일하게) */
+    .map-tab {
+        background: #f1f3f5 !important; /* 비활성 탭: 중립적인 배경 */
+        color: #495057 !important;     /* 비활성 탭: 어두운 텍스트 */
+        border: 1px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .map-tab:hover:not(.active) {
+        background: #e9ecef !important; /* 비활성 탭 호버 효과 */
+    }
+    .map-tab.active {
+        background: #3498db !important; /* 활성 탭: 요청된 색상 */
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+    }
+    .map-tab.active:hover {
+         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
+    }
+
     /* =========================================
        1. 기본 모달 및 공통 스타일
        ========================================= */
@@ -173,7 +198,7 @@
         justify-content: center;
     }
     .btn-recommend-ai:hover {
-        background: #5a6fd6;
+        : #5a6fd6;
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
         color: white;
@@ -256,7 +281,7 @@
     }
 </style>
 
-<section style="padding: 20px 0 100px 0; background: #FFFFFF; min-height: calc(100vh - 200px);">
+<section style="padding: 20px 0 100px 0; background: #f8f9fa; min-height: calc(100vh - 200px);">
     <div class="container-fluid" style="max-width: 1400px; margin: 0 auto;">
 
         <div class="row">
@@ -275,7 +300,7 @@
                             <div class="map-left">
                                 <div class="map-title">
                                     <span class="map-title-icon"><i class="fas fa-location-dot"></i></span>
-                                    <span>케어 지도</span>
+                                    <span>지도 목록</span>
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
                                     <div class="map-location-items">
@@ -404,7 +429,7 @@
             <div class="modal-body">
                 <form id="saveRecommendForm">
                     <div class="ai-info-box">
-                        <div class="ai-info-title"><i class="fas fa-robot"></i> AI 추천 정보</div>
+                        <div class="ai-info-title"><i class="fas fa-location-bot"></i> AI 추천 정보</div>
                         <div class="mb-2">
                             <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill" id="displayMapCategory" style="font-weight: 600; margin-right: 5px;"></span>
                             <strong id="displayMapName" style="font-size: 1.1rem; color: #333;"></strong>
@@ -639,8 +664,12 @@
 
     // 오버레이 닫기 함수 (전역)
     function closeAllOverlays() {
-        overlays.forEach(overlay => overlay.setMap(null));
-        overlays = [];
+        // 배열은 그대로 두고, 지도 상에서만 오버레이를 숨깁니다.
+        overlays.forEach(overlay => {
+            if (overlay) {
+                overlay.setMap(null);
+            }
+        });
     }
 
     // 특정 오버레이 닫기
@@ -825,21 +854,22 @@
                     const content = `
                         <div class="custom-overlay-wrap">
                             <div class="custom-overlay-header">
-                            <span>\${place.mapName}</span>
-                    </div>
-                        <div class="custom-overlay-body">
-                            <span class="custom-overlay-category">\${place.mapCategory}</span>
-                            <div style="font-size:12px; color:#666; margin-bottom:8px;">\${address}</div>
-                            <button class="btn-add-schedule-overlay" onclick="openScheduleModalFromMarker(this)"
-                                    data-mapname="\${place.mapName}" data-mapcontent="\${place.mapContent}"
-                                    data-mapcategory="\${place.mapCategory}" data-mapaddress="\${address}"
-                                    data-coursetype="\${place.courseType || 'WALK'}" data-startlat="\${place.startLat}"
-                                    data-startlng="\${place.startLng}" data-endlat="\${place.y}"
-                                    data-endlng="\${place.x}" data-distance="\${place.distance || 0}">
-                                일정 추가
-                            </button>
+                                <span>\${place.mapName}</span>
+                                <div class="custom-overlay-close" onclick="event.stopPropagation(); closeOverlay(\${i})" title="닫기">×</div>
+                            </div>
+                            <div class="custom-overlay-body">
+                                <span class="custom-overlay-category">\${place.mapCategory}</span>
+                                <div style="font-size:12px; color:#666; margin-bottom:8px;">\${address}</div>
+                                <button class="btn-add-schedule-overlay" onclick="openScheduleModalFromMarker(this)"
+                                        data-mapname="\${place.mapName}" data-mapcontent="\${place.mapContent}"
+                                        data-mapcategory="\${place.mapCategory}" data-mapaddress="\${address}"
+                                        data-coursetype="\${place.courseType || 'WALK'}" data-startlat="\${place.startLat}"
+                                        data-startlng="\${place.startLng}" data-endlat="\${place.y}"
+                                        data-endlng="\${place.x}" data-distance="\${place.distance || 0}">
+                                    일정 추가
+                                </button>
+                            </div>
                         </div>
-                    </div>
                         `;
 
                     const overlay = new kakao.maps.CustomOverlay({
@@ -873,12 +903,27 @@
                     const index = this.dataset.index;
                     if (recommendMarkers[index]) { recommendMarkers[index].setZIndex(0); }
                 });
-                card.addEventListener('dblclick', function() {
-                    const lat = this.dataset.lat;
-                    const lng = this.dataset.lng;
+                // 더블클릭 이벤트를 단일 클릭으로 변경
+                card.addEventListener('click', function(event) {
+                    // 버튼, a 태그 등 특정 요소 클릭 시에는 이벤트 무시
+                    if (event.target.closest('button, a')) {
+                        return;
+                    }
+
+                    // 클릭한 카드의 부모 요소에서 위도, 경도 정보를 가져옴
+                    const lat = this.parentElement.dataset.lat;
+                    const lng = this.parentElement.dataset.lng;
                     const index = this.dataset.index;
-                    if (lat && lng && index) {
-                        moveMapToLocation(lat, lng, index);
+
+                    if (lat && lng && index !== undefined) {
+                        // 페이지 최상단으로 부드럽게 스크롤
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        // 스크롤 애니메이션이 끝난 후 지도 이동 및 정보창 표시
+                        // 'scrollend' 이벤트는 지원 범위가 넓지 않으므로 setTimeout 사용
+                        setTimeout(() => {
+                            moveMapToLocation(lat, lng, index);
+                        }, 500); // 0.5초 딜레이
                     }
                 });
             });

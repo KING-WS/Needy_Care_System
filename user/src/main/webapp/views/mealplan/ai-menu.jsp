@@ -1,82 +1,174 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<link rel="stylesheet" href="<c:url value='/css/mealplan.css'/>" />
+
 <style>
-    .ai-menu-section {
-        padding: 20px 0 100px 0;
-        background: #FFFFFF;
+    /* ---------------------------------------------------- */
+    /* 1. 디자인 시스템 (center.jsp와 통일) */
+    /* ---------------------------------------------------- */
+    :root {
+        --primary-color: #3498db;   /* 메인 블루 */
+        --secondary-color: #343a40; /* 진한 회색 텍스트 */
+        --secondary-bg: #F0F8FF;    /* 연한 배경색 */
+        --card-bg: white;
+        --danger-color: #e74c3c;
+        --success-color: #2ecc71;
+        --warning-color: #f1c40f;
     }
 
-    .ai-menu-container {
+    body {
+        background-color: #f8f9fa;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 2. 레이아웃 & 카드 스타일 */
+    /* ---------------------------------------------------- */
+    .ai-menu-section {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 40px 20px 100px 20px;
     }
 
-    /* [수정] 페이지 헤더 중앙 정렬 */
-    .page-header {
+    /* center.jsp의 카드 스타일 적용 */
+    .detail-content-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         margin-bottom: 30px;
+        transition: transform 0.3s ease;
+    }
+
+    /* 페이지 헤더 (center.jsp 스타일) */
+    .page-header {
         text-align: center;
+        margin-bottom: 40px;
     }
 
     .page-header h1 {
         font-size: 38px;
         font-weight: 800;
-        color: var(--secondary-color);
-        margin-bottom: 10px;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        margin-bottom: 10px;
+        color: var(--secondary-color);
     }
 
-    .page-header p {
+    .page-header h5 {
         font-size: 16px;
-        color: #666;
+        color: #7f8c8d;
+        font-weight: 400;
     }
 
-    .camera-container {
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        padding: 30px;
+    /* 섹션 제목 스타일 */
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
         margin-bottom: 20px;
-    }
-
-    .camera-section {
+        color: var(--secondary-color);
         display: flex;
-        flex-direction: column;
-        gap: 20px;
+        align-items: center;
+        gap: 10px;
     }
 
-    /* [수정] 카메라 프리뷰 스타일 업데이트 (ai-check.jsp 스타일 적용) */
+    /* ---------------------------------------------------- */
+    /* 3. 입력 필드 & 버튼 (center.jsp 스타일) */
+    /* ---------------------------------------------------- */
+    /* center.jsp의 input 스타일 */
+    .form-control {
+        width: 100%;
+        background: var(--secondary-bg);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        padding: 12px 15px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        color: var(--secondary-color);
+    }
+
+    .form-control:focus {
+        background: white;
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    /* center.jsp의 버튼 스타일 */
+    .btn-custom {
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 15px;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+    }
+    .btn-primary-custom:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+    }
+
+    .btn-secondary-custom {
+        background: #95a5a6;
+        color: white;
+    }
+    .btn-secondary-custom:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger-custom {
+        background: var(--danger-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+    }
+    .btn-danger-custom:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
+    }
+
+    /* ---------------------------------------------------- */
+    /* 4. 카메라 영역 */
+    /* ---------------------------------------------------- */
     .camera-preview {
         width: 100%;
         max-width: 600px;
-        margin: 0 auto;
-        border-radius: 12px;
+        margin: 0 auto 20px auto;
+        border-radius: 20px; /* 카드와 동일한 라운드 */
         overflow: hidden;
-        background: #f8f9fa; /* 밝은 회색 배경 */
+        background: #f1f3f5; /* 약간 더 진한 회색 */
         position: relative;
-        /* 외곽선 스타일 적용 */
-        box-shadow: 0 0 0 2px #d2d5d9;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
         aspect-ratio: 16 / 9;
-
-        /* 내부 아이콘 중앙 정렬 */
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 2px dashed #d2d5d9; /* 대기 상태일 때 점선 */
     }
 
-    #videoElement {
+    /* 비디오가 활성화되면 테두리 스타일 변경 */
+    .camera-preview.active {
+        border: none;
+    }
+
+    #videoElement, #canvasElement {
         width: 100%;
-        height: 100%; /* 부모 꽉 채우기 */
+        height: 100%;
         object-fit: cover;
-        display: none; /* 초기에는 숨김 */
-    }
-
-    #canvasElement {
         display: none;
     }
 
-    /* [추가] 카메라 대기 화면 (아이콘 및 텍스트) */
     .camera-placeholder {
         text-align: center;
         color: #adb5bd;
@@ -85,15 +177,9 @@
     }
 
     .camera-placeholder i {
-        font-size: 60px;
-        margin-bottom: 15px;
+        font-size: 50px;
+        margin-bottom: 10px;
         color: #ced4da;
-    }
-
-    .camera-placeholder p {
-        font-size: 20px;
-        font-weight: 700;
-        margin: 0;
     }
 
     .camera-controls {
@@ -101,305 +187,171 @@
         gap: 10px;
         justify-content: center;
         flex-wrap: wrap;
+        margin-top: 20px;
     }
 
-    /* [수정] 버튼 공통 스타일 (애니메이션 포함) */
-    .btn-camera {
-        padding: 12px 28px; /* 패딩 조정 */
-        border: none;
-        border-radius: 30px; /* 캡슐형 */
-        font-size: 16px;
-        font-weight: 700; /* 폰트 굵게 */
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        /* [수정] 애니메이션 부드럽게 */
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
-    }
-
-    /* [추가] 버튼 눌렀을 때(Active) 공통 효과: 살짝 눌림 + 그림자 제거 */
-    .btn-camera:active {
-        transform: translateY(1px);
-        box-shadow: none;
-        outline: none;
-    }
-
-    /* --- Primary 버튼 (파란색) --- */
-    .btn-camera-primary {
-        background: var(--primary-color);
-        color: white;
-    }
-    .btn-camera-primary:hover {
-        background: #2980b9;
-        transform: translateY(-2px);
-        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-    }
-    /* [수정] 클릭 시 색상 고정 */
-    .btn-camera-primary:active,
-    .btn-camera-primary:focus {
-        background: #2980b9 !important;
-        color: white !important;
-    }
-
-    /* --- Secondary 버튼 (회색) --- */
-    .btn-camera-secondary {
-        background: #95a5a6;
-        color: white;
-    }
-    .btn-camera-secondary:hover {
-        background: #7f8c8d;
-        transform: translateY(-2px);
-        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-    }
-    /* [수정] 클릭 시 색상 고정 */
-    .btn-camera-secondary:active,
-    .btn-camera-secondary:focus {
-        background: #7f8c8d !important;
-        color: white !important;
-    }
-
-    /* --- Danger 버튼 (빨간색) --- */
-    .btn-camera-danger {
-        background: #e74c3c;
-        color: white;
-    }
-    .btn-camera-danger:hover {
-        background: #c0392b;
-        transform: translateY(-2px);
-        box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
-    }
-    /* [수정] 클릭 시 색상 고정 */
-    .btn-camera-danger:active,
-    .btn-camera-danger:focus {
-        background: #c0392b !important;
-        color: white !important;
-    }
-
+    /* ---------------------------------------------------- */
+    /* 5. 결과 영역 (레시피 & 안전성) */
+    /* ---------------------------------------------------- */
     .result-container {
-        background: #fff;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        padding: 30px;
-        margin-top: 30px;
         display: none;
-        visibility: hidden;
-        opacity: 0;
-        min-height: 100px;
+        animation: slideUp 0.4s ease-out;
     }
-
     .result-container.show {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-    }
-
-    .result-section {
-        margin-bottom: 40px;
         display: block;
-        visibility: visible;
-        opacity: 1;
     }
 
-    .result-section:last-child {
-        margin-bottom: 0;
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .result-section h3 {
-        font-size: 24px;
-        color: #2c3e50;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #eee;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
+    /* 레시피 정보 박스 */
     .recipe-info {
-        background: #f8f9fa;
-        border-radius: 12px;
+        background: var(--secondary-bg);
+        border-radius: 15px;
         padding: 20px;
         margin-bottom: 25px;
+        border: 1px solid rgba(52, 152, 219, 0.1);
     }
 
     .recipe-info-item {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         font-size: 16px;
-    }
-
-    .recipe-info-item:last-child {
-        margin-bottom: 0;
     }
 
     .recipe-info-label {
         font-weight: 600;
-        color: #495057;
-        min-width: 100px;
+        color: #7f8c8d;
+        min-width: 90px;
     }
 
     .recipe-info-value {
-        color: #2c3e50;
+        color: var(--secondary-color);
+        font-weight: 500;
     }
 
-    .ingredients-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-top: 10px;
-    }
-
+    /* 재료 태그 */
     .ingredient-tag {
-        padding: 8px 16px;
-        background: #e7f3ff;
+        display: inline-block;
+        padding: 6px 14px;
+        background: white;
+        border: 1px solid #e2e8f0;
         border-radius: 20px;
         font-size: 14px;
-        color: #495057;
+        color: var(--secondary-color);
+        margin: 0 8px 8px 0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
     }
 
-    .steps-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
+    .ingredient-calories {
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: 0.9em;
+        margin-left: 4px;
     }
 
+    /* 조리 순서 */
     .step-item {
-        background: #fff;
-        border-left: 4px solid var(--primary-color);
-        border-radius: 8px;
+        background: white;
+        border: 1px solid #eee;
+        border-radius: 15px;
         padding: 20px;
         margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        display: flex;
+        gap: 15px;
+        transition: transform 0.2s;
+    }
+    .step-item:hover {
+        transform: translateY(-2px);
+        border-color: var(--primary-color);
     }
 
     .step-number {
-        display: inline-block;
-        width: 30px;
-        height: 30px;
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
         background: var(--primary-color);
         color: white;
         border-radius: 50%;
         text-align: center;
-        line-height: 30px;
+        line-height: 32px;
         font-weight: 700;
-        margin-right: 15px;
+        font-size: 14px;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
     }
 
     .step-description {
-        display: inline-block;
-        vertical-align: top;
-        width: calc(100% - 50px);
         font-size: 16px;
         line-height: 1.6;
-        color: #333;
+        color: var(--secondary-color);
     }
 
-    .tips-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
+    /* 팁 박스 */
     .tip-item {
-        padding: 12px;
+        padding: 15px;
         margin-bottom: 10px;
-        background: #fff3cd;
-        border-radius: 8px;
+        background: #fff3cd; /* center.jsp 아침 배지 색상 활용 */
+        border-radius: 12px;
         color: #856404;
         display: flex;
         align-items: start;
         gap: 10px;
     }
 
+    /* 안전성 배지 (center.jsp의 .meal-badge 스타일 활용) */
     .safety-badge {
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-weight: 700;
         font-size: 14px;
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
         margin-left: 10px;
     }
+    .safety-badge.safe { background: #d4edda; color: #155724; }
+    .safety-badge.warning { background: #fff3cd; color: #856404; }
+    .safety-badge.danger { background: #f8d7da; color: #721c24; }
+    .safety-badge.unknown { background: #e2e8f0; color: #495057; }
 
-    .safety-badge.safe {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .safety-badge.warning {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .safety-badge.danger {
-        background: #f8d7da;
-        color: #721c24;
-    }
-
-    .safety-badge.unknown {
-        background: #e9ecef;
-        color: #495057;
-    }
-
+    /* 안전성 메시지 박스 */
     .safety-message {
-        font-size: 16px;
-        line-height: 1.8;
-        color: #333;
-        margin-bottom: 20px;
         padding: 20px;
-        background: #f8f9fa;
-        border-radius: 8px;
+        border-radius: 15px;
         font-weight: 500;
-        border-left: 4px solid var(--primary-color);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
     }
 
-    .warnings-list, .recommendations-list {
-        margin-top: 15px;
-    }
-
-    .warnings-list h4, .recommendations-list h4 {
-        font-size: 18px;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-
-    .warnings-list ul, .recommendations-list ul {
-        list-style: none;
-        padding: 0;
-    }
-
+    /* 주의사항 리스트 */
     .warnings-list li, .recommendations-list li {
-        padding: 10px;
+        padding: 12px;
         margin-bottom: 8px;
-        border-radius: 8px;
+        border-radius: 12px;
         display: flex;
         align-items: start;
         gap: 10px;
+        font-size: 15px;
     }
+    .warnings-list li { background: #fff3cd; color: #856404; }
+    .recommendations-list li { background: #d1ecf1; color: #0c5460; }
 
-    .warnings-list li {
-        background: #fff3cd;
-        color: #856404;
-    }
-
-    .recommendations-list li {
-        background: #d1ecf1;
-        color: #0c5460;
-    }
-
-    .loading {
+    /* 로딩 스피너 */
+    .loading-modal-content {
+        background: white;
+        border-radius: 20px;
         text-align: center;
-        padding: 40px;
-        display: none;
+        padding: 40px 50px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.15);
     }
-
-    .loading.show {
-        display: block;
-    }
-
     .spinner {
         border: 4px solid #f3f3f3;
         border-top: 4px solid var(--primary-color);
@@ -409,96 +361,41 @@
         animation: spin 1s linear infinite;
         margin: 0 auto 20px;
     }
-
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
 
-    .ingredient-calories {
-        font-size: 0.9em;
-        color: #007bff;
-        font-weight: 500;
-    }
-    .total-calories-section {
-        margin-top: 20px;
-        padding: 15px;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 16px;
-        border: 1px solid #e9ecef;
-    }
-    .total-calories-section i {
-        color: #ff6b6b;
-        font-size: 20px;
-    }
-    .total-calories-section strong {
-        font-weight: 600;
-        color: #343a40;
-    }
-    .total-calories-section span {
-        font-weight: 700;
-        color: #ff6b6b;
-        font-size: 18px;
-    }
-
-    /* 모달 (mealplan.css 기반) */
+    /* ---------------------------------------------------- */
+    /* 6. 모달 스타일 (center.jsp 스타일) */
+    /* ---------------------------------------------------- */
     .modal-overlay {
         display: none;
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.6);
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* 좀 더 연하게 */
         z-index: 9999;
         align-items: center;
         justify-content: center;
-        animation: fadeIn 0.3s ease;
+        backdrop-filter: blur(3px); /* 블러 효과 */
     }
-
-    /* 모달창이 활성화될 때 (JS에서 display: flex로 변경됨) */
-    .modal-overlay[style*="display: flex"] {
-        display: flex !important;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
+    .modal-overlay[style*="display: flex"] { display: flex !important; }
 
     .modal-content {
         background: white;
         border-radius: 20px;
         width: 90%;
-        max-width: 600px; /* 너비를 mealplan.css와 맞춤 */
+        max-width: 550px;
         max-height: 90vh;
         overflow-y: auto;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
         animation: slideUp 0.3s ease;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(50px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        border: none;
     }
 
     .modal-header {
-        padding: 25px 30px;
-        border-bottom: 2px solid #f7fafc;
+        padding: 25px 30px 10px 30px; /* 하단 패딩 줄임 */
+        border-bottom: none; /* center.jsp처럼 구분선 제거 */
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -506,226 +403,149 @@
 
     .modal-title {
         font-size: 22px;
-        font-weight: 700;
-        color: #2d3748;
+        font-weight: 800;
+        color: var(--secondary-color);
         margin: 0;
         display: flex;
         align-items: center;
         gap: 10px;
     }
 
-    .modal-title i {
-        color: #667eea;
-    }
-
     .modal-close-btn {
         width: 36px;
         height: 36px;
         border: none;
-        background: #f7fafc;
-        color: #718096;
+        background: #f1f3f5;
+        color: #868e96;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: all 0.3s ease;
+        transition: all 0.2s;
     }
-
     .modal-close-btn:hover {
-        background: #ff6b6b;
+        background: var(--danger-color);
         color: white;
-        transform: rotate(90deg);
     }
 
-    .modal-body {
-        padding: 30px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
-    .form-group:last-child {
-        margin-bottom: 0;
-    }
+    .modal-body { padding: 10px 30px 30px 30px; }
+    .form-group { margin-bottom: 20px; }
 
     .form-label {
         display: block;
         font-size: 14px;
         font-weight: 600;
-        color: #2d3748;
+        color: var(--secondary-color);
         margin-bottom: 8px;
     }
-
-    .form-label i {
-        color: #667eea;
-        margin-right: 5px;
-    }
-
-    .required {
-        color: #ff6b6b;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 14px;
-        transition: all 0.3s ease;
-        font-family: inherit;
-    }
-
-    .form-control:focus {
-        outline: none;
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .form-control::placeholder {
-        color: #cbd5e0;
-    }
-
-    textarea.form-control {
-        resize: vertical;
-        min-height: 100px;
-    }
-
-    .form-hint {
-        display: block;
-        font-size: 12px;
-        color: #a0aec0;
-        margin-top: 5px;
-    }
+    .form-label i { color: var(--primary-color); margin-right: 5px; }
+    .required { color: var(--danger-color); }
 
     .modal-footer {
         padding: 20px 30px;
-        border-top: 2px solid #f7fafc;
+        border-top: none; /* 구분선 제거 혹은 연하게 */
         display: flex;
         gap: 10px;
         justify-content: flex-end;
+        background: #fafafa; /* 하단 배경 살짝 다르게 */
+        border-radius: 0 0 20px 20px;
     }
 
-    .btn {
-        padding: 12px 30px;
-        border: none;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .btn-cancel {
-        background: #f7fafc;
-        color: #718096;
-    }
-
-    .btn-cancel:hover {
-        background: #e2e8f0;
-    }
-
-    .btn-save {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-    }
-
-    .btn-save:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    /* 모달 내부 textarea 스타일 조정 */
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+        line-height: 1.6;
     }
 </style>
 
 <section class="ai-menu-section">
-    <div class="ai-menu-container">
-        <div class="page-header">
-            <h1>
-                <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 식단 메뉴
-            </h1>
-            <p>카메라로 음식을 촬영하거나 음식 이름을 입력하면 레시피와 안전성 검사 결과를 제공합니다</p>
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 식단 메뉴
+        </h1>
+        <br>
+        <h5>카메라로 음식을 촬영하거나 음식 이름을 입력하면 <br>레시피와 안전성 검사 결과를 제공합니다</h5>
+    </div>
+
+    <div class="detail-content-card">
+        <h3 class="section-title">
+            <i class="fas fa-keyboard" style="color: var(--primary-color);"></i> 음식 이름으로 분석하기
+        </h3>
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <input type="text"
+                   id="foodNameInput"
+                   class="form-control"
+                   placeholder="예: 김치찌개, 된장찌개, 비빔밥 등"
+                   onkeypress="if(event.key === 'Enter') analyzeMealByText()">
+            <button class="btn-custom btn-primary-custom" onclick="analyzeMealByText()" style="flex-shrink: 0;">
+                <i class="fas fa-search"></i> 분석하기
+            </button>
         </div>
+    </div>
 
-        <div class="camera-container" style="margin-bottom: 20px;">
-            <div class="camera-section">
-                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
-                    <i class="fas fa-keyboard"></i> 음식 이름으로 분석하기
-                </h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <input type="text"
-                           id="foodNameInput"
-                           placeholder="예: 김치찌개, 된장찌개, 비빔밥 등"
-                           style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;"
-                           onkeypress="if(event.key === 'Enter') analyzeMealByText()">
-                    <button class="btn-camera btn-camera-primary" onclick="analyzeMealByText()">
-                        <i class="fas fa-search"></i> 분석하기
-                    </button>
-                </div>
-            </div>
-        </div>
+    <div class="detail-content-card">
+        <h3 class="section-title">
+            <i class="fas fa-camera" style="color: var(--primary-color);"></i> 사진으로 분석하기
+        </h3>
 
-        <div class="camera-container">
-            <div class="camera-section">
-                <h3 style="margin-bottom: 15px; color: #2c3e50; font-size: 20px;">
-                    <i class="fas fa-camera"></i> 사진으로 분석하기
-                </h3>
-                <div class="camera-preview">
-                    <video id="videoElement" autoplay playsinline></video>
-                    <canvas id="canvasElement"></canvas>
+        <div class="camera-preview">
+            <video id="videoElement" autoplay playsinline></video>
+            <canvas id="canvasElement"></canvas>
 
-                    <div id="cameraPlaceholder" class="camera-placeholder">
-                        <i class="fas fa-camera"></i>
-                        <p>음식 촬영</p>
-                    </div>
-                </div>
-
-                <div class="camera-controls">
-                    <button class="btn-camera btn-camera-primary" onclick="startCamera()">
-                        <i class="fas fa-video"></i> 카메라 시작
-                    </button>
-                    <button class="btn-camera btn-camera-secondary" onclick="capturePhoto()" id="captureBtn" disabled>
-                        <i class="fas fa-camera"></i> 사진 촬영
-                    </button>
-                    <button class="btn-camera btn-camera-danger" onclick="stopCamera()" id="stopBtn" disabled>
-                        <i class="fas fa-stop"></i> 카메라 중지
-                    </button>
-                </div>
+            <div id="cameraPlaceholder" class="camera-placeholder">
+                <i class="fas fa-camera"></i>
+                <p style="font-weight: 600;">여기를 눌러 촬영하거나 아래 버튼을 사용하세요</p>
             </div>
         </div>
 
-        <div class="result-container" id="resultContainer">
-            <div class="result-section" id="recipeSection">
-                <div id="aiGuideSection" style="margin-bottom: 25px; display: none;">
-                    <h3 id="aiGuideTitle" style="font-size: 25px; color: #2c3e50; margin-bottom: 15px;">
-                        <i class="fas fa-robot"></i> AI 가이드
-                    </h3>
-                    <div id="aiGuideContent" class="safety-message" style="background: #e7f3ff; color: #004085; border-left-color: #667eea;">
-                    </div>
+        <div class="camera-controls">
+            <button class="btn-custom btn-primary-custom" onclick="startCamera()">
+                <i class="fas fa-video"></i> 카메라 시작
+            </button>
+            <button class="btn-custom btn-secondary-custom" onclick="capturePhoto()" id="captureBtn" disabled>
+                <i class="fas fa-camera"></i> 사진 촬영
+            </button>
+            <button class="btn-custom btn-danger-custom" onclick="stopCamera()" id="stopBtn" disabled>
+                <i class="fas fa-stop"></i> 카메라 중지
+            </button>
+        </div>
+    </div>
+
+    <div class="result-container" id="resultContainer">
+
+        <div class="detail-content-card result-section" id="recipeSection">
+            <div id="aiGuideSection" style="margin-bottom: 25px; display: none;">
+                <h3 id="aiGuideTitle" class="section-title">
+                    <i class="fas fa-robot"></i> AI 가이드
+                </h3>
+                <div id="aiGuideContent" class="safety-message" style="background: var(--secondary-bg); color: var(--primary-color);">
                 </div>
-                <h3><i class="fas fa-book"></i> 조리법</h3>
-                <div id="recipeContent"></div>
             </div>
 
-            <div class="result-section" id="safetySection">
-                <h3>
-                    <i class="fas fa-shield-alt"></i> 안전성 검사 결과
-                    <span class="safety-badge" id="safetyBadge"></span>
-                </h3>
-                <div id="safetyContent"></div>
-            </div>
+            <h3 class="section-title"><i class="fas fa-book" style="color: var(--primary-color);"></i> 조리법</h3>
+            <div id="recipeContent"></div>
+        </div>
+
+        <div class="detail-content-card result-section" id="safetySection">
+            <h3 class="section-title">
+                <span>
+                    <i class="fas fa-shield-alt" style="color: var(--primary-color);"></i> 안전성 검사 결과
+                </span>
+                <span class="safety-badge" id="safetyBadge"></span>
+            </h3>
+            <div id="safetyContent"></div>
         </div>
     </div>
 </section>
 
-<div class="modal-overlay" id="saveRecipeModal" style="display: none; z-index: 1050;">
-    <div class="modal-content" style="max-width: 500px;">
+<div class="modal-overlay" id="saveRecipeModal" style="z-index: 9999;">
+    <div class="modal-content">
         <div class="modal-header">
             <h3 class="modal-title">
-                <i class="fas fa-save"></i> AI 레시피로 식단 저장
+                <i class="fas fa-save" style="color: var(--primary-color);"></i> AI 레시피로 식단 저장
             </h3>
             <button class="modal-close-btn" onclick="closeSaveRecipeModal()">
                 <i class="fas fa-times"></i>
@@ -775,22 +595,21 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-cancel" onclick="closeSaveRecipeModal()">
+            <button class="btn-custom btn-secondary-custom" onclick="closeSaveRecipeModal()">
                 <i class="fas fa-times"></i> 취소
             </button>
-            <button class="btn btn-save" onclick="saveAiRecipe()">
+            <button class="btn-custom btn-primary-custom" onclick="saveAiRecipe()">
                 <i class="fas fa-save"></i> 저장
             </button>
         </div>
     </div>
 </div>
 
-<!-- AI 분석 로딩 모달 -->
-<div class="modal-overlay" id="loadingModal" style="display: none; z-index: 1060; backdrop-filter: blur(5px);">
-    <div style="background: white; border-radius: 20px; text-align: center; padding: 40px 50px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+<div class="modal-overlay" id="loadingModal" style="z-index: 1060;">
+    <div class="loading-modal-content">
         <div class="spinner"></div>
-        <p style="font-size: 18px; font-weight: 600; color: #2d3748; margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
-        <p style="font-size: 14px; color: #718096; margin: 0;">잠시만 기다려주세요.</p>
+        <p style="font-size: 18px; fontWeight: 700; color: var(--secondary-color); margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 14px; color: #7f8c8d; margin: 0;">잠시만 기다려주세요.</p>
     </div>
 </div>
 
@@ -806,6 +625,7 @@
         const placeholder = document.getElementById('cameraPlaceholder');
         const captureBtn = document.getElementById('captureBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const preview = document.querySelector('.camera-preview');
 
         // 이미 실행 중인 스트림 정리
         if (stream) {
@@ -819,13 +639,12 @@
             existingImg.remove();
         }
 
-        // [수정] 문구를 먼저 확실히 숨기고 비디오를 보여줍니다.
         if(placeholder) placeholder.style.display = 'none';
         video.style.display = 'block';
+        preview.classList.add('active'); // 테두리 제거용 클래스
 
         capturedImage = null;
         document.getElementById('resultContainer').classList.remove('show');
-
         navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
@@ -846,7 +665,8 @@
 
                 // 실패 시 원상복구
                 video.style.display = 'none';
-                if(placeholder) placeholder.style.display = 'flex'; // 중앙 정렬을 위해 flex로 표시
+                preview.classList.remove('active');
+                if(placeholder) placeholder.style.display = 'block';
             });
     }
 
@@ -865,9 +685,8 @@
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
         capturedImage = canvas.toDataURL('image/jpeg', 0.8);
-
-        // [수정] 촬영 시 비디오 숨기고 플레이스홀더도 숨기기
         video.style.display = 'none';
+
         const placeholder = document.getElementById('cameraPlaceholder');
         if(placeholder) placeholder.style.display = 'none';
 
@@ -901,14 +720,15 @@
 
         const video = document.getElementById('videoElement');
         const placeholder = document.getElementById('cameraPlaceholder');
+        const preview = document.querySelector('.camera-preview');
 
         video.srcObject = null;
         video.style.display = 'none';
 
         const capturedImg = document.querySelector('#capturedImage');
         if (!capturedImg) {
-            // [수정] 촬영된 이미지가 없으면 플레이스홀더(아이콘) 다시 표시
-            if(placeholder) placeholder.style.display = 'flex';
+            if(placeholder) placeholder.style.display = 'block';
+            preview.classList.remove('active');
         }
 
         document.getElementById('captureBtn').disabled = true;
@@ -927,10 +747,10 @@
 
         // 음식명 저장
         currentFoodName = foodName;
-        // 로딩 모달 표시
+
         document.getElementById('loadingModal').style.display = 'flex';
         document.getElementById('resultContainer').classList.remove('show');
-        // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
+
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
             headers: {
@@ -942,21 +762,15 @@
             })
         })
             .then(response => {
-                console.log('응답 상태:', response.status);
-
                 if (!response.ok) {
                     return response.json().then(errData => {
                         throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
                     });
                 }
-
                 return response.json();
             })
             .then(data => {
                 document.getElementById('loadingModal').style.display = 'none';
-
-                console.log('API 응답 데이터:', data);
-
                 if (data.success) {
                     displayResults(data);
                 } else {
@@ -976,13 +790,11 @@
             return;
         }
 
-        // 로딩 모달 표시
         document.getElementById('loadingModal').style.display = 'flex';
         document.getElementById('resultContainer').classList.remove('show');
 
-        // Base64 이미지에서 데이터 부분만 추출
         const imageBase64 = capturedImage.split(',')[1];
-        // API 호출 (recId가 없으면 null로 전송, 서버에서 처리)
+
         fetch('/mealplan/api/ai-menu', {
             method: 'POST',
             headers: {
@@ -994,21 +806,15 @@
             })
         })
             .then(response => {
-                console.log('응답 상태:', response.status);
-
                 if (!response.ok) {
                     return response.json().then(errData => {
                         throw new Error(errData.message || `HTTP ${response.status}: ${response.statusText}`);
                     });
                 }
-
                 return response.json();
             })
             .then(data => {
                 document.getElementById('loadingModal').style.display = 'none';
-
-                console.log('API 응답 데이터:', data);
-
                 if (data.success) {
                     displayResults(data);
                 } else {
@@ -1024,26 +830,16 @@
 
     function displayResults(data) {
         const container = document.getElementById('resultContainer');
-        if (!container) {
-            console.error('resultContainer 요소를 찾을 수 없습니다!');
-            return;
-        }
+        if (!container) return;
 
-        // 컨테이너 표시
         container.classList.add('show');
         container.style.display = 'block';
-        container.style.visibility = 'visible';
-        container.style.opacity = '1';
-        container.style.height = 'auto';
-        container.style.minHeight = '100px';
-        // 레시피 표시
+
         if (data.recipe && data.recipe.success && data.recipe.recipe) {
             currentRecipeData = data.recipe.recipe;
-            // 전역 변수에 레시피 데이터 저장
             displayRecipe(currentRecipeData);
             document.getElementById('recipeSection').style.display = 'block';
 
-            // 레시피에서 음식명 추출 (이미지 분석인 경우)
             if (!currentFoodName && data.recipe.recipe.foodName) {
                 currentFoodName = data.recipe.recipe.foodName;
             }
@@ -1052,7 +848,6 @@
             document.getElementById('recipeSection').style.display = 'none';
         }
 
-        // 안전성 검사 표시
         if (data.safety && data.safety.success && data.safety.data) {
             displaySafety(data.safety.data);
             document.getElementById('safetySection').style.display = 'block';
@@ -1060,7 +855,6 @@
             document.getElementById('safetySection').style.display = 'none';
         }
 
-        // 결과 컨테이너로 스크롤
         setTimeout(() => {
             container.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
@@ -1071,12 +865,8 @@
         const aiGuideSection = document.getElementById('aiGuideSection');
         const aiGuideContent = document.getElementById('aiGuideContent');
 
-        if (!recipeContent || !aiGuideSection || !aiGuideContent) {
-            console.error('필수 요소를 찾을 수 없습니다!');
-            return;
-        }
+        if (!recipeContent || !aiGuideSection || !aiGuideContent) return;
 
-        // AI 가이드 표시
         if (recipe.aiGuide) {
             aiGuideContent.textContent = recipe.aiGuide;
             aiGuideSection.style.display = 'block';
@@ -1085,7 +875,6 @@
         }
 
         let html = '';
-        // 음식 이름
         if (recipe.foodName) {
             html += '<div class="recipe-info">';
             html += '<div class="recipe-info-item">';
@@ -1098,22 +887,19 @@
                 html += '<span class="recipe-info-value">' + escapeHtml(recipe.cookingTime) + '</span>';
                 html += '</div>';
             }
-
             if (recipe.difficulty) {
                 html += '<div class="recipe-info-item">';
                 html += '<span class="recipe-info-label"><i class="fas fa-star"></i> 난이도:</span>';
                 html += '<span class="recipe-info-value">' + escapeHtml(recipe.difficulty) + '</span>';
                 html += '</div>';
             }
-
             html += '</div>';
         }
 
-        // 재료 목록
         if (recipe.ingredients && recipe.ingredients.length > 0) {
             let totalCalories = 0;
             html += '<div style="margin-bottom: 25px;">';
-            html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">';
+            html += '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 15px;">';
             html += '<i class="fas fa-shopping-basket"></i> 필요한 재료';
             html += '</h4>';
             html += '<div class="ingredients-list">';
@@ -1144,7 +930,6 @@
             });
             html += '</div>';
 
-            // 총 칼로리 표시
             const finalTotalCalories = recipe.totalCalories || totalCalories;
             if (finalTotalCalories > 0) {
                 html += '<div class="total-calories-section">';
@@ -1156,17 +941,14 @@
             html += '</div>';
         }
 
-        // 조리 단계
         if (recipe.steps && recipe.steps.length > 0) {
             html += '<div style="margin-bottom: 25px;">';
-            html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">';
+            html += '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 15px;">';
             html += '<i class="fas fa-list-ol"></i> 조리 순서';
             html += '</h4>';
             html += '<ul class="steps-list">';
             recipe.steps.forEach(function(step, index) {
-                const stepNum = step.stepNumber !== undefined && step.stepNumber !== null
-                    ? step.stepNumber
-                    : (index + 1);
+                const stepNum = step.stepNumber !== undefined && step.stepNumber !== null ? step.stepNumber : (index + 1);
                 const stepDesc = step.description || step.desc || '설명 없음';
                 html += '<li class="step-item">';
                 html += '<span class="step-number">' + stepNum + '</span>';
@@ -1176,10 +958,9 @@
             html += '</ul></div>';
         }
 
-        // 조리 팁
         if (recipe.tips && recipe.tips.length > 0) {
             html += '<div>';
-            html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">';
+            html += '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 15px;">';
             html += '<i class="fas fa-lightbulb"></i> 조리 팁';
             html += '</h4>';
             html += '<ul class="tips-list">';
@@ -1192,16 +973,15 @@
             html += '</ul></div>';
         }
 
-        // 저장하기 버튼 추가
+        // 버튼 스타일 적용
         html += '<div style="text-align: center; margin-top: 40px;">';
-        html += '    <button class="btn-camera btn-camera-primary" onclick="openSaveRecipeModal()">';
+        html += '    <button class="btn-custom btn-primary-custom" onclick="openSaveRecipeModal()">';
         html += '        <i class="fas fa-save"></i> 이 레시피로 식단 저장하기';
         html += '    </button>';
         html += '</div>';
 
         recipeContent.innerHTML = html;
         recipeContent.style.display = 'block';
-        recipeContent.style.visibility = 'visible';
         recipeContent.style.opacity = '1';
     }
 
@@ -1211,22 +991,19 @@
         const aiGuideSection = document.getElementById('aiGuideSection');
         const aiGuideTitle = document.getElementById('aiGuideTitle');
         const aiGuideContent = document.getElementById('aiGuideContent');
-        if (!safetyContent || !badge || !aiGuideSection || !aiGuideTitle || !aiGuideContent) {
-            console.error('필수 요소를 찾을 수 없습니다!');
-            return;
-        }
+
+        if (!safetyContent || !badge || !aiGuideSection || !aiGuideTitle || !aiGuideContent) return;
 
         let html = '';
-        // 안전성 배지
         const safetyLevel = safetyData.safetyLevel || 'UNKNOWN';
+
         if (safetyLevel === 'SAFE') {
             badge.className = 'safety-badge safe';
             badge.textContent = '안전';
-            // AI 가이드 원상 복구
             aiGuideTitle.innerHTML = '<i class="fas fa-robot"></i> AI 가이드';
             aiGuideContent.style.background = '#e7f3ff';
             aiGuideContent.style.color = '#004085';
-            aiGuideContent.style.borderLeftColor = '#667eea';
+            aiGuideContent.style.borderLeft = '4px solid #3498db';
             if (currentRecipeData && currentRecipeData.aiGuide) {
                 aiGuideContent.textContent = currentRecipeData.aiGuide;
                 aiGuideSection.style.display = 'block';
@@ -1234,49 +1011,46 @@
         } else if (safetyLevel === 'WARNING') {
             badge.className = 'safety-badge warning';
             badge.textContent = '주의 필요';
-            // AI 가이드를 주의 사유로 변경
             aiGuideTitle.innerHTML = '<i class="fas fa-exclamation-triangle"></i> 섭취 주의 사유';
             aiGuideContent.textContent = safetyData.reason || '특별한 주의가 필요합니다.';
             aiGuideContent.style.background = '#fff3cd';
             aiGuideContent.style.color = '#856404';
-            aiGuideContent.style.borderLeftColor = '#ffc107';
+            aiGuideContent.style.borderLeft = '4px solid #ffc107';
             aiGuideSection.style.display = 'block';
         } else if (safetyLevel === 'DANGER') {
             badge.className = 'safety-badge danger';
             badge.textContent = '위험';
-            // AI 가이드를 섭취 불가 사유로 변경
             aiGuideTitle.innerHTML = '<i class="fas fa-times-circle"></i> 섭취 불가 사유';
             aiGuideContent.textContent = safetyData.reason || '섭취에 위험 요소가 있습니다.';
             aiGuideContent.style.background = '#f8d7da';
             aiGuideContent.style.color = '#721c24';
-            aiGuideContent.style.borderLeftColor = '#dc3545';
+            aiGuideContent.style.borderLeft = '4px solid #dc3545';
             aiGuideSection.style.display = 'block';
-        } else { // UNKNOWN
+        } else {
             badge.className = 'safety-badge unknown';
             badge.textContent = '검사 필요';
-            aiGuideSection.style.display = 'none'; // 대상자 미선택 시 AI 가이드 숨김
+            aiGuideSection.style.display = 'none';
         }
 
-        // 메시지
         const message = safetyData.message || '검사 결과가 없습니다.';
         let messageStyle = '';
         if (safetyLevel === 'DANGER') {
-            messageStyle = 'background: #f8d7da; color: #721c24; border-left-color: #dc3545;';
+            messageStyle = 'background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545;';
         } else if (safetyLevel === 'WARNING') {
-            messageStyle = 'background: #fff3cd; color: #856404; border-left-color: #ffc107;';
+            messageStyle = 'background: #fff3cd; color: #856404; border-left: 4px solid #ffc107;';
         } else if (safetyLevel === 'SAFE') {
-            messageStyle = 'background: #d4edda; color: #155724; border-left-color: #28a745;';
-        } else { // UNKNOWN
-            messageStyle = 'background: #e9ecef; color: #495057; border-left-color: #6c757d;';
+            messageStyle = 'background: #d4edda; color: #155724; border-left: 4px solid #28a745;';
+        } else {
+            messageStyle = 'background: #e9ecef; color: #495057; border-left: 4px solid #6c757d;';
         }
 
         html += '<div class="safety-message" style="' + messageStyle + '">';
         html += '<strong>' + escapeHtml(message) + '</strong>';
         html += '</div>';
-        // 감지된 음식 (UNKNOWN 아닐 때만)
+
         if (safetyLevel !== 'UNKNOWN' && safetyData.detectedFoods && Array.isArray(safetyData.detectedFoods) && safetyData.detectedFoods.length > 0) {
             html += '<div class="detected-foods" style="margin-top: 20px; margin-bottom: 20px;">';
-            html += '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 10px;">';
+            html += '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 10px;">';
             html += '<i class="fas fa-utensils"></i> 감지된 음식';
             html += '</h4>';
             html += '<div class="ingredients-list">';
@@ -1286,7 +1060,6 @@
             html += '</div></div>';
         }
 
-        // 주의사항 (UNKNOWN 아닐 때만)
         if (safetyLevel !== 'UNKNOWN' && safetyData.warnings && Array.isArray(safetyData.warnings) && safetyData.warnings.length > 0) {
             html += '<div class="warnings-list">';
             html += '<h4><i class="fas fa-exclamation-triangle"></i> 주의사항</h4>';
@@ -1297,7 +1070,6 @@
             html += '</ul></div>';
         }
 
-        // 권장사항 (UNKNOWN 아닐 때만)
         if (safetyLevel !== 'UNKNOWN' && safetyData.recommendations && Array.isArray(safetyData.recommendations) && safetyData.recommendations.length > 0) {
             html += '<div class="recommendations-list">';
             html += '<h4><i class="fas fa-lightbulb"></i> 권장사항</h4>';
@@ -1310,73 +1082,59 @@
 
         safetyContent.innerHTML = html;
         safetyContent.style.display = 'block';
-        safetyContent.style.visibility = 'visible';
         safetyContent.style.opacity = '1';
 
-        // 권장사항 아래에 YouTube 영상 표시
         if (currentFoodName) {
             loadYouTubeVideo(currentFoodName);
         }
     }
 
-    // YouTube 영상 로드
     function loadYouTubeVideo(foodName) {
-        if (!foodName || foodName.trim() === '') {
-            return;
-        }
-
+        if (!foodName || foodName.trim() === '') return;
         const safetyContent = document.getElementById('safetyContent');
-        if (!safetyContent) {
-            return;
-        }
+        if (!safetyContent) return;
 
-        // YouTube 검색 API 호출
         fetch('/mealplan/api/youtube-search?foodName=' + encodeURIComponent(foodName))
             .then(response => response.json())
             .then(data => {
                 if (data.success && data.videoId) {
-                    // YouTube 영상 임베드 추가
                     const videoTitle = escapeHtml(data.videoTitle || foodName + ' 만드는 방법');
                     const videoId = data.videoId;
                     const searchUrl = data.searchUrl;
 
                     const youtubeHtml =
                         '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
-                        '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
+                        '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 15px;">' +
                         '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
                         videoTitle + ' 영상' +
                         '</h4>' +
-                        '<div class="youtube-embed" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">' +
-                        '<iframe ' +
-                        'style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" ' +
+                        '<div class="youtube-embed" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 15px;">' +
+                        '<iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" ' +
                         'src="https://www.youtube.com/embed/' + videoId + '" ' +
                         'frameborder="0" ' +
                         'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" ' +
-                        'allowfullscreen>' +
-                        '</iframe>' +
+                        'allowfullscreen></iframe>' +
                         '</div>' +
                         '<div style="margin-top: 10px; text-align: right;">' +
-                        '<a href="' + searchUrl + '" target="_blank" style="color: #667eea; text-decoration: none; font-size: 14px;">' +
+                        '<a href="' + searchUrl + '" target="_blank" style="color: var(--primary-color); text-decoration: none; font-size: 14px; font-weight: 600;">' +
                         '<i class="fas fa-external-link-alt"></i> YouTube에서 더 보기' +
                         '</a>' +
                         '</div>' +
                         '</div>';
                     safetyContent.insertAdjacentHTML('beforeend', youtubeHtml);
                 } else if (data.searchUrl) {
-                    // API 키가 없거나 검색 실패 시 검색 링크만 제공
                     const escapedFoodName = escapeHtml(foodName);
                     const searchUrl = data.searchUrl;
-
                     const youtubeHtml =
                         '<div class="youtube-video-section" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0;">' +
-                        '<h4 style="font-size: 18px; color: #2c3e50; margin-bottom: 15px;">' +
+                        '<h4 style="font-size: 18px; color: var(--secondary-color); margin-bottom: 15px;">' +
                         '<i class="fab fa-youtube" style="color: #FF0000; margin-right: 8px;"></i>' +
                         escapedFoodName + ' 만드는 방법 영상' +
                         '</h4>' +
-                        '<div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">' +
+                        '<div style="text-align: center; padding: 20px; background: var(--secondary-bg); border-radius: 15px;">' +
                         '<p style="color: #666; margin-bottom: 15px;">YouTube에서 "' + escapedFoodName + ' 만드는 방법" 영상을 검색하세요.</p>' +
                         '<a href="' + searchUrl + '" target="_blank" ' +
-                        'style="display: inline-block; padding: 12px 24px; background: #FF0000; color: white; text-decoration: none; border-radius: 5px; font-weight: bold;">' +
+                        'style="display: inline-block; padding: 12px 24px; background: #FF0000; color: white; text-decoration: none; border-radius: 50px; font-weight: bold;">' +
                         '<i class="fab fa-youtube"></i> YouTube에서 검색하기' +
                         '</a>' +
                         '</div>' +
@@ -1386,18 +1144,14 @@
             })
             .catch(error => {
                 console.error('YouTube 영상 검색 실패:', error);
-                // 에러가 발생해도 계속 진행 (YouTube 영상은 선택사항)
             });
     }
 
     // --- AI 레시피 저장 관련 함수 ---
-
     function formatRecipeForSaving(recipe) {
         if (!recipe) return '';
 
         let recipeText = '';
-
-        // 필요한 재료
         if (recipe.ingredients && Array.isArray(recipe.ingredients) && recipe.ingredients.length > 0) {
             recipeText += '필요한 재료:\n';
             recipe.ingredients.forEach((ing, index) => {
@@ -1406,46 +1160,29 @@
                 let caloriesPart = '';
 
                 if (typeof ing === 'object' && ing !== null) {
-                    // 재료명 추출 (name 또는 ingredient 속성)
                     namePart = ing.name || ing.ingredient || '';
-                    if (!namePart) {
-                        // 객체지만 이름 속성을 찾지 못한 경우 객체를 문자열로 변환 시도하지 않음
-                        namePart = '재료 ' + (index + 1);
-                    }
-
-                    // 양 추출
-                    if (ing.amount) {
-                        amountPart = ' (' + ing.amount + ')';
-                    }
-
-                    // 칼로리 추출
-                    if (ing.calories) {
-                        caloriesPart = ' - ' + ing.calories + 'kcal';
-                    }
+                    if (!namePart) namePart = '재료 ' + (index + 1);
+                    if (ing.amount) amountPart = ' (' + ing.amount + ')';
+                    if (ing.calories) caloriesPart = ' - ' + ing.calories + 'kcal';
                 } else {
-                    // 문자열인 경우
                     namePart = String(ing);
                 }
-
                 recipeText += (index + 1) + '. ' + namePart + amountPart + caloriesPart + '\n';
             });
             recipeText += '\n';
         }
 
-        // 조리 순서
         if (recipe.steps && Array.isArray(recipe.steps) && recipe.steps.length > 0) {
             recipeText += '조리 순서:\n';
             recipe.steps.forEach((step, index) => {
                 let stepNum = index + 1;
                 let stepDesc = '';
-
                 if (typeof step === 'object' && step !== null) {
                     stepNum = (step.stepNumber !== undefined && step.stepNumber !== null) ? step.stepNumber : (index + 1);
                     stepDesc = step.description || step.desc || step.step || '';
                 } else {
                     stepDesc = String(step);
                 }
-
                 if (stepDesc) {
                     recipeText += stepNum + '. ' + stepDesc + '\n';
                 }
@@ -1453,7 +1190,6 @@
             recipeText += '\n';
         }
 
-        // 조리 팁
         if (recipe.tips && Array.isArray(recipe.tips) && recipe.tips.length > 0) {
             recipeText += '조리 팁:\n';
             recipe.tips.forEach((tip, index) => {
@@ -1462,7 +1198,6 @@
                 }
             });
         }
-
         return recipeText.trim();
     }
 
@@ -1476,15 +1211,11 @@
             return;
         }
 
-        // 모달 찾기
         let modal = document.getElementById('saveRecipeModal');
-        // 모달이 body에 없으면 body로 이동 (레이아웃 문제 방지)
         if (modal && modal.parentElement && modal.parentElement !== document.body) {
             document.body.appendChild(modal);
         }
 
-        // 모달 필드 채우기
-        // 오늘 날짜를 YYYY-MM-DD 형식으로 설정 (로컬 시간대 기준)
         const today = new Date();
         const year = today.getFullYear();
         const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -1492,9 +1223,8 @@
         document.getElementById('saveMealDate').value = `${year}-${month}-${day}`;
         document.getElementById('saveMealType').value = '';
         document.getElementById('saveMealMenu').value = currentRecipeData.foodName || '';
-
-        // 레시피 내용 채우기 (새로운 포맷 함수 사용)
         document.getElementById('saveMealRecipe').value = formatRecipeForSaving(currentRecipeData);
+
         let totalCalories = currentRecipeData.totalCalories || 0;
         if (totalCalories === 0 && currentRecipeData.ingredients && Array.isArray(currentRecipeData.ingredients)) {
             totalCalories = currentRecipeData.ingredients.reduce((sum, ing) => {
@@ -1505,7 +1235,7 @@
             }, 0);
         }
         document.getElementById('saveMealCalories').value = totalCalories > 0 ? totalCalories : '';
-        // 모달 보이기
+
         if (modal) {
             modal.style.display = 'flex';
         }
@@ -1520,12 +1250,12 @@
         const mealType = document.getElementById('saveMealType').value;
         const mealMenu = document.getElementById('saveMealMenu').value;
         const mealCalories = document.getElementById('saveMealCalories').value;
+
         if (!mealDate || !mealType) {
             alert('날짜와 식사 구분을 선택해주세요.');
             return;
         }
 
-        // 포맷팅된 레시피 텍스트를 textarea에서 직접 가져옴
         const mealRecipe = document.getElementById('saveMealRecipe').value;
         const data = {
             recId: currentRecId,
@@ -1558,8 +1288,6 @@
             });
     }
 
-
-    // HTML 이스케이프 함수
     function escapeHtml(text) {
         if (text == null) return '';
         const map = {
@@ -1572,7 +1300,6 @@
         return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
-    // 페이지 이탈 시 카메라 정리
     window.addEventListener('beforeunload', function() {
         stopCamera();
     });
