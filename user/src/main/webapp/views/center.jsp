@@ -73,33 +73,33 @@
                                     // Random heart rate for senior (60-90 bpm)
                                     int heartRate = 60 + new Random().nextInt(31);
                                     pageContext.setAttribute("heartRate", heartRate);
+                                
+                                    // Random blood pressure (systolic: 110-140, diastolic: 70-90)
+                                    int systolic = 110 + new Random().nextInt(31);
+                                    int diastolic = 70 + new Random().nextInt(21);
+                                    pageContext.setAttribute("systolic", systolic);
+                                    pageContext.setAttribute("diastolic", diastolic);
                                 %>
                                 <div class="health-card-right">
                                     <!-- 생년월일/나이 -->
                                     <div class="health-info-item">
                                         <div class="health-info-label">생년월일 / 나이</div>
                                         <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-blood-pressure" style="width: 68%;"></div>
-                                        </div>
                                     </div>
 
                                     <!-- AI 한줄 건강정보 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">AI 한줄 건강정보</div>
-                                        <div class="health-value-text" style="font-size: 13px;">오늘 컨디션 최상! 가벼운 산책 추천</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-blood-sugar" style="width: 90%;"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- 심박수 -->
                                     <div class="health-info-item">
                                         <div class="health-info-label">심박수</div>
                                         <div class="health-value-text">${heartRate} bpm</div>
                                         <div class="progress-bar-wrapper">
                                             <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
                                         </div>
+                                    </div>
+
+                                    <!-- 혈압 -->
+                                    <div class="health-info-item">
+                                        <div class="health-info-label">혈압</div>
+                                        <div class="health-value-text"> ${systolic} / ${diastolic} mmHg</div>
                                         </div>
                                     </div>
                                 </div>

@@ -18,14 +18,19 @@ public class AlertLogService {
         alertLogRepository.insert(alertLog);
     }
 
+    // 관리자 페이지 접속 시 호출되는 메서드
     @Transactional(readOnly = true)
     public List<AlertLog> findAllAlerts() {
-        return alertLogRepository.findAll();
+        try {
+            return alertLogRepository.getAlerts();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Transactional
     public void markAsChecked(int alertId) {
-        // 'Y'는 확인됨을 의미
         alertLogRepository.updateCheckStatus(alertId, "Y");
     }
 }

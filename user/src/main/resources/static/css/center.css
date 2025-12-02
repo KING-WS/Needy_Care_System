@@ -108,7 +108,7 @@
    ======================================== */
 
 .card-small {
-    min-height: 150px;
+    /* min-height: 150px; */ /* Removed to allow flexible height */
 }
 
 .card-medium {
@@ -924,7 +924,6 @@
     border-radius: 10px; /* 둥근 모서리 */
     /* box-shadow: 0 4px 12px rgba(0,0,0,0.05); */ /* 은은한 그림자 제거 */
     transition: all 0.3s ease; /* 호버 효과를 위한 전환 */
-    flex-shrink: 0; /* 내용이 많아져도 크기가 줄어들지 않도록 */
 }
 
 .health-card-left:hover {
@@ -958,7 +957,6 @@
     justify-content: center;
     font-size: 30px;
     color: white;
-    flex-shrink: 0;
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     overflow: hidden;
     position: relative;
@@ -1033,7 +1031,6 @@
     font-size: 11px;
     font-weight: 600;
     color: #666;
-    min-width: 80px;
     text-align: left;
 }
 

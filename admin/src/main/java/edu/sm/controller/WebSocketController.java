@@ -28,8 +28,7 @@ public class WebSocketController {
     public String videoCall(Model model) {
         log.info("Video call page accessed");
         model.addAttribute("websocketUrl", websocketUrl);
-        model.addAttribute("center", "websocket/video");
-        return "index";
+        return "websocket/video";
     }
 }
 
