@@ -99,9 +99,6 @@
 </style>
 
 <div class="prompt-container">
-    <div class="prompt-icon">
-        <i class="bi bi-person-plus-fill"></i>
-    </div>
     
     <div class="prompt-card">
         <h1 class="prompt-title">돌봄 대상자를 등록해주세요</h1>

@@ -58,31 +58,47 @@
                                 </div>
 
                                 <!-- 오른쪽: 건강 데이터 섹션 -->
+                                <%@ page import="java.time.Period" %>
+                                <%@ page import="java.util.Random" %>
+                                <%
+                                    int age = 0;
+                                    if (pageContext.findAttribute("recipient") != null) {
+                                        edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
+                                        if (r.getRecBirthday() != null) {
+                                            age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
+                                        }
+                                    }
+                                    pageContext.setAttribute("age", age);
+                                
+                                    // Random heart rate for senior (60-90 bpm)
+                                    int heartRate = 60 + new Random().nextInt(31);
+                                    pageContext.setAttribute("heartRate", heartRate);
+                                %>
                                 <div class="health-card-right">
-                                    <!-- 혈압 수치 병력 -->
+                                    <!-- 생년월일/나이 -->
                                     <div class="health-info-item">
-                                        <div class="health-info-label">혈압 수치</div>
-                                        <div class="health-value-text">15/22</div>
+                                        <div class="health-info-label">생년월일 / 나이</div>
+                                        <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
                                         <div class="progress-bar-wrapper">
                                             <div class="progress-bar-fill progress-blood-pressure" style="width: 68%;"></div>
                                         </div>
                                     </div>
 
-                                    <!-- 혈당 -->
+                                    <!-- AI 한줄 건강정보 -->
                                     <div class="health-info-item">
-                                        <div class="health-info-label">혈당</div>
-                                        <div class="health-value-text">5/19</div>
+                                        <div class="health-info-label">AI 한줄 건강정보</div>
+                                        <div class="health-value-text" style="font-size: 13px;">오늘 컨디션 최상! 가벼운 산책 추천</div>
                                         <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-blood-sugar" style="width: 26%;"></div>
+                                            <div class="progress-bar-fill progress-blood-sugar" style="width: 90%;"></div>
                                         </div>
                                     </div>
 
-                                    <!-- 조도 -->
+                                    <!-- 심박수 -->
                                     <div class="health-info-item">
-                                        <div class="health-info-label">조도</div>
-                                        <div class="health-value-text">12/08h</div>
+                                        <div class="health-info-label">심박수</div>
+                                        <div class="health-value-text">${heartRate} bpm</div>
                                         <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
+                                            <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
                                         </div>
                                         </div>
                                     </div>
@@ -219,7 +235,7 @@
                                 <c:choose>
                                     <c:when test="${not empty todayMeals}">
                                         <c:forEach var="meal" items="${todayMeals}">
-                                <div class="meal-item">
+                                <div class="meal-item" onclick="showMealDetail(${meal.mealId})" style="cursor: pointer;">
                                                 <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
                                                     <span>${meal.mealType}</span>
                                     </div>
@@ -1086,239 +1102,4 @@
     </div>
 </div>
 
-<script>
-    // 시간 선택 옵션 채우기
-    function populateTimeSelects() {
-        const hourSelects = [
-            document.getElementById('hourlyScheduleStartHour'),
-            document.getElementById('hourlyScheduleEndHour')
-        ];
-        const minuteSelects = [
-            document.getElementById('hourlyScheduleStartMinute'),
-            document.getElementById('hourlyScheduleEndMinute')
-        ];
 
-        for (let i = 0; i < 24; i++) {
-            const hour = String(i).padStart(2, '0');
-            hourSelects.forEach(sel => {
-                if (sel) sel.add(new Option(hour, hour));
-            });
-        }
-        for (let i = 0; i < 60; i++) {
-            const minute = String(i).padStart(2, '0');
-            minuteSelects.forEach(sel => {
-                if (sel) sel.add(new Option(minute, minute));
-            });
-        }
-    }
-
-    // 플러스 버튼 클릭 시 일정 확인 후 모달 열기
-    function openTodayScheduleModal() {
-        const today = new Date();
-        const todayStr = today.getFullYear() + '-' + 
-                        String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                        String(today.getDate()).padStart(2, '0');
-        
-        // recId 가져오기
-        const recId = defaultRecId;
-        if (!recId) {
-            alert('돌봄 대상자를 선택해주세요.');
-            return;
-        }
-
-        // 오늘의 일정 확인
-        const url = '/schedule/api/monthly?recId=' + recId + '&startDate=' + todayStr + '&endDate=' + todayStr;
-        
-        console.log('일정 조회 URL:', url);
-        
-        fetch(url)
-            .then(res => {
-                console.log('응답 상태:', res.status, res.statusText);
-                return res.json().then(data => {
-                    if (!res.ok) {
-                        throw new Error(data.message || '일정 조회 실패');
-                    }
-                    // 에러 응답인지 확인 (success: false 형태)
-                    if (data.success === false) {
-                        throw new Error(data.message || '일정 조회 실패');
-                    }
-                    return data;
-                });
-            })
-            .then(data => {
-                // data가 배열인지 확인
-                const schedules = Array.isArray(data) ? data : [];
-                console.log('조회된 일정 개수:', schedules.length);
-                
-                if (schedules.length === 0) {
-                    // 일정이 없으면 자동 생성 후 시간표 추가 모달 열기
-                    createTodaySchedule(recId, todayStr, '오늘의 일정');
-                } else if (schedules.length === 1) {
-                    // 일정이 1개면 바로 시간표 추가 모달 열기
-                    const schedId = schedules[0].schedId;
-                    const schedName = schedules[0].schedName || '오늘의 일정';
-                    openHourlyScheduleModal(schedId, schedName);
-                } else {
-                    // 일정이 2개 이상이면 일정 선택 모달 표시
-                    showScheduleSelectionModal(schedules);
-                }
-            })
-            .catch(error => {
-                console.error('일정 확인 실패:', error);
-                console.error('에러 상세:', error.stack);
-                alert('일정을 확인하는 중 오류가 발생했습니다: ' + (error.message || '알 수 없는 오류'));
-            });
-    }
-
-    // 일정 선택 모달 표시
-    function showScheduleSelectionModal(schedules) {
-        const container = document.getElementById('todayScheduleListContent');
-        let html = '';
-        schedules.forEach(function(schedule) {
-            html += '<div class="modal-form-group" style="cursor: pointer; padding: 15px; border: 2px solid #ecf0f1; border-radius: 10px; margin-bottom: 15px; transition: all 0.3s ease;" ';
-            html += 'onclick="selectScheduleForHourly(' + schedule.schedId + ', \'' + (schedule.schedName || '제목 없음').replace(/'/g, "\\'") + '\');" ';
-            html += 'onmouseover="this.style.borderColor=\'#667eea\'; this.style.backgroundColor=\'#f8f9ff\';" ';
-            html += 'onmouseout="this.style.borderColor=\'#ecf0f1\'; this.style.backgroundColor=\'transparent\';">';
-            html += '<div style="font-weight: 600; color: #2c3e50; font-size: 16px; margin-bottom: 5px;">' + (schedule.schedName || '제목 없음') + '</div>';
-            if (schedule.schedStartTime) {
-                html += '<div style="color: #667eea; font-size: 13px;">시작: ' + schedule.schedStartTime.substring(0, 5) + '</div>';
-            }
-            html += '</div>';
-        });
-        container.innerHTML = html;
-
-        // 일정 선택 모달 열기
-        document.getElementById('todayScheduleListModal').classList.add('show');
-    }
-
-    // 오늘의 일정 목록 모달 닫기
-    function closeTodayScheduleListModal() {
-        document.getElementById('todayScheduleListModal').classList.remove('show');
-    }
-
-    // 오늘의 일정 자동 생성
-    function createTodaySchedule(recId, todayStr, schedName) {
-        const data = {
-            recId: recId,
-            schedName: schedName,
-            schedDate: todayStr
-        };
-
-        fetch('/schedule/api/schedule', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(res => res.json())
-        .then(result => {
-            if (result.success && result.schedule) {
-                const schedId = result.schedule.schedId;
-                openHourlyScheduleModal(schedId, schedName);
-            } else {
-                alert('일정 생성에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
-            }
-        })
-        .catch(error => {
-            console.error('일정 생성 실패:', error);
-            alert('일정 생성 중 오류가 발생했습니다.');
-        });
-    }
-
-    // 일정 선택하여 시간표 추가 모달 열기
-    function selectScheduleForHourly(schedId, schedName) {
-        document.getElementById('hourlyScheduleParentSchedId').value = schedId;
-        const titleElement = document.getElementById('hourlyScheduleModalTitle');
-        titleElement.innerHTML = '<i class="fas fa-plus-circle"></i><span>시간대별 일정 추가 - ' + schedName + '</span>';
-        
-        // 폼 초기화
-        document.getElementById('hourlyScheduleSchedId').value = '';
-        document.getElementById('hourlyScheduleName').value = '';
-        document.getElementById('hourlyScheduleStartHour').value = '00';
-        document.getElementById('hourlyScheduleStartMinute').value = '00';
-        document.getElementById('hourlyScheduleEndHour').value = '00';
-        document.getElementById('hourlyScheduleEndMinute').value = '00';
-        document.getElementById('hourlyScheduleContent').value = '';
-
-        // 일정 선택 모달 닫기
-        closeTodayScheduleListModal();
-
-        // 시간표 추가 모달 열기
-        setTimeout(() => {
-            document.getElementById('hourlyScheduleModal').classList.add('show');
-        }, 300);
-    }
-
-    // 시간표 추가 모달 열기 (내부 함수)
-    function openHourlyScheduleModal(schedId, schedName) {
-        selectScheduleForHourly(schedId, schedName);
-    }
-
-    // 시간표 추가 모달 닫기
-    function closeHourlyScheduleModal() {
-        document.getElementById('hourlyScheduleModal').classList.remove('show');
-    }
-
-    // 시간대별 일정 저장
-    document.addEventListener('DOMContentLoaded', function() {
-        populateTimeSelects();
-        
-        document.getElementById('saveHourlyScheduleBtn').addEventListener('click', function() {
-            const form = document.getElementById('hourlyScheduleForm');
-            if (!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
-
-            const parentSchedId = document.getElementById('hourlyScheduleParentSchedId').value;
-            const hourlySchedId = document.getElementById('hourlyScheduleSchedId').value;
-            const name = document.getElementById('hourlyScheduleName').value;
-            const startHour = document.getElementById('hourlyScheduleStartHour').value;
-            const startMinute = document.getElementById('hourlyScheduleStartMinute').value;
-            const endHour = document.getElementById('hourlyScheduleEndHour').value;
-            const endMinute = document.getElementById('hourlyScheduleEndMinute').value;
-            const content = document.getElementById('hourlyScheduleContent').value;
-
-            const startTime = startHour + ':' + startMinute + ':00';
-            const endTime = endHour + ':' + endMinute + ':00';
-
-            const data = {
-                hourlySchedId: hourlySchedId || null,
-                schedId: parentSchedId,
-                hourlySchedName: name,
-                hourlySchedStartTime: startTime,
-                hourlySchedEndTime: endTime,
-                hourlySchedContent: content
-            };
-
-            const method = hourlySchedId ? 'PUT' : 'POST';
-            const url = hourlySchedId ? 
-                '/schedule/api/hourly/' + hourlySchedId : 
-                '/schedule/api/hourly';
-
-            fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(res => res.json())
-            .then(result => {
-                if (result.success) {
-                    alert('시간대별 일정이 저장되었습니다.');
-                    closeHourlyScheduleModal();
-                    // 페이지 새로고침하여 변경사항 반영
-                    location.reload();
-                } else {
-                    alert('저장에 실패했습니다: ' + (result.message || '알 수 없는 오류'));
-                }
-            })
-            .catch(error => {
-                console.error('시간대별 일정 저장 실패:', error);
-                alert('시간대별 일정 저장 중 오류가 발생했습니다.');
-            });
-        });
-    });
-</script>

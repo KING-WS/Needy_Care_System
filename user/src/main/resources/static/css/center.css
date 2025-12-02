@@ -44,7 +44,8 @@
 }
 
 .dashboard-card:hover {
-    transform: translateY(-8px);
+    /* transform: translateY(-8px); */
+    transform: none !important;
     box-shadow: none;
     cursor: pointer;
 }
@@ -917,14 +918,34 @@
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    padding-right: 15px;
-    border-right: 2px solid #e0e0e0;
+    padding: 15px; /* 모든 면에 패딩 추가 */
+    background: #ffffff; /* 흰색 배경 */
+    border: 1px solid #f0f0f0; /* 옅은 테두리 */
+    border-radius: 10px; /* 둥근 모서리 */
+    /* box-shadow: 0 4px 12px rgba(0,0,0,0.05); */ /* 은은한 그림자 제거 */
+    transition: all 0.3s ease; /* 호버 효과를 위한 전환 */
+    flex-shrink: 0; /* 내용이 많아져도 크기가 줄어들지 않도록 */
+}
+
+.health-card-left:hover {
+    /* transform: translateY(-2px); */
+    /* box-shadow: 0 6px 16px rgba(0,0,0,0.08); */ /* 호버 그림자 제거 */
 }
 
 .health-card-right {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    padding: 15px;
+    background: #ffffff;
+    border: 1px solid #f0f0f0;
+    border-radius: 10px;
+    /* box-shadow: 0 4px 12px rgba(0,0,0,0.05); */ /* 그림자 제거 */
+    transition: all 0.3s ease;
+}
+
+.health-card-right:hover {
+    /* transform: translateY(-2px); */
+    /* box-shadow: 0 6px 16px rgba(0,0,0,0.08); */ /* 호버 그림자 제거 */
 }
 
 .recipient-avatar {
@@ -993,6 +1014,19 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    padding: 15px 5px; /* Adjust padding for inside the container */
+    border-bottom: 1px solid #f5f5f5; /* Separator */
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.health-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 5px; /* Adjust padding for last item */
+}
+
+.health-info-item:hover {
+   background-color: #fafafa;
 }
 
 .health-info-label {
@@ -1055,7 +1089,8 @@
 }
 
 .health-card:hover {
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); */
+    transform: none !important;
     box-shadow: none;
     cursor: pointer;
 }
@@ -1080,7 +1115,8 @@
 }
 
 .calendar-card:hover {
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); */
+    transform: none !important;
     box-shadow: none;
 }
 
@@ -1421,7 +1457,8 @@
 }
 
 .meal-card:hover {
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); */
+    transform: none !important;
     box-shadow: none;
 }
 
@@ -1473,15 +1510,15 @@
 }
 
 .meal-type.breakfast {
-    background: linear-gradient(135deg, #ffd89b 0%, #ff9a56 100%);
+    background: #ffb366; /* 단색으로 변경 */
 }
 
 .meal-type.lunch {
-    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+    background: #ffc107; /* 점심에 어울리는 색상으로 변경 */
 }
 
 .meal-type.dinner {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    background: #6a7ba2; /* 진한 저녁 색상으로 변경 */
 }
 
 .meal-content {
@@ -1549,7 +1586,8 @@
 }
 
 .schedule-card:hover {
-    transform: translateY(-4px);
+    /* transform: translateY(-4px); */
+    transform: none !important;
     box-shadow: none;
 }
 

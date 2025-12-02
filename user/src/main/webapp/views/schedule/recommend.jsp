@@ -275,7 +275,7 @@
                             <div class="map-left">
                                 <div class="map-title">
                                     <span class="map-title-icon"><i class="fas fa-location-dot"></i></span>
-                                    <span>케어 지도</span>
+                                    <span>지도 목록</span>
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
                                     <div class="map-location-items">
@@ -404,7 +404,7 @@
             <div class="modal-body">
                 <form id="saveRecommendForm">
                     <div class="ai-info-box">
-                        <div class="ai-info-title"><i class="fas fa-robot"></i> AI 추천 정보</div>
+                        <div class="ai-info-title"><i class="fas fa-location-bot"></i> AI 추천 정보</div>
                         <div class="mb-2">
                             <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill" id="displayMapCategory" style="font-weight: 600; margin-right: 5px;"></span>
                             <strong id="displayMapName" style="font-size: 1.1rem; color: #333;"></strong>

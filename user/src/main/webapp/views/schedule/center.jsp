@@ -48,7 +48,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- AI 일정 추천 버튼 -->
                 <button class="ai-schedule-btn" onclick="openAiScheduleModal()" style="margin-top: 15px;">
                     <i class="fas fa-magic"></i>
@@ -199,7 +199,7 @@
                     <input type="date" id="aiScheduleDate" class="form-control" readonly style="background-color: #f7fafc; cursor: not-allowed;">
                     <small class="form-hint">특이사항에 날짜를 입력하면 자동으로 설정됩니다. (예: 이번주 금요일, 이번달 23일)</small>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">
                         <i class="fas fa-cog"></i> 추천 모드 <span class="required">*</span>
@@ -221,12 +221,12 @@
                         </label>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label class="form-label">
                         <i class="fas fa-list-alt"></i> 특이사항 <span class="required" id="specialNotesRequired" style="display: none;">*</span>
                     </label>
-                    <textarea id="aiSpecialNotes" class="form-control" rows="4" 
+                    <textarea id="aiSpecialNotes" class="form-control" rows="4"
                               placeholder="기본 모드: 추가 고려사항 입력 (예: 오늘은 병원 방문이 있습니다.)&#10;맞춤형 모드: 원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기, 쇼핑몰 가기 등)"></textarea>
                     <small class="form-hint" id="specialNotesHint">기본 모드: 입력하지 않으시면 대상자의 기존 건강 정보를 데이터베이스에서 추출해 그 기반을 ai가 얻어 사용자에게 딱 맞는 스케쥴을 추천합니다.</small>
                 </div>
@@ -345,7 +345,7 @@
                             }));
                             successCallback(events);
                         } else {
-                             // 데이터가 비어있는 경우 (200 OK 이지만 내용이 없는 경우)
+                            // 데이터가 비어있는 경우 (200 OK 이지만 내용이 없는 경우)
                             successCallback([]);
                         }
                     })
@@ -358,7 +358,7 @@
             eventDidMount: function() {
                 updateStats();
             },
-            
+
             eventsSet: function() { // eventsSet is a better hook for this
                 updateStats();
             }
@@ -447,14 +447,14 @@
                         var onclick_handler = hourly.hourlySchedId ? 'onclick="editHourlySchedule(' + hourly.hourlySchedId + ')"' : '';
                         html +=
                             '<div class="hourly-item" ' + onclick_handler + '>' +
-                                '<div class="hourly-time">' +
-                                    '<i class="fas fa-clock"></i> ' +
-                                    (hourly.hourlySchedStartTime || '') + ' - ' + (hourly.hourlySchedEndTime || '') +
-                                '</div>' +
-                                '<div class="hourly-content">' +
-                                    '<h6>' + (hourly.hourlySchedName || '') + '</h6>' +
-                                    '<p>' + (hourly.hourlySchedContent || '') + '</p>' +
-                                '</div>' +
+                            '<div class="hourly-time">' +
+                            '<i class="fas fa-clock"></i> ' +
+                            (hourly.hourlySchedStartTime || '') + ' - ' + (hourly.hourlySchedEndTime || '') +
+                            '</div>' +
+                            '<div class="hourly-content">' +
+                            '<h6>' + (hourly.hourlySchedName || '') + '</h6>' +
+                            '<p>' + (hourly.hourlySchedContent || '') + '</p>' +
+                            '</div>' +
                             '</div>';
                     });
                     html += '</div>';
@@ -687,7 +687,7 @@
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(endOfWeek.getDate() + 6); // End of week (Saturday)
         endOfWeek.setHours(23, 59, 59, 999);
-        
+
         today.setHours(0, 0, 0, 0);
 
         let todayCount = 0;
@@ -715,14 +715,14 @@
         const d = new Date(date);
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
-    
+
     // AI 일정 추천 모달 열기
     function openAiScheduleModal() {
         document.getElementById('aiScheduleModal').classList.add('show');
         // 날짜 기본값을 오늘로 설정 (비활성화 상태)
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('aiScheduleDate').value = today;
-        
+
         // 추천 모드 변경 이벤트 리스너
         const modeRadios = document.querySelectorAll('input[name="recommendMode"]');
         modeRadios.forEach(radio => {
@@ -731,14 +731,14 @@
             });
         });
         updateRecommendModeUI();
-        
+
         // 특이사항 입력 시 날짜 자동 추출
         const specialNotesInput = document.getElementById('aiSpecialNotes');
         specialNotesInput.addEventListener('blur', function() {
             extractDateFromSpecialNotes();
         });
     }
-    
+
     // 특이사항에서 날짜 추출
     function extractDateFromSpecialNotes() {
         const specialNotes = document.getElementById('aiSpecialNotes').value;
@@ -748,7 +748,7 @@
             document.getElementById('aiScheduleDate').value = today;
             return;
         }
-        
+
         // 서버에 날짜 추출 요청
         fetch('/schedule/api/ai/extract-date', {
             method: 'POST',
@@ -759,31 +759,31 @@
                 text: specialNotes
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.date) {
-                document.getElementById('aiScheduleDate').value = data.date;
-            } else {
-                // 날짜 추출 실패 시 오늘 날짜로 설정
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.date) {
+                    document.getElementById('aiScheduleDate').value = data.date;
+                } else {
+                    // 날짜 추출 실패 시 오늘 날짜로 설정
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('aiScheduleDate').value = today;
+                }
+            })
+            .catch(error => {
+                console.error('날짜 추출 오류:', error);
+                // 오류 시 오늘 날짜로 설정
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('aiScheduleDate').value = today;
-            }
-        })
-        .catch(error => {
-            console.error('날짜 추출 오류:', error);
-            // 오류 시 오늘 날짜로 설정
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('aiScheduleDate').value = today;
-        });
+            });
     }
-    
+
     // 추천 모드에 따라 UI 업데이트
     function updateRecommendModeUI() {
         const selectedMode = document.querySelector('input[name="recommendMode"]:checked').value;
         const specialNotesInput = document.getElementById('aiSpecialNotes');
         const specialNotesRequired = document.getElementById('specialNotesRequired');
         const specialNotesHint = document.getElementById('specialNotesHint');
-        
+
         if (selectedMode === 'custom') {
             specialNotesRequired.style.display = 'inline';
             specialNotesInput.placeholder = '원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기, 쇼핑몰 가기 등)';
@@ -798,39 +798,39 @@
             specialNotesHint.style.fontSize = '20px'; // Increase font size for basic mode
         }
     }
-    
+
     // AI 일정 추천 모달 닫기
     function closeAiScheduleModal() {
         document.getElementById('aiScheduleModal').classList.remove('show');
         document.getElementById('aiScheduleResult').style.display = 'none';
         document.getElementById('aiScheduleForm').reset();
     }
-    
+
     // AI 일정 추천 받기
     function getAiScheduleRecommendation() {
         const recId = currentRecId;
         let targetDate = document.getElementById('aiScheduleDate').value;
         const specialNotes = document.getElementById('aiSpecialNotes').value;
         const recommendMode = document.querySelector('input[name="recommendMode"]:checked').value;
-        
+
         // 날짜가 없으면 오늘 날짜로 설정
         if (!targetDate) {
             const today = new Date().toISOString().split('T')[0];
             targetDate = today;
             document.getElementById('aiScheduleDate').value = today;
         }
-        
+
         if (!recId || recId === 0) {
             alert('돌봄 대상자를 선택해주세요.');
             return;
         }
-        
+
         // 맞춤형 모드일 때 특이사항 필수 체크
         if (recommendMode === 'custom' && (!specialNotes || specialNotes.trim() === '')) {
             alert('맞춤형 모드를 선택하셨습니다. 특이사항에 원하는 활동을 입력해주세요.');
             return;
         }
-        
+
         // 특이사항에서 날짜 재추출 (사용자가 입력한 경우)
         if (specialNotes && specialNotes.trim() !== '') {
             extractDateFromSpecialNotes();
@@ -846,15 +846,15 @@
             proceedWithRecommendation(recId, targetDate, specialNotes, recommendMode);
         }
     }
-    
+
     // 실제 추천 요청 처리
     function proceedWithRecommendation(recId, targetDate, specialNotes, recommendMode) {
-        
+
         // 로딩 표시
         const resultDiv = document.getElementById('aiScheduleResult');
         resultDiv.style.display = 'block';
         resultDiv.innerHTML = '<div style="text-align: center; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> AI가 일정을 추천하고 있습니다...</div>';
-        
+
         // API 호출
         fetch('/schedule/api/ai/recommend', {
             method: 'POST',
@@ -868,54 +868,54 @@
                 recommendMode: recommendMode
             })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // 날짜 업데이트 (특이사항에서 추출된 날짜 사용)
-                const finalDate = data.date || targetDate;
-                document.getElementById('aiScheduleDate').value = finalDate;
-                displayAiScheduleResult(data.schedules, finalDate, data.scheduleName);
-            } else {
-                resultDiv.innerHTML = '<div style="color: red; padding: 20px;">' + (data.message || '일정 추천에 실패했습니다.') + '</div>';
-            }
-        })
-        .catch(error => {
-            console.error('AI 일정 추천 오류:', error);
-            resultDiv.innerHTML = '<div style="color: red; padding: 20px;">일정 추천 중 오류가 발생했습니다.</div>';
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 날짜 업데이트 (특이사항에서 추출된 날짜 사용)
+                    const finalDate = data.date || targetDate;
+                    document.getElementById('aiScheduleDate').value = finalDate;
+                    displayAiScheduleResult(data.schedules, finalDate, data.scheduleName);
+                } else {
+                    resultDiv.innerHTML = '<div style="color: red; padding: 20px;">' + (data.message || '일정 추천에 실패했습니다.') + '</div>';
+                }
+            })
+            .catch(error => {
+                console.error('AI 일정 추천 오류:', error);
+                resultDiv.innerHTML = '<div style="color: red; padding: 20px;">일정 추천 중 오류가 발생했습니다.</div>';
+            });
     }
-    
+
     // AI 일정 추천 결과 표시
     function displayAiScheduleResult(schedules, targetDate, scheduleName) {
         const resultDiv = document.getElementById('aiScheduleResult');
-        
+
         if (!schedules || schedules.length === 0) {
             resultDiv.innerHTML = '<div style="padding: 20px; text-align: center;">추천된 일정이 없습니다.</div>';
             return;
         }
-        
+
         // 날짜 포맷팅
         const dateObj = new Date(targetDate);
-        const formattedDate = dateObj.getFullYear() + '년 ' + 
-                             (dateObj.getMonth() + 1) + '월 ' + 
-                             dateObj.getDate() + '일';
-        
+        const formattedDate = dateObj.getFullYear() + '년 ' +
+            (dateObj.getMonth() + 1) + '월 ' +
+            dateObj.getDate() + '일';
+
         let html = '<div class="ai-schedule-result">';
         html += '<h4 style="margin-bottom: 20px; color: #2d3748;"><i class="fas fa-calendar-day"></i> ' + formattedDate + ' 일정 추천</h4>';
         html += '<div class="schedule-timeline">';
-        
+
         // 시간순으로 정렬
         schedules.sort((a, b) => {
             const timeA = a.startTime || '00:00';
             const timeB = b.startTime || '00:00';
             return timeA.localeCompare(timeB);
         });
-        
+
         schedules.forEach((schedule, index) => {
             const startTime = schedule.startTime || '00:00';
             const endTime = schedule.endTime || '00:00';
             const scheduleName = schedule.scheduleName || '일정';
-            
+
             html += '<div class="timeline-item">';
             html += '<div class="timeline-time">' + startTime + ' ~ ' + endTime + '</div>';
             html += '<div class="timeline-content">';
@@ -923,34 +923,34 @@
             html += '</div>';
             html += '</div>';
         });
-        
+
         html += '</div>';
         html += '<button type="button" class="btn btn-success mt-3" onclick="applyAiScheduleRecommendation(\'' + targetDate + '\')" style="width: 100%;">';
         html += '<i class="fas fa-check-circle"></i> 이 일정 적용하기';
         html += '</button>';
         html += '</div>';
-        
+
         resultDiv.innerHTML = html;
-        
+
         // 전역 변수에 저장 (적용 시 사용)
         window.aiRecommendedSchedules = schedules;
         window.aiRecommendedDate = targetDate;
         window.aiRecommendedScheduleName = scheduleName || null;
     }
-    
+
     // AI 추천 일정 적용하기
     function applyAiScheduleRecommendation(targetDate) {
         const recId = currentRecId;
-        
+
         if (!window.aiRecommendedSchedules || window.aiRecommendedSchedules.length === 0) {
             alert('적용할 일정이 없습니다.');
             return;
         }
-        
+
         if (!confirm('추천된 일정을 등록하시겠습니까?')) {
             return;
         }
-        
+
         // 메인 일정 먼저 생성 (AI가 생성한 일정명 사용)
         const mainScheduleName = window.aiRecommendedScheduleName || (targetDate + ' 일정');
         const mainSchedule = {
@@ -958,7 +958,7 @@
             schedName: mainScheduleName,
             schedDate: targetDate
         };
-        
+
         fetch('/schedule/api/schedule', {
             method: 'POST',
             headers: {
@@ -966,53 +966,53 @@
             },
             body: JSON.stringify(mainSchedule)
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && data.schedule) {
-                const schedId = data.schedule.schedId;
-                let savedCount = 0;
-                let totalCount = window.aiRecommendedSchedules.length;
-                
-                // 시간대별 일정 생성
-                window.aiRecommendedSchedules.forEach((schedule, index) => {
-                    const hourlySchedule = {
-                        schedId: schedId,
-                        hourlySchedName: schedule.scheduleName,
-                        hourlySchedStartTime: schedule.startTime,
-                        hourlySchedEndTime: schedule.endTime,
-                        hourlySchedContent: schedule.description || ''
-                    };
-                    
-                    fetch('/schedule/api/hourly', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(hourlySchedule)
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            savedCount++;
-                            if (savedCount === totalCount) {
-                                alert('일정이 성공적으로 등록되었습니다!');
-                                closeAiScheduleModal();
-                                calendar.refetchEvents();
-                            }
-                        }
-                    })
-                    .catch(error => {
-                        console.error('시간대별 일정 저장 오류:', error);
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.schedule) {
+                    const schedId = data.schedule.schedId;
+                    let savedCount = 0;
+                    let totalCount = window.aiRecommendedSchedules.length;
+
+                    // 시간대별 일정 생성
+                    window.aiRecommendedSchedules.forEach((schedule, index) => {
+                        const hourlySchedule = {
+                            schedId: schedId,
+                            hourlySchedName: schedule.scheduleName,
+                            hourlySchedStartTime: schedule.startTime,
+                            hourlySchedEndTime: schedule.endTime,
+                            hourlySchedContent: schedule.description || ''
+                        };
+
+                        fetch('/schedule/api/hourly', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(hourlySchedule)
+                        })
+                            .then(response => response.json())
+                            .then(result => {
+                                if (result.success) {
+                                    savedCount++;
+                                    if (savedCount === totalCount) {
+                                        alert('일정이 성공적으로 등록되었습니다!');
+                                        closeAiScheduleModal();
+                                        calendar.refetchEvents();
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('시간대별 일정 저장 오류:', error);
+                            });
                     });
-                });
-            } else {
-                alert('일정 등록에 실패했습니다.');
-            }
-        })
-        .catch(error => {
-            console.error('일정 저장 오류:', error);
-            alert('일정 저장 중 오류가 발생했습니다.');
-        });
+                } else {
+                    alert('일정 등록에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('일정 저장 오류:', error);
+                alert('일정 저장 중 오류가 발생했습니다.');
+            });
     }
 </script>
 
@@ -1025,20 +1025,20 @@
     html, body {
         min-height: 100vh;
     }
-    
+
     /* 컨텐츠 중앙 정렬 및 여백 조정 */
     section > .container-fluid {
         max-width: 1400px;
         margin: 0 auto;
         padding: 0 40px;
     }
-    
+
     @media (max-width: 1200px) {
         section > .container-fluid {
             padding: 0 30px;
         }
     }
-    
+
     @media (max-width: 768px) {
         section > .container-fluid {
             padding: 0 20px;
@@ -1283,7 +1283,7 @@
             flex: 1 1 100%;
         }
     }
-    
+
     /* AI 일정 추천 버튼 */
     .ai-schedule-btn {
         width: 100%;
@@ -1302,16 +1302,16 @@
         gap: 10px;
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
-    
+
     .ai-schedule-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
     }
-    
+
     .ai-schedule-btn i {
         font-size: 18px;
     }
-    
+
     /* AI 일정 추천 모달 (식단관리 페이지 스타일과 동일) */
     .modal-overlay {
         display: none;
@@ -1326,11 +1326,11 @@
         justify-content: center;
         animation: fadeIn 0.3s ease;
     }
-    
+
     .modal-overlay.show {
         display: flex;
     }
-    
+
     @keyframes fadeIn {
         from {
             opacity: 0;
@@ -1339,7 +1339,7 @@
             opacity: 1;
         }
     }
-    
+
     .modal-content {
         background: white;
         border-radius: 20px;
@@ -1350,7 +1350,7 @@
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         animation: slideUp 0.3s ease;
     }
-    
+
     @keyframes slideUp {
         from {
             opacity: 0;
@@ -1361,7 +1361,7 @@
             transform: translateY(0);
         }
     }
-    
+
     .modal-header {
         padding: 25px 30px;
         border-bottom: 2px solid #f7fafc;
@@ -1369,7 +1369,7 @@
         align-items: center;
         justify-content: space-between;
     }
-    
+
     .modal-title {
         font-size: 22px;
         font-weight: 700;
@@ -1379,11 +1379,11 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .modal-title i {
         color: #667eea;
     }
-    
+
     .modal-close-btn {
         width: 36px;
         height: 36px;
@@ -1397,21 +1397,21 @@
         justify-content: center;
         transition: all 0.3s ease;
     }
-    
+
     .modal-close-btn:hover {
         background: #ff6b6b;
         color: white;
         transform: rotate(90deg);
     }
-    
+
     .modal-body {
         padding: 30px;
     }
-    
+
     .form-group {
         margin-bottom: 20px;
     }
-    
+
     .form-label {
         display: block;
         font-size: 14px;
@@ -1419,16 +1419,16 @@
         color: #2d3748;
         margin-bottom: 8px;
     }
-    
+
     .form-label i {
         color: #667eea;
         margin-right: 5px;
     }
-    
+
     .required {
         color: #ff6b6b;
     }
-    
+
     .form-control {
         width: 100%;
         padding: 12px 15px;
@@ -1438,25 +1438,25 @@
         transition: all 0.3s ease;
         font-family: inherit;
     }
-    
+
     .form-control:focus {
         outline: none;
         border-color: #667eea;
         box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
     }
-    
+
     textarea.form-control {
         resize: vertical;
         min-height: 100px;
     }
-    
+
     .form-hint {
         display: block;
         font-size: 12px;
         color: #a0aec0;
         margin-top: 5px;
     }
-    
+
     .modal-footer {
         padding: 20px 30px;
         border-top: 2px solid #f7fafc;
@@ -1464,7 +1464,7 @@
         justify-content: flex-end;
         gap: 10px;
     }
-    
+
     .btn {
         padding: 12px 24px;
         border: none;
@@ -1474,48 +1474,48 @@
         cursor: pointer;
         transition: all 0.3s ease;
     }
-    
+
     .btn-cancel {
         background: #e2e8f0;
         color: #4a5568;
     }
-    
+
     .btn-cancel:hover {
         background: #cbd5e0;
     }
-    
+
     .btn-primary {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
     }
-    
+
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
-    
+
     .btn-success {
         background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
         color: white;
     }
-    
+
     .btn-success:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
     }
-    
+
     /* AI 일정 추천 결과 */
     .ai-schedule-result {
         margin-top: 20px;
     }
-    
+
     .schedule-timeline {
         display: flex;
         flex-direction: column;
         gap: 15px;
         margin-bottom: 20px;
     }
-    
+
     .timeline-item {
         display: flex;
         gap: 15px;
@@ -1525,12 +1525,12 @@
         border-radius: 8px;
         transition: all 0.2s ease;
     }
-    
+
     .timeline-item:hover {
         background: #eef2ff;
         transform: translateX(5px);
     }
-    
+
     .timeline-time {
         min-width: 120px;
         font-weight: 600;
@@ -1539,11 +1539,11 @@
         display: flex;
         align-items: center;
     }
-    
+
     .timeline-content {
         flex: 1;
     }
-    
+
     .timeline-content h5 {
         margin: 0;
         font-size: 16px;
