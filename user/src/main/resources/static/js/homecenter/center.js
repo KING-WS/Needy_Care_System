@@ -1,11 +1,12 @@
 // 전역 변수
 var map;
 var markers = [];
+var overlays = []; // 커스텀 오버레이 배열
 var geocoder = new kakao.maps.services.Geocoder();
 var tempMarker = null;
 var clickedPosition = null;
 var homeMarker = null; // 집 마커
-var homeInfowindow = null; // 집 인포윈도우
+var homeOverlay = null; // 집 커스텀 오버레이
 var recipientLocationMarker = null; // 노약자 실시간 위치 마커
 var homePosition = null; // 집 위치 (노약자 위치 업데이트용)
 
@@ -25,6 +26,15 @@ var currentCourseId = null;
 // 위치 검색 함수
 var searchMarkers = []; // 검색 결과 마커들
 
+// 모든 커스텀 오버레이를 닫는 함수
+function closeAllOverlays() {
+    overlays.forEach(overlay => overlay.setMap(null));
+    if (homeOverlay) homeOverlay.setMap(null);
+    // 다른 인포윈도우들도 닫기
+    searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
+    courseMarkers.forEach(item => item.infowindow && item.infowindow.close());
+}
+
 // 지도 초기화 함수
 function initializeMap() {
     var mapContainer = document.getElementById('map');
@@ -41,9 +51,7 @@ function initializeMap() {
         }
 
         var latlng = mouseEvent.latLng;
-        markers.forEach(item => item.infowindow && item.infowindow.close());
-        searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-        if (homeInfowindow) homeInfowindow.close();
+        closeAllOverlays(); // 오버레이 닫기
         if (tempMarker) tempMarker.setMap(null);
 
         tempMarker = new kakao.maps.Marker({
@@ -75,19 +83,32 @@ function loadHomeMarker() {
             var homeImageOption = {offset: new kakao.maps.Point(24, 48)};
             var homeImage = new kakao.maps.MarkerImage(homeImageSrc, homeImageSize, homeImageOption);
             homeMarker = new kakao.maps.Marker({ map: map, position: coords, image: homeImage, title: recipientName + '님의 집' });
-            homeInfowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:15px;font-size:14px;min-width:200px;text-align:center;">
-                <div style="font-weight:700;color:#333;margin-bottom:8px;">${recipientName}님의 집</div>
-                <div style="display:inline-block;padding:5px 12px;background:#e74c3c;color:white;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:8px;">집</div>
-                <div style="font-size:12px;color:#666;">${cleanAddress}</div>
-                </div>`,
-                removable: false
+
+            var content = `
+                <div class="custom-overlay-wrap">
+                    <div class="custom-overlay-header">
+                        <span>${recipientName}님의 집</span>
+                        <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+                    </div>
+                    <div class="custom-overlay-body">
+                        <span class="custom-overlay-category" style="background-color: #ffe0e0; color: #ff6b6b;">집</span>
+                        <div style="font-size:12px; color:#666; margin-top: 8px;">${cleanAddress}</div>
+                    </div>
+                </div>`;
+
+            homeOverlay = new kakao.maps.CustomOverlay({
+                content: content,
+                position: coords,
+                map: null,
+                zIndex: 1
             });
+
             kakao.maps.event.addListener(homeMarker, 'click', function() {
-                markers.forEach(item => item.infowindow && item.infowindow.close());
-                searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-                homeInfowindow.open(map, homeMarker);
+                closeAllOverlays();
+                homeOverlay.setMap(map);
+                map.setCenter(coords);
             });
+
             map.setCenter(coords);
             map.setLevel(4);
             homePosition = coords;
@@ -140,33 +161,34 @@ function addMarkerToMap(mapData) {
     var position = new kakao.maps.LatLng(mapData.lat, mapData.lng);
     var markerImage = getMarkerImageByCategory(mapData.mapCategory);
     var marker = new kakao.maps.Marker({ position: position, map: map, image: markerImage, title: mapData.mapName });
-    
-    var infowindowContent = `<div style="padding:12px;font-size:13px;min-width:180px;text-align:center;"><div style="font-weight:700;color:#333;margin-bottom:5px;">${mapData.mapName}</div><div style="display:inline-block;padding:3px 10px;background:#e8eaf6;color:#667eea;border-radius:12px;font-size:11px;margin-bottom:8px;">${mapData.mapCategory}</div><button onclick="handleEditButtonClick(${mapData.mapId}, event)" style="display:block;margin-top:10px;background:#667eea;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;width:100%;font-size:12px;transition:background 0.2s;">수정</button></div>`;
-    
-    var infowindow = new kakao.maps.InfoWindow({
-        content: infowindowContent
+
+    var content = `
+        <div class="custom-overlay-wrap">
+            <div class="custom-overlay-header">
+                <span>${mapData.mapName}</span>
+                <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+            </div>
+            <div class="custom-overlay-body">
+                <span class="custom-overlay-category">${mapData.mapCategory}</span>
+                <button class="btn-overlay-action" onclick="handleEditButtonClick(${mapData.mapId}, event)">수정</button>
+            </div>
+        </div>`;
+
+    var overlay = new kakao.maps.CustomOverlay({
+        content: content,
+        position: marker.getPosition(),
+        map: null, // 초기에 보이지 않도록 설정
+        zIndex: 1
     });
-    
+
     kakao.maps.event.addListener(marker, 'click', function() {
-        // 다른 모든 인포윈도우 닫기
-        markers.forEach(item => {
-            if (item.infowindow && item !== markers.find(m => m.mapId === mapData.mapId)) {
-                item.infowindow.close();
-            }
-        });
-        searchMarkers.forEach(item => {
-            if (item.infowindow) item.infowindow.close();
-        });
-        if (homeInfowindow) homeInfowindow.close();
-        // 산책코스 마커의 인포윈도우도 닫기
-        courseMarkers.forEach(item => {
-            if (item.infowindow) item.infowindow.close();
-        });
+        closeAllOverlays();
+        overlay.setMap(map);
         map.setCenter(position);
-        map.setLevel(3);
-        infowindow.open(map, marker);
     });
-    markers.push({ marker: marker, infowindow: infowindow, mapId: mapData.mapId });
+
+    markers.push({ marker: marker, overlay: overlay, mapId: mapData.mapId });
+    overlays.push(overlay);
 }
 
 // 모달 열기
@@ -188,7 +210,7 @@ function openMapModal(lat, lng) {
 // 검색 결과로부터 장소 추가 모달 열기
 function openAddPlaceModalFromSearch(place) {
     // 모든 InfoWindow 닫기
-    searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
+    closeAllOverlays();
 
     const lat = place.y;
     const lng = place.x;
@@ -241,7 +263,8 @@ async function saveMapLocation() {
         mapCategory: document.getElementById('modalCategory').value,
         mapContent: document.getElementById('modalContent').value.trim(),
         mapLatitude: parseFloat(document.getElementById('modalLat').value),
-        mapLongitude: parseFloat(document.getElementById('modalLng').value)
+        mapLongitude: parseFloat(document.getElementById('modalLng').value),
+        mapAddress: document.getElementById('modalAddress').textContent.trim()
     };
     try {
         const response = await fetch('/api/map', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData) });
@@ -281,56 +304,34 @@ async function deleteLocation(mapId) {
 
 // 마커에 포커스
 function focusMarker(lat, lng) {
-    // 먼저 모든 인포윈도우 닫기
-    markers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    searchMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    if (homeInfowindow) homeInfowindow.close();
-    courseMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
+    closeAllOverlays();
 
     var position = new kakao.maps.LatLng(lat, lng);
     map.setCenter(position);
     map.setLevel(3);
-    // 해당 위치의 마커만 인포윈도우 열기
+    // 해당 위치의 마커만 오버레이 열기
     markers.forEach(item => {
         var markerPos = item.marker.getPosition();
         if (Math.abs(markerPos.getLat() - lat) < 0.0001 && Math.abs(markerPos.getLng() - lng) < 0.0001) {
-            item.infowindow.open(map, item.marker);
+            item.overlay.setMap(map);
         }
     });
 }
 
 // 집 마커에 포커스
 function focusHomeMarker() {
-    if (homeMarker && homeInfowindow) {
+    if (homeMarker && homeOverlay) {
+        closeAllOverlays();
         var position = homeMarker.getPosition();
         map.setCenter(position);
         map.setLevel(3);
-        markers.forEach(item => item.infowindow && item.infowindow.close());
-        searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-        homeInfowindow.open(map, homeMarker);
+        homeOverlay.setMap(map, homeMarker);
     }
 }
 
 // 장소 상세 정보 표시 (목록 클릭 시 지도 이동)
 function showLocationDetail(mapId) {
-    // 다른 모든 인포윈도우 닫기
-    markers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    searchMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    if (homeInfowindow) homeInfowindow.close();
-    // 산책코스 마커의 인포윈도우도 닫기
-    courseMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
+    closeAllOverlays();
 
     const item = markers.find(m => m.mapId === mapId);
     if (item) {

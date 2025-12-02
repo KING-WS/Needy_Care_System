@@ -542,7 +542,7 @@
                 <label class="form-label">
                     <i class="fas fa-utensils"></i> 메뉴
                 </label>
-                <div class="form-control" style="background: #f7fafc; border: none; padding: 12px; font-weight: 600; font-size: 16px;" id="detailMealMenu">
+                <div class="form-control" style="background: #f7fafc; border: none; padding: 12px; font-weight: 700; font-size: 16px;" id="detailMealMenu">
                     -
                 </div>
             </div>

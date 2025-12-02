@@ -351,12 +351,8 @@ public class ScheduleController {
             MapLocation mapLocation = new MapLocation();
             mapLocation.setRecId(recId);
             mapLocation.setMapName(mapName);
-            // 주소 정보를 내용에 포함하여 저장 (DTO에 주소 필드가 없으므로)
-            String finalContent = mapContent;
-            if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
-                finalContent = "[주소: " + mapAddress + "]\n" + mapContent;
-            }
-            mapLocation.setMapContent(finalContent);
+            mapLocation.setMapAddress(mapAddress);
+            mapLocation.setMapContent(mapContent); // 기존 mapContent는 그대로 저장
             mapLocation.setMapCategory(mapCategory);
             
             // 좌표 정보 구하기 (사용자가 입력한 주소 기반)

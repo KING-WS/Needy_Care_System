@@ -8,6 +8,31 @@
 <link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
 
 <style>
+    /* 지도 탭 버튼 스타일 (center.jsp와 동일하게) */
+    .map-tab {
+        background: #f1f3f5 !important; /* 비활성 탭: 중립적인 배경 */
+        color: #495057 !important;     /* 비활성 탭: 어두운 텍스트 */
+        border: 1px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+    }
+    .map-tab:hover:not(.active) {
+        background: #e9ecef !important; /* 비활성 탭 호버 효과 */
+    }
+    .map-tab.active {
+        background: #3498db !important; /* 활성 탭: 요청된 색상 */
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+    }
+    .map-tab.active:hover {
+         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
+    }
+
     /* =========================================
        1. 기본 모달 및 공통 스타일
        ========================================= */

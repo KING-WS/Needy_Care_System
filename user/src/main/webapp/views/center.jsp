@@ -9,28 +9,68 @@
 <link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
 
 <style>
-    /* AI 추천 버튼 스타일을 탭 버튼에 적용 (애니메이션 제외) */
+    /* 지도 탭 버튼 스타일 */
     .map-tab {
-        background: #667eea !important;
-        color: white !important;
-        border: none !important;
+        background: #f1f3f5 !important; /* 비활성 탭: 중립적인 배경 */
+        color: #495057 !important;     /* 비활성 탭: 어두운 텍스트 */
+        border: 1px solid #dee2e6 !important;
         border-radius: 12px !important;
         padding: 10px 20px !important;
         font-weight: 700 !important;
         font-size: 14px !important;
-        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2) !important;
+        box-shadow: none !important;
         transition: all 0.2s ease !important;
     }
-    .map-tab:hover {
-        background: #5a6fd6 !important;
-        color: white !important;
-        transform: none !important; /* 사용자 요청: 호버 시 팅기는 애니메이션 제거 */
+    .map-tab:hover:not(.active) {
+        background: #e9ecef !important; /* 비활성 탭 호버 효과 */
     }
     .map-tab.active {
-        background: #5a6fd6 !important; /* 활성 탭에 호버 색상 적용 */
+        background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+    }
+    .map-tab.active:hover {
+         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
+    }
+
+    /* 목록 항목에 대한 수정/삭제 버튼 스타일 */
+    .item-actions {
+        position: absolute;
+        top: 50%;
+        right: 12px;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 8px;
+        opacity: 0; /* 평소에는 숨김 */
+        transition: opacity 0.2s;
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 5px;
+        border-radius: 8px;
+    }
+    .map-location-item:hover .item-actions {
+        opacity: 1; /* 마우스 올리면 보이게 */
+    }
+    .item-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 4px;
+        transition: all 0.2s;
+        border-radius: 5px;
+    }
+    .item-action-btn.edit {
+        color: #0984e3;
+    }
+    .item-action-btn.edit:hover {
+        background-color: #d9e9f8;
+    }
+    .item-action-btn.delete {
+        color: #d63031;
+    }
+    .item-action-btn.delete:hover {
+        background-color: #f8d9d9;
     }
 
     /* 사용자 요청: 특정 카드들의 호버 애니메이션 (그림자 및 위치 변화) 비활성화 */
@@ -411,9 +451,14 @@
                                                         <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
                                                             주소 조회 중...
                                                         </div>
-                                                        <button class="location-delete-btn" onclick="event.stopPropagation(); deleteLocation(${map.mapId})">
-                                                            <i class="bi bi-x-circle"></i>
-                                                        </button>
+                                                        <div class="item-actions">
+                                                            <button class="item-action-btn edit" onclick="event.stopPropagation(); openEditModal(${map.mapId});" title="수정">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                            <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteLocation(${map.mapId});" title="삭제">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </c:forEach>
                                             </c:otherwise>
@@ -431,9 +476,14 @@
                                                                 <div class="location-category course-category">${course.courseType}</div>
                                                             </div>
                                                         </div>
-                                                        <button class="location-delete-btn" onclick="event.stopPropagation(); deleteCourse(${course.courseId})">
-                                                            <i class="bi bi-x-circle"></i>
-                                                        </button>
+                                                        <div class="item-actions">
+                                                            <button class="item-action-btn edit" onclick="event.stopPropagation(); alert('산책 코스 수정 기능은 현재 준비 중입니다.');" title="수정">
+                                                                <i class="bi bi-pencil-square"></i>
+                                                            </button>
+                                                            <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteCourse(${course.courseId});" title="삭제">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </c:forEach>
                                             </c:if>
