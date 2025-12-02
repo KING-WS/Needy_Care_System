@@ -8,8 +8,42 @@
 <!-- CSS 파일 링크 -->
 <link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
 
+<style>
+    /* AI 추천 버튼 스타일을 탭 버튼에 적용 (애니메이션 제외) */
+    .map-tab {
+        background: #667eea !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2) !important;
+        transition: all 0.2s ease !important;
+    }
+    .map-tab:hover {
+        background: #5a6fd6 !important;
+        color: white !important;
+        transform: none !important; /* 사용자 요청: 호버 시 팅기는 애니메이션 제거 */
+    }
+    .map-tab.active {
+        background: #5a6fd6 !important; /* 활성 탭에 호버 색상 적용 */
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+    }
+
+    /* 사용자 요청: 특정 카드들의 호버 애니메이션 (그림자 및 위치 변화) 비활성화 */
+    .meal-card:hover,
+    .schedule-card:hover,
+    .calendar-card:hover {
+        transform: none !important; /* 위치 변경 애니메이션 제거 */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important; /* 기본 그림자 유지 */
+    }
+</style>
+
 <!-- User Dashboard - 기본 메인 페이지 -->
-<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #ffffff;">
+<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #f8f9fa;">
     <div class="container-fluid">
         <div class="row">
             <!-- 왼쪽 열 - 2개의 카드 -->
@@ -32,7 +66,7 @@
                                         <c:choose>
                                             <c:when test="${not empty recipient.recPhotoUrl}">
                                                     <c:set var="photoUrlWithCache" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
-                                                    <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image" 
+                                                    <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image"
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
                                             </c:when>
@@ -69,11 +103,11 @@
                                         }
                                     }
                                     pageContext.setAttribute("age", age);
-                                
+
                                     // Random heart rate for senior (60-90 bpm)
                                     int heartRate = 60 + new Random().nextInt(31);
                                     pageContext.setAttribute("heartRate", heartRate);
-                                
+
                                     // Random blood pressure (systolic: 110-140, diastolic: 70-90)
                                     int systolic = 110 + new Random().nextInt(31);
                                     int diastolic = 70 + new Random().nextInt(21);
@@ -127,13 +161,13 @@
                             LocalDate firstDay = LocalDate.of(year, month, 1);
                             int daysInMonth = firstDay.lengthOfMonth();
                             int startDayOfWeek = firstDay.getDayOfWeek().getValue() % 7;
-                            
+
                             pageContext.setAttribute("currentYear", year);
                             pageContext.setAttribute("currentMonth", month);
                             pageContext.setAttribute("currentDay", now.getDayOfMonth());
                             pageContext.setAttribute("daysInMonth", daysInMonth);
                             pageContext.setAttribute("startDayOfWeek", startDayOfWeek);
-                            
+
                             // 일정이 있는 날짜를 Set으로 저장하고, 날짜별 일정 이름 목록을 Map으로 저장
                             Set<Integer> scheduleDays = new HashSet<>();
                             Map<Integer, List<String>> scheduleNamesByDay = new HashMap<>();
@@ -143,7 +177,7 @@
                                     edu.sm.app.dto.Schedule schedule = (edu.sm.app.dto.Schedule) obj;
                                     int day = schedule.getSchedDate().getDayOfMonth();
                                     scheduleDays.add(day);
-                                    
+
                                     // 날짜별 일정 이름 목록 저장
                                     if (!scheduleNamesByDay.containsKey(day)) {
                                         scheduleNamesByDay.put(day, new ArrayList<>());
@@ -156,7 +190,7 @@
                             pageContext.setAttribute("scheduleDays", scheduleDays);
                             pageContext.setAttribute("scheduleNamesByDay", scheduleNamesByDay);
                         %>
-                        
+
                         <i class="bi bi-calendar-event card-title-icon"></i>
 <%--                        <div class="calendar-header">--%>
 <%--                            <div class="calendar-title">--%>
@@ -174,17 +208,17 @@
                             <div class="calendar-day-header">목</div>
                             <div class="calendar-day-header">금</div>
                             <div class="calendar-day-header">토</div>
-                            
+
                             <!-- 빈 칸 -->
                             <c:forEach begin="1" end="${startDayOfWeek}">
                                 <div class="calendar-day empty"></div>
                             </c:forEach>
-                            
+
                             <!-- 날짜 -->
                             <c:forEach begin="1" end="${daysInMonth}" var="day">
                                 <c:set var="daySchedules" value="${scheduleNamesByDay[day]}" />
-                                <div class="calendar-day 
-                                    ${day == currentDay ? 'today' : ''} 
+                                <div class="calendar-day
+                                    ${day == currentDay ? 'today' : ''}
                                     ${scheduleDays.contains(day) ? 'has-event' : ''}"
                                     <c:if test="${not empty daySchedules}">
                                         data-schedule-names="<c:forEach var="schedName" items="${daySchedules}" varStatus="status">${schedName}<c:if test="${!status.last}">|</c:if></c:forEach>"
@@ -193,7 +227,7 @@
                                 </div>
                             </c:forEach>
                         </div>
-                        
+
                         <div class="calendar-footer">
                             <div class="calendar-stats">
                                 <div class="calendar-stat-item">
@@ -230,7 +264,7 @@
                                     ${today.monthValue}월 ${today.dayOfMonth}일
                                 </div>
                             </div>
-                            
+
                             <div class="meal-list">
                                 <c:choose>
                                     <c:when test="${not empty todayMeals}">
@@ -275,8 +309,8 @@
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
-                        
-                        <div class="hourly-schedule-list">
+
+                        <div class="hourly-schedule-list ${fn:length(todayHourlySchedules) > 5 ? 'scrollable' : ''}">
                             <c:choose>
                                 <c:when test="${not empty todayHourlySchedules}">
                                     <c:forEach var="hourly" items="${todayHourlySchedules}">
@@ -348,13 +382,13 @@
                                                         </c:choose>
                                                     </div>
                                                 </div>
-                                        
+
                                         <!-- 구분선 -->
                                             <c:if test="${not empty maps || not empty courses}">
                                                 <div class="home-location-divider"></div>
                                             </c:if>
                                         </c:if>
-                                        
+
                                         <!-- 저장된 장소 목록 또는 빈 상태 -->
                                         <c:choose>
                                             <c:when test="${empty maps}">
@@ -365,7 +399,7 @@
                                             </c:when>
                                             <c:otherwise>
                                                 <c:forEach var="map" items="${maps}">
-                                                    <div class="map-location-item" data-map-id="${map.mapId}" 
+                                                    <div class="map-location-item" data-map-id="${map.mapId}"
                                                          data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}"
                                                          onclick="showLocationDetail(${map.mapId})">
                                                         <div class="location-info">
@@ -384,7 +418,7 @@
                                                 </c:forEach>
                                             </c:otherwise>
                                         </c:choose>
-                                        
+
                                         <!-- 산책코스 목록 (기본 숨김) -->
                                         <div id="courseListContainer" style="display: none;">
                                             <c:if test="${not empty courses}">
@@ -432,13 +466,13 @@
                                             <span>산책코스 저장</span>
                                         </button>
                                     </div>
-                                    
+
                                     <!-- 검색 영역 -->
                                     <div class="map-search-container">
                                         <div class="map-search-wrapper">
-                                            <input type="text" 
-                                                   id="mapSearchInput" 
-                                                   class="map-search-input" 
+                                            <input type="text"
+                                                   id="mapSearchInput"
+                                                   class="map-search-input"
                                                    placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
                                                    onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn" onclick="searchLocation()">
@@ -449,7 +483,7 @@
                                         <div id="searchResults" class="search-results"></div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="map-area">
                                     <div id="map"></div>
                                 </div>
@@ -477,15 +511,15 @@
         <div class="map-modal-body">
             <form id="courseForm">
                 <input type="hidden" id="courseRecId" name="recId" value="${recipient.recId}">
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         산책코스 이름<span class="required">*</span>
                     </label>
-                    <input type="text" class="modal-form-input" id="courseName" 
+                    <input type="text" class="modal-form-input" id="courseName"
                            name="courseName" placeholder="예: 아침 산책 코스" required maxlength="100">
                 </div>
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         코스 유형<span class="required">*</span>
@@ -499,20 +533,20 @@
                         <option value="기타">기타</option>
                     </select>
                 </div>
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         총 거리
                     </label>
-                    <input type="text" class="modal-form-input" id="courseTotalDistance" 
+                    <input type="text" class="modal-form-input" id="courseTotalDistance"
                            readonly style="background: #f5f5f5;">
                 </div>
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         경로 지점 수
                     </label>
-                    <input type="text" class="modal-form-input" id="coursePointCount" 
+                    <input type="text" class="modal-form-input" id="coursePointCount"
                            readonly style="background: #f5f5f5;">
                 </div>
             </form>
@@ -548,15 +582,15 @@
                 <input type="hidden" id="modalLat" name="latitude">
                 <input type="hidden" id="modalLng" name="longitude">
                 <input type="hidden" id="modalRecId" name="recId" value="${recipient.recId}">
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         장소 이름<span class="required">*</span>
                     </label>
-                    <input type="text" class="modal-form-input" id="modalMapName" 
+                    <input type="text" class="modal-form-input" id="modalMapName"
                            name="mapName" placeholder="예: 우리 동네 병원" required maxlength="100">
                 </div>
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         카테고리<span class="required">*</span>
@@ -571,12 +605,12 @@
                         <option value="기타">기타</option>
                     </select>
                 </div>
-                
+
                 <div class="modal-form-group">
                     <label class="modal-form-label">
                         메모
                     </label>
-                    <textarea class="modal-form-textarea" id="modalContent" 
+                    <textarea class="modal-form-textarea" id="modalContent"
                               name="mapContent" placeholder="이 장소에 대한 메모를 남겨보세요..." maxlength="500"></textarea>
                 </div>
             </form>
@@ -706,8 +740,8 @@
             </div>
             <div class="modal-form-group">
                 <label class="modal-form-label">메모</label>
-                <textarea class="modal-form-input" id="searchResultMemo" 
-                          placeholder="이 장소에 대한 메모를 입력하세요 (선택사항)" 
+                <textarea class="modal-form-input" id="searchResultMemo"
+                          placeholder="이 장소에 대한 메모를 입력하세요 (선택사항)"
                           rows="3" style="resize: vertical;"></textarea>
             </div>
         </div>
@@ -741,7 +775,7 @@
         </c:otherwise>
     </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
-    
+
     // 저장된 마커들 표시 (JSP forEach 사용)
     function loadSavedMarkers() {
         var savedMapsJson = '<c:out value="${not empty maps ? true : false}" escapeXml="false"/>';
@@ -756,12 +790,12 @@
                 lng: parseFloat('${mapItem.mapLongitude}')
             });
             </c:forEach>
-            
+
             // 외부 JS 파일의 함수 호출
             loadSavedMarkersWithData(savedMaps);
         }
     }
-    
+
     // 태그 active 상태 설정 함수
     function setActiveTag(buttonElement) {
         // 모든 버튼에서 active 클래스 제거
@@ -770,7 +804,7 @@
             tag.style.background = '#fff';
             tag.style.color = '#333';
         });
-        
+
         // 클릭된 버튼에 active 클래스 추가
         if (buttonElement) {
             buttonElement.classList.add('active');
@@ -778,16 +812,16 @@
             buttonElement.style.color = '#fff';
         }
     }
-    
+
     // 일정 전환 함수
     function switchSchedule(schedId, buttonElement) {
         // 태그 active 상태 설정
         setActiveTag(buttonElement);
-        
+
         // 해당 일정의 시간표만 표시
         var allItems = document.querySelectorAll('.hourly-schedule-item');
         var hasVisibleItem = false;
-        
+
         allItems.forEach(function(item) {
             var itemSchedId = item.getAttribute('data-sched-id');
             if (itemSchedId == schedId) {
@@ -797,7 +831,7 @@
                 item.style.display = 'none';
             }
         });
-        
+
         // 일정이 없을 경우 빈 메시지 표시
         var emptyDiv = document.querySelector('.hourly-empty');
         if (!hasVisibleItem) {
@@ -809,30 +843,30 @@
             emptyDiv.remove();
         }
     }
-    
+
     // 모든 시간표 표시 함수
     function showAllSchedules() {
         var allItems = document.querySelectorAll('.hourly-schedule-item');
         var hasVisibleItem = false;
-        
+
         allItems.forEach(function(item) {
             item.style.display = 'flex';
             hasVisibleItem = true;
         });
-        
+
         // 빈 메시지 제거
         var emptyDiv = document.querySelector('.hourly-empty');
         if (emptyDiv && hasVisibleItem) {
             emptyDiv.remove();
         }
-        
+
         // "전체" 태그를 active로 설정
         var allTag = document.querySelector('.schedule-tag[data-sched-id="all"]');
         if (allTag) {
             setActiveTag(allTag);
         }
     }
-    
+
     // 페이지 로드 시 초기화
     window.addEventListener('load', function() {
         if (typeof kakao !== 'undefined' && kakao.maps) {
@@ -849,25 +883,25 @@
                 }
             }, 1000);
         }
-        
+
         // 일정 제목 길이 제한 적용
         if (typeof limitScheduleTitleLength === 'function') {
             limitScheduleTitleLength();
         }
-        
+
         // 식단 메뉴 이름 길이 제한 적용
         if (typeof limitMealMenuLength === 'function') {
             limitMealMenuLength();
         }
-        
+
         // 일정 목록 스크롤 설정 (5개 이상일 때만)
         if (typeof setupScheduleScroll === 'function') {
             setupScheduleScroll();
         }
-        
+
         // 초기 로드 시 모든 시간표 표시 (필터링하지 않음)
         showAllSchedules();
-        
+
         // 여러 일정이 있을 경우에만 태그 표시 (기본적으로 모든 시간표 보여줌)
         var scheduleTags = document.querySelectorAll('.schedule-tag');
         if (scheduleTags.length > 1) {
@@ -878,7 +912,7 @@
                 showAllSchedules();
             }
         }
-        
+
         // 디버깅: 시간표 개수 확인
         var hourlyItems = document.querySelectorAll('.hourly-schedule-item');
         console.log('시간표 개수:', hourlyItems.length);
@@ -889,25 +923,25 @@
                 display: item.style.display || 'default'
             });
         });
-        
+
         // 저장된 장소들의 주소 가져오기
         loadMapLocationAddresses();
-        
+
         // 캘린더 일정 툴팁 설정
         setupCalendarScheduleTooltips();
     });
-    
+
     // 캘린더 일정 툴팁 설정 함수
     function setupCalendarScheduleTooltips() {
         var calendarDays = document.querySelectorAll('.calendar-day[data-schedule-names]');
-        
+
         calendarDays.forEach(function(day) {
             var scheduleNames = day.getAttribute('data-schedule-names');
             if (!scheduleNames) return;
-            
+
             // 일정 이름들을 |로 분리
             var schedules = scheduleNames.split('|');
-            
+
             // 마우스 오버 시 툴팁 생성
             day.addEventListener('mouseenter', function(e) {
                 // 기존 툴팁 제거
@@ -915,11 +949,11 @@
                 if (existingTooltip) {
                     existingTooltip.remove();
                 }
-                
+
                 // 툴팁 생성
                 var tooltip = document.createElement('ul');
                 tooltip.className = 'calendar-schedule-tooltip';
-                
+
                 schedules.forEach(function(scheduleName) {
                     if (scheduleName.trim()) {
                         var li = document.createElement('li');
@@ -927,10 +961,10 @@
                         tooltip.appendChild(li);
                     }
                 });
-                
+
                 day.appendChild(tooltip);
             });
-            
+
             // 마우스 아웃 시 툴팁 제거
             day.addEventListener('mouseleave', function(e) {
                 var tooltip = day.querySelector('.calendar-schedule-tooltip');
@@ -940,25 +974,25 @@
             });
         });
     }
-    
+
     // 저장된 장소들의 주소를 가져와서 표시하는 함수
     function loadMapLocationAddresses() {
         if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
             return;
         }
-        
+
         var geocoder = new kakao.maps.services.Geocoder();
         var addressElements = document.querySelectorAll('.map-location-item .location-address[data-lat][data-lng]');
-        
+
         addressElements.forEach(function(element) {
             var lat = parseFloat(element.getAttribute('data-lat'));
             var lng = parseFloat(element.getAttribute('data-lng'));
-            
+
             if (isNaN(lat) || isNaN(lng)) {
                 element.textContent = '주소 정보 없음';
                 return;
             }
-            
+
             // 좌표를 주소로 변환
             geocoder.coord2Address(lng, lat, function(result, status) {
                 if (status === kakao.maps.services.Status.OK) {
@@ -987,7 +1021,7 @@
 
         stompClient.connect({}, function (frame) {
             console.log('✅ Real-time location WS Connected: ' + frame);
-            
+
             // recipient-specific 토픽 구독
             const topic = '/topic/location/' + defaultRecId;
             stompClient.subscribe(topic, function (message) {
@@ -1002,7 +1036,7 @@
                         // 함수가 없으면 직접 이동 (비상용)
                         moveMarkerDirectly(locationData.latitude, locationData.longitude);
                     }
-                    
+
                 } catch (e) {
                     console.error('위치 데이터 파싱 오류:', e);
                 }

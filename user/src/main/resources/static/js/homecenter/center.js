@@ -34,7 +34,7 @@ function initializeMap() {
     };
     map = new kakao.maps.Map(mapContainer, mapOption);
 
-    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
         if (currentMapMode === 'course') {
             // 산책 코스 모드에서는 클릭 이벤트 비활성화
             return;
@@ -68,8 +68,7 @@ function loadHomeMarker() {
             var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
             var homeImageSrc = 'data:image/svg+xml;base64,' + btoa(
                 '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">' +
-                '<defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="2"/><feOffset dx="0" dy="2" result="offsetblur"/><feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-                '<g filter="url(#shadow)"><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="#e74c3c"/><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="none" stroke="#c0392b" stroke-width="2"/><circle cx="24" cy="26" r="3" fill="#fff" opacity="0.8"/><rect x="18" y="38" width="2" height="6" fill="#c0392b"/><rect x="28" y="38" width="2" height="6" fill="#c0392b"/></g>' +
+                '<g><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="#e74c3c" stroke="#888" stroke-width="1"/><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="none" stroke="#c0392b" stroke-width="2"/><circle cx="24" cy="26" r="3" fill="#fff" opacity="0.8"/><rect x="18" y="38" width="2" height="6" fill="#c0392b"/><rect x="28" y="38" width="2" height="6" fill="#c0392b"/></g>' +
                 '<circle cx="24" cy="4" r="2" fill="#ffeb3b"/><path d="M24 6 L26 10 L22 10 Z" fill="#ffeb3b"/></svg>'
             );
             var homeImageSize = new kakao.maps.Size(48, 48);
@@ -114,13 +113,8 @@ function getMarkerImageByCategory(category) {
 
     // SVG 마커 이미지 생성
     var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
-        '<defs><filter id="shadow' + category + '" x="-50%" y="-50%" width="200%" height="200%">' +
-        '<feGaussianBlur in="SourceAlpha" stdDeviation="2"/>' +
-        '<feOffset dx="0" dy="2" result="offsetblur"/>' +
-        '<feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>' +
-        '<feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-        '<g filter="url(#shadow' + category + ')">' +
-        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '"/>' +
+        '<g>' +
+        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '" stroke="#888" stroke-width="1"/>' +
         iconSymbol +
         '</g></svg>';
 
@@ -619,11 +613,8 @@ function displaySearchResults(places) {
     });
     searchMarkers = [];
 
-    // 빨간색 마커 이미지 생성
-    var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
-        imageSize = new kakao.maps.Size(31, 35),
-        imageOption = {offset: new kakao.maps.Point(15, 34)};
-    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+    // 검색 결과 커스텀 마커 이미지 생성
+    var markerImage = getSearchMarkerImage();
 
     places.forEach(place => {
         var item = document.createElement('div');
@@ -866,6 +857,25 @@ function getDefaultRecipientMarkerImage() {
     );
 }
 
+// 검색 결과 마커 이미지 생성 (빨간색, 그림자 없음, 회색 외곽선)
+function getSearchMarkerImage() {
+    var iconColor = '#e74c3c'; // Red color for search results
+    var iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>'; // Basic circle icon
+
+    var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
+        '<g>' +
+        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '" stroke="#888" stroke-width="1"/>' +
+        iconSymbol +
+        '</g></svg>';
+
+    var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+    var imageSize = new kakao.maps.Size(50, 45); // Adjust size as needed
+    var imageOption = {offset: new kakao.maps.Point(15, 43)}; // Adjust offset as needed
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
+    return markerImage;
+}
+
 // 실시간 위치용 원형 프로필 이미지 생성
 function createCircularMarkerImageForRealtime(photoUrl, callback) {
     var canvas = document.createElement('canvas');
@@ -898,10 +908,12 @@ function createCircularMarkerImageForRealtime(photoUrl, callback) {
         ctx.beginPath();
         ctx.arc(30, 30, 25, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 2;
+        // ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        // ctx.shadowBlur = 5;
+        // ctx.shadowOffsetX = 0;
+        // ctx.shadowOffsetY = 2;
+        ctx.strokeStyle = '#888'; // Added gray outline
+        ctx.lineWidth = 1; // Set outline width
         ctx.beginPath();
         ctx.arc(30, 30, 27, 0, 2 * Math.PI);
         ctx.stroke();
