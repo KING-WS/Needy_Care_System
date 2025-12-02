@@ -304,7 +304,7 @@
 
             if(result.activity) statusEl.text(result.activity);
 
-            if (result.alert && result."alert !== 없음") {
+            if (result.alert && result.alert !== "없음") {
                 // 아이콘 추가하여 경고 메시지 표시
                 alertEl.html('<i class="fas fa-exclamation-triangle"></i> ' + result.alert).addClass('alert-active');
             } else {

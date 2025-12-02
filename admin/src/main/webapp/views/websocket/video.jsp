@@ -1,14 +1,27 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>영상통화 연결</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; } /* 배경색 지정 */
+    </style>
+</head>
+<body>
+
 <section style="padding: 20px;">
     <div class="container-fluid">
         <div class="row">
             <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
+                <h1 style="font-size: 28px; font-weight: bold; color: #2c3e50;">
                     <i class="fas fa-video"></i> 관리자 화상통화
                 </h1>
-                <p style="font-size: 16px; color: #666; margin-top: 10px;">
+                <p style="font-size: 14px; color: #666; margin-top: 5px;">
                     사용자와 화상으로 대면 상담할 수 있습니다.
                 </p>
             </div>
@@ -22,23 +35,29 @@
             </div>
             <div class="col-md-4">
                 <div class="card" style="border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); margin-bottom: 20px;">
-                     <div class="card-body">
-                        <h5 style="margin-bottom: 20px;"><i class="fas fa-network-wired"></i> Connection</h5>
-                        <div class="form-group">
-                            <label for="roomId">Room ID</label>
-                            <input type="text" id="roomId" class="form-control" value="room1" />
+                    <div class="card-body">
+                        <h5 style="margin-bottom: 20px;"><i class="fas fa-network-wired"></i> 연결 상태</h5>
+                        <div class="form-group mb-3">
+                            <label for="roomId" class="form-label text-muted small">연결 코드 (Room ID)</label>
+                            <input type="text" id="roomId" class="form-control fw-bold" value="room1" readonly />
                         </div>
-                        <button id="joinButton" class="btn btn-primary mt-2">Join Room</button>
-                        <button id="leaveButton" class="btn btn-danger mt-2" disabled>Leave Room</button>
+                        <div class="d-grid gap-2">
+                            <button id="joinButton" class="btn btn-primary btn-lg">
+                                <i class="fas fa-phone"></i> 연결 시작
+                            </button>
+                            <button id="leaveButton" class="btn btn-danger btn-lg" disabled>
+                                <i class="fas fa-phone-slash"></i> 종료
+                            </button>
+                        </div>
                     </div>
                 </div>
-                 <div class="card" style="border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+                <div class="card" style="border: none; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
                     <div class="card-body">
                         <h6><i class="fas fa-info-circle"></i> 이용 안내</h6>
-                        <ul style="font-size: 14px; padding-left: 20px;">
-                            <li>Join Room 버튼을 눌러 통화를 시작하세요.</li>
-                            <li>안정적인 인터넷 환경에서 이용하세요.</li>
-                            <li>카메라와 마이크 권한을 허용해주세요.</li>
+                        <ul style="font-size: 13px; padding-left: 20px; margin-bottom: 0;">
+                            <li>자동으로 연결이 시작됩니다.</li>
+                            <li>연결이 안 되면 새로고침 하세요.</li>
+                            <li>카메라/마이크 권한을 허용해주세요.</li>
                         </ul>
                     </div>
                 </div>
@@ -69,91 +88,94 @@
     joinButton.onclick = joinRoom;
     leaveButton.onclick = leaveRoom;
 
+    // 페이지 로드 시 자동 연결
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlRoomId = urlParams.get('roomId');
+
+        if (urlRoomId) {
+            roomIdInput.value = urlRoomId;
+            joinButton.innerText = "연결 중...";
+            joinButton.disabled = true;
+            joinRoom();
+        }
+    });
+
     async function joinRoom() {
         roomId = roomIdInput.value;
-        if (!roomId) {
-            alert('Please enter a room ID');
-            return;
-        }
+        if (!roomId) { alert('Room ID가 없습니다.'); return; }
 
         joinButton.disabled = true;
         leaveButton.disabled = false;
 
-        // [수정 1] WebSocket 연결 전에 미디어 스트림과 PC를 먼저 준비합니다.
-        // 이렇게 해야 신호(Signal)가 왔을 때 즉시 반응할 수 있습니다.
         const isReady = await prepareMediaAndConnection();
         if (!isReady) {
             joinButton.disabled = false;
             leaveButton.disabled = true;
+            joinButton.innerText = "연결 실패 (재시도)";
             return;
         }
 
-        // [수정 2] URL 처리 안전성 확보
-        let baseUrl = "${websocketUrl}";
-        // baseUrl 끝에 '/'가 없으면 추가
-        if (!baseUrl.endsWith('/')) baseUrl += '/';
+        // [핵심] 키오스크(User) 서버 포트(8084)로 연결 설정
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        // 팀원들도 되게 하려면 localhost 대신 hostname을 씁니다.
+        const currentHost = window.location.hostname;
+        const userServerDomain = currentHost + ":8084"; // 포트 8084 강제 지정
+        const wsUrl = protocol + '//' + userServerDomain + '/signal';
 
-        const wsUrl = baseUrl.replace(/^http/, 'ws') + "signal";
-        console.log("Connecting to WebSocket at:", wsUrl);
+        console.log("키오스크 서버 연결 시도:", wsUrl);
 
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
-            console.log('WebSocket connection opened');
+            console.log('WebSocket 연결됨');
             const joinMessage = { type: 'join', roomId: roomId };
             ws.send(JSON.stringify(joinMessage));
+            joinButton.innerText = "연결됨";
+            joinButton.classList.remove('btn-primary');
+            joinButton.classList.add('btn-success');
         };
 
         ws.onmessage = async (message) => {
             const signal = JSON.parse(message.data);
-            console.log('Received signal:', signal);
+            console.log('신호 수신:', signal.type);
 
             switch (signal.type) {
                 case 'join':
-                    console.log('Another peer joined. Creating offer...');
-                    // 이미 prepareMediaAndConnection()에서 peerConnection을 만들었으므로
-                    // 중복 호출 없이 바로 Offer 생성
+                    console.log('키오스크 입장. Offer 전송...');
                     createOffer();
                     break;
-
                 case 'offer':
-                    console.log('Received offer');
+                    console.log('Offer 수신 (키오스크가 먼저 검)');
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
                     const answer = await peerConnection.createAnswer();
                     await peerConnection.setLocalDescription(answer);
                     ws.send(JSON.stringify({ type: 'answer', data: peerConnection.localDescription, roomId: roomId }));
                     break;
-
                 case 'answer':
-                    console.log('Received answer');
+                    console.log('Answer 수신 (연결 완료)');
                     await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
                     break;
-
                 case 'ice-candidate':
                     if (signal.data) {
                         try {
                             await peerConnection.addIceCandidate(new RTCIceCandidate(signal.data));
-                        } catch (e) {
-                            console.error('Error adding received ice candidate', e);
-                        }
+                        } catch (e) { console.error(e); }
                     }
                     break;
-
                 case 'bye':
-                    console.log('Peer left the room');
-                    // 상대방이 나가면 내 화면을 끄는 대신, 연결만 리셋하고 대기할지 선택해야 합니다.
-                    // 여기서는 remoteVideo만 비우고 연결은 유지하거나, 아예 통화를 종료할 수 있습니다.
+                    console.log('상대방 종료');
                     handleRemoteHangup();
                     break;
             }
         };
 
         ws.onerror = (error) => {
-            console.error('WebSocket error:', error);
+            console.error('WS 오류:', error);
+            alert('키오스크 서버에 연결할 수 없습니다.\n서버가 켜져 있는지 확인하세요.');
         };
     }
 
-    // [수정 3] 미디어 획득과 PC 초기화를 분리하여 명확하게 관리
     async function prepareMediaAndConnection() {
         try {
             localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -168,7 +190,7 @@
             };
 
             peerConnection.ontrack = (event) => {
-                console.log("Remote stream received");
+                console.log("상대방 영상 수신");
                 remoteVideo.srcObject = event.streams[0];
             };
 
@@ -178,8 +200,8 @@
 
             return true;
         } catch (e) {
-            console.error('Error getting media stream:', e);
-            alert('카메라/마이크 권한을 확인할 수 없습니다. HTTPS 환경인지 확인해주세요.');
+            console.error('미디어 오류:', e);
+            alert('카메라 권한을 확인해주세요.');
             return false;
         }
     }
@@ -189,48 +211,36 @@
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
             ws.send(JSON.stringify({ type: 'offer', data: peerConnection.localDescription, roomId: roomId }));
-        } catch (e) {
-            console.error("Error creating offer:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function handleRemoteHangup() {
         remoteVideo.srcObject = null;
-        // 필요 시 peerConnection을 리셋하거나 알림 표시
         alert("상대방이 연결을 종료했습니다.");
-        leaveRoom(); // 같이 종료하려면 호출
+        leaveRoom();
     }
 
     function leaveRoom() {
         if (ws) {
-            // 이미 닫힌 상태가 아니라면 bye 메시지 전송
-            if(ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({ type: 'bye', roomId: roomId }));
-            }
-            ws.close();
-            ws = null;
+            if(ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'bye', roomId: roomId }));
+            ws.close(); ws = null;
         }
-
-        if (peerConnection) {
-            peerConnection.close();
-            peerConnection = null;
-        }
-
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
-        }
+        if (peerConnection) { peerConnection.close(); peerConnection = null; }
+        if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
 
         localVideo.srcObject = null;
         remoteVideo.srcObject = null;
-
         joinButton.disabled = false;
         leaveButton.disabled = true;
+        joinButton.innerText = "연결 시작";
+        joinButton.classList.remove('btn-success');
+        joinButton.classList.add('btn-primary');
+
+        // 팝업창 닫기 (선택 사항)
+        // window.close();
     }
 
-    window.onbeforeunload = () => {
-        if(ws || localStream) {
-            leaveRoom();
-        }
-    };
+    window.onbeforeunload = () => { if(ws || localStream) leaveRoom(); };
 </script>
+</body>
+</html>

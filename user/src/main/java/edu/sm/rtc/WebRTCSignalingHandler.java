@@ -1,6 +1,9 @@
 package edu.sm.rtc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.sm.app.dto.Recipient;
+import edu.sm.app.service.RecipientService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -14,8 +17,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class WebRTCSignalingHandler extends TextWebSocketHandler {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private final KioskWebSocketHandler kioskWebSocketHandler;
+    private final RecipientService recipientService;
+    private final ObjectMapper objectMapper;
+
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
     private final Map<String, String> roomSessions = new ConcurrentHashMap<>();
 
@@ -88,29 +96,54 @@ public class WebRTCSignalingHandler extends TextWebSocketHandler {
         roomSessions.put(session.getId(), roomId);
         log.info("Client {} joined room: {}", session.getId(), roomId);
 
-        // 같은 방의 참가자 수 로깅
-        long roomParticipants = roomSessions.values()
-                .stream()
-                .filter(room -> room.equals(roomId))
+        long roomParticipants = roomSessions.values().stream()
+                .filter(r -> r.equals(roomId))
                 .count();
         log.info("Room {} now has {} participants", roomId, roomParticipants);
+
+        // ============================================================
+        // [수정 완료] 방 번호 형식 상관없이, 관리자가 먼저 들어오면(1명) 무조건 호출
+        // ============================================================
+        if (roomParticipants == 1) { // 👈 startsWith 조건 삭제함!
+            try {
+                // 방 번호를 키오스크 코드로 간주하고 전송
+                String kioskCode = roomId;
+
+                Map<String, String> messageMap = Map.of(
+                        "type", "start_call",
+                        "roomId", roomId
+                );
+                String jsonMessage = objectMapper.writeValueAsString(messageMap);
+
+                // 키오스크에게 호출 신호 전송
+                kioskWebSocketHandler.sendMessageToKiosk(kioskCode, jsonMessage);
+                log.info("Sent 'start_call' signal to kiosk: {}", kioskCode);
+
+            } catch (Exception e) {
+                log.error("Error sending start_call signal to kiosk for room {}", roomId, e);
+            }
+        }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession wsession, CloseStatus status) {
-        String roomId = roomSessions.get(wsession.getId());
-        sessions.remove(wsession.getId());
-        roomSessions.remove(wsession.getId());
-        log.info("Client {} disconnected from room {}", wsession.getId(), roomId);
+        try {
+            String roomId = roomSessions.get(wsession.getId());
+            sessions.remove(wsession.getId());
+            roomSessions.remove(wsession.getId());
+            log.info("Client {} disconnected from room {}", wsession.getId(), roomId);
 
-        // 남은 참가자 수 로깅
-        if (roomId != null) {
-            long remainingParticipants = roomSessions.values()
-                    .stream()
-                    .filter(room -> room.equals(roomId))
-                    .count();
-            log.info("Room {} now has {} participants remaining", roomId, remainingParticipants);
+            if (roomId != null) {
+                long remainingParticipants = roomSessions.values().stream()
+                        .filter(room -> room.equals(roomId))
+                        .count();
+                log.info("Room {} now has {} participants remaining", roomId, remainingParticipants);
 
+                // 다른 참여자에게 'bye' 메시지 전송
+                broadcastToRoom(wsession, new TextMessage("{\"type\":\"bye\"}"), roomId);
+            }
+        } catch (Exception e) {
+            log.error("Error during connection closing for session {}: {}", wsession.getId(), e.getMessage());
         }
     }
 

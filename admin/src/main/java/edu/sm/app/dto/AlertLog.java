@@ -19,4 +19,5 @@ public class AlertLog {
     private String checkStatus; // N: 미확인, Y: 확인됨
     private LocalDateTime alertRegdate;
     private String recipientName; // 수신자 이름 추가 (조회용)
+    private String kioskCode;
 }
