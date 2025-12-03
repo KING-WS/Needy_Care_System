@@ -528,13 +528,14 @@
             <i class="fas fa-camera" style="color: var(--primary-color);"></i> 사진으로 분석하기
         </h3>
 
-        <div class="camera-preview">
+        <div class="camera-preview" id="cameraPreview">
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
             <video id="videoElement" autoplay playsinline></video>
             <canvas id="canvasElement"></canvas>
 
-            <div id="cameraPlaceholder" class="camera-placeholder">
-                <i class="fas fa-camera"></i>
-                <p style="font-weight: 600;">여기를 눌러 촬영하거나 아래 버튼을 사용하세요</p>
+            <div id="cameraPlaceholder" class="camera-placeholder" style="cursor: pointer;">
+                <i class="fas fa-upload"></i>
+                <p style="font-weight: 600;">사진을 드래그하거나 여기를 클릭하여 업로드</p>
             </div>
         </div>
 
@@ -1335,6 +1336,83 @@
             "'": '&#039;'
         };
         return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
+
+    // File Upload and Drag & Drop Logic
+    const cameraPreview = document.getElementById('cameraPreview');
+    const imageUpload = document.getElementById('imageUpload');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+    // Make placeholder clickable
+    if(cameraPlaceholder) {
+        cameraPlaceholder.addEventListener('click', () => imageUpload.click());
+    }
+
+    // Handle file selection
+    imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    });
+
+    // Handle Drag & Drop
+    cameraPreview.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        cameraPreview.style.borderColor = 'var(--primary-color)'; // visual feedback
+    });
+
+    cameraPreview.addEventListener('dragleave', () => {
+        cameraPreview.style.borderColor = '#d2d5d9';
+    });
+
+    cameraPreview.addEventListener('drop', (event) => {
+        event.preventDefault();
+        cameraPreview.style.borderColor = '#d2d5d9';
+        const file = event.dataTransfer.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    });
+
+    function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드할 수 있습니다.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            capturedImage = e.target.result; // Set the global variable
+
+            // Display the image preview
+            const video = document.getElementById('videoElement');
+            video.style.display = 'none';
+            const placeholder = document.getElementById('cameraPlaceholder');
+            if(placeholder) placeholder.style.display = 'none';
+
+            const existingImg = document.querySelector('#capturedImage');
+            if (existingImg) {
+                existingImg.remove();
+            }
+
+            const img = document.createElement('img');
+            img.src = capturedImage;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.id = 'capturedImage';
+            img.style.display = 'block';
+
+            const preview = document.querySelector('.camera-preview');
+            preview.appendChild(img);
+            preview.classList.add('active');
+
+
+            // Run analysis
+            setTimeout(() => analyzeMeal(), 300);
+        }
+        reader.readAsDataURL(file);
     }
 
     window.addEventListener('beforeunload', function() {

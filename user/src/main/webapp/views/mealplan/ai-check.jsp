@@ -6,14 +6,12 @@
        1. 레이아웃 및 전체 테마
        ========================================= */
     :root {
-        /* 사용자 정의 변수가 있다면 여기에 정의되어야 합니다.
- (예: Spring/JSP 설정) [cite_start][cite: 1, 2] */
-        /* 임시 컬러 변수 (원래 코드에서 정의되지 않아 임의 지정) */
         --primary-color: #3498db;
         --primary-color-dark: #2980b9;
         --secondary-color: #2c3e50;
         --warning-light: #fef9e7;
         --danger-light: #fcebeb;
+        --danger-color: #e74c3c; /* Added for btn-danger-custom */
     }
 
     .ai-check-section {
@@ -45,128 +43,117 @@
     }
 
     /* =========================================
-       2. 입력 및 컨트롤 영역
+       2. 입력 및 컨트롤 영역 (ai-menu.jsp 스타일 적용)
        ========================================= */
-    .camera-container {
-        /* [수정됨] 흰색 배경을 투명도가 있는 흰색으로 변경하여 섹션 배경색이 비치도록 함 */
-        background: rgba(255,255,255,0.85);
-        border-radius: 15px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-        padding: 40px;
+    .detail-content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         margin-bottom: 30px;
-        border: 1px solid #e0e0e0;
+        transition: transform 0.3s ease;
     }
 
-    .camera-section {
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: var(--secondary-color);
         display: flex;
-        flex-direction: column;
-        gap: 30px;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .btn-custom {
+        padding: 12px 24px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 15px;
+    }
+
+    .btn-primary-custom {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+    }
+    .btn-primary-custom:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+    }
+
+    .btn-secondary-custom {
+        background: #95a5a6;
+        color: white;
+    }
+    .btn-secondary-custom:hover {
+        background: #7f8c8d;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger-custom {
+        background: var(--danger-color);
+        color: white;
+        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+    }
+    .btn-danger-custom:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
     }
 
     .camera-preview {
         width: 100%;
-        max-width: 700px;
-        /* 미리보기 영역 확장 */
-        margin: 0 auto;
-        border-radius: 15px;
+        max-width: 600px;
+        margin: 0 auto 20px auto;
+        border-radius: 20px;
         overflow: hidden;
-        /* [수정] 배경을 검은색 (#000)에서 밝은 회색으로 변경하여 플레이스홀더를 표시 */
-        background: #f8f9fa;
+        background: #f1f3f5;
         position: relative;
-
-        /* [수정] 외곽선 두께를 5px에서 2px로 줄이고 색상을 #d2d5d9로 변경 */
-        box-shadow: 0 0 0 2px #d2d5d9;
-
-        /* 모니터 베젤 효과 */
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
         aspect-ratio: 16 / 9;
-        /* 비율 고정 */
-
-        /* [추가] 내부 아이콘 중앙 정렬을 위한 Flex 설정 */
         display: flex;
         align-items: center;
         justify-content: center;
+        border: 2px dashed #d2d5d9;
     }
 
-    #videoElement {
+    .camera-preview.active {
+        border: none;
+    }
+
+    #videoElement, #canvasElement {
         width: 100%;
-        height: 100%; /* 부모 컨테이너에 맞게 꽉 채움 */
+        height: 100%;
         object-fit: cover;
-        /* [수정] 초기에는 비디오를 숨겨서 플레이스홀더가 보이게 함 */
         display: none;
     }
 
-    #canvasElement {
-        display: none;
-    }
-
-    /* [추가] 초기 대기 화면 (플레이스홀더) 스타일 */
     .camera-placeholder {
         text-align: center;
-        color: #adb5bd; /* 회색 텍스트 */
-        z-index: 1; /* 비디오보다 위에 있을 필요는 없으나 안전을 위해 */
+        color: #adb5bd;
+        z-index: 1;
         transition: opacity 0.3s;
     }
 
     .camera-placeholder i {
-        font-size: 60px; /* 아이콘 크기 */
-        margin-bottom: 15px;
-        color: #ced4da; /* 아이콘 색상 */
-    }
-
-    .camera-placeholder p {
-        font-size: 20px;
-        font-weight: 700;
-        margin: 0;
+        font-size: 50px;
+        margin-bottom: 10px;
+        color: #ced4da;
     }
 
     .camera-controls {
         display: flex;
-        gap: 15px;
+        gap: 10px;
         justify-content: center;
         flex-wrap: wrap;
-    }
-
-    .btn-camera {
-        padding: 12px 28px;
-        border: none;
-        border-radius: 30px; /* 캡슐형 버튼 */
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .btn-camera-primary {
-        background: var(--primary-color);
-        color: white;
-    }
-
-    .btn-camera-primary:hover {
-        background: var(--primary-color-dark);
-        transform: translateY(-2px);
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
-    }
-
-    .btn-camera-secondary {
-        background: #95a5a6;
-        color: white;
-    }
-
-    .btn-camera-secondary:hover {
-        background: #7f8c8d;
-    }
-
-    .btn-camera-danger {
-        background: #e74c3c;
-        color: white;
-    }
-
-    .btn-camera-danger:hover {
-        background: #c0392b;
+        margin-top: 20px;
     }
 
 
@@ -388,30 +375,32 @@
             <h5>카메라로 음식을 촬영하거나 설명을 입력하여 돌봄 대상자의 식단 안전성을 검사하세요</h5>
         </div>
 
-        <div class="camera-container">
-            <div class="camera-section">
-                <div class="camera-preview">
-                    <video id="videoElement" autoplay playsinline></video>
-                    <canvas id="canvasElement"></canvas>
-
-                    <div id="cameraPlaceholder" class="camera-placeholder">
-                        <i class="fas fa-camera"></i>
-                        <p>음식 촬영</p>
-                    </div>
-
+        <div class="detail-content-card">
+            <h3 class="section-title">
+                <i class="fas fa-camera" style="color: var(--primary-color);"></i> 사진으로 분석하기
+            </h3>
+    
+            <div class="camera-preview" id="cameraPreview">
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;">
+                <video id="videoElement" autoplay playsinline></video>
+                <canvas id="canvasElement"></canvas>
+    
+                <div id="cameraPlaceholder" class="camera-placeholder" style="cursor: pointer;">
+                    <i class="fas fa-upload"></i>
+                    <p style="font-weight: 600;">사진을 드래그하거나 여기를 클릭하여 업로드</p>
                 </div>
-
-                <div class="camera-controls">
-                    <button class="btn-camera btn-camera-primary" onclick="startCamera()">
-                        <i class="fas fa-video"></i> 카메라 시작
-                    </button>
-                    <button class="btn-camera btn-camera-secondary" onclick="capturePhoto()" id="captureBtn" disabled>
-                        <i class="fas fa-camera"></i> 사진 촬영
-                    </button>
-                    <button class="btn-camera btn-camera-danger" onclick="stopCamera()" id="stopBtn" disabled>
-                        <i class="fas fa-stop"></i> 카메라 중지
-                    </button>
-                </div>
+            </div>
+    
+            <div class="camera-controls">
+                <button class="btn-custom btn-primary-custom" onclick="startCamera()">
+                    <i class="fas fa-video"></i> 카메라 시작
+                </button>
+                <button class="btn-custom btn-secondary-custom" onclick="capturePhoto()" id="captureBtn" disabled>
+                    <i class="fas fa-camera"></i> 사진 촬영
+                </button>
+                <button class="btn-custom btn-danger-custom" onclick="stopCamera()" id="stopBtn" disabled>
+                    <i class="fas fa-stop"></i> 카메라 중지
+                </button>
             </div>
         </div>
 
@@ -728,5 +717,84 @@
     // 페이지 이탈 시 카메라 정리
     window.addEventListener('beforeunload', function() {
         stopCamera();
+    });
+
+    // File Upload and Drag & Drop Logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const cameraPreview = document.getElementById('cameraPreview');
+        const imageUpload = document.getElementById('imageUpload');
+        const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+        // Make placeholder clickable
+        if (cameraPlaceholder) {
+            cameraPlaceholder.addEventListener('click', () => imageUpload.click());
+        }
+
+        // Handle file selection
+        imageUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        // Handle Drag & Drop
+        cameraPreview.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            cameraPreview.style.borderColor = 'var(--primary-color)'; // visual feedback
+        });
+
+        cameraPreview.addEventListener('dragleave', () => {
+            cameraPreview.style.borderColor = '#d2d5d9';
+        });
+
+        cameraPreview.addEventListener('drop', (event) => {
+            event.preventDefault();
+            cameraPreview.style.borderColor = '#d2d5d9';
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('이미지 파일만 업로드할 수 있습니다.');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                capturedImage = e.target.result; // Set the global variable
+
+                // Display the image preview
+                const video = document.getElementById('videoElement');
+                video.style.display = 'none';
+                const placeholder = document.getElementById('cameraPlaceholder');
+                if(placeholder) placeholder.style.display = 'none';
+
+                const existingImg = document.querySelector('#capturedImage');
+                if (existingImg) {
+                    existingImg.remove();
+                }
+
+                const img = document.createElement('img');
+                img.src = capturedImage;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.id = 'capturedImage';
+                img.style.display = 'block';
+
+                const preview = document.querySelector('.camera-preview');
+                preview.appendChild(img);
+                preview.classList.add('active');
+
+
+                // Run analysis
+                setTimeout(() => checkSafety(), 300);
+            }
+            reader.readAsDataURL(file);
+        }
     });
 </script>
