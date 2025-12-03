@@ -2,6 +2,7 @@ package edu.sm.app.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import edu.sm.app.dto.DailyUserCountDTO;
 import edu.sm.app.dto.User;
 import edu.sm.app.dto.UserSearch;
 import edu.sm.app.repository.UserRepository;
@@ -59,5 +60,9 @@ public class UserService implements SmService<User, Integer> {
 
     public int getUserCount() {
         return custRepository.selectUserCount();
+    }
+
+    public List<DailyUserCountDTO> getDailyUserRegistrations() {
+        return custRepository.findDailyUserRegistrations();
     }
 }

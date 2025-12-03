@@ -30,11 +30,17 @@
     position: relative;
 }
 
-
-
 /* card-xlarge는 card-wrapper 높이만큼 채움 */
 .dashboard-card.card-xlarge {
     height: 100% !important;
+    min-height: 0 !important; /* 최소 높이 제한 해제 */
+    max-height: none !important; /* 최대 높이 제한 해제 */
+
+    /* ... 나머지 기존 스타일은 그대로 유지 ... */
+
+    padding: 20px;
+    display: block;
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -112,12 +118,13 @@
 }
 
 .card-xlarge {
-    height: 800px !important;
-    min-height: 800px !important;
-    max-height: 800px !important;
+    /* [수정됨]: 고정 높이 800px을 100%로 변경하여 동적 높이 지원 */
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
 }
 
-/* 지도 카드 스타일 전체 컨테이너 */
+/* [삭제됨]: 이전에 800px을 강제하던 중복 블록을 제거합니다.
 .dashboard-card.card-xlarge {
     padding: 20px;
     display: block;
@@ -131,6 +138,7 @@
     max-height: 800px !important;
     transition: all 0.3s ease;
 }
+*/
 
 /* 장식용 그라디언트 원 (오늘의 일정/식단표와 유사한 스타일) */
 .dashboard-card.card-xlarge::before,
@@ -213,6 +221,7 @@
 .map-title-icon i {
     font-size: 16px !important;
     color: #667eea;
+    margin-bottom: 0 !important;
 }
 
 .map-desc {
@@ -606,15 +615,6 @@
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
 }
 
-.map-tab i {
-    font-size: 16px !important;
-    transition: transform 0.3s ease;
-}
-
-.map-tab:hover i {
-    transform: scale(1.1);
-}
-
 .map-tab.active {
     background: #7F7FBF;
     color: white;
@@ -857,6 +857,9 @@
     flex: 1;
     width: 100%;
 }
+.col-lg-6 .card-wrapper {
+    height: 100%;
+}
 
 #user-dashboard {
     display: flex;
@@ -1061,14 +1064,15 @@
    ======================================== */
 
 .calendar-card {
-    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
-    padding: 20px;
-    border-radius: 15px;
-    border: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    height: 100%;
+    /* ... 기존 스타일 유지 ... */
+    display: flex; /* Flexbox 활성화 */
+    flex-direction: column; /* 수직 정렬 */
+
+    /* min-height를 card-large 높이로 고정 */
+    min-height: 560px !important;
+    height: 560px !important;
+    /* max-height 제거 */
+
     box-shadow: none;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1150,6 +1154,7 @@
     margin-bottom: 0;
 }
 
+
 .calendar-month {
     font-size: 13px;
     font-weight: 600;
@@ -1161,9 +1166,17 @@
 
 .calendar-grid {
     display: grid;
+    /* 가로 7칸을 균등하게 강제 분할 */
     grid-template-columns: repeat(7, 1fr);
+
+    /* 세로 행 높이를 자동으로 균등하게 분할 (이 부분이 핵심) */
+    grid-auto-rows: minmax(0, 1fr);
+
     gap: 5px;
-    flex: 1;
+    flex: 1; /* 남은 공간 차지 */
+    width: 100%; /* 너비 꽉 채우기 */
+    height: 100%; /* 높이 꽉 채우기 */
+    min-height: 0; /* Flexbox 내부에서 자식 요소 크기 계산 버그 방지 */
 }
 
 .calendar-day-header {
@@ -1178,16 +1191,17 @@
 }
 
 .calendar-day {
-    aspect-ratio: 1;
+    width: 100%;  /* 그리드 칸 너비에 맞춤 */
+    height: 100%; /* 그리드 칸 높이에 맞춤 */
+
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
+    font-size: 11px; /* 글자 크기는 필요시 vw 단위나 미디어 쿼리로 조정 가능 */
     border-radius: 8px;
     position: relative;
     cursor: pointer;
     transition: all 0.2s ease;
-    max-height: 45px;
     color: #666;
     background: #e0e7ff;
 }
@@ -1422,7 +1436,7 @@
 
 .meal-item {
     background: #ffffff;
-    border-radius: 10px;
+    border-left: 4px solid #ff6b6b;
     padding: 8px 12px;
     display: flex;
     align-items: center;
@@ -1925,4 +1939,90 @@
 .map-location-item {
     margin-right: 2px;         /* 혹시 모를 잘림 방지용 미세 여백 */
     width: auto;               /* 가로 폭 자동 조절 */
+}
+
+/* [기존 center.css 내용 유지] ... */
+
+/* =========================================
+   [추가] 저장된 장소 커스텀 오버레이 스타일 (AI 추천과 유사한 디자인)
+   ========================================= */
+.place-overlay-wrap {
+    position: absolute;
+    bottom: 45px; /* 마커 바로 위 */
+    left: -100px; /* 중앙 정렬 */
+    width: 200px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    overflow: hidden;
+    font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+    z-index: 1000;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.place-overlay-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 10px 15px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.place-overlay-close {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+}
+.place-overlay-close:hover { opacity: 1; }
+
+.place-overlay-body {
+    padding: 15px;
+    text-align: center;
+}
+
+.place-overlay-category {
+    display: inline-block;
+    background: #f0f4ff;
+    color: #667eea;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.place-overlay-content {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.place-overlay-btn {
+    width: 100%;
+    padding: 8px 0;
+    background: #fff;
+    border: 1px solid #667eea;
+    color: #667eea;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.place-overlay-btn:hover {
+    background: #667eea;
+    color: #fff;
 }

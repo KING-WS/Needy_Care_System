@@ -15,13 +15,15 @@
     
     .page-header {
         margin-bottom: 30px;
+        text-align: center;
     }
     
     .page-header h1 {
-        font-size: 36px;
-        font-weight: bold;
+        font-size: 38px;
+        font-weight: 800;
         color: var(--secondary-color);
         margin-bottom: 10px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
     
     .page-header p {
@@ -39,7 +41,7 @@
     .stat-card {
         background: white;
         border-radius: 15px;
-        padding: 25px;
+        padding: 20px; /* 패딩 약간 줄임 */
         box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         border-left: 4px solid;
@@ -66,17 +68,17 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 15px;
+        margin-bottom: 10px; /* 간격 줄임 */
     }
     
     .stat-title {
-        font-size: 16px;
+        font-size: 15px; /* 약간 줄임 */
         color: #666;
         font-weight: 500;
     }
     
     .stat-icon {
-        font-size: 28px;
+        font-size: 24px; /* 약간 줄임 */
         opacity: 0.7;
     }
     
@@ -92,16 +94,23 @@
         color: #f093fb;
     }
     
+    .stat-value-container {
+        display: flex;
+        align-items: baseline; /* 기준선을 맞춤 */
+        gap: 8px; /* 숫자와 단위 사이 간격 */
+    }
+    
     .stat-value {
-        font-size: 36px;
+        font-size: 32px; /* 약간 줄임 */
         font-weight: bold;
         color: #2c3e50;
-        margin-bottom: 5px;
+        margin: 0; /* margin 제거 */
     }
     
     .stat-unit {
-        font-size: 14px;
+        font-size: 16px; /* 약간 키움 */
         color: #999;
+        font-weight: 500;
     }
     
     .chart-container {
@@ -171,38 +180,6 @@
     
     .empty-state p {
         font-size: 14px;
-    }
-    
-    .recipient-selector {
-        background: white;
-        border-radius: 15px;
-        padding: 20px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-    }
-    
-    .recipient-selector label {
-        display: block;
-        font-size: 16px;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-    }
-    
-    .recipient-selector select {
-        width: 100%;
-        padding: 12px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        font-size: 16px;
-        background: white;
-        color: #2c3e50;
-        transition: border-color 0.3s;
-    }
-    
-    .recipient-selector select:focus {
-        outline: none;
-        border-color: #667eea;
     }
     
     .ai-analysis-section {
@@ -366,33 +343,50 @@
         margin-bottom: 20px;
         animation: spin 1s linear infinite;
     }
+
+    /* AI 가이드 카드 스타일 */
+    #aiGuideCard {
+        background: #e8f5fb;
+        color: #333;
+        border: none;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    #aiGuideCard .result-card-title {
+        color: #0056b3;
+        font-size: 20px;
+    }
+    #aiGuideCard .result-card-content {
+        font-size: 17px;
+        font-weight: 500;
+        color: #495057;
+    }
+    .highlight-keyword {
+        color: #e74c3c;
+        font-weight: 700;
+    }
 </style>
 
 <div class="calories-analysis-section">
     <div class="calories-analysis-container">
         <div class="page-header">
-            <h1><i class="fas fa-chart-line"></i> 칼로리 분석</h1>
+            <h1><i class="fas fa-chart-line" style="color: var(--primary-color);"></i> 칼로리 분석</h1>
             <p>노약자의 식단 칼로리를 분석하고 시각화합니다.</p>
         </div>
         
         <c:if test="${selectedRecipient != null}">
-            <div class="recipient-selector">
-                <label for="recipientSelect">
-                    <i class="fas fa-user"></i> 분석 대상자 선택
-                </label>
-                <select id="recipientSelect" onchange="changeRecipient()">
-                    <c:forEach var="recipient" items="${recipientList}">
-                        <option value="${recipient.recId}" 
-                                ${selectedRecipient.recId == recipient.recId ? 'selected' : ''}>
-                            ${recipient.recName}
-                        </option>
-                    </c:forEach>
-                </select>
-            </div>
             
             <!-- 현재 선택된 recId를 hidden으로 저장 -->
             <c:if test="${selectedRecipient != null}">
                 <input type="hidden" id="currentRecIdValue" value="${selectedRecipient.recId}" />
+                <div id="recipientHealthInfo" style="display: none;">
+                    <span data-type="medHistory">${selectedRecipient.recMedHistory}</span>
+                    <span data-type="allergies">${selectedRecipient.recAllergies}</span>
+                    <span data-type="specNotes">${selectedRecipient.recSpecNotes}</span>
+                    <span data-type="healthNeeds">${selectedRecipient.recHealthNeeds}</span>
+                </div>
             </c:if>
             
             <!-- 통계 카드 -->
@@ -402,8 +396,10 @@
                         <span class="stat-title">오늘 총 칼로리</span>
                         <i class="fas fa-sun stat-icon"></i>
                     </div>
-                    <div class="stat-value" id="todayCalories">-</div>
-                    <div class="stat-unit">kcal</div>
+                    <div class="stat-value-container">
+                        <div class="stat-value" id="todayCalories">-</div>
+                        <div class="stat-unit">kcal</div>
+                    </div>
                 </div>
                 
                 <div class="stat-card week">
@@ -411,8 +407,10 @@
                         <span class="stat-title">이번주 총 칼로리</span>
                         <i class="fas fa-calendar-week stat-icon"></i>
                     </div>
-                    <div class="stat-value" id="weekCalories">-</div>
-                    <div class="stat-unit">kcal</div>
+                    <div class="stat-value-container">
+                        <div class="stat-value" id="weekCalories">-</div>
+                        <div class="stat-unit">kcal</div>
+                    </div>
                 </div>
                 
                 <div class="stat-card month">
@@ -420,8 +418,10 @@
                         <span class="stat-title">이번달 총 칼로리</span>
                         <i class="fas fa-calendar-alt stat-icon"></i>
                     </div>
-                    <div class="stat-value" id="monthCalories">-</div>
-                    <div class="stat-unit">kcal</div>
+                    <div class="stat-value-container">
+                        <div class="stat-value" id="monthCalories">-</div>
+                        <div class="stat-unit">kcal</div>
+                    </div>
                 </div>
             </div>
             
@@ -459,21 +459,13 @@
                 </div>
                 
                 <div class="ai-analysis-result" id="analysisResult">
-                    <!-- 현재 상태 -->
-                    <div class="result-card status" id="statusCard">
+                    <!-- AI 종합 분석 가이드 (수정) -->
+                    <div class="result-card" id="aiGuideCard" style="display: none;">
                         <div class="result-card-title">
-                            <i class="fas fa-heartbeat"></i> 현재 상태
+                            <i class="fas fa-robot"></i> AI 종합 분석
                             <span class="status-badge" id="statusBadge"></span>
                         </div>
-                        <div class="result-card-content" id="statusContent"></div>
-                    </div>
-                    
-                    <!-- 종합 분석 -->
-                    <div class="result-card">
-                        <div class="result-card-title">
-                            <i class="fas fa-clipboard-list"></i> 종합 분석
-                        </div>
-                        <div class="result-card-content" id="analysisContent"></div>
+                        <div class="result-card-content" id="aiGuideContent"></div>
                     </div>
                     
                     <!-- 권장 일일 칼로리 -->
@@ -1022,33 +1014,25 @@
     // 분석 결과 표시
     function displayAnalysisResult(data) {
         const analysisResult = document.getElementById('analysisResult');
-        const statusCard = document.getElementById('statusCard');
+        const aiGuideCard = document.getElementById('aiGuideCard');
+        const aiGuideContent = document.getElementById('aiGuideContent');
         const statusBadge = document.getElementById('statusBadge');
-        const statusContent = document.getElementById('statusContent');
-        const analysisContent = document.getElementById('analysisContent');
         const recommendedCalories = document.getElementById('recommendedCalories');
         const adjustmentPlanContent = document.getElementById('adjustmentPlanContent');
         const dietSuggestionContent = document.getElementById('dietSuggestionContent');
         
+        // AI 종합 분석 가이드 표시
+        if (data.aiAnalysis) {
+            aiGuideContent.textContent = data.aiAnalysis;
+            aiGuideCard.style.display = 'block';
+        } else {
+            aiGuideCard.style.display = 'none';
+        }
+
         // 상태 설정
         const status = data.status || '적정';
         statusBadge.textContent = status;
         statusBadge.className = 'status-badge ' + status;
-        statusCard.className = 'result-card status ' + status;
-        
-        // 상태 설명
-        let statusText = '';
-        if (status === '부족') {
-            statusText = '현재 칼로리 섭취량이 권장량보다 부족합니다. 영양소 섭취를 늘려야 합니다.';
-        } else if (status === '적정') {
-            statusText = '현재 칼로리 섭취량이 적정 수준입니다. 현재 식단을 유지하시기 바랍니다.';
-        } else if (status === '과다') {
-            statusText = '현재 칼로리 섭취량이 권장량보다 많습니다. 칼로리 섭취를 조절해야 합니다.';
-        }
-        statusContent.textContent = statusText;
-        
-        // 종합 분석
-        analysisContent.textContent = data.analysis || '분석 내용이 없습니다.';
         
         // 권장 칼로리
         const recommended = data.recommendedCalories || 2000;
@@ -1064,4 +1048,3 @@
         analysisResult.classList.add('show');
     }
 </script>
-

@@ -101,6 +101,14 @@ public class ScheduleController {
                 }
                 model.addAttribute("recipientList", recipientList);
                 model.addAttribute("selectedRecipient", selectedRecipient);
+
+                // 지도 정보를 가져와 모델에 추가
+                List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
+                model.addAttribute("maps", maps);
+                
+                // 산책코스 정보를 가져와 모델에 추가
+                List<MapCourse> courses = mapCourseService.getCoursesByRecId(selectedRecipient.getRecId());
+                model.addAttribute("courses", courses);
             }
         } catch (Exception e) {
             log.error("추천 페이지 로드 중 오류", e);

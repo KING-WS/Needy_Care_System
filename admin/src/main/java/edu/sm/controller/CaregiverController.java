@@ -38,13 +38,18 @@ public class CaregiverController {
     private final AiRecommendationService aiRecommendationService;
 
     @RequestMapping("/list")
-    public String caregiverList(@RequestParam(defaultValue = "1") int pageNo, Model model) {
-        log.info("Caregiver list page accessed, pageNo: {}", pageNo);
+    public String caregiverList(@RequestParam(defaultValue = "1") int pageNo,
+                                @RequestParam(defaultValue = "caregiverRegdate") String sort,
+                                @RequestParam(defaultValue = "desc") String order,
+                                Model model) {
+        log.info("Caregiver list page accessed, pageNo: {}, sort: {}, order: {}", pageNo, sort, order);
         try {
-            Page<Caregiver> page = caregiverService.getPage(pageNo);
+            Page<Caregiver> page = caregiverService.getPage(pageNo, sort, order);
             PageInfo<Caregiver> pageInfo = new PageInfo<>(page);
             model.addAttribute("page", pageInfo);
             model.addAttribute("caregiverList", pageInfo.getList());
+            model.addAttribute("sort", sort);
+            model.addAttribute("order", order);
         } catch (Exception e) {
             log.error("Error fetching caregiver list", e);
             model.addAttribute("errorMessage", "요양사 목록을 불러오는 중 오류가 발생했습니다.");
@@ -52,7 +57,7 @@ public class CaregiverController {
         model.addAttribute("center", "doctor/caregiver-list");
         return "index";
     }
-
+    
     @GetMapping("/detail/{id}")
     public String caregiverDetail(@PathVariable("id") int id, Model model) {
         log.info("Caregiver detail page accessed for id: {}", id);
@@ -99,6 +104,19 @@ public class CaregiverController {
         log.info("Caregiver add page accessed");
         model.addAttribute("center", "doctor/caregiver-add");
         return "index";
+    }
+
+    @PostMapping("/addimpl")
+    public String caregiverAddImpl(Caregiver caregiver, Model model) {
+        log.info("Registering caregiver: {}", caregiver);
+        try {
+            caregiverService.register(caregiver);
+            log.info("Caregiver registration successful");
+        } catch (Exception e) {
+            log.error("Error registering caregiver", e);
+            model.addAttribute("errorMessage", "요양사 등록 중 오류가 발생했습니다.");
+        }
+        return "redirect:/caregiver/list";
     }
 
     @GetMapping("/manage")

@@ -387,7 +387,7 @@
                 <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px;">
                 <input type="text" id="detailAddress" class="form-input" placeholder="상세 주소 (선택사항)">
                 <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">
-                    <i class="bi bi-info-circle"></i> 주소 검색 버튼을 눌러 지번 주소를 선택해주세요
+                    <i class="bi bi-info-circle"></i> 주소 검색 버튼을 눌러 지번 주소를 선택해주세요.
                 </small>
             </div>
         </div>
