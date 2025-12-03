@@ -37,6 +37,11 @@
         WHERE caregiver_id = #{id}
     </select>
 
+    <insert id="insert" parameterType="edu.sm.app.dto.Caregiver">
+        INSERT INTO caregiver (caregiver_name, caregiver_phone, caregiver_address, is_deleted, caregiver_regdate, caregiver_update, caregiver_career, caregiver_certifications, caregiver_specialties)
+        VALUES (#{caregiverName}, #{caregiverPhone}, #{caregiverAddress}, #{isDeleted}, NOW(), NOW(), #{caregiverCareer}, #{caregiverCertifications}, #{caregiverSpecialties})
+    </insert>
+
     <update id="update" parameterType="edu.sm.app.dto.Caregiver">
         UPDATE caregiver
         SET

@@ -8,6 +8,7 @@ import java.util.List;
 public interface CaregiverRepository {
     List<Caregiver> selectAllCaregivers();
     Caregiver select(int id);
+    void insert(Caregiver caregiver);
     void update(Caregiver caregiver);
     int selectCaregiverCount();
 }
