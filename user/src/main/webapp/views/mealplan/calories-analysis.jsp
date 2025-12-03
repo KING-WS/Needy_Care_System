@@ -240,9 +240,11 @@
     }
 
     .result-card-content {
-        font-size: 16px;
+        font-size: 20px;
         color: #495057;
         line-height: 1.7;
+        /* 글자 굵기 추가 */
+        font-weight: bold; /* 또는 700, 600 등 */
     }
 
     .status-badge {

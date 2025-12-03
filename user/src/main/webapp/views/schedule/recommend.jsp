@@ -198,10 +198,13 @@
         justify-content: center;
     }
     .btn-recommend-ai:hover {
-        : #5a6fd6;
-        transform: translateY(-2px);
+        background-color: #5a6fd6;
         box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
         color: white;
+    }
+    .btn-recommend-ai:active {
+        background-color: #4e63bb; /* Original #667eea -> hover #5a6fd6 -> active #4e63bb */
+        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.2);
     }
 
     /* 💡 [수정] 오버레이(상태창) 내부 일정 추가 버튼 (스타일 재정의) */
@@ -602,8 +605,8 @@
     </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty selectedRecipient}">${selectedRecipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
 
-    // 전역 변수로 관리되는 오버레이 배열
-    var overlays = [];
+    // AI 추천 기능 전용 오버레이 배열
+    var recommendOverlays = [];
 
     // 지도 이동 및 상태창 표시 함수 (검색 버튼 클릭 시 호출)
     window.moveMapToLocation = function(lat, lng, index) {
@@ -612,9 +615,9 @@
             map.panTo(moveLatLon); // 부드럽게 이동
 
             // 해당 인덱스의 오버레이 열기
-            if (typeof overlays !== 'undefined' && overlays[index]) {
-                closeAllOverlays(); // 다른 오버레이 닫기
-                overlays[index].setMap(map); // 해당 오버레이 열기
+            if (typeof recommendOverlays !== 'undefined' && recommendOverlays[index]) {
+                closeAllRecommendOverlays(); // 다른 추천 오버레이 닫기
+                recommendOverlays[index].setMap(map); // 해당 오버레이 열기
             }
         }
     };
@@ -662,20 +665,19 @@
         modal.show();
     }
 
-    // 오버레이 닫기 함수 (전역)
-    function closeAllOverlays() {
-        // 배열은 그대로 두고, 지도 상에서만 오버레이를 숨깁니다.
-        overlays.forEach(overlay => {
+    // AI 추천 오버레이 닫기 함수
+    function closeAllRecommendOverlays() {
+        recommendOverlays.forEach(overlay => {
             if (overlay) {
                 overlay.setMap(null);
             }
         });
     }
 
-    // 특정 오버레이 닫기
-    window.closeOverlay = function(index) {
-        if (overlays[index]) {
-            overlays[index].setMap(null);
+    // 특정 AI 추천 오버레이 닫기
+    window.closeRecommendOverlay = function(index) {
+        if (recommendOverlays[index]) {
+            recommendOverlays[index].setMap(null);
         }
     }
 
@@ -791,9 +793,12 @@
                 const address = item.address && item.address.trim() !== '' ? item.address : (hasValidLocation ? '' : '주소 정보 없음');
                 const distance = item.distance ? `(약 \${(parseInt(item.distance)/1000).toFixed(1)}km)` : '';
 
-                // 💡 [수정] 검색 버튼 클릭 시 지도 이동 기능 추가
                 cardCol.innerHTML = `
 <div class="card recommend-card" data-index="\${index}">
+    <div class="item-actions">
+        <button class="item-action-btn edit" onclick="editRecommendation(event, \${index})" title="수정"><i class="bi bi-pencil-square"></i></button>
+        <button class="item-action-btn delete" onclick="deleteRecommendation(event, \${index})" title="삭제"><i class="bi bi-trash"></i></button>
+    </div>
 <div class="card-header-custom d-flex justify-content-between align-items-center">
     <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
     <span class="badge badge-category">\${item.mapCategory}</span>
@@ -822,12 +827,12 @@
         addCardEventListeners();
     }
 
-        // 💡 [수정] AI 추천 결과를 지도에 표시하는 함수 (심플한 CustomOverlay)
         function displayRecommendationsOnMap(places) {
-            // 기존 마커 및 오버레이 제거
+            // 기존 추천 마커 및 오버레이 제거
             recommendMarkers.forEach(marker => marker.setMap(null));
             recommendMarkers = [];
-            closeAllOverlays(); // 기존 열린 오버레이 모두 닫기
+            closeAllRecommendOverlays(); // 기존 추천 오버레이 모두 닫기
+            recommendOverlays = []; // 추천 오버레이 배열 초기화
 
             const bounds = new kakao.maps.LatLngBounds();
             if (window.homeMarker) { bounds.extend(window.homeMarker.getPosition()); }
@@ -850,12 +855,11 @@
 
                     const address = place.address && place.address.trim() !== '' ? place.address : ( (place.placeUrl && place.placeUrl.trim() !== '') || (place.x && place.y && place.x.trim() !== '' && place.y.trim() !== '') ? '' : '주소 정보 없음');
 
-                    // 💡 [수정] 커스텀 오버레이 컨텐츠 (이모지 제거, 심플한 디자인)
                     const content = `
                         <div class="custom-overlay-wrap">
                             <div class="custom-overlay-header">
                                 <span>\${place.mapName}</span>
-                                <div class="custom-overlay-close" onclick="event.stopPropagation(); closeOverlay(\${i})" title="닫기">×</div>
+                                <div class="custom-overlay-close" onclick="event.stopPropagation(); closeRecommendOverlay(\${i})" title="닫기">×</div>
                             </div>
                             <div class="custom-overlay-body">
                                 <span class="custom-overlay-category">\${place.mapCategory}</span>
@@ -879,12 +883,15 @@
                         zIndex: 100
                     });
 
-                    // 오버레이 배열에 저장 (인덱스로 접근 가능하게)
-                    overlays[i] = overlay;
+                    // 추천 오버레이 배열에 저장 (인덱스로 접근 가능하게)
+                    recommendOverlays[i] = overlay;
 
-                    // 마커 클릭 시 오버레이 열기 (기존 것 닫고)
+                    // 마커 클릭 시 오버레이 열기 (다른 오버레이는 `center.js`의 `closeAllOverlays`로 닫힘)
                     kakao.maps.event.addListener(marker, 'click', function() {
-                        closeAllOverlays(); // 다른 거 다 닫기
+                        if(typeof closeAllOverlays === 'function') {
+                            closeAllOverlays(); // center.js의 전역 오버레이 닫기
+                        }
+                        closeAllRecommendOverlays(); // 현재 스크립트의 오버레이 닫기
                         overlay.setMap(map); // 내꺼 열기
                         map.panTo(marker.getPosition()); // 마커 중심으로 이동
                     });
@@ -903,27 +910,18 @@
                     const index = this.dataset.index;
                     if (recommendMarkers[index]) { recommendMarkers[index].setZIndex(0); }
                 });
-                // 더블클릭 이벤트를 단일 클릭으로 변경
                 card.addEventListener('click', function(event) {
-                    // 버튼, a 태그 등 특정 요소 클릭 시에는 이벤트 무시
                     if (event.target.closest('button, a')) {
                         return;
                     }
-
-                    // 클릭한 카드의 부모 요소에서 위도, 경도 정보를 가져옴
                     const lat = this.parentElement.dataset.lat;
                     const lng = this.parentElement.dataset.lng;
                     const index = this.dataset.index;
-
                     if (lat && lng && index !== undefined) {
-                        // 페이지 최상단으로 부드럽게 스크롤
                         window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                        // 스크롤 애니메이션이 끝난 후 지도 이동 및 정보창 표시
-                        // 'scrollend' 이벤트는 지원 범위가 넓지 않으므로 setTimeout 사용
                         setTimeout(() => {
                             moveMapToLocation(lat, lng, index);
-                        }, 500); // 0.5초 딜레이
+                        }, 500);
                     }
                 });
             });
@@ -973,7 +971,6 @@
             });
         }
 
-        // 저장 후 목록 업데이트 함수
         function addLocationToList(mapData) {
             const listContainer = document.querySelector('.map-location-items');
             if (!listContainer) return;

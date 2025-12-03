@@ -31,22 +31,23 @@
         box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
     }
     .map-tab.active:hover {
-         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
+        background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
     }
 
     /* 목록 항목에 대한 수정/삭제 버튼 스타일 */
     .item-actions {
         position: absolute;
         top: 50%;
-        right: 12px;
+        right: 8px;
         transform: translateY(-50%);
         display: flex;
-        gap: 8px;
+        gap: 6px;
         opacity: 0; /* 평소에는 숨김 */
         transition: opacity 0.2s;
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 5px;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 4px;
         border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .map-location-item:hover .item-actions {
         opacity: 1; /* 마우스 올리면 보이게 */
@@ -55,10 +56,11 @@
         background: none;
         border: none;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
         padding: 4px;
         transition: all 0.2s;
         border-radius: 5px;
+        line-height: 1;
     }
     .item-action-btn.edit {
         color: #0984e3;
@@ -94,86 +96,86 @@
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
                                 <i class="bi bi-heart-pulse-fill card-title-icon"></i>
-<%--                                <div class="calendar-header">--%>
-<%--                                    <div class="calendar-title">--%>
-<%--                                        건강 정보--%>
-<%--                                    </div>--%>
-<%--                                </div>--%>
+                                    <%--                                <div class="calendar-header">--%>
+                                    <%--                                    <div class="calendar-title">--%>
+                                    <%--                                        건강 정보--%>
+                                    <%--                                    </div>--%>
+                                    <%--                                </div>--%>
                                 <div class="health-card-content">
-                                <!-- 왼쪽: 프로필 정보 -->
-                                <div class="health-card-left">
-                                    <div class="recipient-avatar">
-                                        <c:choose>
-                                            <c:when test="${not empty recipient.recPhotoUrl}">
+                                    <!-- 왼쪽: 프로필 정보 -->
+                                    <div class="health-card-left">
+                                        <div class="recipient-avatar">
+                                            <c:choose>
+                                                <c:when test="${not empty recipient.recPhotoUrl}">
                                                     <c:set var="photoUrlWithCache" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
                                                     <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image"
                                                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                                                     <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <i class="bi bi-person-fill"></i>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <div class="recipient-info">
-                                        <div class="recipient-name">${recipient.recName}</div>
-                                        <c:choose>
-                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
-                                                <span class="recipient-badge badge-elderly">노인</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
-                                                <span class="recipient-badge badge-pregnant">임산부</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
-                                                <span class="recipient-badge badge-disabled">장애인</span>
-                                            </c:when>
-                                        </c:choose>
-                                    </div>
-                                </div>
-
-                                <!-- 오른쪽: 건강 데이터 섹션 -->
-                                <%@ page import="java.time.Period" %>
-                                <%@ page import="java.util.Random" %>
-                                <%
-                                    int age = 0;
-                                    if (pageContext.findAttribute("recipient") != null) {
-                                        edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
-                                        if (r.getRecBirthday() != null) {
-                                            age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
-                                        }
-                                    }
-                                    pageContext.setAttribute("age", age);
-
-                                    // Random heart rate for senior (60-90 bpm)
-                                    int heartRate = 60 + new Random().nextInt(31);
-                                    pageContext.setAttribute("heartRate", heartRate);
-
-                                    // Random blood pressure (systolic: 110-140, diastolic: 70-90)
-                                    int systolic = 110 + new Random().nextInt(31);
-                                    int diastolic = 70 + new Random().nextInt(21);
-                                    pageContext.setAttribute("systolic", systolic);
-                                    pageContext.setAttribute("diastolic", diastolic);
-                                %>
-                                <div class="health-card-right">
-                                    <!-- 생년월일/나이 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">생년월일 / 나이</div>
-                                        <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
-                                    </div>
-
-                                    <!-- AI 한줄 건강정보 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">심박수</div>
-                                        <div class="health-value-text">${heartRate} bpm</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-person-fill"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <div class="recipient-info">
+                                            <div class="recipient-name">${recipient.recName}</div>
+                                            <c:choose>
+                                                <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                    <span class="recipient-badge badge-elderly">노인</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                    <span class="recipient-badge badge-pregnant">임산부</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                    <span class="recipient-badge badge-disabled">장애인</span>
+                                                </c:when>
+                                            </c:choose>
                                         </div>
                                     </div>
 
-                                    <!-- 혈압 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">혈압</div>
-                                        <div class="health-value-text"> ${systolic} / ${diastolic} mmHg</div>
+                                    <!-- 오른쪽: 건강 데이터 섹션 -->
+                                    <%@ page import="java.time.Period" %>
+                                    <%@ page import="java.util.Random" %>
+                                    <%
+                                        int age = 0;
+                                        if (pageContext.findAttribute("recipient") != null) {
+                                            edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
+                                            if (r.getRecBirthday() != null) {
+                                                age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
+                                            }
+                                        }
+                                        pageContext.setAttribute("age", age);
+
+                                        // Random heart rate for senior (60-90 bpm)
+                                        int heartRate = 60 + new Random().nextInt(31);
+                                        pageContext.setAttribute("heartRate", heartRate);
+
+                                        // Random blood pressure (systolic: 110-140, diastolic: 70-90)
+                                        int systolic = 110 + new Random().nextInt(31);
+                                        int diastolic = 70 + new Random().nextInt(21);
+                                        pageContext.setAttribute("systolic", systolic);
+                                        pageContext.setAttribute("diastolic", diastolic);
+                                    %>
+                                    <div class="health-card-right">
+                                        <!-- 생년월일/나이 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">생년월일 / 나이</div>
+                                            <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
+                                        </div>
+
+                                        <!-- AI 한줄 건강정보 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">심박수</div>
+                                            <div class="health-value-text">${heartRate} bpm</div>
+                                            <div class="progress-bar-wrapper">
+                                                <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 혈압 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">혈압</div>
+                                            <div class="health-value-text"> ${systolic} / ${diastolic} mmHg</div>
                                         </div>
                                     </div>
                                 </div>
@@ -232,13 +234,13 @@
                         %>
 
                         <i class="bi bi-calendar-event card-title-icon"></i>
-<%--                        <div class="calendar-header">--%>
-<%--                            <div class="calendar-title">--%>
-<%--                                일정--%>
-<%--                            </div>--%>
-<%--                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>--%>
-<%--                        </div>--%>
-<%--                        --%>
+                        <%--                        <div class="calendar-header">--%>
+                        <%--                            <div class="calendar-title">--%>
+                        <%--                                일정--%>
+                        <%--                            </div>--%>
+                        <%--                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>--%>
+                        <%--                        </div>--%>
+                        <%--                        --%>
                         <div class="calendar-grid">
                             <!-- 요일 헤더 -->
                             <div class="calendar-day-header">일</div>
@@ -260,10 +262,10 @@
                                 <div class="calendar-day
                                     ${day == currentDay ? 'today' : ''}
                                     ${scheduleDays.contains(day) ? 'has-event' : ''}"
-                                    <c:if test="${not empty daySchedules}">
-                                        data-schedule-names="<c:forEach var="schedName" items="${daySchedules}" varStatus="status">${schedName}<c:if test="${!status.last}">|</c:if></c:forEach>"
-                                    </c:if>>
-                                    ${day}
+                                        <c:if test="${not empty daySchedules}">
+                                            data-schedule-names="<c:forEach var="schedName" items="${daySchedules}" varStatus="status">${schedName}<c:if test="${!status.last}">|</c:if></c:forEach>"
+                                        </c:if>>
+                                        ${day}
                                 </div>
                             </c:forEach>
                         </div>
@@ -309,23 +311,23 @@
                                 <c:choose>
                                     <c:when test="${not empty todayMeals}">
                                         <c:forEach var="meal" items="${todayMeals}">
-                                <div class="meal-item" onclick="showMealDetail(${meal.mealId})" style="cursor: pointer;">
+                                            <div class="meal-item" onclick="showMealDetail(${meal.mealId})" style="cursor: pointer;">
                                                 <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
                                                     <span>${meal.mealType}</span>
-                                    </div>
-                                    <div class="meal-content">
-                                                <div class="meal-menu">${meal.mealMenu}</div>
-                                                <c:if test="${not empty meal.mealCalories}">
-                                                    <div class="meal-calories">${meal.mealCalories}kcal</div>
-                                        </c:if>
-                                    </div>
-                                </div>
+                                                </div>
+                                                <div class="meal-content">
+                                                    <div class="meal-menu">${meal.mealMenu}</div>
+                                                    <c:if test="${not empty meal.mealCalories}">
+                                                        <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
                                         <div class="meal-empty-container">
                                             <div class="meal-empty">등록된 식단이 없습니다</div>
-                                    </div>
+                                        </div>
                                     </c:otherwise>
                                 </c:choose>
                             </div>
@@ -354,22 +356,22 @@
                             <c:choose>
                                 <c:when test="${not empty todayHourlySchedules}">
                                     <c:forEach var="hourly" items="${todayHourlySchedules}">
-                                            <div class="hourly-schedule-item">
-                                                <div class="hourly-time">
-                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                        <div class="hourly-schedule-item">
+                                            <div class="hourly-time">
+                                                <c:if test="${not empty hourly.hourlySchedStartTime}">
                                                     ${fn:substring(hourly.hourlySchedStartTime, 0, 5)}
-                                                    </c:if>
-                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                </c:if>
+                                                <c:if test="${not empty hourly.hourlySchedEndTime}">
                                                     ~ ${fn:substring(hourly.hourlySchedEndTime, 0, 5)}
-                                                    </c:if>
-                                                </div>
-                                                <div class="hourly-content">
-                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
-                                                    <c:if test="${not empty hourly.hourlySchedContent}">
-                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
-                                                    </c:if>
-                                                </div>
+                                                </c:if>
                                             </div>
+                                            <div class="hourly-content">
+                                                <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                <c:if test="${not empty hourly.hourlySchedContent}">
+                                                    <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                </c:if>
+                                            </div>
+                                        </div>
                                     </c:forEach>
                                 </c:when>
                                 <c:otherwise>
@@ -406,24 +408,24 @@
                                                 <div class="location-info">
                                                     <div class="location-name-wrapper">
                                                         <div class="location-name" style="font-weight: 600;">
-                                                        ${recipient.recName}님의 집
-                                                    </div>
+                                                                ${recipient.recName}님의 집
+                                                        </div>
                                                         <div class="location-category">집</div>
                                                     </div>
                                                 </div>
-                                                    <div class="location-address">
-                                                        <c:choose>
-                                                            <c:when test="${not empty recipient.recAddress && recipient.recAddress != ''}">
-                                                                ${recipient.recAddress}
-                                                            </c:when>
-                                                            <c:otherwise>
-                                                                <span style="color: #999; font-style: italic;">주소가 등록되지 않았습니다</span>
-                                                            </c:otherwise>
-                                                        </c:choose>
-                                                    </div>
+                                                <div class="location-address">
+                                                    <c:choose>
+                                                        <c:when test="${not empty recipient.recAddress && recipient.recAddress != ''}">
+                                                            ${recipient.recAddress}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span style="color: #999; font-style: italic;">주소가 등록되지 않았습니다</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
                                                 </div>
+                                            </div>
 
-                                        <!-- 구분선 -->
+                                            <!-- 구분선 -->
                                             <c:if test="${not empty maps || not empty courses}">
                                                 <div class="home-location-divider"></div>
                                             </c:if>
@@ -444,20 +446,29 @@
                                                          onclick="showLocationDetail(${map.mapId})">
                                                         <div class="location-info">
                                                             <div class="location-name-wrapper">
-                                                            <div class="location-name">${map.mapName}</div>
-                                                            <div class="location-category">${map.mapCategory}</div>
+                                                                <div class="location-name">${map.mapName}</div>
+                                                                <div class="location-category">${map.mapCategory}</div>
                                                             </div>
                                                         </div>
-                                                        <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
-                                                            주소 조회 중...
-                                                        </div>
-                                                        <div class="item-actions">
-                                                            <button class="item-action-btn edit" onclick="event.stopPropagation(); openEditModal(${map.mapId});" title="수정">
-                                                                <i class="bi bi-pencil-square"></i>
-                                                            </button>
-                                                            <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteLocation(${map.mapId});" title="삭제">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
+                                                        <div class="location-footer">
+                                                            <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty map.mapAddress}">
+                                                                        ${map.mapAddress}
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        주소 조회 중...
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </div>
+                                                            <div class="item-actions">
+                                                                <button class="item-action-btn edit" onclick="event.stopPropagation(); openEditModal(${map.mapId});" title="수정">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                </button>
+                                                                <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteLocation(${map.mapId});" title="삭제">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </c:forEach>
@@ -469,20 +480,22 @@
                                             <c:if test="${not empty courses}">
                                                 <div class="home-location-divider"></div>
                                                 <c:forEach var="course" items="${courses}">
-                                                    <div class="map-location-item course-item" data-course-id="${course.courseId}" onclick="showCourseDetail(${course.courseId})">
-                                                        <div class="location-info">
+                                                    <div class="map-location-item course-item" data-course-id="${course.courseId}">
+                                                        <div class="location-info" onclick="showCourseDetail(${course.courseId})">
                                                             <div class="location-name-wrapper">
                                                                 <div class="location-name">${course.courseName}</div>
                                                                 <div class="location-category course-category">${course.courseType}</div>
                                                             </div>
                                                         </div>
-                                                        <div class="item-actions">
-                                                            <button class="item-action-btn edit" onclick="event.stopPropagation(); alert('산책 코스 수정 기능은 현재 준비 중입니다.');" title="수정">
-                                                                <i class="bi bi-pencil-square"></i>
-                                                            </button>
-                                                            <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteCourse(${course.courseId});" title="삭제">
-                                                                <i class="bi bi-trash"></i>
-                                                            </button>
+                                                        <div class="location-footer">
+                                                             <div class="item-actions">
+                                                                <button class="item-action-btn edit" onclick="event.stopPropagation(); alert('산책 코스 수정 기능은 현재 준비 중입니다.');" title="수정">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                </button>
+                                                                <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteCourse(${course.courseId});" title="삭제">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </c:forEach>
@@ -816,13 +829,13 @@
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
     <c:choose>
-        <c:when test="${not empty recipient.recPhotoUrl}">
-            <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
-            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
-        </c:when>
-        <c:otherwise>
-            var recipientPhotoUrl = '';
-        </c:otherwise>
+    <c:when test="${not empty recipient.recPhotoUrl}">
+    <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+    var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+    </c:when>
+    <c:otherwise>
+    var recipientPhotoUrl = '';
+    </c:otherwise>
     </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
 
@@ -1032,9 +1045,12 @@
         }
 
         var geocoder = new kakao.maps.services.Geocoder();
-        var addressElements = document.querySelectorAll('.map-location-item .location-address[data-lat][data-lng]');
+        document.querySelectorAll('.map-location-item .location-address').forEach(function(element) {
+            // 주소가 이미 표시된 경우 건너뛰기
+            if (element.textContent.trim() !== '주소 조회 중...') {
+                return;
+            }
 
-        addressElements.forEach(function(element) {
             var lat = parseFloat(element.getAttribute('data-lat'));
             var lng = parseFloat(element.getAttribute('data-lng'));
 
@@ -1049,7 +1065,7 @@
                     var addr = result[0].address.address_name;
                     element.textContent = addr;
                 } else {
-                    element.textContent = '위도: ' + lat.toFixed(6) + ', 경도: ' + lng.toFixed(6);
+                    element.textContent = '주소 정보 없음'; // 실패 시
                 }
             });
         });
@@ -1185,5 +1201,4 @@
         </div>
     </div>
 </div>
-
 
