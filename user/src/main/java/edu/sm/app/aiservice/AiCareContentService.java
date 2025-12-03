@@ -91,7 +91,7 @@ public class AiCareContentService {
             2. 거동이 불편할 경우 접근성이 좋은 곳을 추천하세요.
             3. 정서적 안정이나 인지 기능 향상에 도움이 되는 문화/여가 활동을 포함하세요.
             4. 장소의 별점이 3.5이상의 장소를 추천해주세요.        
-            5. 최소 6개 이상의 장소를 추천해주세요.
+            5. 최소 9개 이상의 장소를 추천해주세요.
 
             응답은 반드시 JSON 배열 형식으로만 해주세요:
             [
@@ -99,6 +99,41 @@ public class AiCareContentService {
                 "mapName": "장소 이름 (검색 가능한 정확한 명칭)",
                 "mapContent": "추천 이유 및 활동 내용 요약 (어르신에게 좋은 점)",
                 "mapCategory": "카테고리 (예: 공원, 복지관, 문화센터, 병원, 산책로등)",
+                "courseType": "코스 타입 (예: 산책, 드라이브, 실내활동, 운동 등)"
+              },
+              ...
+            ]
+            """;
+            
+    private static final String PLACE_RECOMMEND_BY_KEYWORD_PROMPT = """
+            당신은 노인 여가 및 건강 전문가입니다. 주어진 노약자 정보와 특정 '검색 키워드'를 바탕으로, 해당 어르신에게 도움이 될 만한 **장소(Places)**를 추천해주세요.
+
+            [노약자 정보]
+            - 이름: %s
+            - 나이: %d세
+            - 성별: %s
+            - 병력: %s
+            - 알레르기: %s
+            - 특이사항: %s
+            - 주소: %s
+
+            [검색 키워드]
+            - "%s"
+
+            추천 기준:
+            1. '검색 키워드'와 관련된 장소를 추천해주세요.
+            2. 건강 상태(병력, 특이사항)를 고려하여 안전하고 유익한 활동을 추천하세요.
+            3. 거동이 불편할 경우 접근성이 좋은 곳을 추천하세요.
+            4. 장소의 별점이 3.5 이상의 장소를 추천해주세요.
+            5. 최소 6개 이상의 장소를 추천해주세요.
+            6 '검색 키워드'와 관련되어있는 장소만을 추천 해주세요.`
+
+            응답은 반드시 JSON 배열 형식으로만 해주세요:
+            [
+              {
+                "mapName": "장소 이름 (검색 가능한 정확한 명칭)",
+                "mapContent": "추천 이유 및 활동 내용 요약 (어르신에게 좋은 점)",
+                "mapCategory": "카테고리 (예: 공원, 복지관, 문화센터, 병원, 산책로 등)",
                 "courseType": "코스 타입 (예: 산책, 드라이브, 실내활동, 운동 등)"
               },
               ...
@@ -246,6 +281,52 @@ public class AiCareContentService {
 
         } catch (Exception e) {
             log.error("장소 추천 실패 - recId: {}", recipient.getRecId(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 노약자 맞춤 장소/행사 추천 (키워드 기반)
+     * @param recipient 노약자 정보
+     * @param keyword 사용자가 입력한 검색 키워드
+     * @return 추천 장소 리스트
+     */
+    public List<Map<String, Object>> recommendPlacesByKeyword(Recipient recipient, String keyword) {
+        try {
+            int age = 0;
+            if (recipient.getRecBirthday() != null) {
+                age = Period.between(recipient.getRecBirthday(), LocalDate.now()).getYears();
+            }
+
+            String genderText = "남성";
+            if (recipient.getRecGender() != null && recipient.getRecGender().equals("F")) {
+                genderText = "여성";
+            }
+
+            String prompt = String.format(
+                PLACE_RECOMMEND_BY_KEYWORD_PROMPT,
+                recipient.getRecName() != null ? recipient.getRecName() : "대상자",
+                age,
+                genderText,
+                recipient.getRecMedHistory() != null ? recipient.getRecMedHistory() : "없음",
+                recipient.getRecAllergies() != null ? recipient.getRecAllergies() : "없음",
+                recipient.getRecSpecNotes() != null ? recipient.getRecSpecNotes() : "없음",
+                recipient.getRecAddress() != null ? recipient.getRecAddress() : "대한민국",
+                keyword
+            );
+
+            log.info("키워드 기반 장소 추천 프롬프트 생성 완료 - recId: {}, keyword: {}", recipient.getRecId(), keyword);
+
+            String aiResponse = chatClient.prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
+
+            String json = aiUtilService.extractJson(aiResponse);
+            return aiUtilService.parseJsonToList(json);
+
+        } catch (Exception e) {
+            log.error("키워드 기반 장소 추천 실패 - recId: {}, keyword: {}", recipient.getRecId(), keyword, e);
             return new ArrayList<>();
         }
     }

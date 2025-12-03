@@ -91,6 +91,36 @@
         const zoomControl = new kakao.maps.ZoomControl();
         map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
+        // 지도 클릭 이벤트: 모든 인포윈도우 닫기
+        kakao.maps.event.addListener(map, 'click', function() {
+            seniorMarkers.forEach(function(item) {
+                if (item.infowindow) {
+                    item.infowindow.close();
+                }
+            });
+        });
+
+        // 지도 더블클릭 이벤트: 장소 추가
+        kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
+            // 더블클릭한 위치의 좌표
+            const latlng = mouseEvent.latLng;
+
+            // 간단한 확인창으로 장소 추가 여부 확인
+            if (confirm('이 위치에 새로운 장소를 추가하시겠습니까?')) {
+                const placeName = prompt('장소의 이름을 입력하세요:', '새로운 장소');
+                if (placeName) {
+                    // 여기에 실제로 장소를 추가하는 로직을 구현합니다.
+                    // 예: addMarker(latlng.getLat(), latlng.getLng(), placeName);
+                    // 현재는 addMarker가 기존 마커를 지우므로, 새로운 함수를 만들거나 addMarker를 수정해야 합니다.
+                    // 임시로 alert를 사용하여 확인
+                    alert('"' + placeName + '" 장소가 위도 ' + latlng.getLat() + ', 경도 ' + latlng.getLng() + '에 추가 요청되었습니다.');
+
+                    // 새로운 마커를 추가하는 함수를 호출 (기존 addMarker는 마커를 하나만 표시하므로, 여러 개를 표시하도록 수정 필요)
+                    // addNewPlaceMarker(latlng.getLat(), latlng.getLng(), placeName);
+                }
+            }
+        });
+        
         // 노약자 마커 로드
         loadSeniorMarkers();
     }
@@ -109,9 +139,17 @@
         window.adminMapMarkers = [];
 
         const markerPosition = new kakao.maps.LatLng(lat, lng);
+
+        // 빨간색 마커 이미지 생성
+        var imageSrc = 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png',
+            imageSize = new kakao.maps.Size(31, 35),
+            imageOption = {offset: new kakao.maps.Point(15, 34)};
+        var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
         const marker = new kakao.maps.Marker({
             position: markerPosition,
-            map: currentMap
+            map: currentMap,
+            image: markerImage
         });
 
         markers.push(marker);
@@ -430,14 +468,32 @@
             zIndex: 1000
         });
 
-        // 인포윈도우 생성
+        // 💡 인포윈도우 디자인 수정
+        const content = `
+            <div style="padding: 0; margin:0; width: 280px; font-family: 'Noto Sans KR', sans-serif; -webkit-font-smoothing: antialiased; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px;">
+                    <h5 style="font-size: 16px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-user-circle" style="font-size: 1.1em;"></i>
+                        \${recName}
+                    </h5>
+                </div>
+                <div style="padding: 15px;">
+                    <div style="font-weight: 600; color: #495057; font-size: 13px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;">
+                         <i class="fas fa-map-marker-alt" style="color: #667eea;"></i>
+                         <span>주소</span>
+                    </div>
+                    <p style="font-size: 14px; color: #333; margin: 0; padding-left: 20px; line-height: 1.5;">
+                        \${recAddress}
+                    </p>
+                </div>
+            </div>
+        `;
+
         const infowindow = new kakao.maps.InfoWindow({
-            content: '<div style="padding:10px;min-width:150px;">' +
-                     '<div style="font-weight:bold;font-size:14px;margin-bottom:5px;">' + recName + '</div>' +
-                     '<div style="font-size:12px;color:#666;">' + recAddress + '</div>' +
-                     '</div>',
+            content: content,
             removable: true
         });
+
 
         // 마커 클릭 이벤트
         kakao.maps.event.addListener(marker, 'click', function() {

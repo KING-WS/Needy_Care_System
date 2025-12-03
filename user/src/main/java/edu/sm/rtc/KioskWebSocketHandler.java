@@ -15,6 +15,7 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import java.io.IOException;
 import java.util.Set;
 
 import java.time.LocalDateTime;
@@ -79,6 +80,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
                     break;
                 case "emergency":
                 case "contact_request":
+                case "danger": // [추가] AI 위협 감지 타입 추가
                     handleAlert(kioskCode, type);
                     break;
                 case "location_update":
@@ -113,7 +115,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // 긴급 호출 및 연락 요청 처리
+    // 긴급 호출, 연락 요청, 위협 감지 처리
     private void handleAlert(String kioskCode, String type) {
         try {
             Recipient recipient = recipientService.getRecipientByKioskCode(kioskCode);
@@ -124,9 +126,15 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
 
             String dbType = "CONTACT";
             String autoMessage = "📞 [" + recipient.getRecName() + "]님이 보호자의 연락을 기다립니다.";
+
             if ("emergency".equalsIgnoreCase(type)) {
                 dbType = "EMERGENCY";
                 autoMessage = "🚨 [" + recipient.getRecName() + "]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
+            }
+            // [추가됨] AI 위협 감지 로직
+            else if ("danger".equalsIgnoreCase(type)) {
+                dbType = "DANGER";
+                autoMessage = "⚠️ [" + recipient.getRecName() + "]님에게 위협 상황(AI 감지)이 발생했습니다!";
             }
 
             AlertLog alert = AlertLog.builder()
@@ -135,25 +143,21 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
                     .alertMsg(autoMessage)
                     .build();
 
-            // 1. DB 저장 (저장된 객체를 리턴받아야 ID를 알 수 있음)
-            // 주의: alertLogService.register가 void라면 AlertLogService도 수정해서 리턴하게 바꿔야 합니다.
-            // 만약 void라면, alert 객체에 ID가 담기지 않을 수 있으므로, 방금 저장한 데이터를 다시 조회하거나
-            // MyBatis의 <selectKey> 기능을 사용해 alert 객체에 ID를 채워와야 합니다.
-            // 여기서는 register가 저장된 객체(또는 ID가 채워진 객체)를 반환한다고 가정합니다.
-            // 만약 register가 void라면 Service 수정이 필요합니다. 일단 아래처럼 작성합니다.
-
+            // 1. DB 저장
             alertLogService.register(alert);
             log.info("[Kiosk WS] Alert saved to DB: {}", autoMessage);
 
-            // 2. [추가] 관리자에게 실시간 알림 전송 (STOMP)
-            // 관리자 페이지 JS에서 사용할 데이터 구조로 맵을 만듭니다.
+            // 2. 관리자에게 실시간 알림 전송 (STOMP)
             Map<String, Object> adminPayload = new java.util.HashMap<>();
-            adminPayload.put("alertId", alert.getAlertId()); // MyBatis의 useGeneratedKeys="true" 설정이 되어 있어야 ID가 들어있음
+            adminPayload.put("alertId", alert.getAlertId());
             adminPayload.put("recId", recipient.getRecId());
             adminPayload.put("recName", recipient.getRecName());
             adminPayload.put("type", dbType);
             adminPayload.put("message", autoMessage);
             adminPayload.put("time", LocalDateTime.now().toString());
+
+            // [확인됨] 이 부분이 있어야 관리자가 영상통화를 걸 수 있습니다.
+            adminPayload.put("kioskCode", kioskCode);
 
             // '/topic/alert'를 구독 중인 관리자에게 전송
             if (messagingTemplate != null) {
@@ -186,7 +190,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
                     locationPayload.put("recId", recipient.getRecId());
                     locationPayload.put("latitude", latitude);
                     locationPayload.put("longitude", longitude);
-                    
+
                     String destination = "/topic/location/" + recipient.getRecId();
                     messagingTemplate.convertAndSend(destination, locationPayload);
                     log.info("[Kiosk WS] Sent real-time location to: {}", destination);
@@ -227,6 +231,20 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
     public void handleTransportError(WebSocketSession session, Throwable exception) {
         log.error("[Kiosk WS] Transport error for session {}: {}", session.getId(), exception.getMessage());
         // 에러 발생 시에도 afterConnectionClosed가 호출되므로 여기서 추가 처리 불필요
+    }
+
+    public void sendMessageToKiosk(String kioskCode, String message) {
+        WebSocketSession session = kioskSessions.get(kioskCode);
+        if (session != null && session.isOpen()) {
+            try {
+                log.info("Sending message to kiosk {}: {}", kioskCode, message);
+                session.sendMessage(new TextMessage(message));
+            } catch (IOException e) {
+                log.error("Failed to send message to kiosk {}: {}", kioskCode, e.getMessage());
+            }
+        } else {
+            log.warn("Could not find open session for kiosk code: {}", kioskCode);
+        }
     }
 
     public Set<String> getActiveKioskCodes() {

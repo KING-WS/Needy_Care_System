@@ -2,13 +2,33 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<link rel="stylesheet" href="<c:url value='/css/mealplan.css'/>" />
+
 <style>
+    /* ---------------------------------------------------- */
+    /* 1. 디자인 시스템 (center.jsp 통일) */
+    /* ---------------------------------------------------- */
+    :root {
+        --primary-color: #3498db;   /* 메인 블루 */
+        --secondary-color: #343a40; /* 진한 회색 텍스트 */
+        --secondary-bg: #F0F8FF;    /* 연한 배경색 (입력창 등) */
+        --card-bg: white;
+        --danger-color: #e74c3c;
+        --success-color: #2ecc71;
+    }
+
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 2. 레이아웃 & 컨테이너 */
+    /* ---------------------------------------------------- */
     .edit-container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 40px 20px;
-        padding-bottom: 100px;
-        min-height: calc(100vh - 200px);
+        padding: 40px 20px 100px 20px;
     }
 
     .edit-header {
@@ -17,10 +37,11 @@
     }
 
     .edit-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #2c3e50;
+        font-size: 38px;
+        font-weight: 800;
+        color: var(--secondary-color);
         margin-bottom: 10px;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
 
     .edit-subtitle {
@@ -28,72 +49,96 @@
         color: #7f8c8d;
     }
 
+    /* ---------------------------------------------------- */
+    /* 3. 폼 카드 스타일 */
+    /* ---------------------------------------------------- */
     .edit-form {
-        background: white;
+        background: var(--card-bg);
         border-radius: 20px;
         padding: 40px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
 
     .form-section {
-        margin-bottom: 30px;
+        margin-bottom: 40px;
     }
 
     .section-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #34495e;
-        margin-bottom: 20px;
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 25px;
         padding-bottom: 10px;
-        border-bottom: 2px solid #3498db;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
+    .section-title i {
+        color: var(--primary-color);
+        font-size: 22px;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 4. 입력 필드 스타일 */
+    /* ---------------------------------------------------- */
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 25px;
     }
 
     .form-label {
         display: block;
         font-size: 14px;
-        font-weight: 600;
-        color: #2c3e50;
+        font-weight: 700;
+        color: var(--secondary-color);
         margin-bottom: 8px;
     }
 
     .required {
-        color: #e74c3c;
+        color: var(--danger-color);
         margin-left: 4px;
     }
 
-    .form-input {
+    .form-input, select.form-input {
         width: 100%;
         padding: 12px 15px;
-        border: 2px solid #ecf0f1;
-        border-radius: 10px;
-        font-size: 14px;
+        background: var(--secondary-bg);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        font-size: 15px;
         transition: all 0.3s ease;
+        color: var(--secondary-color);
+        box-sizing: border-box; /* 패딩 포함 너비 계산 */
     }
 
     .form-input:focus {
         outline: none;
-        border-color: #3498db;
+        background: white;
+        border-color: var(--primary-color);
         box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
     }
 
     .form-textarea {
-        min-height: 100px;
+        min-height: 120px;
         resize: vertical;
+        line-height: 1.6;
     }
 
+    /* 라디오 버튼 스타일 */
     .radio-group {
         display: flex;
         gap: 20px;
+        background: var(--secondary-bg);
+        padding: 15px;
+        border-radius: 12px;
     }
 
     .radio-label {
         display: flex;
         align-items: center;
         cursor: pointer;
+        font-weight: 500;
     }
 
     .radio-label input[type="radio"] {
@@ -101,100 +146,50 @@
         width: 18px;
         height: 18px;
         cursor: pointer;
+        accent-color: var(--primary-color);
     }
 
-    .form-buttons {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-        margin-top: 40px;
-    }
-
-    .btn {
-        padding: 14px 40px;
-        border: none;
-        border-radius: 50px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
-    }
-
-    .btn-secondary {
-        background: #ecf0f1;
-        color: #7f8c8d;
-    }
-
-    .btn-secondary:hover {
-        background: #bdc3c7;
-        color: #2c3e50;
-    }
-
-    .error-message {
-        background: #fee;
-        color: #e74c3c;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .info-banner {
-        background: #e3f2fd;
-        color: #1976d2;
-        padding: 15px;
-        border-radius: 12px;
-        margin-bottom: 30px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .info-banner i {
-        font-size: 24px;
-    }
-
+    /* ---------------------------------------------------- */
+    /* 5. 사진 업로드 스타일 */
+    /* ---------------------------------------------------- */
     .photo-upload-container {
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: var(--secondary-bg);
+        border-radius: 15px;
     }
 
     .photo-preview {
         width: 150px;
         height: 150px;
         border-radius: 50%;
-        border: 3px dashed #ddd;
+        border: 4px dashed #cbd5e0;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        background: #f8f9fa;
-        margin: 0 auto;
+        background: white;
         position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .photo-preview.has-image {
+        border: 4px solid var(--primary-color);
     }
 
     .photo-preview i {
-        font-size: 60px;
-        color: #ccc;
-        margin-bottom: 10px;
+        font-size: 50px;
+        color: #cbd5e0;
+        margin-bottom: 5px;
     }
 
     .photo-preview p {
         font-size: 12px;
-        color: #999;
+        color: #a0aec0;
         margin: 0;
     }
 
@@ -202,102 +197,51 @@
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 50%;
     }
 
-    .photo-preview.has-image {
-        border-style: solid;
-        border-color: #667eea;
+    /* 파일 인풋 커스텀 */
+    input[type="file"] {
+        padding: 10px;
+        background: white;
     }
 
+    /* ---------------------------------------------------- */
+    /* 6. 주소 검색 버튼 */
+    /* ---------------------------------------------------- */
     .btn-address-search {
         padding: 12px 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
         white-space: nowrap;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
     }
 
     .btn-address-search:hover {
+        background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
     }
 
-    .btn-address-search i {
-        margin-right: 5px;
-    }
-
-    /* 체크박스 스타일 */
+    /* ---------------------------------------------------- */
+    /* 7. 체크박스 그룹 스타일 */
+    /* ---------------------------------------------------- */
     .checkbox-group {
-        background: #f8f9fa;
-        border-radius: 12px;
+        background: var(--secondary-bg); /* 연한 배경 */
+        border-radius: 15px;
         padding: 20px;
-        margin-bottom: 15px;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        margin-bottom: 8px;
-        background: white;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .checkbox-item:hover {
-        background: #e3f2fd;
-        transform: translateX(5px);
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        width: 20px;
-        height: 20px;
-        margin-right: 12px;
-        cursor: pointer;
-        accent-color: #667eea;
-    }
-
-    .checkbox-item label {
-        cursor: pointer;
-        flex: 1;
-        font-size: 14px;
-        color: #2c3e50;
-        margin: 0;
-    }
-
-    .other-input-wrapper {
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px dashed #ddd;
-    }
-
-    .other-input {
-        width: 100%;
-        padding: 10px;
-        border: 2px solid #ecf0f1;
-        border-radius: 8px;
-        font-size: 14px;
-        margin-top: 8px;
-        display: none;
-    }
-
-    .other-input.show {
-        display: block;
+        margin-bottom: 10px;
     }
 
     .checkbox-section-title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #34495e;
-        margin-bottom: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--primary-color);
+        margin-bottom: 15px;
         display: block;
     }
 
@@ -306,6 +250,142 @@
         color: #7f8c8d;
         margin-bottom: 15px;
         display: block;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        margin-bottom: 8px;
+        background: white;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+
+    .checkbox-item:hover {
+        border-color: var(--primary-color);
+        transform: translateX(3px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin-right: 12px;
+        cursor: pointer;
+        accent-color: var(--primary-color);
+    }
+
+    .checkbox-item label {
+        cursor: pointer;
+        flex: 1;
+        font-size: 14px;
+        color: var(--secondary-color);
+        margin: 0;
+        font-weight: 500;
+    }
+
+    /* 기타 입력 필드 */
+    .other-input-wrapper {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px dashed #cbd5e0;
+    }
+
+    .other-input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .other-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+
+    .other-input.show {
+        display: block;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 8. 하단 버튼 및 기타 요소 */
+    /* ---------------------------------------------------- */
+    .form-buttons {
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        margin-top: 50px;
+        padding-top: 30px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+        padding: 14px 35px;
+        border: none;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+    }
+
+    .btn-secondary {
+        background: #e9ecef;
+        color: #495057;
+    }
+
+    .btn-secondary:hover {
+        background: #ced4da;
+        transform: translateY(-2px);
+    }
+
+    .error-message {
+        background: #fff5f5;
+        color: var(--danger-color);
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        text-align: center;
+        border: 1px solid #fed7d7;
+        font-weight: 600;
+    }
+
+    .info-banner {
+        background: #e3f2fd;
+        color: #1976d2;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-left: 5px solid #1976d2;
+    }
+
+    .info-banner i {
+        font-size: 28px;
     }
 </style>
 
@@ -317,7 +397,7 @@
 
     <c:if test="${not empty error}">
         <div class="error-message">
-            <i class="bi bi-exclamation-triangle"></i> ${error}
+            <i class="bi bi-exclamation-triangle-fill"></i> ${error}
         </div>
     </c:if>
 
@@ -326,16 +406,14 @@
         <div>
             <strong>등록번호 #${recipient.recId}</strong><br>
             <c:if test="${recipient.recRegdate != null}">
-                <small>등록일: ${recipient.recRegdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recRegdate.hour, recipient.recRegdate.minute)}</small>
+                <small style="opacity: 0.8;">등록일: ${recipient.recRegdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recRegdate.hour, recipient.recRegdate.minute)}</small>
             </c:if>
         </div>
     </div>
 
     <form class="edit-form" method="post" action="<c:url value='/recipient/edit'/>" enctype="multipart/form-data">
-        <!-- Hidden 필드 -->
         <input type="hidden" name="recId" value="${recipient.recId}">
 
-        <!-- 기본 정보 -->
         <div class="form-section">
             <h3 class="section-title">
                 <i class="bi bi-person-badge"></i> 기본 정보
@@ -367,9 +445,9 @@
                     </div>
                     <input type="file" name="recPhotoUrl" id="photoInput" class="form-input"
                            accept="image/jpeg,image/jpg,image/png,image/gif"
-                           onchange="previewPhoto(event)">
-                    <small style="color: #999; font-size: 12px; display: block; margin-top: 5px;">
-                        * 새 사진을 선택하면 기존 사진이 교체됩니다
+                           onchange="previewPhoto(event)" style="border: 1px solid #ddd;">
+                    <small style="color: #7f8c8d; font-size: 13px; text-align: center;">
+                        <i class="bi bi-info-circle"></i> 새 사진을 선택하면 기존 사진이 교체됩니다
                     </small>
                 </div>
             </div>
@@ -416,27 +494,23 @@
                     주소<span class="required">*</span>
                 </label>
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                    <input type="text" id="postcode" class="form-input" placeholder="우편번호" readonly style="flex: 0 0 150px;">
+                    <input type="text" id="postcode" class="form-input" placeholder="우편번호" readonly style="flex: 0 0 150px; background-color: #eee;">
                     <button type="button" onclick="execDaumPostcode()" class="btn-address-search">
                         <i class="bi bi-search"></i> 주소 검색
                     </button>
                 </div>
-                <input type="text" id="roadAddress" class="form-input" placeholder="도로명 주소" readonly style="margin-bottom: 10px; background-color: #f8f9fa;">
-                <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px;" value="${recipient.recAddress}">
+                <input type="text" id="roadAddress" class="form-input" placeholder="도로명 주소" readonly style="margin-bottom: 10px; background-color: #eee;">
+                <input type="text" id="jibunAddress" name="recAddress" class="form-input" required placeholder="지번 주소" readonly style="margin-bottom: 10px; font-weight: 600;"
+                       value="${recipient.recAddress}">
                 <input type="text" id="detailAddress" class="form-input" placeholder="상세 주소 (선택사항)">
-                <small style="color: #667eea; font-size: 12px; display: block; margin-top: 5px;">
-                    <i class="bi bi-info-circle"></i> 주소 검색 버튼을 눌러 지번 주소를 선택해주세요
-                </small>
             </div>
         </div>
 
-        <!-- 건강 정보 -->
         <div class="form-section">
             <h3 class="section-title">
                 <i class="bi bi-heart-pulse"></i> 건강 정보
             </h3>
 
-            <!-- 1. 병력 -->
             <div class="form-group">
                 <label class="form-label">
                     현재 앓고 계신 질환이 있으신가요? (병력)
@@ -477,10 +551,9 @@
                     </div>
                 </div>
                 <textarea name="recMedHistory" id="recMedHistory" class="form-input form-textarea"
-                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly>${recipient.recMedHistory}</textarea>
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px; background-color: #f1f3f5;" readonly>${recipient.recMedHistory}</textarea>
             </div>
 
-            <!-- 2. 알레르기 -->
             <div class="form-group">
                 <label class="form-label">
                     주의해야 할 알레르기가 있으신가요?
@@ -517,10 +590,9 @@
                     </div>
                 </div>
                 <textarea name="recAllergies" id="recAllergies" class="form-input form-textarea"
-                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly>${recipient.recAllergies}</textarea>
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px; background-color: #f1f3f5;" readonly>${recipient.recAllergies}</textarea>
             </div>
 
-            <!-- 3. 건강 요구사항 -->
             <div class="form-group">
                 <label class="form-label">
                     특별히 도움이 필요하신 부분이 있나요? (건강 요구사항)
@@ -557,11 +629,10 @@
                     </div>
                 </div>
                 <textarea name="recHealthNeeds" id="recHealthNeeds" class="form-input form-textarea"
-                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px;" readonly>${recipient.recHealthNeeds}</textarea>
+                          placeholder="선택한 항목이 자동으로 입력됩니다" style="margin-top: 10px; background-color: #f1f3f5;" readonly>${recipient.recHealthNeeds}</textarea>
             </div>
         </div>
 
-        <!-- 추가 정보 -->
         <div class="form-section">
             <h3 class="section-title">
                 <i class="bi bi-info-circle"></i> 추가 정보
@@ -576,7 +647,6 @@
             </div>
         </div>
 
-        <!-- 버튼 -->
         <div class="form-buttons">
             <button type="button" class="btn btn-secondary" onclick="history.back()">
                 <i class="bi bi-x-circle"></i> 취소
@@ -692,13 +762,11 @@
         const otherInput = document.getElementById('medHistory_other_input');
         const textarea = document.getElementById('recMedHistory');
         const selected = [];
-
         checkboxes.forEach(cb => {
             if (cb.checked && cb.id !== 'medHistory_none') {
                 selected.push(cb.value);
             }
         });
-
         // "해당 사항 없음"이 체크되면 다른 항목들 해제
         const noneCheckbox = document.getElementById('medHistory_none');
         if (noneCheckbox.checked) {
@@ -728,13 +796,11 @@
         const otherInput = document.getElementById('allergy_other_input');
         const textarea = document.getElementById('recAllergies');
         const selected = [];
-
         checkboxes.forEach(cb => {
             if (cb.checked && cb.id !== 'allergy_none') {
                 selected.push(cb.value);
             }
         });
-
         // "해당 사항 없음"이 체크되면 다른 항목들 해제
         const noneCheckbox = document.getElementById('allergy_none');
         if (noneCheckbox.checked) {
@@ -764,13 +830,11 @@
         const otherInput = document.getElementById('healthNeed_other_input');
         const textarea = document.getElementById('recHealthNeeds');
         const selected = [];
-
         checkboxes.forEach(cb => {
             if (cb.checked && cb.id !== 'healthNeed_ok') {
                 selected.push(cb.value);
             }
         });
-
         // "괜찮습니다"가 체크되면 다른 항목들 해제
         const okCheckbox = document.getElementById('healthNeed_ok');
         if (okCheckbox.checked) {
@@ -818,7 +882,6 @@
     // 저장된 텍스트 데이터를 파싱하여 체크박스에 반영
     function parseAndCheckHealthData(text, type) {
         if (!text || text.trim() === '') return;
-
         const items = text.split(',').map(item => item.trim());
         const prefix = type === 'medHistory' ? 'medHistory' : (type === 'allergy' ? 'allergy' : 'healthNeed');
 
@@ -848,5 +911,4 @@
     }
 </script>
 
-<!-- Daum 우편번호 API -->
 <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>

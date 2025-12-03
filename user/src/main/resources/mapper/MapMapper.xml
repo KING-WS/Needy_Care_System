@@ -12,6 +12,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -30,6 +31,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -50,6 +52,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -69,6 +72,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -88,6 +92,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -108,6 +113,7 @@
             map_id AS mapId,
             rec_id AS recId,
             map_name AS mapName,
+            map_address AS mapAddress,
             map_content AS mapContent,
             map_category AS mapCategory,
             map_latitude AS mapLatitude,
@@ -129,6 +135,7 @@
         INSERT INTO Map (
             rec_id,
             map_name,
+            map_address,
             map_content,
             map_category,
             map_latitude,
@@ -140,6 +147,7 @@
         VALUES (
             #{recId},
             #{mapName},
+            #{mapAddress},
             #{mapContent},
             #{mapCategory},
             #{mapLatitude},
@@ -159,6 +167,9 @@
             </if>
             <if test="mapName != null and mapName != ''">
                 map_name = #{mapName},
+            </if>
+            <if test="mapAddress != null and mapAddress != ''">
+                map_address = #{mapAddress},
             </if>
             <if test="mapContent != null">
                 map_content = #{mapContent},
@@ -189,4 +200,3 @@
     </delete>
 
 </mapper>
-

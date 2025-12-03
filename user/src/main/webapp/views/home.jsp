@@ -96,6 +96,7 @@
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
+            background-color: #f8f9fa; /* 연한 회색 배경 */
         }
 
         /* Header */
@@ -294,6 +295,7 @@
             margin-top: 80px;
             flex: 1 0 auto;
             min-height: calc(100vh - 80px);
+            background-color: #f8f9fa; /* 연한 회색 배경 */
         }
 
         /* Dashboard Section */
@@ -783,12 +785,12 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
-                <img src="/img/favicontitle.png" alt="Aventro Logo">돌봄 SYSTEM
+                <img src="/img/favicontitle.png" alt="Aventro Logo">AI 돌봄 시스템
             </a>
 
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> 홈</a></li>
                 
                 <!-- 통신 드롭다운 -->
                 <li class="nav-item">
@@ -819,7 +821,7 @@
                         <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-home"></i> AI 식단 관리</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> AI 식단 관리</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
@@ -832,7 +834,7 @@
                         <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i>모니터링</a></li>
                     </ul>
                 </li>
                 
