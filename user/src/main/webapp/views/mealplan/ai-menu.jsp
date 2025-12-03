@@ -608,7 +608,7 @@
 <div class="modal-overlay" id="loadingModal" style="z-index: 1060;">
     <div class="loading-modal-content">
         <div class="spinner"></div>
-        <p style="font-size: 18px; fontWeight: 700; color: var(--secondary-color); margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
+        <p style="font-size: 18px; font-Weight: 700; color: var(--secondary-color); margin-top: 10px; margin-bottom: 5px;">AI가 식단을 분석 중입니다...</p>
         <p style="font-size: 14px; color: #7f8c8d; margin: 0;">잠시만 기다려주세요.</p>
     </div>
 </div>

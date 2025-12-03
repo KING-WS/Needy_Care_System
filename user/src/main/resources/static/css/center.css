@@ -672,6 +672,7 @@
     outline: none;
     transition: all 0.3s ease;
     background: white;
+    max-width: 400px;
 }
 
 .map-search-input:focus {
@@ -1209,7 +1210,7 @@
 
 .calendar-day-header {
     text-align: center;
-    font-size: 10px;
+    font-size: 20px;
     font-weight: 700;
     color: #3498db;
     padding: 5px 0;
@@ -1420,7 +1421,7 @@
     align-items: center;
     gap: 3px;
     color: #3498db;
-    font-size: 11px;
+    font-size: 15px;
     font-weight: 600;
 }
 
@@ -2058,7 +2059,7 @@
     max-width: 600px !important;
 }
 /* =========================================
-   [Ãß°¡] Ä¿½ºÅÒ ¿À¹ö·¹ÀÌ ½ºÅ¸ÀÏ
+   [ï¿½ß°ï¿½] Ä¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½
    ========================================= */
 .custom-overlay-wrap {
     position: absolute;
@@ -2069,7 +2070,7 @@
     border-radius: 15px;
     box-shadow: 0 5px 20px rgba(0,0,0,0.15);
     overflow: hidden;
-    font-family: 'Malgun Gothic', dotum, 'µ¸¿ò', sans-serif;
+    font-family: 'Malgun Gothic', dotum, 'ï¿½ï¿½ï¿½ï¿½', sans-serif;
     animation: fadeIn 0.3s ease-out;
     z-index: 1000;
     border: 1px solid #f0f0f0;
