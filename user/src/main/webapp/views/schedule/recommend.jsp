@@ -795,10 +795,6 @@
 
                 cardCol.innerHTML = `
 <div class="card recommend-card" data-index="\${index}">
-    <div class="item-actions">
-        <button class="item-action-btn edit" onclick="editRecommendation(event, \${index})" title="수정"><i class="bi bi-pencil-square"></i></button>
-        <button class="item-action-btn delete" onclick="deleteRecommendation(event, \${index})" title="삭제"><i class="bi bi-trash"></i></button>
-    </div>
 <div class="card-header-custom d-flex justify-content-between align-items-center">
     <h5 class="mb-0 text-truncate" title="\${item.mapName}">\${item.mapName}</h5>
     <span class="badge badge-category">\${item.mapCategory}</span>
