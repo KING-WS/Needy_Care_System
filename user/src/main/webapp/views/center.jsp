@@ -337,52 +337,54 @@
 
                 <!-- 중간 카드 (아래) - 오늘의 일정 -->
                 <div class="card-wrapper">
-                    <div class="dashboard-card card-medium schedule-card">
-                        <i class="bi bi-clock-history card-title-icon"></i>
-                        <div class="calendar-header">
-                            <div class="calendar-title">
-                                오늘의 시간표
+                    <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium schedule-card">
+                            <i class="bi bi-clock-history card-title-icon"></i>
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    오늘의 시간표
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+<%--                            <button type="button" class="btn-add-schedule" onclick="openTodayScheduleModal();">--%>
+<%--                                <i class="fas fa-plus"></i>--%>
+<%--                            </button>--%>
                             </div>
-                            <div class="calendar-month">
-                                <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
-                                ${today.monthValue}월 ${today.dayOfMonth}일
-                            </div>
-                            <button type="button" class="btn-add-schedule" onclick="openTodayScheduleModal();">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
 
-                        <div class="hourly-schedule-list ${fn:length(todayHourlySchedules) > 5 ? 'scrollable' : ''}">
-                            <c:choose>
-                                <c:when test="${not empty todayHourlySchedules}">
-                                    <c:forEach var="hourly" items="${todayHourlySchedules}">
-                                        <div class="hourly-schedule-item">
-                                            <div class="hourly-time">
-                                                <c:if test="${not empty hourly.hourlySchedStartTime}">
-                                                    ${fn:substring(hourly.hourlySchedStartTime, 0, 5)}
-                                                </c:if>
-                                                <c:if test="${not empty hourly.hourlySchedEndTime}">
-                                                    ~ ${fn:substring(hourly.hourlySchedEndTime, 0, 5)}
-                                                </c:if>
+                            <div class="hourly-schedule-list ${fn:length(todayHourlySchedules) > 5 ? 'scrollable' : ''}">
+                                <c:choose>
+                                    <c:when test="${not empty todayHourlySchedules}">
+                                        <c:forEach var="hourly" items="${todayHourlySchedules}">
+                                            <div class="hourly-schedule-item">
+                                                <div class="hourly-time">
+                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                                        ${fn:substring(hourly.hourlySchedStartTime, 0, 5)}
+                                                    </c:if>
+                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                        ~ ${fn:substring(hourly.hourlySchedEndTime, 0, 5)}
+                                                    </c:if>
+                                                </div>
+                                                <div class="hourly-content">
+                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                    <c:if test="${not empty hourly.hourlySchedContent}">
+                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                    </c:if>
+                                                </div>
                                             </div>
-                                            <div class="hourly-content">
-                                                <div class="hourly-name">${hourly.hourlySchedName}</div>
-                                                <c:if test="${not empty hourly.hourlySchedContent}">
-                                                    <div class="hourly-detail">${hourly.hourlySchedContent}</div>
-                                                </c:if>
-                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-calendar-x"></i>
+                                            <span>오늘 등록된 일정이 없습니다</span>
                                         </div>
-                                    </c:forEach>
-                                </c:when>
-                                <c:otherwise>
-                                    <div class="hourly-empty">
-                                        <i class="bi bi-calendar-x"></i>
-                                        <span>오늘 등록된 일정이 없습니다</span>
-                                    </div>
-                                </c:otherwise>
-                            </c:choose>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             </div>
 
@@ -932,6 +934,7 @@
 
     // 페이지 로드 시 초기화
     window.addEventListener('load', function() {
+        console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
         if (typeof kakao !== 'undefined' && kakao.maps) {
             initializeMap(); // 지도 초기화
             loadHomeMarker(); // 집 마커 표시
@@ -1071,6 +1074,266 @@
         });
     }
 
+    // [MODIFIED] 시간 선택 드롭다운 채우기 및 기본값 설정 함수
+    function populateTimeSelects(defaultHour, defaultMinute) {
+        console.log('Populating time selects with default hour:', defaultHour, 'and minute:', defaultMinute);
+
+        const selects = {
+            startHour: document.getElementById('hourlyScheduleStartHour'),
+            startMinute: document.getElementById('hourlyScheduleStartMinute'),
+            endHour: document.getElementById('hourlyScheduleEndHour'),
+            endMinute: document.getElementById('hourlyScheduleEndMinute')
+        };
+
+        if (!selects.startHour || !selects.startMinute || !selects.endHour || !selects.endMinute) {
+            console.error('Could not find one or more time select elements.');
+            return;
+        }
+
+        function populate(element, max, step, defaultValue) {
+            element.innerHTML = ''; // Clear existing options
+            const fragment = document.createDocumentFragment();
+            
+            for (let i = 0; i < max; i += step) {
+                const opt = document.createElement('option');
+                const val = String(i).padStart(2, '0');
+                opt.value = val;
+                opt.textContent = val;
+                if (val === defaultValue) {
+                    opt.selected = true;
+                }
+                fragment.appendChild(opt);
+            }
+            element.appendChild(fragment);
+            
+            // Fallback to set value if `selected` attribute didn't work
+            if (!element.value && element.options.length > 0) {
+                element.value = defaultValue;
+            }
+        }
+
+        populate(selects.startHour, 24, 1, defaultHour);
+        populate(selects.startMinute, 60, 5, defaultMinute);
+
+        // UX Improvement: Set default end time to one hour after start time
+        const endHourDefault = String((parseInt(defaultHour, 10) + 1) % 24).padStart(2, '0');
+        populate(selects.endHour, 24, 1, endHourDefault);
+        populate(selects.endMinute, 60, 5, defaultMinute);
+        
+        console.log('Finished populating time select DOM options.');
+    }
+
+    
+
+        // [NEW] 상위 일정 선택 모달 닫기
+
+        function closeSelectParentScheduleModal() {
+
+            document.getElementById('selectParentScheduleModal').classList.remove('show');
+
+        }
+
+    
+
+        // [MODIFIED] 세부 일정 추가 모달 열기 (schedId와 함께)
+
+        function openHourlyScheduleModalWithId(schedId) {
+
+            document.getElementById('hourlyScheduleModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> <span>시간대별 일정 추가</span>';
+
+    
+
+            // 폼 필드 수동 초기화
+
+            document.getElementById('hourlyScheduleSchedId').value = '';
+
+            document.getElementById('hourlyScheduleName').value = '';
+
+            document.getElementById('hourlyScheduleContent').value = '';
+
+            // 선택된 상위 일정 ID 설정
+
+            document.getElementById('hourlyScheduleParentSchedId').value = schedId;
+
+    
+
+            // 시간 선택 드롭다운 채우기 및 기본값 설정
+
+            const now = new Date();
+
+            const currentHour = String(now.getHours()).padStart(2, '0');
+
+            const currentMinute = String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0');
+
+            
+
+            // populateTimeSelects 함수에 기본값 전달
+
+            populateTimeSelects(currentHour, currentMinute);
+
+    
+
+            document.getElementById('hourlyScheduleModal').classList.add('show');
+
+        }
+
+    // [NEW] 상위 일정 선택 후 다음 단계로 진행
+    function proceedToHourlySchedule() {
+        const select = document.getElementById('parentScheduleSelect');
+        const selectedSchedId = select.value;
+
+        if (!selectedSchedId) {
+            alert('상위 일정을 선택해주세요.');
+            return;
+        }
+
+        closeSelectParentScheduleModal();
+        openHourlyScheduleModalWithId(selectedSchedId);
+    }
+
+
+    // [MODIFIED] '오늘의 시간표'에서 '+' 버튼 클릭 시 로직 시작
+    function openTodayScheduleModal() {
+        const todaySchedules = [
+            <c:forEach var="schedule" items="${todaySchedules}">
+            { schedId: ${schedule.schedId}, schedName: "${schedule.schedName}" },
+            </c:forEach>
+        ];
+
+        const todayHourlySchedules = [
+            <c:forEach var="hourly" items="${todayHourlySchedules}">
+            { schedId: ${hourly.schedId} },
+            </c:forEach>
+        ];
+
+        if (todaySchedules.length === 0) {
+            alert('먼저 오늘 날짜의 상위 일정을 등록해야 합니다.\n(일정 관리 페이지로 이동합니다.)');
+            // 필요하다면 일정 관리 페이지로 리디렉션
+            // location.href = '/schedule';
+            return;
+        }
+
+        const parentSelect = document.getElementById('parentScheduleSelect');
+        parentSelect.innerHTML = ''; // 드롭다운 초기화
+
+        const hourlySchedIds = new Set(todayHourlySchedules.map(h => h.schedId));
+
+        todaySchedules.forEach(schedule => {
+            const option = document.createElement('option');
+            option.value = schedule.schedId;
+
+            if (hourlySchedIds.has(schedule.schedId)) {
+                option.textContent = `${schedule.schedName} (이미 세부 일정이 존재합니다)`;
+                option.disabled = true;
+            } else {
+                option.textContent = schedule.schedName;
+            }
+            parentSelect.appendChild(option);
+        });
+
+        document.getElementById('selectParentScheduleModal').classList.add('show');
+    }
+
+    // 시간대별 일정 모달 닫기
+    function closeHourlyScheduleModal() {
+        document.getElementById('hourlyScheduleModal').classList.remove('show');
+    }
+
+    // 시간대별 일정 저장 함수
+    async function saveHourlySchedule() {
+        const form = document.getElementById('hourlyScheduleForm');
+        
+        // --- DIAGNOSIS START ---
+        // Get raw values directly from the form elements to debug
+        const hourlySchedId = document.getElementById('hourlyScheduleSchedId').value;
+        const parentSchedId = document.getElementById('hourlyScheduleParentSchedId').value;
+        const name = document.getElementById('hourlyScheduleName').value; // Changed from hourlySchedName
+        const startHour = document.getElementById('hourlyScheduleStartHour').value;
+        const startMinute = document.getElementById('hourlyScheduleStartMinute').value;
+        const endHour = document.getElementById('hourlyScheduleEndHour').value;
+        const endMinute = document.getElementById('hourlyScheduleEndMinute').value;
+        const content = document.getElementById('hourlyScheduleContent').value; // Changed from hourlySchedContent
+
+        // Log the raw values to the console to see what we are getting
+        console.log("Saving schedule. Raw time values:", { startHour, startMinute, endHour, endMinute });
+        // --- DIAGNOSIS END ---
+
+        if (!form.reportValidity()) { // HTML5 유효성 검사
+            return;
+        }
+        
+        // More explicit validation check for empty time values
+        if (startHour === '' || startMinute === '' || endHour === '' || endMinute === '') {
+            alert('시간이 올바르게 선택되지 않았습니다. 시작 시간과 종료 시간을 모두 선택해주세요.');
+            return;
+        }
+
+        if (!parentSchedId) {
+            alert('상위 일정 정보가 없습니다. 다시 시도해주세요.');
+            return;
+        }
+
+        const hourlySchedStartTime = `${startHour}:${startMinute}:00`; // Added :00
+        const hourlySchedEndTime = `${endHour}:${endMinute}:00`;       // Added :00
+
+        const saveButton = document.getElementById('saveHourlyScheduleBtn');
+        saveButton.disabled = true;
+        saveButton.textContent = '저장 중...';
+
+        const payload = {
+            hourlySchedId: hourlySchedId || null, // Added as per user request
+            schedId: parentSchedId,
+            hourlySchedName: name, // Using 'name' variable
+            hourlySchedStartTime: hourlySchedStartTime,
+            hourlySchedEndTime: hourlySchedEndTime,
+            hourlySchedContent: content // Using 'content' variable
+        };
+
+        const isUpdate = hourlySchedId !== '';
+        const url = isUpdate ? `/api/hourly/${hourlySchedId}` : '/api/hourly';
+        const method = isUpdate ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(`일정이 성공적으로 ${isUpdate ? '수정' : '추가'}되었습니다!`);
+                closeHourlyScheduleModal();
+                location.reload(); // 페이지 새로고침하여 변경사항 반영
+            } else {
+                alert(`일정 ${isUpdate ? '수정' : '추가'} 실패: ${result.message || '알 수 없는 오류'}`);
+            }
+        } catch (error) {
+            console.error('일정 저장/수정 중 오류 발생:', error);
+            alert('일정 저장/수정 중 오류가 발생했습니다.');
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = '저장';
+        }
+    }
+
+    // ESC 키로 모달 닫기 추가
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (document.getElementById('hourlyScheduleModal')?.classList.contains('show')) {
+                closeHourlyScheduleModal();
+            }
+            // 기존 맵 관련 모달 닫기 로직은 유지
+            if (document.getElementById('mapModal')?.classList.contains('show')) closeMapModal();
+            if (document.getElementById('locationDetailModal')?.classList.contains('show')) closeLocationDetailModal();
+            if (document.getElementById('searchResultDetailModal')?.classList.contains('show')) closeSearchResultDetailModal();
+        }
+    });
+
+
+
     // --- 실시간 위치 업데이트 스크립트 ---
     document.addEventListener('DOMContentLoaded', function() {
         if (defaultRecId && typeof Stomp !== 'undefined') {
@@ -1140,6 +1403,41 @@
 </div>
 
 <!-- 시간대별 일정 추가 모달 -->
+
+<!-- 상위 일정 선택 모달 -->
+<div class="map-modal-overlay" id="selectParentScheduleModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="fas fa-calendar-check"></i>
+                <span>상위 일정 선택</span>
+            </div>
+            <button class="map-modal-close" onclick="closeSelectParentScheduleModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <p style="margin-bottom: 15px; font-size: 14px; color: #555;">세부 일정을 추가할 상위 일정을 선택해주세요.</p>
+            <div class="modal-form-group">
+                <label class="modal-form-label">
+                    <i class="fas fa-calendar-day"></i> 오늘 일정 목록<span class="required">*</span>
+                </label>
+                <select id="parentScheduleSelect" class="modal-form-select">
+                    <!-- 옵션은 스크립트로 채워집니다. -->
+                </select>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSelectParentScheduleModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="proceedToHourlySchedule()">
+                <i class="fas fa-arrow-right"></i> 다음
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="map-modal-overlay" id="hourlyScheduleModal">
     <div class="map-modal">
         <div class="map-modal-header">
@@ -1168,8 +1466,8 @@
                         <i class="fas fa-clock"></i> 시작 시간<span class="required">*</span>
                     </label>
                     <div style="display: flex; gap: 10px;">
-                        <select id="hourlyScheduleStartHour" class="modal-form-select" style="flex: 1;"></select>
-                        <select id="hourlyScheduleStartMinute" class="modal-form-select" style="flex: 1;"></select>
+                        <select id="hourlyScheduleStartHour" class="modal-form-select" style="flex: 1;" required></select>
+                        <select id="hourlyScheduleStartMinute" class="modal-form-select" style="flex: 1;" required></select>
                     </div>
                 </div>
 
@@ -1178,8 +1476,8 @@
                         <i class="fas fa-clock"></i> 종료 시간<span class="required">*</span>
                     </label>
                     <div style="display: flex; gap: 10px;">
-                        <select id="hourlyScheduleEndHour" class="modal-form-select" style="flex: 1;"></select>
-                        <select id="hourlyScheduleEndMinute" class="modal-form-select" style="flex: 1;"></select>
+                        <select id="hourlyScheduleEndHour" class="modal-form-select" style="flex: 1;" required></select>
+                        <select id="hourlyScheduleEndMinute" class="modal-form-select" style="flex: 1;" required></select>
                     </div>
                 </div>
 
@@ -1195,7 +1493,7 @@
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeHourlyScheduleModal()">
                 <i class="fas fa-times"></i> 취소
             </button>
-            <button type="button" class="modal-btn modal-btn-save" id="saveHourlyScheduleBtn">
+            <button type="button" class="modal-btn modal-btn-save" id="saveHourlyScheduleBtn" onclick="saveHourlySchedule()">
                 <i class="fas fa-save"></i> 저장
             </button>
         </div>
