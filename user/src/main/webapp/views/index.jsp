@@ -827,7 +827,7 @@
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
                 <img src="/img/favicontitle.png" alt="Aventro Logo">
-                Aventro
+                AI 돌봄 서비스
             </a>
             
             <!-- 중앙: 메뉴 -->
