@@ -96,6 +96,7 @@
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
+            background-color: #f8f9fa; /* 연한 회색 배경 */
         }
 
         /* Header */
@@ -165,7 +166,7 @@
 
         .nav-link {
             color: var(--secondary-color) !important;
-            font-weight: 500;
+            font-weight: 700;
             transition: color 0.3s;
             text-decoration: none;
             white-space: nowrap;
@@ -248,7 +249,7 @@
         }
 
         .user-name {
-            color: var(--primary-color);
+            color: var(--primary-color) !important;
             font-weight: 600;
             font-size: 16px;
             transition: all 0.3s;
@@ -256,7 +257,7 @@
         }
 
         .user-name:hover {
-            color: var(--secondary-color);
+            color: var(--secondary-color) !important;
             transform: translateY(-2px);
         }
 
@@ -294,6 +295,7 @@
             margin-top: 80px;
             flex: 1 0 auto;
             min-height: calc(100vh - 80px);
+            background-color: #f8f9fa; /* 연한 회색 배경 */
         }
 
         /* Dashboard Section */
@@ -750,24 +752,29 @@
                 bottom: 20px;
                 right: 20px;
             }
-
+            
             .navbar-nav {
                 gap: 10px;
                 flex-wrap: wrap;
                 justify-content: center;
             }
-
+            
             .nav-link {
                 font-size: 13px;
                 padding: 6px 8px;
             }
-
+            
             .dropdown-menu {
                 position: static;
                 box-shadow: none;
                 border: 1px solid #e0e0e0;
                 margin-top: 0;
             }
+        }
+        
+        .calendar-title {
+            font-size: 1.5rem !important; /* 크기를 키움 (기존보다 약 1.5배) */
+            font-weight: 700 !important;   /* 굵게 (Bold) */
         }
     </style>
 </head>
@@ -778,14 +785,13 @@
         <div class="container">
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
-                <img src="/img/favicontitle.png" alt="Aventro Logo">
-                AI 돌봄 서비스
+                <img src="/img/favicontitle.png" alt="Aventro Logo">AI 돌봄 시스템
             </a>
 
             <!-- 중앙: 메뉴 -->
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> HOME</a></li>
-
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> 홈</a></li>
+                
                 <!-- 통신 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
@@ -797,7 +803,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- 일정 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
@@ -808,30 +814,30 @@
                         <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
                         <i class="fas fa-utensils"></i> 식단관리 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-home"></i> AI 식단 관리</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> AI 식단 관리</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
-
+                
                 <!-- CCTV 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
                         <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i> 다중 모니터링</a></li>
+                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i>모니터링</a></li>
                     </ul>
                 </li>
-
+                
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -1195,7 +1201,7 @@
             time.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
 
             // 구조 조립
-            bubbleWrapper.appendChild(풍선껌);
+            bubbleWrapper.appendChild(bubble);
             bubbleWrapper.appendChild(time);
             contentWrapper.appendChild(sender);
             contentWrapper.appendChild(bubbleWrapper);

@@ -1,11 +1,12 @@
 // 전역 변수
 var map;
 var markers = [];
+var overlays = []; // 커스텀 오버레이 배열
 var geocoder = new kakao.maps.services.Geocoder();
 var tempMarker = null;
 var clickedPosition = null;
 var homeMarker = null; // 집 마커
-var homeInfowindow = null; // 집 인포윈도우
+var homeOverlay = null; // 집 커스텀 오버레이
 var recipientLocationMarker = null; // 노약자 실시간 위치 마커
 var homePosition = null; // 집 위치 (노약자 위치 업데이트용)
 
@@ -25,6 +26,15 @@ var currentCourseId = null;
 // 위치 검색 함수
 var searchMarkers = []; // 검색 결과 마커들
 
+// 모든 커스텀 오버레이를 닫는 함수
+function closeAllOverlays() {
+    overlays.forEach(overlay => overlay.setMap(null));
+    if (homeOverlay) homeOverlay.setMap(null);
+    // 다른 인포윈도우들도 닫기
+    searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
+    courseMarkers.forEach(item => item.infowindow && item.infowindow.close());
+}
+
 // 지도 초기화 함수
 function initializeMap() {
     var mapContainer = document.getElementById('map');
@@ -34,16 +44,14 @@ function initializeMap() {
     };
     map = new kakao.maps.Map(mapContainer, mapOption);
 
-    kakao.maps.event.addListener(map, 'click', function(mouseEvent) {
+    kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
         if (currentMapMode === 'course') {
             // 산책 코스 모드에서는 클릭 이벤트 비활성화
             return;
         }
 
         var latlng = mouseEvent.latLng;
-        markers.forEach(item => item.infowindow && item.infowindow.close());
-        searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-        if (homeInfowindow) homeInfowindow.close();
+        closeAllOverlays(); // 오버레이 닫기
         if (tempMarker) tempMarker.setMap(null);
 
         tempMarker = new kakao.maps.Marker({
@@ -68,23 +76,39 @@ function loadHomeMarker() {
             var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
             var homeImageSrc = 'data:image/svg+xml;base64,' + btoa(
                 '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">' +
-                '<defs><filter id="shadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur in="SourceAlpha" stdDeviation="2"/><feOffset dx="0" dy="2" result="offsetblur"/><feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-                '<g filter="url(#shadow)"><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="#e74c3c"/><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="none" stroke="#c0392b" stroke-width="2"/><circle cx="24" cy="26" r="3" fill="#fff" opacity="0.8"/><rect x="18" y="38" width="2" height="6" fill="#c0392b"/><rect x="28" y="38" width="2" height="6" fill="#c0392b"/></g>' +
+                '<g><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="#e74c3c" stroke="#888" stroke-width="1"/><path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="none" stroke="#c0392b" stroke-width="2"/><circle cx="24" cy="26" r="3" fill="#fff" opacity="0.8"/><rect x="18" y="38" width="2" height="6" fill="#c0392b"/><rect x="28" y="38" width="2" height="6" fill="#c0392b"/></g>' +
                 '<circle cx="24" cy="4" r="2" fill="#ffeb3b"/><path d="M24 6 L26 10 L22 10 Z" fill="#ffeb3b"/></svg>'
             );
             var homeImageSize = new kakao.maps.Size(48, 48);
             var homeImageOption = {offset: new kakao.maps.Point(24, 48)};
             var homeImage = new kakao.maps.MarkerImage(homeImageSrc, homeImageSize, homeImageOption);
             homeMarker = new kakao.maps.Marker({ map: map, position: coords, image: homeImage, title: recipientName + '님의 집' });
-            homeInfowindow = new kakao.maps.InfoWindow({
-                content: `<div style="padding:15px;font-size:14px;min-width:200px;text-align:center;"><div style="font-weight:700;color:#e74c3c;margin-bottom:5px;"><i class="bi bi-house-heart-fill"></i> ${recipientName}님의 집</div><div style="font-size:12px;color:#666;">${cleanAddress}</div></div>`,
-                removable: false
+
+            var content = `
+                <div class="custom-overlay-wrap">
+                    <div class="custom-overlay-header">
+                        <span>${recipientName}님의 집</span>
+                        <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+                    </div>
+                    <div class="custom-overlay-body">
+                        <span class="custom-overlay-category" style="background-color: #ffe0e0; color: #ff6b6b;">집</span>
+                        <div style="font-size:12px; color:#666; margin-top: 8px;">${cleanAddress}</div>
+                    </div>
+                </div>`;
+
+            homeOverlay = new kakao.maps.CustomOverlay({
+                content: content,
+                position: coords,
+                map: null,
+                zIndex: 1
             });
+
             kakao.maps.event.addListener(homeMarker, 'click', function() {
-                markers.forEach(item => item.infowindow && item.infowindow.close());
-                searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-                homeInfowindow.open(map, homeMarker);
+                closeAllOverlays();
+                homeOverlay.setMap(map);
+                map.setCenter(coords);
             });
+
             map.setCenter(coords);
             map.setLevel(4);
             homePosition = coords;
@@ -105,54 +129,21 @@ function loadSavedMarkersWithData(savedMaps) {
 
 // 카테고리별 마커 이미지 생성 (SVG 아이콘 사용)
 function getMarkerImageByCategory(category) {
-    var iconColor, iconSymbol;
-    
-    // 카테고리별 아이콘 설정
-    switch (category) {
-        case '병원':
-            iconColor = '#e74c3c'; // 빨간색
-            iconSymbol = '<path d="M24 8L10 20v18h10v-12h8v12h10V20z" fill="' + iconColor + '"/><circle cx="24" cy="26" r="3" fill="#fff"/><rect x="20" y="30" width="8" height="2" fill="#fff"/><rect x="22" y="28" width="4" height="2" fill="#fff"/>';
-            break;
-        case '약국':
-            iconColor = '#3498db'; // 파란색
-            iconSymbol = '<rect x="12" y="8" width="24" height="32" rx="2" fill="' + iconColor + '"/><rect x="18" y="14" width="12" height="2" fill="#fff"/><rect x="18" y="18" width="12" height="2" fill="#fff"/><rect x="18" y="22" width="8" height="2" fill="#fff"/><circle cx="28" cy="26" r="2" fill="#fff"/>';
-            break;
-        case '마트':
-        case '편의점':
-            iconColor = '#f39c12'; // 주황색
-            iconSymbol = '<rect x="10" y="8" width="28" height="32" rx="2" fill="' + iconColor + '"/><rect x="14" y="14" width="20" height="3" fill="#fff"/><rect x="14" y="20" width="16" height="3" fill="#fff"/><rect x="14" y="26" width="20" height="3" fill="#fff"/><circle cx="36" cy="12" r="3" fill="#fff"/>';
-            break;
-        case '공원':
-            iconColor = '#27ae60'; // 초록색
-            iconSymbol = '<path d="M24 8C16 8 10 14 10 22c0 8 6 14 14 14s14-6 14-14c0-8-6-14-14-14zm0 20c-3 0-6-3-6-6s3-6 6-6 6 3 6 6-3 6-6 6z" fill="' + iconColor + '"/><circle cx="18" cy="20" r="2" fill="#fff"/><circle cx="24" cy="20" r="2" fill="#fff"/><circle cx="30" cy="20" r="2" fill="#fff"/>';
-            break;
-        case '복지관':
-            iconColor = '#9b59b6'; // 보라색
-            iconSymbol = '<path d="M24 8L14 18v18h20V18z" fill="' + iconColor + '"/><rect x="18" y="24" width="12" height="2" fill="#fff"/><rect x="18" y="28" width="12" height="2" fill="#fff"/><rect x="18" y="32" width="8" height="2" fill="#fff"/><circle cx="24" cy="16" r="2" fill="#fff"/>';
-            break;
-        default:
-            iconColor = '#95a5a6'; // 회색
-            iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>';
-            break;
-    }
-    
+    var iconColor = '#3498db'; // 모든 마커에 사용할 기본 파란색
+    var iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>'; // 기본 원형 아이콘
+
     // SVG 마커 이미지 생성
     var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
-        '<defs><filter id="shadow' + category + '" x="-50%" y="-50%" width="200%" height="200%">' +
-        '<feGaussianBlur in="SourceAlpha" stdDeviation="2"/>' +
-        '<feOffset dx="0" dy="2" result="offsetblur"/>' +
-        '<feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>' +
-        '<feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
-        '<g filter="url(#shadow' + category + ')">' +
-        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '"/>' +
+        '<g>' +
+        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '" stroke="#888" stroke-width="1"/>' +
         iconSymbol +
         '</g></svg>';
-    
+
     var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-    var imageSize = new kakao.maps.Size(48, 56);
-    var imageOption = {offset: new kakao.maps.Point(24, 56)};
+    var imageSize = new kakao.maps.Size(50, 45);
+    var imageOption = {offset: new kakao.maps.Point(15, 43)};
     var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
-    
+
     return markerImage;
 }
 
@@ -170,33 +161,34 @@ function addMarkerToMap(mapData) {
     var position = new kakao.maps.LatLng(mapData.lat, mapData.lng);
     var markerImage = getMarkerImageByCategory(mapData.mapCategory);
     var marker = new kakao.maps.Marker({ position: position, map: map, image: markerImage, title: mapData.mapName });
-    
-    var infowindowContent = `<div style="padding:12px;font-size:13px;min-width:180px;text-align:center;"><div style="font-weight:700;color:#333;margin-bottom:5px;">${mapData.mapName}</div><div style="display:inline-block;padding:3px 10px;background:#e8eaf6;color:#667eea;border-radius:12px;font-size:11px;margin-bottom:8px;">${mapData.mapCategory}</div><button onclick="handleEditButtonClick(${mapData.mapId}, event)" style="display:block;margin-top:10px;background:#667eea;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;width:100%;font-size:12px;transition:background 0.2s;">수정</button></div>`;
-    
-    var infowindow = new kakao.maps.InfoWindow({
-        content: infowindowContent
+
+    var content = `
+        <div class="custom-overlay-wrap">
+            <div class="custom-overlay-header">
+                <span>${mapData.mapName}</span>
+                <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+            </div>
+            <div class="custom-overlay-body">
+                <span class="custom-overlay-category">${mapData.mapCategory}</span>
+                <button class="btn-overlay-action" onclick="handleEditButtonClick(${mapData.mapId}, event)">수정</button>
+            </div>
+        </div>`;
+
+    var overlay = new kakao.maps.CustomOverlay({
+        content: content,
+        position: marker.getPosition(),
+        map: null, // 초기에 보이지 않도록 설정
+        zIndex: 1
     });
-    
+
     kakao.maps.event.addListener(marker, 'click', function() {
-        // 다른 모든 인포윈도우 닫기
-        markers.forEach(item => {
-            if (item.infowindow && item !== markers.find(m => m.mapId === mapData.mapId)) {
-                item.infowindow.close();
-            }
-        });
-        searchMarkers.forEach(item => {
-            if (item.infowindow) item.infowindow.close();
-        });
-        if (homeInfowindow) homeInfowindow.close();
-        // 산책코스 마커의 인포윈도우도 닫기
-        courseMarkers.forEach(item => {
-            if (item.infowindow) item.infowindow.close();
-        });
+        closeAllOverlays();
+        overlay.setMap(map);
         map.setCenter(position);
-        map.setLevel(3);
-        infowindow.open(map, marker);
     });
-    markers.push({ marker: marker, infowindow: infowindow, mapId: mapData.mapId });
+
+    markers.push({ marker: marker, overlay: overlay, mapId: mapData.mapId });
+    overlays.push(overlay);
 }
 
 // 모달 열기
@@ -213,6 +205,37 @@ function openMapModal(lat, lng) {
         }
     });
     document.getElementById('mapLocationForm').reset();
+}
+
+// 검색 결과로부터 장소 추가 모달 열기
+function openAddPlaceModalFromSearch(place) {
+    // 모든 InfoWindow 닫기
+    closeAllOverlays();
+
+    const lat = place.y;
+    const lng = place.x;
+
+    // '장소 수정'과 동일한 모달을 사용하되, 제목을 '장소 추가'로 설정
+    document.querySelector('#mapModal .map-modal-title span').textContent = '장소 추가';
+    
+    // 좌표 및 주소 정보 설정
+    document.getElementById('modalLat').value = lat;
+    document.getElementById('modalLng').value = lng;
+    document.getElementById('modalAddress').textContent = place.address_name || `위도: ${lat.toFixed(6)}, 경도: ${lng.toFixed(6)}`;
+    
+    // 장소 이름, 카테고리 등 폼 데이터 설정
+    document.getElementById('modalMapName').value = place.place_name || '';
+    document.getElementById('modalCategory').value = convertCategoryForSave(place.category_name); // 카테고리 자동 변환
+    document.getElementById('modalContent').value = ''; // 메모는 비워둠
+
+    // 모달 표시
+    document.getElementById('mapModal').classList.add('show');
+    
+    // 임시 마커가 있다면 제거
+    if (tempMarker) {
+        tempMarker.setMap(null);
+        tempMarker = null;
+    }
 }
 
 // 모달 닫기
@@ -240,7 +263,8 @@ async function saveMapLocation() {
         mapCategory: document.getElementById('modalCategory').value,
         mapContent: document.getElementById('modalContent').value.trim(),
         mapLatitude: parseFloat(document.getElementById('modalLat').value),
-        mapLongitude: parseFloat(document.getElementById('modalLng').value)
+        mapLongitude: parseFloat(document.getElementById('modalLng').value),
+        mapAddress: document.getElementById('modalAddress').textContent.trim()
     };
     try {
         const response = await fetch('/api/map', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData) });
@@ -280,57 +304,35 @@ async function deleteLocation(mapId) {
 
 // 마커에 포커스
 function focusMarker(lat, lng) {
-    // 먼저 모든 인포윈도우 닫기
-    markers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    searchMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    if (homeInfowindow) homeInfowindow.close();
-    courseMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    
+    closeAllOverlays();
+
     var position = new kakao.maps.LatLng(lat, lng);
     map.setCenter(position);
     map.setLevel(3);
-    // 해당 위치의 마커만 인포윈도우 열기
+    // 해당 위치의 마커만 오버레이 열기
     markers.forEach(item => {
         var markerPos = item.marker.getPosition();
         if (Math.abs(markerPos.getLat() - lat) < 0.0001 && Math.abs(markerPos.getLng() - lng) < 0.0001) {
-            item.infowindow.open(map, item.marker);
+            item.overlay.setMap(map);
         }
     });
 }
 
 // 집 마커에 포커스
 function focusHomeMarker() {
-    if (homeMarker && homeInfowindow) {
+    if (homeMarker && homeOverlay) {
+        closeAllOverlays();
         var position = homeMarker.getPosition();
         map.setCenter(position);
         map.setLevel(3);
-        markers.forEach(item => item.infowindow && item.infowindow.close());
-        searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
-        homeInfowindow.open(map, homeMarker);
+        homeOverlay.setMap(map, homeMarker);
     }
 }
 
 // 장소 상세 정보 표시 (목록 클릭 시 지도 이동)
 function showLocationDetail(mapId) {
-    // 다른 모든 인포윈도우 닫기
-    markers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    searchMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    if (homeInfowindow) homeInfowindow.close();
-    // 산책코스 마커의 인포윈도우도 닫기
-    courseMarkers.forEach(item => {
-        if (item.infowindow) item.infowindow.close();
-    });
-    
+    closeAllOverlays();
+
     const item = markers.find(m => m.mapId === mapId);
     if (item) {
         const position = item.marker.getPosition();
@@ -611,6 +613,10 @@ function displaySearchResults(places) {
         item.infowindow && item.infowindow.close();
     });
     searchMarkers = [];
+
+    // 검색 결과 커스텀 마커 이미지 생성
+    var markerImage = getSearchMarkerImage();
+
     places.forEach(place => {
         var item = document.createElement('div');
         item.className = 'search-result-item';
@@ -619,16 +625,45 @@ function displaySearchResults(places) {
         item.innerHTML = `<div class="search-result-icon"><i class="${icon}"></i></div><div class="search-result-info"><div class="search-result-name">${place.place_name}</div><div class="search-result-address">${place.address_name}</div><span class="search-result-category">${getCategoryText(place.category_name)}</span></div>`;
         resultsContainer.appendChild(item);
         var markerPosition = new kakao.maps.LatLng(place.y, place.x);
-        var marker = new kakao.maps.Marker({ position: markerPosition, map: map });
-        var infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:10px;font-size:13px;text-align:center;min-width:150px;"><strong>${place.place_name}</strong><br/><span style="color:#666;font-size:11px;">${place.address_name}</span></div>` });
+        
+        // 생성된 빨간색 마커 이미지로 마커 생성
+        var marker = new kakao.maps.Marker({ 
+            position: markerPosition, 
+            map: map,
+            image: markerImage 
+        });
+        
+        // 인포윈도우 컨텐츠 수정
+        const placeCategory = getCategoryText(place.category_name);
+        const infowindowContent = `
+            <div style="padding:12px;font-size:13px;min-width:180px;text-align:center;">
+                <div style="font-weight:700;color:#333;margin-bottom:5px;">${place.place_name}</div>
+                <div style="display:inline-block;padding:3px 10px;background:#e8eaf6;color:#667eea;border-radius:12px;font-size:11px;margin-bottom:8px;">
+                    ${placeCategory}
+                </div>
+                <button onclick='openAddPlaceModalFromSearch(${JSON.stringify(place)})' 
+                        style="display:block;margin-top:10px;background:#667eea;color:white;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;width:100%;font-size:12px;transition:background 0.2s;">
+                    장소 추가
+                </button>
+            </div>`;
+
+        var infowindow = new kakao.maps.InfoWindow({
+            content: infowindowContent
+        });
+        
         kakao.maps.event.addListener(marker, 'click', () => {
+            // 다른 모든 인포윈도우 닫기
             searchMarkers.forEach(item => item.infowindow && item.infowindow.close());
             markers.forEach(item => item.infowindow && item.infowindow.close());
             if (homeInfowindow) homeInfowindow.close();
-            showSearchResultDetailModal(place);
+
+            // 현재 마커의 인포윈도우 열기
+            infowindow.open(map, marker);
         });
+        
         searchMarkers.push({ marker: marker, infowindow: infowindow, place: place });
     });
+    
     resultsContainer.classList.add('show');
     if (places.length > 0) {
         map.setCenter(new kakao.maps.LatLng(places[0].y, places[0].x));
@@ -823,6 +858,25 @@ function getDefaultRecipientMarkerImage() {
     );
 }
 
+// 검색 결과 마커 이미지 생성 (빨간색, 그림자 없음, 회색 외곽선)
+function getSearchMarkerImage() {
+    var iconColor = '#e74c3c'; // Red color for search results
+    var iconSymbol = '<circle cx="24" cy="24" r="16" fill="' + iconColor + '"/><circle cx="24" cy="24" r="8" fill="#fff"/>'; // Basic circle icon
+
+    var svgString = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="56" viewBox="0 0 48 56">' +
+        '<g>' +
+        '<path d="M24 0C10.7 0 0 10.7 0 24c0 16 24 32 24 32s24-16 24-32C48 10.7 37.3 0 24 0z" fill="' + iconColor + '" stroke="#888" stroke-width="1"/>' +
+        iconSymbol +
+        '</g></svg>';
+
+    var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
+    var imageSize = new kakao.maps.Size(50, 45); // Adjust size as needed
+    var imageOption = {offset: new kakao.maps.Point(15, 43)}; // Adjust offset as needed
+    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
+
+    return markerImage;
+}
+
 // 실시간 위치용 원형 프로필 이미지 생성
 function createCircularMarkerImageForRealtime(photoUrl, callback) {
     var canvas = document.createElement('canvas');
@@ -855,10 +909,12 @@ function createCircularMarkerImageForRealtime(photoUrl, callback) {
         ctx.beginPath();
         ctx.arc(30, 30, 25, 0, 2 * Math.PI);
         ctx.stroke();
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-        ctx.shadowBlur = 5;
-        ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 2;
+        // ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        // ctx.shadowBlur = 5;
+        // ctx.shadowOffsetX = 0;
+        // ctx.shadowOffsetY = 2;
+        ctx.strokeStyle = '#888'; // Added gray outline
+        ctx.lineWidth = 1; // Set outline width
         ctx.beginPath();
         ctx.arc(30, 30, 27, 0, 2 * Math.PI);
         ctx.stroke();

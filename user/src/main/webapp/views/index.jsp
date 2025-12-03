@@ -827,7 +827,7 @@
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
                 <img src="/img/favicontitle.png" alt="Aventro Logo">
-                AI 돌봄 서비스
+                AI 돌봄 시스템
             </a>
             
             <!-- 중앙: 메뉴 -->
@@ -852,7 +852,7 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6" data-aos="fade-right">
-                <h1>Needy care</h1>
+                <h1>AI 돌봄 시스템</h1>
                 <p>케어가 필요하신 분들에게 희망을 안겨드립니다</p>
                 <div class="hero-buttons">
                     <a href="#pricing" class="btn-hero">가입하기</a>

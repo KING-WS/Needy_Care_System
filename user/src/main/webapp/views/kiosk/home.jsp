@@ -7,6 +7,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>키오스크 돌봄 시스템</title>
     <link rel="stylesheet" href="/css/kiosk.css">
+    <style>
+        /* 추가: 영상 통화 오버레이 스타일 */
+        .video-call-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
+            z-index: 1000;
+            display: none; /* 평소에는 숨김 */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #remoteVideoKiosk {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #localVideoKiosk {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 25%;
+            max-width: 320px;
+            height: auto;
+            border: 2px solid white;
+            border-radius: 10px;
+        }
+        #hangup-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 20px 40px;
+            font-size: 2rem;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+    </style>
 </head>
 
 <body>
@@ -79,6 +124,14 @@
     </main>
 </div>
 
+<!-- 영상 통화 UI (숨겨져 있음) -->
+<div id="video-call-overlay" class="video-call-overlay">
+    <video id="remoteVideoKiosk" autoplay playsinline></video>
+    <video id="localVideoKiosk" autoplay playsinline muted></video>
+    <button id="hangup-btn">통화 종료</button>
+</div>
+
+
 <script>
     // [중요] 전역 변수 설정 (모든 함수에서 접근 가능하도록)
     const KIOSK_CODE = "${kioskCode}";
@@ -134,6 +187,15 @@
 
         kioskWs.onmessage = function(event) {
             console.log('메시지 수신:', event.data);
+            try {
+                const msg = JSON.parse(event.data);
+                if (msg.type === 'start_call' && msg.roomId) {
+                    console.log(`영상 통화 시작 신호 수신. Room ID: ${msg.roomId}`);
+                    startVideoCall(msg.roomId);
+                }
+            } catch (e) {
+                console.error("메시지 처리 중 오류 발생:", e);
+            }
         };
 
         kioskWs.onclose = function(event) {
@@ -234,12 +296,18 @@
         feedback.style.opacity = '1';
         feedback.textContent = '전송 중...';
 
-        // [수정] 웹소켓으로만 전송 (이게 DB저장 + 알림 다 처리함)
         if (kioskWs && kioskWs.readyState === WebSocket.OPEN) {
             kioskWs.send(JSON.stringify({
                 type: type === 'emergency' ? 'emergency' : 'contact_request',
                 kioskCode: KIOSK_CODE
             }));
+
+            // 👇 [추가] 긴급 호출이면 즉시 영상통화 화면(내 얼굴) 띄우기
+            if (type === 'emergency') {
+                console.log("🚨 긴급 호출: 영상통화 대기 모드 진입");
+                // 방 번호는 kioskCode와 동일하게 사용
+                // startVideoCall(KIOSK_CODE);
+            }
 
             // [추가] 전송 성공 UI 처리 (1초 뒤 복구)
             setTimeout(() => {
@@ -314,6 +382,155 @@
         if (code >= 45) return '☁️';
         if (code >= 51) return '☔';
         return '🌈';
+    }
+
+
+    // ============================================================
+    // 2. WebRTC 영상 통화 관련 로직
+    // ============================================================
+    const videoOverlay = document.getElementById('video-call-overlay');
+    const localVideo = document.getElementById('localVideoKiosk');
+    const remoteVideo = document.getElementById('remoteVideoKiosk');
+    const hangupButton = document.getElementById('hangup-btn');
+
+    let localStream = null;
+    let peerConnection = null;
+    let signalWs = null;
+    let videoRoomId = null;
+
+    const configuration = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+    };
+
+    function startVideoCall(roomId) {
+        videoRoomId = roomId;
+        videoOverlay.style.display = 'flex'; // 영상 통화 UI 표시
+        joinVideoRoom();
+    }
+
+    hangupButton.onclick = leaveVideoRoom;
+
+    async function joinVideoRoom() {
+        if (!videoRoomId) return;
+
+        const isReady = await prepareMediaAndConnection();
+        if (!isReady) {
+            alert('카메라 또는 마이크를 사용할 수 없습니다.');
+            leaveVideoRoom();
+            return;
+        }
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = protocol + '//' + window.location.host + '/signal';
+        console.log("WebRTC 시그널링 서버에 연결:", wsUrl);
+
+        signalWs = new WebSocket(wsUrl);
+
+        signalWs.onopen = async () => {
+            console.log('WebRTC 시그널링 연결 성공');
+            // 1. 입장 신호만 보냄 (전화 걸지 않음!)
+            signalWs.send(JSON.stringify({ type: 'join', roomId: videoRoomId }));
+            console.log("입장 완료. 대기 중...");
+        };
+
+        signalWs.onmessage = async (message) => {
+            const signal = JSON.parse(message.data);
+            console.log('시그널 수신:', signal);
+
+            switch (signal.type) {
+                case 'join':
+                    // [수정] 누군가(관리자) 들어왔다! 내가 먼저 와 있었으니 Offer를 보낸다.
+                    console.log('관리자 입장 확인. Offer 생성 및 전송...');
+                    break;
+                case 'offer':
+                    console.log('Offer 수신');
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
+                    const answer = await peerConnection.createAnswer();
+                    await peerConnection.setLocalDescription(answer);
+                    signalWs.send(JSON.stringify({ type: 'answer', data: peerConnection.localDescription, roomId: videoRoomId }));
+                    break;
+                case 'answer':
+                    console.log('Answer 수신');
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.data));
+                    break;
+                case 'ice-candidate':
+                    if (signal.data) {
+                        try {
+                            await peerConnection.addIceCandidate(new RTCIceCandidate(signal.data));
+                        } catch (e) {
+                            console.error('ICE Candidate 추가 오류', e);
+                        }
+                    }
+                    break;
+                case 'bye':
+                    console.log('상대방이 통화를 종료했습니다.');
+                    leaveVideoRoom();
+                    break;
+            }
+        };
+
+        signalWs.onerror = (error) => {
+            console.error('시그널링 WebSocket 오류:', error);
+            leaveVideoRoom();
+        };
+    }
+
+    async function prepareMediaAndConnection() {
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localVideo.srcObject = localStream;
+
+            peerConnection = new RTCPeerConnection(configuration);
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate && signalWs && signalWs.readyState === WebSocket.OPEN) {
+                    signalWs.send(JSON.stringify({ type: 'ice-candidate', data: event.candidate, roomId: videoRoomId }));
+                }
+            };
+
+            peerConnection.ontrack = (event) => {
+                console.log("상대방 스트림 수신");
+                remoteVideo.srcObject = event.streams[0];
+
+                remoteVideo.play().catch(e => console.error("영상 자동 재생 실패:", e));
+            };
+
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+            });
+
+            return true;
+        } catch (e) {
+            console.error('미디어 스트림 획득 오류:', e);
+            return false;
+        }
+    }
+
+    function leaveVideoRoom() {
+        if (signalWs) {
+            if (signalWs.readyState === WebSocket.OPEN) {
+                signalWs.send(JSON.stringify({ type: 'bye', roomId: videoRoomId }));
+            }
+            signalWs.close();
+            signalWs = null;
+        }
+
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+        }
+
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+
+        localVideo.srcObject = null;
+        remoteVideo.srcObject = null;
+        videoOverlay.style.display = 'none'; // 영상 통화 UI 숨김
     }
 
 
