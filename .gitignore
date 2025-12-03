@@ -11,8 +11,8 @@ imgs/
 user/src/main/webapp/imgs/profiles/*
 
 # YML 파일
-application-dev.yml
-application-pro.yml
+**/application-dev.yml
+**/application-pro.yml
 # Local application configuration
 /admin/src/main/resources/application.yml
 /user/src/main/resources/application.yml
