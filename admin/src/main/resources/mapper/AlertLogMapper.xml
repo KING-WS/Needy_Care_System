@@ -23,6 +23,21 @@
         ORDER BY a.alert_regdate DESC
     </select>
 
+    <select id="getRecentAlerts" resultType="edu.sm.app.dto.AlertLog">
+        SELECT
+            a.alert_id AS alertId,
+            a.rec_id AS recId,
+            a.alert_type AS alertType,
+            a.alert_msg AS alertMsg,
+            a.check_status AS checkStatus,
+            a.alert_regdate AS alertRegdate,
+            r.rec_name AS recipientName,
+            r.rec_kiosk_code AS kioskCode
+        FROM Alert_Log a LEFT JOIN care_recipient r ON a.rec_id = r.rec_id
+        ORDER BY a.alert_regdate DESC
+        LIMIT #{limit}
+    </select>
+
     <update id="updateCheckStatus">
         UPDATE Alert_Log
         SET check_status = #{checkStatus}

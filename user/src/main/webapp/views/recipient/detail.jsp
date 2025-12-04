@@ -8,7 +8,7 @@
     /* 1. 글로벌 스타일 및 변수 정의 */
     /* ---------------------------------------------------- */
     :root {
-        --primary-color: #3498db; /* 통일된 주 색상 */
+        --primary-color: #3498db;
         --secondary-color: #343a40;
         --secondary-bg: #F0F8FF;
         --card-bg: white;
@@ -16,14 +16,14 @@
     }
 
     body {
-        background-color: #f8f9fa; /* 전체 배경색 유지 */
+        background-color: #f8f9fa;
     }
 
     /* ---------------------------------------------------- */
     /* 2. 메인 레이아웃: 2단 분리 */
     /* ---------------------------------------------------- */
     .detail-container {
-        max-width: 1300px; /* 너비 확장 */
+        max-width: 1300px;
         margin: 0 auto;
         padding: 40px 20px;
         padding-bottom: 50px;
@@ -38,18 +38,18 @@
     }
 
     /* ---------------------------------------------------- */
-    /* 3. 섹션 카드 스타일 (좌/우 동일 적용) */
+    /* 3. 섹션 카드 스타일 */
     /* ---------------------------------------------------- */
     .detail-content-card {
         background: var(--card-bg);
         border-radius: 20px;
         padding: 30px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        margin-bottom: 30px; /* 각 섹션 카드 아래 여백 */
+        margin-bottom: 30px;
     }
 
     /* ---------------------------------------------------- */
-    /* 4. 좌측 섹션 (프로필 헤더) 스타일 변경 */
+    /* 4. 좌측 섹션 (프로필 헤더) */
     /* ---------------------------------------------------- */
     .detail-header {
         text-align: center;
@@ -62,18 +62,18 @@
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background: var(--primary-color); /* 주 색상 적용 */
+        background: var(--primary-color);
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 60px;
         margin: 0 auto 20px;
-        border: 4px solid var(--secondary-bg); /* 강조 테두리 */
+        border: 4px solid var(--secondary-bg);
     }
 
     .detail-name {
-        font-size: 28px; /* 크기 조정 */
+        font-size: 28px;
         font-weight: 700;
         color: var(--secondary-color);
         margin-bottom: 10px;
@@ -88,20 +88,9 @@
         margin-bottom: 15px;
     }
 
-    .type-elderly {
-        background: #e3f2fd; /* 연한 파란색 */
-        color: #1976d2;
-    }
-
-    .type-pregnant {
-        background: #fce4ec; /* 연한 분홍색 */
-        color: #c2185b;
-    }
-
-    .type-disabled {
-        background: #f3e5f5; /* 연한 보라색 */
-        color: #7b1fa2;
-    }
+    .type-elderly { background: #e3f2fd; color: #1976d2; }
+    .type-pregnant { background: #fce4ec; color: #c2185b; }
+    .type-disabled { background: #f3e5f5; color: #7b1fa2; }
 
     .detail-meta {
         font-size: 14px;
@@ -115,7 +104,7 @@
     .info-section {
         margin-bottom: 25px;
         padding-bottom: 25px;
-        border-bottom: none; /* 요청에 따라 제거 */
+        border-bottom: none;
     }
 
     .info-section:last-child {
@@ -142,14 +131,14 @@
     }
 
     .info-grid {
-        display: flex; /* grid 대신 flex로 변경하여 간결하게 */
+        display: flex;
         flex-direction: column;
         gap: 10px;
     }
 
     .info-item {
         padding: 15px;
-        background: var(--secondary-bg); /* 보조 배경색 적용 */
+        background: var(--secondary-bg);
         border-radius: 12px;
         transition: all 0.3s ease;
         display: flex;
@@ -158,8 +147,7 @@
     }
 
     .info-item:hover {
-        background: #e9f2ff; /* hover 색상 변경 */
-        transform: none;
+        background: #e9f2ff;
         border-color: var(--primary-color);
     }
 
@@ -172,27 +160,30 @@
         letter-spacing: 0.5px;
     }
 
+    /* 일반 정보 값 스타일 (강조됨) */
     .info-value {
-        font-size: 16px;
-        font-weight: 600;
+        font-size: 17px;
+        font-weight: 700;
         color: var(--secondary-color);
         word-break: break-word;
     }
 
     /* 건강/추가 정보 텍스트 영역 스타일 */
     .info-textarea {
-        background: var(--secondary-bg); /* 보조 배경색 적용 */
+        background: var(--secondary-bg);
         border-radius: 12px;
-        padding: 20px;
+        padding: 15px; /* 왼쪽 패딩 조정 */
         margin-top: 10px;
         border-left: 5px solid var(--primary-color);
     }
 
+    /* 장문 텍스트 값 스타일 (왼쪽 정렬 및 가독성 개선) */
     .info-textarea .info-value {
         white-space: pre-wrap;
-        line-height: 1.6;
-        font-weight: 400; /* 폰트 두께 조절 */
-        font-size: 15px;
+        line-height: 1.8;
+        font-weight: 500;
+        font-size: 16px;
+        text-align: left; /* 명시적 왼쪽 정렬 */
     }
 
     .empty-value {
@@ -201,7 +192,7 @@
     }
 
     /* ---------------------------------------------------- */
-    /* 6. 키오스크 정보 섹션 스타일 */
+    /* 6. 키오스크 정보 스타일 */
     /* ---------------------------------------------------- */
     .kiosk-info-box {
         background: linear-gradient(135deg, #7b88fa 0%, var(--primary-color) 100%);
@@ -221,7 +212,7 @@
     }
 
     .kiosk-code-value {
-        font-size: 28px; /* 코드 크기 증가 */
+        font-size: 28px;
         font-weight: bold;
         letter-spacing: 3px;
         font-family: 'Courier New', monospace;
@@ -250,34 +241,30 @@
         transition: all 0.3s;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    .kiosk-button-group button:hover {
-        background: #f0f8ff;
-    }
+    .kiosk-button-group button:hover { background: #f0f8ff; }
 
     .kiosk-button-group button:last-child {
         background: rgba(255,255,255,0.3);
         color: white;
         border: 2px solid white;
     }
-    .kiosk-button-group button:last-child:hover {
-        background: rgba(255,255,255,0.4);
-    }
+    .kiosk-button-group button:last-child:hover { background: rgba(255,255,255,0.4); }
 
     /* ---------------------------------------------------- */
-    /* 7. 액션 버튼 스타일 및 위치 재조정 */
+    /* 7. 버튼 스타일 */
     /* ---------------------------------------------------- */
     .action-buttons {
         display: flex;
         gap: 15px;
-        justify-content: center; /* 중앙 정렬 */
+        justify-content: center;
         margin-top: 30px;
         padding-top: 20px;
-        border-top: none; /* 요청에 따라 제거 */
-        flex-wrap: nowrap; /* 버튼 줄바꿈 방지 */
+        border-top: none;
+        flex-wrap: nowrap;
     }
 
     .btn {
-        padding: 12px 25px; /* 버튼 크기 조정 */
+        padding: 12px 25px;
         border: none;
         border-radius: 50px;
         font-size: 15px;
@@ -286,8 +273,8 @@
         transition: all 0.3s ease;
         display: inline-flex;
         align-items: center;
-        gap: 8px; /* 아이콘과 텍스트 간격 */
-        white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+        gap: 8px;
+        white-space: nowrap;
     }
 
     .btn-primary {
@@ -295,50 +282,16 @@
         color: white;
         box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
     }
-
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
     }
 
-    .btn-secondary {
-        background: #e9ecef;
-        color: #495057;
-    }
+    .btn-secondary { background: #e9ecef; color: #495057; }
+    .btn-secondary:hover { background: #ced4da; color: #212529; }
 
-    .btn-secondary:hover {
-        background: #ced4da;
-        color: #212529;
-    }
-
-    .btn-danger {
-        background: #f8d7da; /* 연한 빨강 배경 */
-        color: var(--danger-color);
-    }
-
-    .btn-danger:hover {
-        background: var(--danger-color);
-        color: white;
-    }
-
-    .status-badge {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 12px;
-        font-size: 12px;
-        font-weight: 600;
-        margin-top: 10px;
-    }
-
-    .status-active {
-        background: #d4edda;
-        color: #155724;
-    }
-
-    .status-deleted {
-        background: #f8d7da;
-        color: #721c24;
-    }
+    .btn-danger { background: #f8d7da; color: var(--danger-color); }
+    .btn-danger:hover { background: var(--danger-color); color: white; }
 </style>
 
 <div class="detail-container">
@@ -436,6 +389,7 @@
                     <h3 class="section-title">
                         <i class="bi bi-clock-history"></i> 시스템 정보
                     </h3>
+
                     <div class="info-grid">
                         <div class="info-item">
                             <div class="info-label">등록 번호</div>
@@ -512,23 +466,18 @@
 
                     <div class="info-label">병력 (Medical History)</div>
                     <div class="info-textarea">
-                        <div class="info-value ${empty recipient.recMedHistory ? 'empty-value' : ''}">
-                            ${empty recipient.recMedHistory ? '등록된 병력 정보가 없습니다.' : recipient.recMedHistory}
-                        </div>
+                        <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
+                        <div class="info-value ${empty recipient.recMedHistory ? 'empty-value' : ''}">${empty recipient.recMedHistory ? '등록된 병력 정보가 없습니다.' : recipient.recMedHistory}</div>
                     </div>
 
                     <div class="info-label" style="margin-top: 20px;">알레르기 (Allergies)</div>
                     <div class="info-textarea">
-                        <div class="info-value ${empty recipient.recAllergies ? 'empty-value' : ''}">
-                            ${empty recipient.recAllergies ? '등록된 알레르기 정보가 없습니다.' : recipient.recAllergies}
-                        </div>
+                        <div class="info-value ${empty recipient.recAllergies ? 'empty-value' : ''}">${empty recipient.recAllergies ? '등록된 알레르기 정보가 없습니다.' : recipient.recAllergies}</div>
                     </div>
 
                     <div class="info-label" style="margin-top: 20px;">건강 요구사항 (Health Needs)</div>
                     <div class="info-textarea">
-                        <div class="info-value ${empty recipient.recHealthNeeds ? 'empty-value' : ''}">
-                            ${empty recipient.recHealthNeeds ? '등록된 건강 요구사항이 없습니다.' : recipient.recHealthNeeds}
-                        </div>
+                        <div class="info-value ${empty recipient.recHealthNeeds ? 'empty-value' : ''}">${empty recipient.recHealthNeeds ? '등록된 건강 요구사항이 없습니다.' : recipient.recHealthNeeds}</div>
                     </div>
                 </div>
             </div>
@@ -541,9 +490,8 @@
 
                     <div class="info-label">특이사항 (Special Notes)</div>
                     <div class="info-textarea">
-                        <div class="info-value ${empty recipient.recSpecNotes ? 'empty-value' : ''}">
-                            ${empty recipient.recSpecNotes ? '등록된 특이사항이 없습니다.' : recipient.recSpecNotes}
-                        </div>
+                        <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
+                        <div class="info-value ${empty recipient.recSpecNotes ? 'empty-value' : ''}">${empty recipient.recSpecNotes ? '등록된 특이사항이 없습니다.' : recipient.recSpecNotes}</div>
                     </div>
                 </div>
             </div>
@@ -568,8 +516,8 @@
 
     // 삭제 기능
     function deleteRecipient(recId, recName) {
-        if (confirm(`'\${recName}' 대상자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
-            fetch(`<c:url value="/recipient/api/delete"/>?recId=\${recId}`, {
+        if (confirm(`'${recName}' 대상자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+            fetch(`<c:url value="/recipient/api/delete"/>?recId=${recId}`, {
                 method: 'DELETE'
             })
                 .then(response => response.json())
@@ -609,14 +557,14 @@
         modal.innerHTML = `
             <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
                 <h3 style="margin-bottom: 20px; color: #2c3e50;">키오스크 접속 QR코드</h3>
-                <img src="\${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
+                <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
                     노약자 분이 스마트폰으로<br>
                     위 QR코드를 스캔하면<br>
                     바로 키오스크 화면으로 이동합니다
                 </p>
                 <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="\${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                    <a href="${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
                         <i class="bi bi-download"></i> 다운로드
                     </a>
                     <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: #e9ecef; color: #495057; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600;">
@@ -640,13 +588,13 @@
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
     <c:choose>
-        <c:when test="${not empty recipient.recPhotoUrl}">
-            <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
-            var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
-        </c:when>
-        <c:otherwise>
-            var recipientPhotoUrl = '';
-        </c:otherwise>
+    <c:when test="${not empty recipient.recPhotoUrl}">
+    <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+    var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+    </c:when>
+    <c:otherwise>
+    var recipientPhotoUrl = '';
+    </c:otherwise>
     </c:choose>
     var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
 

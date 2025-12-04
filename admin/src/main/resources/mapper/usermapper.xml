@@ -86,4 +86,13 @@
         DELETE FROM cust WHERE cust_id = #{custId}
     </delete>
 
+    <select id="findDailyUserRegistrations" resultType="edu.sm.app.dto.DailyUserCountDTO">
+        SELECT
+            DATE(cust_regdate) AS date,
+            COUNT(cust_id) AS count
+        FROM cust
+        WHERE cust_regdate >= CURDATE() - INTERVAL 30 DAY
+        GROUP BY DATE(cust_regdate)
+        ORDER BY date ASC
+    </select>
 </mapper>

@@ -15,6 +15,9 @@ public interface AlertLogRepository {
 
     List<AlertLog> getAlerts() throws Exception;
 
+    // 최신 알림 N개 조회
+    List<AlertLog> getRecentAlerts(int limit);
+
     // 알림 상태 업데이트 (확인 처리)
     int updateCheckStatus(int alertId, String checkStatus);
 }

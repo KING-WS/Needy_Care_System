@@ -8,9 +8,9 @@
     /* 1. 디자인 시스템 (detail.jsp와 통일) */
     /* ---------------------------------------------------- */
     :root {
-        --primary-color: #3498db;      /* 메인 블루 */
-        --secondary-color: #343a40;    /* 진한 회색 텍스트 */
-        --secondary-bg: #F0F8FF;       /* 연한 배경색 */
+        --primary-color: #3498db; /* 메인 블루 */
+        --secondary-color: #343a40; /* 진한 회색 텍스트 */
+        --secondary-bg: #F0F8FF; /* 연한 배경색 */
         --card-bg: white;
         --danger-color: #e74c3c;
         --success-color: #2ecc71;
@@ -58,11 +58,11 @@
     .stat-item {
         background: var(--secondary-bg);
         border-radius: 15px;
-        padding: 20px;
+        padding: 25px;
         border: 1px solid transparent;
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 20px;
         transition: all 0.3s ease;
         margin-bottom: 15px;
     }
@@ -75,13 +75,13 @@
     }
 
     .stat-icon {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
         color: var(--primary-color);
         background: white;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -93,7 +93,7 @@
     .stat-item:nth-child(3) .stat-icon { color: #2ecc71; } /* 평균은 초록색 계열 */
 
     .stat-label {
-        font-size: 13px;
+        font-size: 15px;
         color: #7f8c8d;
         font-weight: 600;
         text-transform: uppercase;
@@ -101,7 +101,7 @@
     }
 
     .stat-value {
-        font-size: 24px;
+        font-size: 30px;
         font-weight: 700;
         color: var(--secondary-color);
     }
@@ -109,7 +109,7 @@
     /* 버튼 스타일 (detail.jsp와 통일) */
     .btn-custom {
         width: 100%;
-        padding: 12px 20px;
+        padding: 16px 25px;
         border-radius: 50px;
         font-weight: 600;
         border: none;
@@ -120,7 +120,7 @@
         cursor: pointer;
         transition: all 0.3s;
         margin-bottom: 10px;
-        font-size: 15px;
+        font-size: 18px;
     }
 
     .btn-quick-add {
@@ -304,6 +304,36 @@
         color: #e0e0e0;
         margin-bottom: 20px;
     }
+
+    /* Voice button styles */
+    .voice-btn {
+        position: absolute;
+        bottom: 10px; /* Change from top: 10px to bottom: 10px */
+        right: 10px;
+        background: #28a745;
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .voice-btn:hover {
+        background: #218838;
+    }
+    .voice-btn.recording {
+        background: #dc3545;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <section class="mealplan-section">
@@ -313,7 +343,7 @@
             <i class="fas fa-utensils" style="color: var(--primary-color);"></i> AI 식단 관리
         </h1>
         <br>
-        <h5>돌봄 대상자의 식단을 추가하세요</h5>
+        <h5>AI가 돌봄대상자의 특이사항 및 건강상태에 따른 식단을 추천해줍니다</h5>
     </div>
 
     <c:if test="${empty selectedRecipient}">
@@ -616,11 +646,16 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">
+                    <label class="form-label" for="aiSpecialNotes">
                         <i class="fas fa-list-alt"></i> 특이사항 (선택)
                     </label>
-                    <textarea id="aiSpecialNotes" class="form-control" rows="4"
-                              placeholder="추가적으로 고려할 사항이 있다면 입력해주세요.&#10;예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
+                    <div style="position: relative;">
+                        <textarea id="aiSpecialNotes" class="form-control" rows="4"
+                                  placeholder="추가적으로 고려할 사항이 있다면 입력해주세요.&#10;예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다."></textarea>
+                        <button type="button" id="voiceRecordBtn" class="voice-btn" title="음성으로 입력">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
                     <small class="form-hint" style="color: #e74c3c; font-size: 14px;">입력하지 않으시면 대상자의 기존 건강 정보(병력, 알레르기 등)를 기반으로 추천합니다.</small>
                 </div>
                 <div id="aiRecommendationResult" class="form-group" style="display: none;">
@@ -689,4 +724,80 @@
         dateInput.value = currentDate.toISOString().split('T')[0];
         loadMeals();
     }
+
+    // AI 식단 추천 음성 인식
+    document.addEventListener('DOMContentLoaded', function() {
+        const voiceRecordBtn = document.getElementById('voiceRecordBtn');
+        const specialNotesTextarea = document.getElementById('aiSpecialNotes');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            let isRecording = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                voiceRecordBtn.classList.add('recording');
+                voiceRecordBtn.title = '음성 인식 중...';
+                specialNotesTextarea.placeholder = '말씀해주세요...';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                specialNotesTextarea.value = transcript;
+
+                const aiMealTypeSelect = document.getElementById('aiMealType');
+
+                if (transcript.includes('아침')) {
+                    aiMealTypeSelect.value = '아침';
+                } else if (transcript.includes('점심')) {
+                    aiMealTypeSelect.value = '점심';
+                } else if (transcript.includes('저녁')) {
+                    aiMealTypeSelect.value = '저녁';
+                }
+
+                if (transcript) {
+                    getAiRecommendation();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('음성 인식 오류:', event.error);
+                let errorMsg = '음성 인식 중 오류가 발생했습니다.';
+                if (event.error === 'no-speech') {
+                    errorMsg = '음성이 감지되지 않았습니다. 다시 시도해주세요.';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = '마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.';
+                }
+                alert(errorMsg);
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                voiceRecordBtn.classList.remove('recording');
+                voiceRecordBtn.title = '음성으로 입력';
+                specialNotesTextarea.placeholder = '추가적으로 고려할 사항이 있다면 입력해주세요.\\n예: 오늘은 소화가 잘되는 부드러운 음식이 좋겠습니다.';
+            };
+
+            voiceRecordBtn.addEventListener('click', function() {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch(e) {
+                        alert('음성 인식을 시작할 수 없습니다. 마이크 연결을 확인해주세요.');
+                    }
+                }
+            });
+
+        } else {
+            voiceRecordBtn.style.display = 'none';
+            console.warn('이 브라우저는 음성 인식을 지원하지 않습니다.');
+        }
+    });
 </script>

@@ -76,6 +76,8 @@
     }
 
     /* 사용자 요청: 특정 카드들의 호버 애니메이션 (그림자 및 위치 변화) 비활성화 */
+    .health-card:hover,
+    .dashboard-card:hover,
     .meal-card:hover,
     .schedule-card:hover,
     .calendar-card:hover {
@@ -159,7 +161,7 @@
                                     <div class="health-card-right">
                                         <!-- 생년월일/나이 -->
                                         <div class="health-info-item">
-                                            <div class="health-info-label">생년월일 / 나이</div>
+                                            <div class="health-info-label">생년월일</div>
                                             <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
                                         </div>
 
@@ -276,10 +278,10 @@
                                     <i class="bi bi-calendar-day"></i>
                                     <span>오늘: ${not empty todaySchedules ? todaySchedules.size() : 0}개</span>
                                 </div>
-                                <div class="calendar-stat-item">
-                                    <i class="bi bi-calendar-week"></i>
-                                    <span>이번주: ${not empty schedules ? schedules.size() : 0}개</span>
-                                </div>
+<%--                                <div class="calendar-stat-item">--%>
+<%--                                    <i class="bi bi-calendar-week"></i>--%>
+<%--                                    <span>이번주: ${not empty schedules ? schedules.size() : 0}개</span>--%>
+<%--                                </div>--%>
                                 <div class="calendar-stat-item">
                                     <i class="bi bi-calendar-month"></i>
                                     <span>이번달: ${not empty schedules ? schedules.size() : 0}개</span>
@@ -516,7 +518,7 @@
                                             <i class="fas fa-map-marked-alt"></i>
                                             <span>내 지도</span>
                                         </button>
-                                        <button type="button" class="map-tab" onclick="switchMapTab(this, 'course')">
+                                        <button type="button" class="map-tab" id="courseMapTab" onclick="switchMapTab(this, 'course')">
                                             <i class="fas fa-walking"></i>
                                             <span>산책 코스</span>
                                         </button>
@@ -538,7 +540,7 @@
                                             <input type="text"
                                                    id="mapSearchInput"
                                                    class="map-search-input"
-                                                   placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
+                                                   placeholder="병원, 약국 등 장소를 검색하세요..."
                                                    onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn" onclick="searchLocation()">
                                                 <i class="bi bi-search"></i>
@@ -937,6 +939,16 @@
         console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
         if (typeof kakao !== 'undefined' && kakao.maps) {
             initializeMap(); // 지도 초기화
+            
+            // 모바일에서 지도가 제대로 표시되도록 relayout 호출
+            setTimeout(function() {
+                if (typeof map !== 'undefined' && map) {
+                    map.relayout();
+                } else if (typeof resizeMap === 'function') {
+                    resizeMap();
+                }
+            }, 500);
+            
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
             // 집 마커가 로드된 후 노약자 위치 마커 표시
