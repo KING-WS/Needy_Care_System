@@ -803,18 +803,7 @@
                         <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
                     </ul>
                 </li>
-                
-                <!-- 일정 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/schedule"/>"><i class="fas fa-home"></i> 일정메인</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
-                    </ul>
-                </li>
-                
+
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
@@ -827,17 +816,9 @@
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
-                
-                <!-- CCTV 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i>모니터링</a></li>
-                    </ul>
-                </li>
-                
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i>일정</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-map"></i>장소</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i>CCTV</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
