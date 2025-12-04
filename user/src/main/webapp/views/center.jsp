@@ -28,7 +28,7 @@
         background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+        box-shadow: none !important;
     }
     .map-tab.active:hover {
         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */

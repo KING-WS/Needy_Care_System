@@ -129,14 +129,14 @@
             font-size: 15px;
             transition: all 0.3s;
             order: 3;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4); /* 그림자 추가 */
+            box-shadow: none;
         }
 
         .btn-login-nav:hover {
             background: #2980b9; /* 호버 색상 변경 */
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+            box-shadow: none;
         }
 
         /* 사용 안 하는 스타일 (나중에 필요할 수 있음) */
@@ -222,14 +222,14 @@
             text-decoration: none;
             display: inline-block;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: none;
         }
 
         .btn-hero:hover {
             background: var(--accent-color);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: none;
         }
 
         .btn-hero-secondary {
@@ -248,7 +248,7 @@
             background: white;
             color: var(--primary-color);
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: none;
         }
 
         /* ---------------------------------------------------- */
@@ -449,13 +449,13 @@
             font-weight: 700;
             transition: all 0.3s;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: none;
         }
 
         .btn-submit:hover {
             background: #1565c0;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+            box-shadow: none;
         }
 
         /* ---------------------------------------------------- */
@@ -870,42 +870,42 @@
                     <div class="service-box">
                         <i class="fas fa-laptop-code"></i>
                         <h3>산책 추천 시스템</h3>
-                        <p>.ㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
+                        <p>AI가 날씨와 사용자 컨디션을 분석하여 최적의 산책 코스를 제안합니다. 매일 새롭고 안전한 길을 따라 건강한 생활을 즐겨보세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-box">
                         <i class="fas fa-mobile-alt"></i>
                         <h3>식단 추천 시스템</h3>
-                        <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㄴㅁㅇㄴㅁ</p>
+                        <p>사용자의 건강 데이터와 병력, 알레르기 정보를 기반으로 맞춤형 식단을 추천합니다. 균형 잡힌 영양으로 건강을 체계적으로 관리하세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-box">
                         <i class="fas fa-paint-brush"></i>
                         <h3>실시간 노약자 모니터링 시스템</h3>
-                        <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁ</p>
+                        <p>집안에 설치된 카메라가 사용자의 낙상, 이상 행동 등 위기 상황을 실시간으로 감지합니다. 응급 상황 발생 시 보호자에게 즉시 알려 빠른 조치를 돕습니다.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="service-box">
                         <i class="fas fa-chart-line"></i>
                         <h3>AI를 통한 요양사 추천 시스템</h3>
-                        <p>ㄹㅇㅁㅇㄴㅇㅁㄴㅇㅁㄴ.</p>
+                        <p>사용자의 필요와 선호도에 가장 적합한 요양사를 AI가 매칭해 드립니다. 신뢰할 수 있는 전문가와 함께 편안한 돌봄을 경험하세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-box">
                         <i class="fas fa-camera"></i>
                         <h3>AI챗봇 시스템</h3>
-                        <p>ㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
+                        <p>24시간 언제든지 궁금한 점을 물어보고 답변을 받을 수 있는 AI 챗봇입니다. 돌봄 서비스 정보부터 일상적인 대화까지, 똑똑한 비서가 되어드립니다.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-box">
                         <i class="fas fa-bullhorn"></i>
                         <h3>AI 건강진단서 분석 시스템</h3>
-                        <p>ㄻㅇㄴㅁㅁㄴㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴ</p>
+                        <p>복잡한 건강진단서 내용을 AI가 쉽게 분석하고 요약해 드립니다. 내 건강 상태를 한눈에 파악하고 체계적으로 관리하세요.</p>
                     </div>
                 </div>
             </div>

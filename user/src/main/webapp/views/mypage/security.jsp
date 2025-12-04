@@ -144,26 +144,26 @@
     .btn-primary {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
 
     .btn-primary:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-danger-wide {
         width: 100%;
         background: var(--danger-color);
         color: white;
-        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+        box-shadow: none;
     }
 
     .btn-danger-wide:hover {
         background: #c0392b;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.6);
+        box-shadow: none;
     }
 
     /* ---------------------------------------------------- */

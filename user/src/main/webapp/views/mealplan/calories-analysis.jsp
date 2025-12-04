@@ -167,6 +167,10 @@
         margin-top: 25px;
     }
 
+    .chart-header {
+        text-align: left;
+    }
+
     /* [수정] AI 분석 버튼: 아이콘 색상(Primary Blue) 적용 */
     .btn-analyze {
         background: var(--primary-color); /* [요청] 아이콘 색상(#3498db) 적용 */
@@ -178,7 +182,7 @@
         border-radius: 50px;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
         display: inline-flex;
         align-items: center;
         gap: 10px;
@@ -187,7 +191,7 @@
     .btn-analyze:hover {
         background: #2980b9; /* 호버 시 약간 진하게 */
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-analyze:disabled {
@@ -419,7 +423,7 @@
                 </div>
             </div>
 
-            <div class="chart-container">
+            <div class="chart-container ai-analysis-section">
                 <div class="chart-header">
                     <h2 id="chartTitle"><i class="fas fa-chart-area"></i> 일별 칼로리 추이</h2>
                     <p id="chartDescription">최근 30일간의 일별 칼로리 소비량을 그래프로 표시합니다.</p>
