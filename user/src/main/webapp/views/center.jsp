@@ -939,6 +939,16 @@
         console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
         if (typeof kakao !== 'undefined' && kakao.maps) {
             initializeMap(); // 지도 초기화
+            
+            // 모바일에서 지도가 제대로 표시되도록 relayout 호출
+            setTimeout(function() {
+                if (typeof map !== 'undefined' && map) {
+                    map.relayout();
+                } else if (typeof resizeMap === 'function') {
+                    resizeMap();
+                }
+            }, 500);
+            
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
             // 집 마커가 로드된 후 노약자 위치 마커 표시

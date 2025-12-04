@@ -362,6 +362,74 @@
             height: 100%;
         }
 
+        .contact-info-card h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .contact-info-card > p {
+            font-size: 14px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .contact-detail {
+            margin-bottom: 35px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .contact-detail:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+
+        .contact-icon i {
+            font-size: 22px;
+            color: white;
+        }
+
+        .contact-text h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: white;
+        }
+
+        .contact-text p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+
+        .contact-form-card h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+        }
+
+        .contact-form-card > p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
         .form-control {
             border: 1px solid #e0e0e0;
             border-radius: 12px; /* 입력창 모서리 통일 */
@@ -402,12 +470,310 @@
             margin-top: auto;
         }
 
+        /* 모바일 햄버거 메뉴 버튼 */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 8px;
+            order: 0;
+            z-index: 1001;
+        }
+
+        /* 모바일 메뉴 패널 */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-menu-panel {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            max-width: 85%;
+            height: 100%;
+            background: white;
+            z-index: 1000;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .mobile-menu-panel.active {
+            left: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.3s;
+        }
+
+        .mobile-menu-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .mobile-menu-nav {
+            padding: 0;
+        }
+
+        .mobile-menu-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .mobile-menu-list > li {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mobile-menu-list > li > a {
+            display: block;
+            padding: 16px 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-list > li > a:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        /* 모바일 반응형 스타일 */
+        @media (max-width: 768px) {
+            /* 헤더 조정 */
+            .navbar .container {
+                padding: 0 15px;
+            }
+
+            /* 모바일에서 햄버거 버튼 표시 */
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            /* 모바일에서 네비게이션과 로그인 버튼 숨기기 */
+            .navbar-nav,
+            .btn-login-nav {
+                display: none !important;
+            }
+
+            /* 로고 크기 조정 */
+            .navbar-brand {
+                font-size: 20px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            .navbar-brand img {
+                width: 28px;
+                height: 28px;
+            }
+
+            /* Hero 섹션 조정 */
+            #hero {
+                padding: 120px 0 60px;
+            }
+
+            #hero h1 {
+                font-size: 32px;
+                margin-bottom: 15px;
+            }
+
+            #hero p {
+                font-size: 16px;
+                margin-bottom: 25px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .btn-hero,
+            .btn-hero-secondary {
+                width: 100%;
+                text-align: center;
+                padding: 12px 30px;
+            }
+
+            /* 섹션 패딩 조정 */
+            #about,
+            #services,
+            #team,
+            #contact {
+                padding: 60px 0;
+            }
+
+            .section-title {
+                margin-bottom: 40px;
+            }
+
+            .section-title h2 {
+                font-size: 28px;
+            }
+
+            .section-title p {
+                font-size: 14px;
+            }
+
+            /* 서비스 박스 조정 */
+            .service-box {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+
+            .service-box i {
+                font-size: 40px;
+            }
+
+            .service-box h3 {
+                font-size: 20px;
+            }
+
+            /* 팀 멤버 조정 */
+            .team-member {
+                padding: 25px 20px;
+                margin-bottom: 20px;
+            }
+
+            /* Contact 카드 조정 */
+            .contact-info-card,
+            .contact-form-card {
+                padding: 30px 20px;
+                margin-bottom: 20px;
+            }
+
+            .contact-info-card h3,
+            .contact-form-card h3 {
+                font-size: 24px;
+            }
+
+            .contact-detail {
+                margin-bottom: 25px;
+            }
+
+            .contact-icon {
+                width: 40px;
+                height: 40px;
+                margin-right: 15px;
+            }
+
+            .contact-icon i {
+                font-size: 18px;
+            }
+
+            .contact-text h4 {
+                font-size: 18px;
+            }
+
+            .contact-text p {
+                font-size: 14px;
+            }
+
+            /* 폼 조정 */
+            .form-control {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .btn-submit {
+                width: 100%;
+                padding: 12px 30px;
+            }
+
+            /* Footer 조정 */
+            footer {
+                padding: 30px 0 15px;
+            }
+
+            .footer-social a {
+                font-size: 20px;
+                margin: 0 10px;
+            }
+        }
+
+        /* 작은 모바일 (480px 이하) */
+        @media (max-width: 480px) {
+            #hero h1 {
+                font-size: 26px;
+            }
+
+            #hero p {
+                font-size: 14px;
+            }
+
+            .section-title h2 {
+                font-size: 24px;
+            }
+
+            .service-box {
+                padding: 25px 15px;
+            }
+
+            .service-box i {
+                font-size: 35px;
+            }
+
+            .service-box h3 {
+                font-size: 18px;
+            }
+
+            .contact-info-card,
+            .contact-form-card {
+                padding: 25px 15px;
+            }
+
+            .mobile-menu-panel {
+                width: 260px;
+            }
+        }
+
     </style>
 </head>
 <body>
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
+            <!-- 모바일 햄버거 메뉴 버튼 -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="메뉴 열기">
+                <i class="fas fa-bars"></i>
+            </button>
+
             <a class="navbar-brand" href="/">
                 <img src="/img/favicontitle.png" alt="Aventro Logo">
                 AI 돌봄 시스템
@@ -425,6 +791,31 @@
         </div>
     </nav>
 </header>
+
+<!-- 모바일 메뉴 패널 -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+<div class="mobile-menu-panel" id="mobileMenuPanel">
+    <div class="mobile-menu-header">
+        <div>
+            <strong>메뉴</strong>
+        </div>
+        <button class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <nav class="mobile-menu-nav">
+        <ul class="mobile-menu-list">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#team">Team</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li style="border-top: 2px solid #e0e0e0; margin-top: 10px;">
+                <a href="/login" style="color: var(--primary-color); font-weight: 600;">로그인</a>
+            </li>
+        </ul>
+    </nav>
+</div>
 
 <main>
     <section id="hero">
@@ -682,6 +1073,64 @@
         } else {
             header.style.padding = '15px 0';
             header.style.boxShadow = '0 2px 15px rgba(0,0,0,0.1)';
+        }
+    });
+
+    // 모바일 메뉴 토글 기능
+    document.addEventListener('DOMContentLoaded', function() {
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+        const mobileMenuLinks = document.querySelectorAll('.mobile-menu-list a');
+
+        if (mobileMenuToggle && mobileMenuPanel) {
+            // 햄버거 버튼 클릭 시 메뉴 열기
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenuPanel.classList.add('active');
+                mobileMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // 닫기 버튼 클릭 시 메뉴 닫기
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', function() {
+                    closeMobileMenu();
+                });
+            }
+
+            // 오버레이 클릭 시 메뉴 닫기
+            mobileMenuOverlay.addEventListener('click', function() {
+                closeMobileMenu();
+            });
+
+            // 모바일 메뉴 링크 클릭 시 메뉴 닫기 및 스크롤
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    const href = this.getAttribute('href');
+                    if (href && href.startsWith('#')) {
+                        e.preventDefault();
+                        closeMobileMenu();
+                        setTimeout(function() {
+                            const target = document.querySelector(href);
+                            if (target) {
+                                target.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'start'
+                                });
+                            }
+                        }, 300);
+                    } else {
+                        closeMobileMenu();
+                    }
+                });
+            });
+        }
+
+        function closeMobileMenu() {
+            mobileMenuPanel.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
         }
     });
 </script>
