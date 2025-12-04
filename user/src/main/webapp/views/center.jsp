@@ -540,7 +540,7 @@
                                             <input type="text"
                                                    id="mapSearchInput"
                                                    class="map-search-input"
-                                                   placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
+                                                   placeholder="병원, 약국 등 장소를 검색하세요..."
                                                    onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn" onclick="searchLocation()">
                                                 <i class="bi bi-search"></i>
