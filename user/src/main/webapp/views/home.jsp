@@ -739,6 +739,35 @@
             cursor: not-allowed;
         }
 
+        /* 추가: 챗봇 음성 입력 버튼 스타일 */
+        .chat-voice-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+        .chat-voice-btn:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+        .chat-voice-btn.recording {
+            background: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .chat-modal {
@@ -792,29 +821,18 @@
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> 홈</a></li>
                 
-                <!-- 통신 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
-                    </ul>
-                </li>
-                
-                <!-- 일정 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-calendar-alt"></i> 일정 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/schedule"/>"><i class="fas fa-home"></i> 일정메인</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-robot"></i> AI 장소 추천</a></li>
-                    </ul>
-                </li>
-                
+<%--                <!-- 통신 드롭다운 -->--%>
+<%--                <li class="nav-item">--%>
+<%--                    <a class="nav-link" role="button">--%>
+<%--                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>--%>
+<%--                    </a>--%>
+<%--                    <ul class="dropdown-menu">--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>--%>
+<%--                    </ul>--%>
+<%--                </li>--%>
+
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
                     <a class="nav-link" role="button">
@@ -827,17 +845,9 @@
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
-                
-                <!-- CCTV 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-video"></i> CCTV <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/cctv"/>"><i class="fas fa-home"></i>모니터링</a></li>
-                    </ul>
-                </li>
-                
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i>일정</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/schedule/recommend"/>"><i class="fas fa-map"></i>장소</a></li>
+                <li class="nav-item"><a class="nav-link" href="<c:url value="/cctv"/>"><i class="fas fa-video"></i>CCTV</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
             </ul>
@@ -941,6 +951,9 @@
         </div>
     </div>
     <div class="chat-input-area">
+        <button class="chat-voice-btn" id="chatVoiceBtn" title="음성 입력">
+            <i class="fas fa-microphone"></i>
+        </button>
         <input type="text" class="chat-input" id="chatInput" placeholder="메시지를 입력하세요..." maxlength="500">
         <button class="chat-send-btn" id="chatSendBtn">
             <i class="fas fa-paper-plane"></i>
@@ -1070,6 +1083,64 @@
         const chatMessages = document.getElementById('chatMessages');
         const chatBadge = document.getElementById('chatBadge');
 
+        // 음성 인식 기능 추가
+        const voiceChatBtn = document.getElementById('chatVoiceBtn');
+        let recognition = null;
+        let isRecording = false;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                voiceChatBtn.classList.add('recording');
+                voiceChatBtn.title = '음성 인식 중...';
+                chatInput.placeholder = '말씀해주세요...';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                chatInput.value = transcript;
+                sendMessage(); // 메시지 자동 전송
+            };
+
+            recognition.onerror = function(event) {
+                console.error('음성 인식 오류:', event.error);
+                let errorMsg = '음성 인식 중 오류가 발생했습니다.';
+                if (event.error === 'no-speech') {
+                    errorMsg = '음성이 감지되지 않았습니다.';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = '마이크 권한이 필요합니다.';
+                }
+                alert(errorMsg);
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                voiceChatBtn.classList.remove('recording');
+                voiceChatBtn.title = '음성 입력';
+                chatInput.placeholder = '메시지를 입력하세요...';
+            };
+
+            voiceChatBtn.addEventListener('click', function() {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        alert('음성 인식을 시작할 수 없습니다.');
+                    }
+                }
+            });
+        } else {
+            voiceChatBtn.style.display = 'none';
+        }
+
         // 사용자 이름 설정
         var userName = '사용자';
         <c:if test="${sessionScope.loginUser != null}">
@@ -1142,14 +1213,23 @@
                 })
                 .then(data => {
                     removeMessage(loadingId);
-                    const responseText = data.response || data.message || '응답을 받지 못했습니다.';
+                    const responseText = data.text || '응답을 받지 못했습니다.';
                     addMessage(responseText, 'received');
+                    playAudio(data.audio); // AI 응답 음성 출력
                 })
                 .catch(error => {
                     removeMessage(loadingId);
                     console.error('AI 메시지 전송 중 오류 발생:', error);
                     addMessage('죄송합니다. 응답을 생성하는 중 문제가 발생했어요. 잠시 후 다시 시도해주세요.', 'received');
                 });
+        }
+
+        // 챗봇 응답을 음성으로 변환하는 함수 (TTS)
+        function playAudio(base64Audio) {
+            if (base64Audio) {
+                const audio = new Audio("data:audio/mp3;base64," + base64Audio);
+                audio.play().catch(e => console.error("음성 재생 오류:", e));
+            }
         }
 
         // Add message to chat

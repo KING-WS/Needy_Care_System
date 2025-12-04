@@ -46,18 +46,19 @@
     }
 
     .page-header p {
-        font-size: 16px;
-        color: #7f8c8d;
+        font-size: 20px; /* Increased from 18px */
+        color: #000000; /* Ensured black color */
     }
 
     /* 카드 공통 스타일 */
-    .chart-container, .ai-analysis-section, .stat-card {
+    .ai-analysis-section {
         background: var(--card-bg);
         border-radius: 20px;
         padding: 30px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         margin-bottom: 30px;
         border: none;
+        text-align: center; /* Added to center content */
     }
 
     /* ---------------------------------------------------- */
@@ -98,7 +99,7 @@
 
     /* [수정] 통계 제목: 검은색, 굵게 */
     .stat-title {
-        font-size: 20px;
+        font-size: 16px;
         color: #000000; /* [요청] 검은색 */
         font-weight: 800; /* [요청] 굵게 */
         text-transform: uppercase;
@@ -156,8 +157,8 @@
     }
 
     .chart-header p, .ai-analysis-header p {
-        font-size: 14px;
-        color: #7f8c8d;
+        font-size: 20px; /* Increased from 14px */
+        color: #000000; /* Changed to black */
     }
 
     .chart-wrapper {
@@ -205,6 +206,15 @@
     .ai-analysis-result.show {
         display: block; /* 버튼 누르고 데이터 오면 보임 */
         animation: fadeIn 0.5s ease;
+    }
+
+    /* New rule for centering the AI analysis header content */
+    .ai-analysis-header {
+        display: flex;
+        flex-direction: column; /* Stack h2 and p vertically */
+        align-items: center;   /* Center them horizontally */
+        margin-bottom: 20px; /* Add some space below the header block */
+        text-align: center; /* Ensures text within p tag is centered */
     }
 
     .result-card {
@@ -359,7 +369,7 @@
     <div class="calories-analysis-container">
         <div class="page-header">
             <h1><i class="fas fa-chart-line" style="color: var(--primary-color);"></i> 칼로리 분석</h1>
-            <p>노약자의 식단 칼로리를 분석하고 시각화합니다.</p>
+            <p>보호자가 등록한 돌봄대상자의 식단을 가져와 AI가 칼로리를 분석하고 시각화합니다.</p>
         </div>
 
         <c:if test="${selectedRecipient != null}">

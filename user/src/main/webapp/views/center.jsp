@@ -518,7 +518,7 @@
                                             <i class="fas fa-map-marked-alt"></i>
                                             <span>내 지도</span>
                                         </button>
-                                        <button type="button" class="map-tab" onclick="switchMapTab(this, 'course')">
+                                        <button type="button" class="map-tab" id="courseMapTab" onclick="switchMapTab(this, 'course')">
                                             <i class="fas fa-walking"></i>
                                             <span>산책 코스</span>
                                         </button>
@@ -540,7 +540,7 @@
                                             <input type="text"
                                                    id="mapSearchInput"
                                                    class="map-search-input"
-                                                   placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
+                                                   placeholder="병원, 약국 등 장소를 검색하세요..."
                                                    onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn" onclick="searchLocation()">
                                                 <i class="bi bi-search"></i>

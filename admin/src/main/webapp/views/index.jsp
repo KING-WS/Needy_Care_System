@@ -30,7 +30,7 @@
 
     <link href="<c:url value='/css/main.css'/>" rel="stylesheet">
 
-    <title>Needy Care Admin</title>
+    <title>AI 돌봄 시스템</title>
 
     <meta name="theme-color" content="#6366f1">
 
@@ -68,7 +68,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand d-flex align-items-center" href="<c:url value='/'/>">
                     <img src="<c:url value='/assets/images/logo.svg'/>" alt="Logo" height="32" class="d-inline-block align-text-top me-2">
-                    <h1 class="h4 mb-0 fw-bold text-primary">Needy Care</h1>
+                    <h1 class="h4 mb-0 fw-bold text-primary">AI 돌봄 시스템</h1>
                 </a>
 
 
@@ -121,31 +121,31 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link collapsed" data-bs-toggle="collapse" href="#websocketSubmenu" role="button"
-                           aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}"
-                           aria-controls="websocketSubmenu">
-                            <i class="bi bi-wifi"></i>
-                            <span>온라인 서비스</span>
-                            <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>
-                        </a>
-                        <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">
-                            <ul class="nav flex-column ms-3">
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">
-                                        <i class="bi bi-chat-dots"></i>
-                                        <span>온라인 채팅</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'websocket/video' ? 'active' : ''}" href="<c:url value='/websocket/video'/>">
-                                        <i class="bi bi-camera-video"></i>
-                                        <span>화상 통화</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+<%--                    <li class="nav-item">--%>
+<%--                        <a class="nav-link collapsed" data-bs-toggle="collapse" href="#websocketSubmenu" role="button"--%>
+<%--                           aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}"--%>
+<%--                           aria-controls="websocketSubmenu">--%>
+<%--                            <i class="bi bi-wifi"></i>--%>
+<%--                            <span>온라인 서비스</span>--%>
+<%--                            <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>--%>
+<%--                        </a>--%>
+<%--                        <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">--%>
+<%--                            <ul class="nav flex-column ms-3">--%>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">--%>
+<%--                                        <i class="bi bi-chat-dots"></i>--%>
+<%--                                        <span>온라인 채팅</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'websocket/video' ? 'active' : ''}" href="<c:url value='/websocket/video'/>">--%>
+<%--                                        <i class="bi bi-camera-video"></i>--%>
+<%--                                        <span>화상 통화</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+<%--                        </div>--%>
+<%--                    </li>--%>
 
                     <li class="nav-item">
                         <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">

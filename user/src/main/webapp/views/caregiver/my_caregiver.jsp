@@ -7,13 +7,13 @@
         padding: 20px 0 100px 0;
         background: #f8f9fa;
     }
-    
+
     .caregiver-container {
         max-width: 900px;
         margin: 0 auto;
         padding: 0 20px;
     }
-    
+
     .caregiver-card {
         background: #fff;
         border-radius: 15px;
@@ -38,26 +38,26 @@
         font-weight: 600;
         color: #495057;
     }
-    
+
     .caregiver-header {
         text-align: center;
         margin-bottom: 40px;
     }
-    
+
     .caregiver-header h2 {
         font-size: 32px;
         font-weight: bold;
         color: var(--secondary-color);
         margin-bottom: 30px;
     }
-    
+
     .profile-section {
         display: flex;
         flex-direction: column;
         align-items: center;
         margin-bottom: 40px;
     }
-    
+
     .profile-img-container {
         width: 150px;
         height: 150px;
@@ -70,13 +70,13 @@
         margin-bottom: 20px;
         overflow: hidden;
     }
-    
+
     .profile-img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-    
+
     .profile-placeholder {
         width: 100%;
         height: 100%;
@@ -86,20 +86,20 @@
         color: #999;
         font-size: 48px;
     }
-    
+
     .info-section {
         display: grid;
         grid-template-columns: 1fr;
         gap: 25px;
     }
-    
+
     .info-item {
         padding: 20px;
         background: #f8f9fa;
         border-radius: 10px;
         border-left: 4px solid var(--primary-color);
     }
-    
+
     .info-item label {
         font-weight: 600;
         color: #495057;
@@ -107,13 +107,13 @@
         margin-bottom: 10px;
         font-size: 16px;
     }
-    
+
     .info-item span {
         color: #2c3e50;
         font-size: 16px;
         line-height: 1.6;
     }
-    
+
     @media (min-width: 768px) {
         .info-section {
             grid-template-columns: 1fr 1fr;
@@ -128,7 +128,7 @@
                 <div class="caregiver-card">
                     <div class="caregiver-header">
                         <h2>
-                            <i class="fas fa-user-nurse"></i> ${recipient.recName}님의 담당 요양사 정보
+                             ${recipient.recName}님의 담당 요양사 정보
                         </h2>
                     </div>
 
@@ -155,7 +155,7 @@
                             <label><i class="fas fa-map-marker-alt"></i> 주소</label>
                             <span>${assignedCaregiver.caregiverAddress}</span>
                         </div>
-                        
+
                         <div class="info-item">
                             <label><i class="fas fa-briefcase"></i> 경력</label>
                             <span>${assignedCaregiver.caregiverCareer}</span>

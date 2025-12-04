@@ -58,11 +58,11 @@
     .stat-item {
         background: var(--secondary-bg);
         border-radius: 15px;
-        padding: 20px;
+        padding: 25px;
         border: 1px solid transparent;
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 20px;
         transition: all 0.3s ease;
         margin-bottom: 15px;
     }
@@ -75,13 +75,13 @@
     }
 
     .stat-icon {
-        width: 50px;
-        height: 50px;
+        width: 60px;
+        height: 60px;
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
+        font-size: 28px;
         color: var(--primary-color);
         background: white;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -93,7 +93,7 @@
     .stat-item:nth-child(3) .stat-icon { color: #2ecc71; } /* 평균은 초록색 계열 */
 
     .stat-label {
-        font-size: 13px;
+        font-size: 15px;
         color: #7f8c8d;
         font-weight: 600;
         text-transform: uppercase;
@@ -101,7 +101,7 @@
     }
 
     .stat-value {
-        font-size: 24px;
+        font-size: 30px;
         font-weight: 700;
         color: var(--secondary-color);
     }
@@ -109,7 +109,7 @@
     /* 버튼 스타일 (detail.jsp와 통일) */
     .btn-custom {
         width: 100%;
-        padding: 12px 20px;
+        padding: 16px 25px;
         border-radius: 50px;
         font-weight: 600;
         border: none;
@@ -120,7 +120,7 @@
         cursor: pointer;
         transition: all 0.3s;
         margin-bottom: 10px;
-        font-size: 15px;
+        font-size: 18px;
     }
 
     .btn-quick-add {
@@ -343,7 +343,7 @@
             <i class="fas fa-utensils" style="color: var(--primary-color);"></i> AI 식단 관리
         </h1>
         <br>
-        <h5>돌봄 대상자의 식단을 추가하세요</h5>
+        <h5>AI가 돌봄대상자의 특이사항 및 건강상태에 따른 식단을 추천해줍니다</h5>
     </div>
 
     <c:if test="${empty selectedRecipient}">
