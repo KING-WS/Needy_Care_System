@@ -38,6 +38,7 @@ out/
 
 .env
 
-
-application-dev.yml
-application-pro.yml
+# YML 파일
+**/application.yml
+**/application-dev.yml
+**/application-pro.yml

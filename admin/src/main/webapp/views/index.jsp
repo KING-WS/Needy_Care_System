@@ -387,29 +387,27 @@
     document.addEventListener('DOMContentLoaded', function () {
 
         // [1] 알림 토스트 팝업을 띄우는 함수
-        function showEmergencyToast(alertData) {
+        function showEmergencyToast(item) {
             const toastContainer = document.getElementById('toast-container');
             if (!toastContainer) return;
 
             const toastId = 'toast-' + Date.now();
-            const timeStr = new Date(alertData.time).toLocaleTimeString();
+            const timeStr = new Date(item.timestamp).toLocaleTimeString();
 
-            const isEmergency = alertData.type === 'EMERGENCY';
-            const badgeClass = isEmergency ? 'bg-danger' : 'bg-info';
-            const iconClass = isEmergency ? 'bi-exclamation-triangle-fill' : 'bi-telephone-fill';
+            // CareTimelineItem DTO의 필드를 사용하여 UI 구성
+            const isEmergency = item.type === 'EMERGENCY';
             const title = isEmergency ? '긴급 호출' : '연락 요청';
 
             const toastHTML = `
                 <div id="\${toastId}" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
-                    <div class="toast-header \${badgeClass} text-white">
-                        <i class="bi \${iconClass} me-2"></i>
+                    <div class="toast-header \${item.bgClass} text-white">
+                        <i class="bi \${item.iconClass} me-2"></i>
                         <strong class="me-auto">\${title}</strong>
                         <small class="text-white-50">\${timeStr}</small>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                     <div class="toast-body">
-                        <p class="mb-1"><strong>대상자:</strong> \${alertData.recName}</p>
-                        <p class="mb-0">\${alertData.message}</p>
+                        <p class="mb-0">\${item.message}</p>
                         <div class="mt-2 pt-2 border-top">
                             <a href="<c:url value='/admin/alerts'/>" class="btn btn-sm btn-light w-100">확인하러 가기</a>
                         </div>
@@ -418,20 +416,10 @@
                 `;
 
             toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-
             const toastElement = document.getElementById(toastId);
-
-            // Bootstrap 객체 생성 (라이브러리 로드 확인)
-            if (typeof bootstrap !== 'undefined') {
-                const toast = new bootstrap.Toast(toastElement);
-                toastElement.addEventListener('hidden.bs.toast', function () {
-                    toastElement.remove();
-                });
-                toast.show();
-            } else {
-                console.error("Bootstrap JS not loaded");
-                toastElement.classList.add('show'); // 강제 표시
-            }
+            const toast = new bootstrap.Toast(toastElement);
+            toastElement.addEventListener('hidden.bs.toast', () => toastElement.remove());
+            toast.show();
         }
 
         // [2] 웹소켓 연결 및 구독 함수
@@ -439,28 +427,29 @@
             // Controller에서 주소를 못 받았을 경우(GlobalControllerAdvice 미적용 시)를 대비한 하드코딩
             let kioskUrl = "${kioskServerUrl}";
 
-            // 주소가 비어있으면 수동 주소 사용 (여기서 IP를 님의 User 서버 IP로 맞춤)
+            // 주소가 비어있으면 수동 주소 사용 (user 서버의 IP로 가정)
             if (!kioskUrl || kioskUrl === "") {
-                kioskUrl = "https://192.168.1.12:8084";
+                kioskUrl = "https://192.168.1.6:8084"; // ❗️ 중요: 이 주소는 실제 user 서버 주소여야 합니다.
                 console.log("⚠️ Using fallback kiosk URL:", kioskUrl);
             } else {
                 console.log("🔔 Global Notification Init - Target:", kioskUrl);
             }
 
-            const socket = new SockJS(kioskUrl + '/adminchat');
+            const socket = new SockJS(kioskUrl + '/adminchat'); // ❗️ 중요: user 서버의 adminchat 엔드포인트에 연결
             const stompClient = Stomp.over(socket);
-            stompClient.debug = null; // 로그 끄기
+            stompClient.debug = null;
 
             stompClient.connect({}, function (frame) {
-                console.log('✅ Global WS Connected: ' + frame);
+                console.log('✅ Global WS Connected to ' + kioskUrl + ': ' + frame);
 
-                stompClient.subscribe('/topic/alert', function (message) {
+                // [수정] 통합된 토픽을 구독
+                stompClient.subscribe('/topic/care-timeline', function (message) {
                     try {
-                        const alertData = JSON.parse(message.body);
-                        console.log('🚨 Real-time Alert:', alertData);
+                        const careItem = JSON.parse(message.body);
+                        console.log('🚨 Real-time Care Item Received:', careItem);
 
                         // 1. 토스트 팝업 띄우기
-                        showEmergencyToast(alertData);
+                        showEmergencyToast(careItem);
 
                         // 2. 상단 종(Bell) 아이콘 배지 숫자 증가
                         const badge = document.querySelector('.bi-bell + .badge');
@@ -470,17 +459,17 @@
                             badge.classList.remove('d-none');
                         }
 
-                        // 3. 만약 현재 페이지가 '알림 관리(alerts.jsp)'라면 테이블에도 행 추가
+                        // 3. (호환성) 만약 알림 관리 페이지에 있다면 테이블 업데이트 시도
                         if (typeof addAlertRow === 'function') {
-                            addAlertRow(alertData);
+                            addAlertRow(careItem);
                         }
 
                     } catch (e) {
-                        console.error('Error parsing alert:', e);
+                        console.error('Error parsing care item:', e);
                     }
                 });
             }, function(error) {
-                console.log('⚠️ Notification socket disconnected. Reconnecting in 5s...');
+                console.log('⚠️ Notification socket disconnected from ' + kioskUrl + '. Reconnecting in 5s...');
                 setTimeout(connectAndSubscribe, 5000);
             });
         }
