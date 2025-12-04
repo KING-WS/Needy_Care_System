@@ -429,7 +429,7 @@
 
             // 주소가 비어있으면 수동 주소 사용 (user 서버의 IP로 가정)
             if (!kioskUrl || kioskUrl === "") {
-                kioskUrl = "https://192.168.1.12:8084"; // ❗️ 중요: 이 주소는 실제 user 서버 주소여야 합니다.
+                kioskUrl = "https://192.168.1.6:8084"; // ❗️ 중요: 이 주소는 실제 user 서버 주소여야 합니다.
                 console.log("⚠️ Using fallback kiosk URL:", kioskUrl);
             } else {
                 console.log("🔔 Global Notification Init - Target:", kioskUrl);

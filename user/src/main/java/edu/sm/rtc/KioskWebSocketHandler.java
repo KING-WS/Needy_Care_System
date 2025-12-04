@@ -126,13 +126,13 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
             }
 
             String dbType = "CONTACT";
-            String autoMessage = recipient.getRecName() + "님이 보호자의 연락을 기다립니다.";
+            String autoMessage = "📞 [" + recipient.getRecName() + "]님이 보호자의 연락을 기다립니다.";
             String iconClass = "bi-person-lines-fill";
             String bgClass = "bg-warning";
 
             if ("emergency".equalsIgnoreCase(type)) {
                 dbType = "EMERGENCY";
-                autoMessage = recipient.getRecName() + "님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
+                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
                 iconClass = "bi-exclamation-triangle-fill";
                 bgClass = "bg-danger";
             } else if ("danger".equalsIgnoreCase(type)) {
