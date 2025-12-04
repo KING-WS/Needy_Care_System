@@ -52,6 +52,12 @@
         font-size: 0.8rem;
         color: var(--bs-secondary-color);
     }
+    .activity-feed {
+        position: relative;
+        max-height: 400px; /* Match care-timeline height */
+        overflow-y: auto;
+        padding-right: 10px; /* For scrollbar spacing */
+    }
 </style>
 
 <div class="container-fluid p-4 p-lg-5">

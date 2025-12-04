@@ -3,6 +3,7 @@ package edu.sm.rtc;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.sm.app.dto.AlertLog;
+import edu.sm.app.dto.CareTimelineItem;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.service.AlertLogService;
 import edu.sm.app.service.RecipientService;
@@ -125,16 +126,20 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
             }
 
             String dbType = "CONTACT";
-            String autoMessage = "📞 [" + recipient.getRecName() + "]님이 보호자의 연락을 기다립니다.";
+            String autoMessage = recipient.getRecName() + "님이 보호자의 연락을 기다립니다.";
+            String iconClass = "bi-person-lines-fill";
+            String bgClass = "bg-warning";
 
             if ("emergency".equalsIgnoreCase(type)) {
                 dbType = "EMERGENCY";
-                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
-            }
-            // [추가됨] AI 위협 감지 로직
-            else if ("danger".equalsIgnoreCase(type)) {
+                autoMessage = recipient.getRecName() + "님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
+                iconClass = "bi-exclamation-triangle-fill";
+                bgClass = "bg-danger";
+            } else if ("danger".equalsIgnoreCase(type)) {
                 dbType = "DANGER";
-                autoMessage = "⚠️ [" + recipient.getRecName() + "]님에게 위협 상황(AI 감지)이 발생했습니다!";
+                autoMessage = recipient.getRecName() + "님에게 위협 상황(AI 감지)이 발생했습니다!";
+                iconClass = "bi-fire";
+                bgClass = "bg-danger";
             }
 
             AlertLog alert = AlertLog.builder()
@@ -148,21 +153,19 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
             log.info("[Kiosk WS] Alert saved to DB: {}", autoMessage);
 
             // 2. 관리자에게 실시간 알림 전송 (STOMP)
-            Map<String, Object> adminPayload = new java.util.HashMap<>();
-            adminPayload.put("alertId", alert.getAlertId());
-            adminPayload.put("recId", recipient.getRecId());
-            adminPayload.put("recName", recipient.getRecName());
-            adminPayload.put("type", dbType);
-            adminPayload.put("message", autoMessage);
-            adminPayload.put("time", LocalDateTime.now().toString());
+            CareTimelineItem timelineItem = CareTimelineItem.builder()
+                    .type(dbType)
+                    .message(autoMessage)
+                    .timestamp(LocalDateTime.now())
+                    .iconClass(iconClass)
+                    .bgClass(bgClass)
+                    .link("/admin/alerts") // 알림 관리 페이지 링크
+                    .build();
 
-            // [확인됨] 이 부분이 있어야 관리자가 영상통화를 걸 수 있습니다.
-            adminPayload.put("kioskCode", kioskCode);
-
-            // '/topic/alert'를 구독 중인 관리자에게 전송
+            // '/topic/care-timeline'을 구독 중인 관리자에게 전송
             if (messagingTemplate != null) {
-                messagingTemplate.convertAndSend("/topic/alert", adminPayload);
-                log.info("[Kiosk WS] Real-time alert sent to admin: {}", adminPayload);
+                messagingTemplate.convertAndSend("/topic/care-timeline", timelineItem);
+                log.info("[Kiosk WS] Real-time alert sent to admin via /topic/care-timeline: {}", timelineItem);
             } else {
                 log.warn("[Kiosk WS] MessagingTemplate is null. Cannot send real-time alert.");
             }
