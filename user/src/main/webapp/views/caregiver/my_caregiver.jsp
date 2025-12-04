@@ -5,7 +5,7 @@
 <style>
     .caregiver-section {
         padding: 20px 0 100px 0;
-        background: #FFFFFF;
+        background: #f8f9fa;
     }
     
     .caregiver-container {

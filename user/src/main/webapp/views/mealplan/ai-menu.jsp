@@ -458,6 +458,37 @@
         min-height: 100px;
         line-height: 1.6;
     }
+
+    /* Voice button styles */
+    .voice-btn {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        background: #28a745;
+        border: none;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+    .voice-btn:hover {
+        background: #218838;
+    }
+    .voice-btn.recording {
+        background: #dc3545;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <section class="ai-menu-section">
@@ -475,11 +506,17 @@
         </h3>
 
         <div style="display: flex; gap: 10px; align-items: center;">
-            <input type="text"
-                   id="foodNameInput"
-                   class="form-control"
-                   placeholder="예: 김치찌개, 된장찌개, 비빔밥 등"
-                   onkeypress="if(event.key === 'Enter') analyzeMealByText()">
+            <div style="position: relative; flex-grow: 1;">
+                <input type="text"
+                       id="foodNameInput"
+                       class="form-control"
+                       placeholder="음식 이름을 음성으로 말하거나 입력하세요..."
+                       onkeypress="if(event.key === 'Enter') analyzeMealByText()"
+                       style="padding-right: 50px;">
+                <button type="button" id="voiceRecordBtn" class="voice-btn" title="음성으로 입력">
+                    <i class="fas fa-microphone"></i>
+                </button>
+            </div>
             <button class="btn-custom btn-primary-custom" onclick="analyzeMealByText()" style="flex-shrink: 0;">
                 <i class="fas fa-search"></i> 분석하기
             </button>
@@ -491,13 +528,14 @@
             <i class="fas fa-camera" style="color: var(--primary-color);"></i> 사진으로 분석하기
         </h3>
 
-        <div class="camera-preview">
+        <div class="camera-preview" id="cameraPreview">
+            <input type="file" id="imageUpload" accept="image/*" style="display: none;">
             <video id="videoElement" autoplay playsinline></video>
             <canvas id="canvasElement"></canvas>
 
-            <div id="cameraPlaceholder" class="camera-placeholder">
-                <i class="fas fa-camera"></i>
-                <p style="font-weight: 600;">여기를 눌러 촬영하거나 아래 버튼을 사용하세요</p>
+            <div id="cameraPlaceholder" class="camera-placeholder" style="cursor: pointer;">
+                <i class="fas fa-upload"></i>
+                <p style="font-weight: 600;">사진을 드래그하거나 여기를 클릭하여 업로드</p>
             </div>
         </div>
 
@@ -1300,7 +1338,148 @@
         return String(text).replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
+    // File Upload and Drag & Drop Logic
+    const cameraPreview = document.getElementById('cameraPreview');
+    const imageUpload = document.getElementById('imageUpload');
+    const cameraPlaceholder = document.getElementById('cameraPlaceholder');
+
+    // Make placeholder clickable
+    if(cameraPlaceholder) {
+        cameraPlaceholder.addEventListener('click', () => imageUpload.click());
+    }
+
+    // Handle file selection
+    imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    });
+
+    // Handle Drag & Drop
+    cameraPreview.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        cameraPreview.style.borderColor = 'var(--primary-color)'; // visual feedback
+    });
+
+    cameraPreview.addEventListener('dragleave', () => {
+        cameraPreview.style.borderColor = '#d2d5d9';
+    });
+
+    cameraPreview.addEventListener('drop', (event) => {
+        event.preventDefault();
+        cameraPreview.style.borderColor = '#d2d5d9';
+        const file = event.dataTransfer.files[0];
+        if (file) {
+            handleFile(file);
+        }
+    });
+
+    function handleFile(file) {
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드할 수 있습니다.');
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            capturedImage = e.target.result; // Set the global variable
+
+            // Display the image preview
+            const video = document.getElementById('videoElement');
+            video.style.display = 'none';
+            const placeholder = document.getElementById('cameraPlaceholder');
+            if(placeholder) placeholder.style.display = 'none';
+
+            const existingImg = document.querySelector('#capturedImage');
+            if (existingImg) {
+                existingImg.remove();
+            }
+
+            const img = document.createElement('img');
+            img.src = capturedImage;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.id = 'capturedImage';
+            img.style.display = 'block';
+
+            const preview = document.querySelector('.camera-preview');
+            preview.appendChild(img);
+            preview.classList.add('active');
+
+
+            // Run analysis
+            setTimeout(() => analyzeMeal(), 300);
+        }
+        reader.readAsDataURL(file);
+    }
+
     window.addEventListener('beforeunload', function() {
         stopCamera();
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const voiceRecordBtn = document.getElementById('voiceRecordBtn');
+        const foodNameInput = document.getElementById('foodNameInput');
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            let isRecording = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                voiceRecordBtn.classList.add('recording');
+                voiceRecordBtn.title = '음성 인식 중...';
+                foodNameInput.placeholder = '말씀해주세요...';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                foodNameInput.value = transcript;
+                if (transcript) {
+                    analyzeMealByText();
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('음성 인식 오류:', event.error);
+                let errorMsg = '음성 인식 중 오류가 발생했습니다.';
+                if (event.error === 'no-speech') {
+                    errorMsg = '음성이 감지되지 않았습니다. 다시 시도해주세요.';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = '마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.';
+                }
+                alert(errorMsg);
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                voiceRecordBtn.classList.remove('recording');
+                voiceRecordBtn.title = '음성으로 입력';
+                foodNameInput.placeholder = '예: 김치찌개, 된장찌개, 비빔밥 등';
+            };
+
+            voiceRecordBtn.addEventListener('click', function() {
+                if (isRecording) {
+                    recognition.stop();
+                } else {
+                    try {
+                        recognition.start();
+                    } catch(e) {
+                        alert('음성 인식을 시작할 수 없습니다. 마이크 연결을 확인해주세요.');
+                    }
+                }
+            });
+
+        } else {
+            voiceRecordBtn.style.display = 'none';
+            console.warn('이 브라우저는 음성 인식을 지원하지 않습니다.');
+        }
     });
 </script>
