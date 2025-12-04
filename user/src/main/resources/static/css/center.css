@@ -584,7 +584,7 @@
     align-items: center;
     margin-bottom: 15px;
     gap: 15px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
 }
 
 .map-tabs {
@@ -659,14 +659,15 @@
 .map-search-container {
     flex: 1;
     max-width: 400px;
-    min-width: 300px;
+    min-width: 200px;
     position: relative;
 }
 
 .map-search-wrapper {
-    position: relative;
     display: flex;
-    gap: 8px;
+    align-items: center;
+    position: relative;
+    width: 100%;
 }
 
 .map-search-input {
@@ -678,7 +679,7 @@
     outline: none;
     transition: all 0.3s ease;
     background: white;
-    max-width: 400px;
+    width: 100%;
 }
 
 .map-search-input:focus {
