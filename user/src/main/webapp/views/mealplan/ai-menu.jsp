@@ -463,10 +463,10 @@
 <section class="ai-menu-section">
     <div class="page-header">
         <h1>
-            <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 식단 메뉴
+            <i class="fas fa-shield-alt" style="color: var(--primary-color);"></i> AI 식단 안전성 검사
         </h1>
         <br>
-        <h5>카메라로 음식을 촬영하거나 음식 이름을 입력하면 <br>레시피와 안전성 검사 결과를 제공합니다</h5>
+        <h5 style="color: black; font-size: 20px;">카메라로 음식을 촬영하거나 음식 이름을 입력하면 <br> 돌봄 대상자의 건강상태에 따른 레시피와 안전성 검사 결과를 제공합니다</h5>
     </div>
 
     <div class="detail-content-card">

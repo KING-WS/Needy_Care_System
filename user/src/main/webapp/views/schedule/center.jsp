@@ -174,12 +174,12 @@
     .ai-schedule-btn {
         width: 100%;
         margin-top: 20px;
-        padding: 15px;
+        padding: 45px;
         background: var(--primary-color);
         color: white;
         border: none;
         border-radius: 15px;
-        font-size: 16px;
+        font-size: 30px;
         font-weight: 700;
         cursor: pointer;
         display: flex;
