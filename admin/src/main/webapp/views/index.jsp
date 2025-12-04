@@ -121,31 +121,31 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link collapsed" data-bs-toggle="collapse" href="#websocketSubmenu" role="button"
-                           aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}"
-                           aria-controls="websocketSubmenu">
-                            <i class="bi bi-wifi"></i>
-                            <span>온라인 서비스</span>
-                            <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>
-                        </a>
-                        <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">
-                            <ul class="nav flex-column ms-3">
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">
-                                        <i class="bi bi-chat-dots"></i>
-                                        <span>온라인 채팅</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'websocket/video' ? 'active' : ''}" href="<c:url value='/websocket/video'/>">
-                                        <i class="bi bi-camera-video"></i>
-                                        <span>화상 통화</span>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
+<%--                    <li class="nav-item">--%>
+<%--                        <a class="nav-link collapsed" data-bs-toggle="collapse" href="#websocketSubmenu" role="button"--%>
+<%--                           aria-expanded="${center == 'websocket' || center == 'websocket/video' ? 'true' : 'false'}"--%>
+<%--                           aria-controls="websocketSubmenu">--%>
+<%--                            <i class="bi bi-wifi"></i>--%>
+<%--                            <span>온라인 서비스</span>--%>
+<%--                            <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>--%>
+<%--                        </a>--%>
+<%--                        <div class="collapse ${center == 'websocket' || center == 'websocket/video' ? 'show' : ''}" id="websocketSubmenu">--%>
+<%--                            <ul class="nav flex-column ms-3">--%>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'websocket' ? 'active' : ''}" href="<c:url value='/websocket'/>">--%>
+<%--                                        <i class="bi bi-chat-dots"></i>--%>
+<%--                                        <span>온라인 채팅</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'websocket/video' ? 'active' : ''}" href="<c:url value='/websocket/video'/>">--%>
+<%--                                        <i class="bi bi-camera-video"></i>--%>
+<%--                                        <span>화상 통화</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
+<%--                            </ul>--%>
+<%--                        </div>--%>
+<%--                    </li>--%>
 
                     <li class="nav-item">
                         <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">

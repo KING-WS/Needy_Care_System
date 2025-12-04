@@ -343,7 +343,7 @@
             <i class="fas fa-utensils" style="color: var(--primary-color);"></i> AI 식단 관리
         </h1>
         <br>
-        <h5>돌봄 대상자의 식단을 추가하세요</h5>
+        <h5>AI가 돌봄대상자의 특이사항 및 건강상태에 따른 식단을 추천해줍니다</h5>
     </div>
 
     <c:if test="${empty selectedRecipient}">

@@ -369,7 +369,7 @@
     <div class="calories-analysis-container">
         <div class="page-header">
             <h1><i class="fas fa-chart-line" style="color: var(--primary-color);"></i> 칼로리 분석</h1>
-            <p>노약자의 식단을 가져와 칼로리를 분석하고 시각화합니다.</p>
+            <p>보호자가 등록한 돌봄대상자의 식단을 가져와 AI가 칼로리를 분석하고 시각화합니다.</p>
         </div>
 
         <c:if test="${selectedRecipient != null}">
