@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="edu.sm.app.repository.MapRepository">
+
+    <!-- ========== 기본 CRUD 쿼리 ========== -->
+    
+    <!-- 전체 장소 조회 (삭제되지 않은 것만) -->
+    <select id="selectAll" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE is_deleted = 'N' OR is_deleted IS NULL
+        ORDER BY map_regdate DESC
+    </select>
+
+    <!-- 단건 조회 (map_id로) -->
+    <select id="select" parameterType="Integer" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE map_id = #{mapId} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+    </select>
+
+    <!-- ========== 커스텀 조회 쿼리 ========== -->
+    
+    <!-- 노약자 ID로 장소 목록 조회 -->
+    <select id="selectByRecId" parameterType="Integer" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE rec_id = #{recId} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY map_regdate DESC
+    </select>
+
+    <!-- 카테고리별 장소 조회 -->
+    <select id="selectByCategory" parameterType="String" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE map_category = #{category} 
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY map_regdate DESC
+    </select>
+
+    <!-- 특정 범위 내의 장소 조회 (위도/경도 기반) -->
+    <select id="selectByLocationRange" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE map_latitude BETWEEN #{param1} AND #{param2}
+        AND map_longitude BETWEEN #{param3} AND #{param4}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY map_regdate DESC
+    </select>
+
+    <!-- 노약자 ID와 카테고리로 장소 조회 -->
+    <select id="selectByRecIdAndCategory" resultType="MapLocation">
+        SELECT 
+            map_id AS mapId,
+            rec_id AS recId,
+            map_name AS mapName,
+            map_address AS mapAddress,
+            map_content AS mapContent,
+            map_category AS mapCategory,
+            map_latitude AS mapLatitude,
+            map_longitude AS mapLongitude,
+            is_deleted AS isDeleted,
+            map_regdate AS mapRegdate,
+            map_update AS mapUpdate
+        FROM Map
+        WHERE rec_id = #{param1}
+        AND map_category = #{param2}
+        AND (is_deleted = 'N' OR is_deleted IS NULL)
+        ORDER BY map_regdate DESC
+    </select>
+
+    <!-- ========== 삽입/수정/삭제 쿼리 ========== -->
+    
+    <!-- 장소 등록 -->
+    <insert id="insert" parameterType="MapLocation" useGeneratedKeys="true" keyProperty="mapId">
+        INSERT INTO Map (
+            rec_id,
+            map_name,
+            map_address,
+            map_content,
+            map_category,
+            map_latitude,
+            map_longitude,
+            is_deleted,
+            map_regdate,
+            map_update
+        )
+        VALUES (
+            #{recId},
+            #{mapName},
+            #{mapAddress},
+            #{mapContent},
+            #{mapCategory},
+            #{mapLatitude},
+            #{mapLongitude},
+            'N',
+            NOW(),
+            NOW()
+        )
+    </insert>
+
+    <!-- 장소 정보 수정 -->
+    <update id="update" parameterType="MapLocation">
+        UPDATE Map 
+        <set>
+            <if test="recId != null">
+                rec_id = #{recId},
+            </if>
+            <if test="mapName != null and mapName != ''">
+                map_name = #{mapName},
+            </if>
+            <if test="mapAddress != null and mapAddress != ''">
+                map_address = #{mapAddress},
+            </if>
+            <if test="mapContent != null">
+                map_content = #{mapContent},
+            </if>
+            <if test="mapCategory != null and mapCategory != ''">
+                map_category = #{mapCategory},
+            </if>
+            <if test="mapLatitude != null">
+                map_latitude = #{mapLatitude},
+            </if>
+            <if test="mapLongitude != null">
+                map_longitude = #{mapLongitude},
+            </if>
+            <if test="isDeleted != null and isDeleted != ''">
+                is_deleted = #{isDeleted},
+            </if>
+            map_update = NOW()
+        </set>
+        WHERE map_id = #{mapId}
+    </update>
+
+    <!-- 장소 삭제 (논리 삭제) -->
+    <delete id="delete" parameterType="Integer">
+        UPDATE Map 
+        SET is_deleted = 'Y', 
+            map_update = NOW() 
+        WHERE map_id = #{mapId}
+    </delete>
+
+</mapper>

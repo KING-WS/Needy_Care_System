@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.SeniorRepository">
+
+    <!-- 모든 노약자 정보와 담당 요양사 이름을 함께 조회 -->
+    <select id="selectAllSeniors" resultType="edu.sm.app.dto.Senior">
+        SELECT
+            cr.rec_id AS recId,
+            cr.rec_type_code AS recTypeCode,
+            cr.cust_id AS custId,
+            cr.rec_name AS recName,
+            cr.rec_birthday AS recBirthday,
+            cr.rec_gender AS recGender,
+            cr.rec_kiosk_code AS recKioskCode,
+            cr.rec_address AS recAddress,
+            cr.rec_photo_url AS recPhotoUrl,
+            cr.rec_med_history AS recMedHistory,
+            cr.rec_allergies AS recAllergies,
+            cr.rec_spec_notes AS recSpecNotes,
+            cr.is_deleted AS isDeleted,
+            cr.rec_regdate AS recRegdate,
+            cr.rec_update AS recUpdate,
+            cr.rec_health_needs AS recHealthNeeds,
+            (
+                SELECT GROUP_CONCAT(cg.caregiver_name SEPARATOR ', ')
+                FROM care_matching cm
+                JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id
+                WHERE cm.rec_id = cr.rec_id AND cm.is_deleted = 'N' AND cg.is_deleted = 'N'
+            ) AS caregiverName
+        FROM Care_Recipient cr
+        WHERE cr.is_deleted = 'N'
+        ORDER BY cr.rec_regdate DESC
+    </select>
+
+    <select id="select" parameterType="int" resultType="edu.sm.app.dto.Senior">
+        SELECT
+            cr.rec_id AS recId,
+            cr.rec_type_code AS recTypeCode,
+            cr.cust_id AS custId,
+            cr.rec_name AS recName,
+            cr.rec_birthday AS recBirthday,
+            cr.rec_gender AS recGender,
+            cr.rec_kiosk_code AS recKioskCode,
+            cr.rec_address AS recAddress,
+            cr.rec_photo_url AS recPhotoUrl,
+            cr.rec_med_history AS recMedHistory,
+            cr.rec_allergies AS recAllergies,
+            cr.rec_spec_notes AS recSpecNotes,
+            cr.is_deleted AS isDeleted,
+            cr.rec_regdate AS recRegdate,
+            cr.rec_update AS recUpdate,
+            cr.rec_health_needs AS recHealthNeeds,
+            (
+                SELECT GROUP_CONCAT(cg.caregiver_name SEPARATOR ', ')
+                FROM care_matching cm
+                JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id
+                WHERE cm.rec_id = cr.rec_id AND cm.is_deleted = 'N' AND cg.is_deleted = 'N'
+            ) AS caregiverName
+        FROM Care_Recipient cr
+        WHERE cr.rec_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="edu.sm.app.dto.Senior" useGeneratedKeys="true" keyProperty="recId">
+        INSERT INTO Care_Recipient
+            (rec_type_code, cust_id, rec_name, rec_birthday, rec_gender, rec_kiosk_code, rec_address,
+             rec_photo_url, rec_med_history, rec_allergies, rec_spec_notes, is_deleted,
+             rec_regdate, rec_update, rec_health_needs)
+        VALUES
+            (#{recTypeCode}, #{custId}, #{recName}, #{recBirthday}, #{recGender}, #{recKioskCode}, #{recAddress},
+             #{recPhotoUrl}, #{recMedHistory}, #{recAllergies}, #{recSpecNotes}, 'N',
+             NOW(), NOW(), #{recHealthNeeds})
+    </insert>
+
+    <update id="update" parameterType="edu.sm.app.dto.Senior">
+        UPDATE Care_Recipient
+        SET
+            rec_name = #{recName},
+            rec_birthday = #{recBirthday},
+            rec_gender = #{recGender},
+            rec_address = #{recAddress},
+            rec_med_history = #{recMedHistory},
+            rec_allergies = #{recAllergies},
+            rec_spec_notes = #{recSpecNotes},
+            rec_health_needs = #{recHealthNeeds},
+            rec_update = NOW()
+        WHERE rec_id = #{recId}
+    </update>
+
+    <select id="selectSeniorCount" resultType="int">
+        SELECT COUNT(*) FROM Care_Recipient WHERE is_deleted = 'N'
+    </select>
+
+</mapper>

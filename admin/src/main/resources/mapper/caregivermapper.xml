@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.CaregiverRepository">
+
+    <select id="selectAllCaregivers" resultType="edu.sm.app.dto.Caregiver">
+        SELECT
+            caregiver_id AS caregiverId,
+            caregiver_name AS caregiverName,
+            caregiver_phone AS caregiverPhone,
+            caregiver_address AS caregiverAddress,
+            is_deleted AS isDeleted,
+            caregiver_regdate AS caregiverRegdate,
+            caregiver_update AS caregiverUpdate,
+            caregiver_career AS caregiverCareer,
+            caregiver_certifications AS caregiverCertifications,
+            caregiver_specialties AS caregiverSpecialties
+        FROM caregiver
+        WHERE is_deleted = 'N'
+        ORDER BY caregiver_id ASC
+    </select>
+
+    <select id="select" parameterType="int" resultType="edu.sm.app.dto.Caregiver">
+        SELECT
+            caregiver_id AS caregiverId,
+            caregiver_name AS caregiverName,
+            caregiver_phone AS caregiverPhone,
+            caregiver_address AS caregiverAddress,
+            is_deleted AS isDeleted,
+            caregiver_regdate AS caregiverRegdate,
+            caregiver_update AS caregiverUpdate,
+            caregiver_career AS caregiverCareer,
+            caregiver_certifications AS caregiverCertifications,
+            caregiver_specialties AS caregiverSpecialties
+        FROM caregiver
+        WHERE caregiver_id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="edu.sm.app.dto.Caregiver">
+        INSERT INTO caregiver (caregiver_name, caregiver_phone, caregiver_address, is_deleted, caregiver_regdate, caregiver_update, caregiver_career, caregiver_certifications, caregiver_specialties)
+        VALUES (#{caregiverName}, #{caregiverPhone}, #{caregiverAddress}, #{isDeleted}, NOW(), NOW(), #{caregiverCareer}, #{caregiverCertifications}, #{caregiverSpecialties})
+    </insert>
+
+    <update id="update" parameterType="edu.sm.app.dto.Caregiver">
+        UPDATE caregiver
+        SET
+            caregiver_name = #{caregiverName},
+            caregiver_phone = #{caregiverPhone},
+            caregiver_address = #{caregiverAddress},
+            caregiver_career = #{caregiverCareer},
+            caregiver_certifications = #{caregiverCertifications},
+            caregiver_specialties = #{caregiverSpecialties},
+            caregiver_update = NOW()
+        WHERE caregiver_id = #{caregiverId}
+    </update>
+
+    <select id="selectCaregiverCount" resultType="int">
+        SELECT COUNT(*) FROM caregiver WHERE is_deleted = 'N'
+    </select>
+
+</mapper>

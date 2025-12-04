@@ -5,9 +5,9 @@
 <section style="padding: 20px;">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-comment-dots"></i> 실시간 채팅
+            <div class="col-12 mb-4 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-comment-dots" style="color: var(--primary-color);"></i> 실시간 채팅
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
                     담당자와 실시간으로 대화할 수 있습니다.

@@ -1,26 +1,27 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <style>
     .senior-card {
         border-radius: 15px;
         overflow: hidden;
     }
-    
+
     .senior-card .card-header {
         border-radius: 15px 15px 0 0;
     }
-    
+
     .senior-btn {
         border-radius: 10px;
         padding: 10px 20px;
     }
-    
+
     .senior-table {
         border-radius: 10px;
         overflow: hidden;
     }
-    
+
     .senior-badge {
         border-radius: 8px;
         padding: 6px 12px;
@@ -41,84 +42,81 @@
                     <div class="table-responsive senior-table">
                         <table class="table table-hover">
                             <thead class="table-light">
-                                <tr>
-                                    <th>번호</th>
-                                    <th>이름</th>
-                                    <th>나이</th>
-                                    <th>성별</th>
-                                    <th>담당 요양사</th>
-                                    <th>건강 상태</th>
-                                    <th>등록일</th>
-                                    <th>관리</th>
-                                </tr>
+                            <tr>
+                                <th>번호</th>
+                                <th>이름</th>
+                                <th>나이</th>
+                                <th>성별</th>
+                                <th>담당 요양사</th>
+                                <th>건강 상태</th>
+                                <th>등록일</th>
+                                <th>관리</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>김영희</td>
-                                    <td>82세</td>
-                                    <td>여</td>
-                                    <td>이요양</td>
-                                    <td><span class="badge bg-success senior-badge">양호</span></td>
-                                    <td>2024-01-15</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary senior-btn">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning senior-btn">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>박철수</td>
-                                    <td>75세</td>
-                                    <td>남</td>
-                                    <td>김요양</td>
-                                    <td><span class="badge bg-warning senior-badge">주의</span></td>
-                                    <td>2024-02-20</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary senior-btn">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning senior-btn">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>최순자</td>
-                                    <td>88세</td>
-                                    <td>여</td>
-                                    <td>박요양</td>
-                                    <td><span class="badge bg-danger senior-badge">위험</span></td>
-                                    <td>2024-03-10</td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary senior-btn">
-                                            <i class="bi bi-eye"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-warning senior-btn">
-                                            <i class="bi bi-pencil"></i>
-                                        </button>
-                                    </td>
-                                </tr>
+                            <c:choose>
+                                <c:when test="${empty seniorList}">
+                                    <tr>
+                                        <td colspan="8" class="text-center">등록된 노약자 정보가 없습니다.</td>
+                                    </tr>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach items="${seniorList}" var="senior">
+                                        <tr>
+                                            <td>${senior.recId}</td>
+                                            <td>${senior.recName}</td>
+                                            <td>${senior.age}세</td>
+                                            <td>
+                                                <c:if test="${senior.recGender == 'M'}">남</c:if>
+                                                <c:if test="${senior.recGender == 'F'}">여</c:if>
+                                            </td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty senior.caregiverName}">
+                                                        ${senior.caregiverName}
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="text-muted">미지정</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                            <td>
+                                                    <%-- 건강 상태 로직 추가 필요 --%>
+                                                <span class="badge bg-success senior-badge">${senior.recHealthNeeds}</span>
+                                            </td>
+                                            <td>
+                                                <fmt:formatDate value="${senior.recRegdate}" pattern="yyyy-MM-dd"/>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-primary senior-btn" onclick="location.href='<c:url value="/senior/detail/${senior.recId}"/>'">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <nav aria-label="Page navigation" class="mt-3">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1">이전</a>
-                            </li>
-                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">다음</a>
-                            </li>
+                            <c:if test="${page.hasPreviousPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${page.prePage}'/>">이전</a>
+                                </li>
+                            </c:if>
+                            <c:forEach begin="1" end="${page.pages}" var="i">
+                                <li class="page-item <c:if test='${page.pageNum eq i}'>active</c:if>">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${i}'/>">${i}</a>
+                                </li>
+                            </c:forEach>
+                            <c:if test="${page.hasNextPage}">
+                                <li class="page-item">
+                                    <a class="page-link" href="<c:url value='/senior/list?pageNo=${page.nextPage}'/>">다음</a>
+                                </li>
+                            </c:if>
                         </ul>
                     </nav>
                 </div>

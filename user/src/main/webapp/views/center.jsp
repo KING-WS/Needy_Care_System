@@ -1,643 +1,91 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <spring:eval expression="@environment.getProperty('app.api.kakao-js-key')" var="kakaoJsKey"/>
 
+<!-- CSS 파일 링크 -->
+<link rel="stylesheet" href="<c:url value='/css/center.css'/>" />
+
 <style>
-    .dashboard-card-link {
-        text-decoration: none;
-        color: inherit;
-        display: block;
-        height: 100%;
-    }
-    .dashboard-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        padding: 30px;
-        height: 100%;
-        text-align: center;
-        transition: all 0.3s ease;
-        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-    .dashboard-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 25px rgba(0,0,0,0.12);
-        cursor: pointer;
-    }
-    .dashboard-card i {
-        font-size: 50px;
-        color: var(--primary-color);
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-    }
-    .dashboard-card:hover i {
-        transform: scale(1.1);
-        color: var(--accent-color);
-    }
-    .dashboard-card h3 {
-        font-size: 22px;
-        margin-bottom: 10px;
-        color: var(--secondary-color);
-        font-weight: 600;
-    }
-    .dashboard-card p {
-        color: #666;
-        font-size: 15px;
-        line-height: 1.5;
-    }
-
-    /* 지도 큰 카드에는 호버 애니메이션 제거 */
-    .dashboard-card.card-xlarge:hover {
-        transform: none;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
-        cursor: default;
-    }
-
-    .dashboard-card.card-xlarge:hover i {
-        transform: none;
-        color: var(--primary-color);
-    }
-
-    /* 카드 높이 설정 */
-    .card-small {
-        min-height: 150px;
-    }
-    .card-medium {
-        min-height: 395px;
-    }
-    .card-large {
-        min-height: 560px;
-    }
-    .card-xlarge {
-        min-height: 720px;
-    }
-
-    /* 지도 카드 스타일 전체 컨테이너 (대시보드 안의 하이라이트 카드) */
-    .dashboard-card.card-xlarge {
-        padding: 18px 24px;
-        display: block;
-        overflow: hidden;
-        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
-        border-radius: 24px;
-        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
-        position: relative;
-    }
-
-    /* 장식용 그라디언트 원 */
-    .dashboard-card.card-xlarge::before,
-    .dashboard-card.card-xlarge::after {
-        content: "";
-        position: absolute;
-        border-radius: 999px;
-        pointer-events: none;
-        opacity: 0.45;
-    }
-
-    .dashboard-card.card-xlarge::before {
-        width: 220px;
-        height: 220px;
-        background: radial-gradient(circle, rgba(52, 152, 219, 0.25), transparent 70%);
-        top: -60px;
-        right: -60px;
-    }
-
-    .dashboard-card.card-xlarge::after {
-        width: 180px;
-        height: 180px;
-        background: radial-gradient(circle, rgba(231, 76, 60, 0.18), transparent 70%);
-        bottom: -40px;
-        left: -40px;
-    }
-
-    /* 지도 레이아웃 (왼쪽 텍스트/목록 + 오른쪽 지도) */
-    .map-layout {
-        display: flex;
-        gap: 24px;
-        height: 100%;
-        align-items: stretch;
-    }
-
-    /* 왼쪽 영역 */
-    .map-left {
-        width: 300px;
-        display: flex;
-        flex-direction: column;
-        background: rgba(255, 255, 255, 0.96);
-        border-radius: 18px;
-        padding: 20px 20px 18px;
-        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
-        position: relative;
-        z-index: 1;
-    }
-
-    .map-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        font-size: 26px;
-        font-weight: 700;
-        color: var(--secondary-color);
-        margin-bottom: 10px;
-    }
-
-    .map-title-icon {
-        width: 34px;
-        height: 34px;
-        border-radius: 999px;
-        background: rgba(52, 152, 219, 0.1);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--primary-color);
-        font-size: 16px;
-    }
-
-    .map-desc {
-        font-size: 14px;
-        color: #777;
-        margin-bottom: 20px;
-        line-height: 1.6;
-    }
-
-    .map-address-panel {
-        flex: 1;
-        background: #ffffff;
-        border-radius: 14px;
-        padding: 16px 16px 14px;
-        font-size: 14px;
-        color: #555555;
-        line-height: 1.6;
-        display: flex;
-        align-items: flex-start;
-        justify-content: flex-start;
-        border: 1px dashed #d0d7de;
-    }
-
-    /* 오른쪽 영역 (탭 + 지도) */
-    .map-right {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* 상단 탭 영역 */
-    .map-tabs {
-        display: inline-flex;
-        gap: 4px;
-        margin-bottom: 12px;
-        position: relative;
-        z-index: 1;
-    }
-
+    /* 지도 탭 버튼 스타일 */
     .map-tab {
-        border-radius: 10px 10px 0 0;
-        padding: 8px 18px;
-        font-size: 13px;
-        font-weight: 600;
-        border: none;
-        background: transparent;
-        color: #5f6b7a;
-        cursor: default; /* 아직 기능 없음 */
-        position: relative;
+        background: #f1f3f5 !important; /* 비활성 탭: 중립적인 배경 */
+        color: #495057 !important;     /* 비활성 탭: 어두운 텍스트 */
+        border: 1px solid #dee2e6 !important;
+        border-radius: 12px !important;
+        padding: 10px 20px !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
     }
-
-    .map-tab i {
-        margin-right: 6px;
-        font-size: 13px;
+    .map-tab:hover:not(.active) {
+        background: #e9ecef !important; /* 비활성 탭 호버 효과 */
     }
-
     .map-tab.active {
-        color: var(--secondary-color);
+        background: #3498db !important; /* 활성 탭: 요청된 색상 */
+        color: white !important;
+        border-color: transparent !important;
+        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+    }
+    .map-tab.active:hover {
+        background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
     }
 
-    .map-tab.active::after {
-        content: "";
+    /* 목록 항목에 대한 수정/삭제 버튼 스타일 */
+    .item-actions {
         position: absolute;
-        left: 10px;
-        right: 10px;
-        bottom: -6px;
-        height: 3px;
-        border-radius: 999px;
-        background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.45);
-    }
-
-    /* 지도 영역 */
-    .map-area {
-        flex: 1;
-        background: #ffffff;
-        border-radius: 20px;
-        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        min-height: 600px;
-        position: relative;
-        z-index: 1;
-    }
-
-    #map {
-        width: 100%;
-        height: 100%;
-        border-radius: 0;
-    }
-
-    /* 레이아웃을 위한 추가 스타일 */
-    .card-wrapper {
-        margin-bottom: 20px;
-        flex: 1;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
         display: flex;
-        flex-direction: column;
-    }
-
-    .card-wrapper:last-child {
-        margin-bottom: 0;
-    }
-
-    /* 각 카드가 컬럼 너비를 꽉 채우도록 설정 */
-    .card-wrapper > * {
-        flex: 1;
-        width: 100%;
-    }
-
-    /* 전체 레이아웃 높이 조정 */
-    #user-dashboard {
-        display: flex;
-        align-items: stretch;
-    }
-
-    #user-dashboard .container-fluid {
-        width: 100%;
-        padding-left: 40px;
-        padding-right: 40px;
-    }
-
-    #user-dashboard .row {
-        height: 100%;
-        margin-left: 0;
-        margin-right: 0;
-    }
-
-    #user-dashboard .row > [class*="col-"] {
-        padding-left: 10px;
-        padding-right: 10px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    /* 건강 카드 스타일 */
-    .health-card {
-        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
-        color: #333;
-        text-align: left;
-        padding: 20px;
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 20px;
-        align-items: start;
-        border-radius: 15px;
-    }
-
-    .health-card-left {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding-right: 15px;
-        border-right: 2px solid #e0e0e0;
-    }
-
-    .health-card-right {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .recipient-avatar {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-        color: white;
-        flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-        overflow: hidden;
-        position: relative;
-    }
-
-    .avatar-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        border-radius: 50%;
-    }
-
-    .recipient-info {
-        display: flex;
-        flex-direction: column;
-        gap: 5px;
-        align-items: center;
-        text-align: center;
-    }
-
-    .recipient-name {
-        font-size: 16px;
-        font-weight: 700;
-        margin: 0;
-        color: #2c3e50;
-    }
-
-    .recipient-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 12px;
-        font-size: 11px;
-        font-weight: 600;
-        width: fit-content;
-    }
-
-    .badge-elderly {
-        background: #e3f2fd;
-        color: #1976d2;
-    }
-
-    .badge-pregnant {
-        background: #fce4ec;
-        color: #c2185b;
-    }
-
-    .badge-disabled {
-        background: #f3e5f5;
-        color: #7b1fa2;
-    }
-
-    .health-info-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .health-info-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: #666;
-        min-width: 80px;
-        text-align: left;
-    }
-
-    .health-value-text {
-        font-size: 13px;
-        font-weight: 600;
-        color: #2c3e50;
-        min-width: 50px;
-        text-align: right;
-    }
-
-    .progress-bar-wrapper {
-        flex: 1;
-        background: #e9ecef;
-        border-radius: 10px;
-        height: 10px;
-        overflow: hidden;
-        position: relative;
-    }
-
-    .progress-bar-fill {
-        height: 100%;
-        border-radius: 10px;
-        transition: width 0.3s ease;
-    }
-
-    .progress-blood-pressure {
-        background: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);
-    }
-
-    .progress-blood-sugar {
-        background: linear-gradient(90deg, #5cb85c 0%, #6fd76f 100%);
-    }
-
-    .progress-brightness {
-        background: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%);
-    }
-
-    .no-data {
-        text-align: center;
-        padding: 20px;
-        font-size: 13px;
-        color: #999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .no-data i {
-        font-size: 32px;
-        color: #ccc;
-    }
-
-    .health-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
-    }
-
-    /* 캘린더 카드 스타일 */
-    .calendar-card {
-        background: radial-gradient(circle at top left, #f4f9ff 0, #f8fbff 40%, #fff9fb 100%);
-        padding: 20px;
-        border-radius: 15px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.15);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .calendar-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 28px rgba(102, 126, 234, 0.2);
-    }
-
-    .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #e0e7ff;
-    }
-
-    .calendar-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #2c3e50;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .calendar-title i {
-        color: #667eea;
-        font-size: 20px;
-    }
-
-    .calendar-month {
-        font-size: 13px;
-        font-weight: 600;
-        color: #667eea;
-        background: #e0e7ff;
-        padding: 4px 12px;
-        border-radius: 20px;
-    }
-
-    .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 5px;
-        flex: 1;
-    }
-
-    .calendar-day-header {
-        text-align: center;
-        font-size: 10px;
-        font-weight: 700;
-        color: #667eea;
-        padding: 5px 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .calendar-day {
-        aspect-ratio: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
+        gap: 6px;
+        opacity: 0; /* 평소에는 숨김 */
+        transition: opacity 0.2s;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 4px;
         border-radius: 8px;
-        position: relative;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .map-location-item:hover .item-actions {
+        opacity: 1; /* 마우스 올리면 보이게 */
+    }
+    .item-action-btn {
+        background: none;
+        border: none;
         cursor: pointer;
-        transition: all 0.2s ease;
-        max-height: 45px;
-        color: #666;
-        background: #e0e7ff; /* 일반 날짜 배경색 변경 */
-    }
-
-    .calendar-day:hover {
-        background: #c7d2fe; /* 호버 시 조금 더 진한 색으로 변경 */
-        color: #4338ca;
-        transform: scale(1.05);
-    }
-
-    .calendar-day.empty {
-        cursor: default;
-        background: transparent;
-    }
-
-    .calendar-day.empty:hover {
-        background: transparent;
-        transform: none;
-    }
-
-    .calendar-day.today {
-        background: #4d5eaa; /* 1. 가장 진한 색 */
-        color: #ffffff;
-        font-weight: 700;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-    }
-
-    .calendar-day.today:hover {
-        background: #4d5eaa;
-        transform: scale(1.1);
-    }
-
-    .calendar-day.has-event {
-        background: #667eea; /* 2. 중간 색 */
-        color: #ffffff;
-        font-weight: 700;
-    }
-
-    .calendar-day.has-event::after {
-        content: '';
-        position: absolute;
-        bottom: 4px;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: #667eea;
-        box-shadow: 0 0 6px rgba(102, 126, 234, 0.5);
-    }
-
-    .calendar-day.today.has-event::after {
-        background: #ffffff;
-        box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
-    }
-
-    .calendar-footer {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 2px solid #e0e7ff;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .calendar-stats {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-    }
-
-    .calendar-stat-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        color: #667eea;
-        font-size: 11px;
-        font-weight: 600;
-    }
-
-    .calendar-stat-item i {
-        font-size: 16px;
-        color: #667eea;
-    }
-
-    .calendar-view-all {
-        color: #667eea;
-        font-size: 12px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 5px;
-        padding: 8px;
-        background: #e0e7ff;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .calendar-view-all:hover {
-        background: #667eea;
-        color: #ffffff;
-    }
-
-    .calendar-view-all i {
         font-size: 14px;
+        padding: 4px;
+        transition: all 0.2s;
+        border-radius: 5px;
+        line-height: 1;
+    }
+    .item-action-btn.edit {
+        color: #0984e3;
+    }
+    .item-action-btn.edit:hover {
+        background-color: #d9e9f8;
+    }
+    .item-action-btn.delete {
+        color: #d63031;
+    }
+    .item-action-btn.delete:hover {
+        background-color: #f8d9d9;
+    }
+
+    /* 사용자 요청: 특정 카드들의 호버 애니메이션 (그림자 및 위치 변화) 비활성화 */
+    .meal-card:hover,
+    .schedule-card:hover,
+    .calendar-card:hover {
+        transform: none !important; /* 위치 변경 애니메이션 제거 */
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important; /* 기본 그림자 유지 */
     }
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
-<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #ffffff;">
+<section id="user-dashboard" style="min-height: calc(100vh - 80px - 100px); padding: 40px 0; background: #f8f9fa;">
     <div class="container-fluid">
         <div class="row">
             <!-- 왼쪽 열 - 2개의 카드 -->
@@ -647,60 +95,87 @@
                     <c:if test="${not empty recipient}">
                         <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
                             <div class="dashboard-card card-small health-card">
-                                <!-- 왼쪽: 프로필 정보 -->
-                                <div class="health-card-left">
-                                    <div class="recipient-avatar">
-                                        <c:choose>
-                                            <c:when test="${not empty recipient.recPhotoUrl}">
-                                                <img src="<c:url value='${recipient.recPhotoUrl}'/>" alt="${recipient.recName}" class="avatar-image">
-                                            </c:when>
-                                            <c:otherwise>
-                                                <i class="bi bi-person-fill"></i>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </div>
-                                    <div class="recipient-info">
-                                        <div class="recipient-name">${recipient.recName}</div>
-                                        <c:choose>
-                                            <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
-                                                <span class="recipient-badge badge-elderly">노인</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
-                                                <span class="recipient-badge badge-pregnant">임산부</span>
-                                            </c:when>
-                                            <c:when test="${recipient.recTypeCode == 'DISABLED'}">
-                                                <span class="recipient-badge badge-disabled">장애인</span>
-                                            </c:when>
-                                        </c:choose>
-                                    </div>
-                                </div>
-
-                                <!-- 오른쪽: 건강 데이터 섹션 -->
-                                <div class="health-card-right">
-                                    <!-- 혈압 수치 병력 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">혈압 수치</div>
-                                        <div class="health-value-text">15/22</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-blood-pressure" style="width: 68%;"></div>
+                                <i class="bi bi-heart-pulse-fill card-title-icon"></i>
+                                    <%--                                <div class="calendar-header">--%>
+                                    <%--                                    <div class="calendar-title">--%>
+                                    <%--                                        건강 정보--%>
+                                    <%--                                    </div>--%>
+                                    <%--                                </div>--%>
+                                <div class="health-card-content">
+                                    <!-- 왼쪽: 프로필 정보 -->
+                                    <div class="health-card-left">
+                                        <div class="recipient-avatar">
+                                            <c:choose>
+                                                <c:when test="${not empty recipient.recPhotoUrl}">
+                                                    <c:set var="photoUrlWithCache" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+                                                    <img src="<c:url value='${photoUrlWithCache}'/>" alt="${recipient.recName}" class="avatar-image"
+                                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                                    <i class="bi bi-person-fill" style="display: none; position: absolute; font-size: 30px; color: white;"></i>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <i class="bi bi-person-fill"></i>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <div class="recipient-info">
+                                            <div class="recipient-name">${recipient.recName}</div>
+                                            <c:choose>
+                                                <c:when test="${recipient.recTypeCode == 'ELDERLY'}">
+                                                    <span class="recipient-badge badge-elderly">노인</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'PREGNANT'}">
+                                                    <span class="recipient-badge badge-pregnant">임산부</span>
+                                                </c:when>
+                                                <c:when test="${recipient.recTypeCode == 'DISABLED'}">
+                                                    <span class="recipient-badge badge-disabled">장애인</span>
+                                                </c:when>
+                                            </c:choose>
                                         </div>
                                     </div>
 
-                                    <!-- 혈당 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">혈당</div>
-                                        <div class="health-value-text">5/19</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-blood-sugar" style="width: 26%;"></div>
-                                        </div>
-                                    </div>
+                                    <!-- 오른쪽: 건강 데이터 섹션 -->
+                                    <%@ page import="java.time.Period" %>
+                                    <%@ page import="java.util.Random" %>
+                                    <%
+                                        int age = 0;
+                                        if (pageContext.findAttribute("recipient") != null) {
+                                            edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
+                                            if (r.getRecBirthday() != null) {
+                                                age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
+                                            }
+                                        }
+                                        pageContext.setAttribute("age", age);
 
-                                    <!-- 조도 -->
-                                    <div class="health-info-item">
-                                        <div class="health-info-label">조도</div>
-                                        <div class="health-value-text">12/08h</div>
-                                        <div class="progress-bar-wrapper">
-                                            <div class="progress-bar-fill progress-brightness" style="width: 50%;"></div>
+                                        // Random heart rate for senior (60-90 bpm)
+                                        int heartRate = 60 + new Random().nextInt(31);
+                                        pageContext.setAttribute("heartRate", heartRate);
+
+                                        // Random blood pressure (systolic: 110-140, diastolic: 70-90)
+                                        int systolic = 110 + new Random().nextInt(31);
+                                        int diastolic = 70 + new Random().nextInt(21);
+                                        pageContext.setAttribute("systolic", systolic);
+                                        pageContext.setAttribute("diastolic", diastolic);
+                                    %>
+                                    <div class="health-card-right">
+                                        <!-- 생년월일/나이 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">생년월일 / 나이</div>
+                                            <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
+                                        </div>
+
+                                        <!-- AI 한줄 건강정보 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">심박수</div>
+                                            <div class="health-value-text">${heartRate} bpm</div>
+                                            <div class="progress-bar-wrapper">
+                                                <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
+                                            </div>
+                                        </div>
+
+                                        <!-- 혈압 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">혈압</div>
+                                            <div class="health-value-text"> ${systolic} / ${diastolic} mmHg</div>
                                         </div>
                                     </div>
                                 </div>
@@ -728,33 +203,44 @@
                             LocalDate firstDay = LocalDate.of(year, month, 1);
                             int daysInMonth = firstDay.lengthOfMonth();
                             int startDayOfWeek = firstDay.getDayOfWeek().getValue() % 7;
-                            
+
                             pageContext.setAttribute("currentYear", year);
                             pageContext.setAttribute("currentMonth", month);
                             pageContext.setAttribute("currentDay", now.getDayOfMonth());
                             pageContext.setAttribute("daysInMonth", daysInMonth);
                             pageContext.setAttribute("startDayOfWeek", startDayOfWeek);
-                            
-                            // 일정이 있는 날짜를 Set으로 저장
+
+                            // 일정이 있는 날짜를 Set으로 저장하고, 날짜별 일정 이름 목록을 Map으로 저장
                             Set<Integer> scheduleDays = new HashSet<>();
+                            Map<Integer, List<String>> scheduleNamesByDay = new HashMap<>();
                             List schedules = (List) request.getAttribute("schedules");
                             if (schedules != null) {
                                 for (Object obj : schedules) {
                                     edu.sm.app.dto.Schedule schedule = (edu.sm.app.dto.Schedule) obj;
-                                    scheduleDays.add(schedule.getSchedDate().getDayOfMonth());
+                                    int day = schedule.getSchedDate().getDayOfMonth();
+                                    scheduleDays.add(day);
+
+                                    // 날짜별 일정 이름 목록 저장
+                                    if (!scheduleNamesByDay.containsKey(day)) {
+                                        scheduleNamesByDay.put(day, new ArrayList<>());
+                                    }
+                                    if (schedule.getSchedName() != null && !schedule.getSchedName().isEmpty()) {
+                                        scheduleNamesByDay.get(day).add(schedule.getSchedName());
+                                    }
                                 }
                             }
                             pageContext.setAttribute("scheduleDays", scheduleDays);
+                            pageContext.setAttribute("scheduleNamesByDay", scheduleNamesByDay);
                         %>
-                        
-                        <div class="calendar-header">
-                            <div class="calendar-title">
-                                <i class="bi bi-calendar-event"></i>
-                                일정
-                            </div>
-                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>
-                        </div>
-                        
+
+                        <i class="bi bi-calendar-event card-title-icon"></i>
+                        <%--                        <div class="calendar-header">--%>
+                        <%--                            <div class="calendar-title">--%>
+                        <%--                                일정--%>
+                        <%--                            </div>--%>
+                        <%--                            <div class="calendar-month">${currentYear}년 ${currentMonth}월</div>--%>
+                        <%--                        </div>--%>
+                        <%--                        --%>
                         <div class="calendar-grid">
                             <!-- 요일 헤더 -->
                             <div class="calendar-day-header">일</div>
@@ -764,22 +250,26 @@
                             <div class="calendar-day-header">목</div>
                             <div class="calendar-day-header">금</div>
                             <div class="calendar-day-header">토</div>
-                            
+
                             <!-- 빈 칸 -->
                             <c:forEach begin="1" end="${startDayOfWeek}">
                                 <div class="calendar-day empty"></div>
                             </c:forEach>
-                            
+
                             <!-- 날짜 -->
                             <c:forEach begin="1" end="${daysInMonth}" var="day">
-                                <div class="calendar-day 
-                                    ${day == currentDay ? 'today' : ''} 
-                                    ${scheduleDays.contains(day) ? 'has-event' : ''}">
-                                    ${day}
+                                <c:set var="daySchedules" value="${scheduleNamesByDay[day]}" />
+                                <div class="calendar-day
+                                    ${day == currentDay ? 'today' : ''}
+                                    ${scheduleDays.contains(day) ? 'has-event' : ''}"
+                                        <c:if test="${not empty daySchedules}">
+                                            data-schedule-names="<c:forEach var="schedName" items="${daySchedules}" varStatus="status">${schedName}<c:if test="${!status.last}">|</c:if></c:forEach>"
+                                        </c:if>>
+                                        ${day}
                                 </div>
                             </c:forEach>
                         </div>
-                        
+
                         <div class="calendar-footer">
                             <div class="calendar-stats">
                                 <div class="calendar-stat-item">
@@ -795,10 +285,6 @@
                                     <span>이번달: ${not empty schedules ? schedules.size() : 0}개</span>
                                 </div>
                             </div>
-                            <div class="calendar-view-all">
-                                자세히 보기
-                                <i class="bi bi-arrow-right-circle"></i>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -806,18 +292,97 @@
 
             <!-- 가운데 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
-                <!-- 중간 카드 (위) -->
+                <!-- 중간 카드 (위) - 오늘의 식단 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/cctv"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/mealplan"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium meal-card">
+                            <i class="fas fa-utensils card-title-icon"></i>
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    오늘의 식단표
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+                            </div>
+
+                            <div class="meal-list">
+                                <c:choose>
+                                    <c:when test="${not empty todayMeals}">
+                                        <c:forEach var="meal" items="${todayMeals}">
+                                            <div class="meal-item" onclick="showMealDetail(${meal.mealId})" style="cursor: pointer;">
+                                                <div class="meal-type ${meal.mealType == '아침' ? 'breakfast' : (meal.mealType == '점심' ? 'lunch' : 'dinner')}">
+                                                    <span>${meal.mealType}</span>
+                                                </div>
+                                                <div class="meal-content">
+                                                    <div class="meal-menu">${meal.mealMenu}</div>
+                                                    <c:if test="${not empty meal.mealCalories}">
+                                                        <div class="meal-calories">${meal.mealCalories}kcal</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="meal-empty-container">
+                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </a>
                 </div>
 
-                <!-- 중간 카드 (아래) -->
+                <!-- 중간 카드 (아래) - 오늘의 일정 -->
                 <div class="card-wrapper">
-                    <a href="<c:url value="/mypage"/>" class="dashboard-card-link">
-                        <div class="dashboard-card card-medium">
+                    <a href="<c:url value="/schedule"/>" class="dashboard-card-link">
+                        <div class="dashboard-card card-medium schedule-card">
+                            <i class="bi bi-clock-history card-title-icon"></i>
+                            <div class="calendar-header">
+                                <div class="calendar-title">
+                                    오늘의 시간표
+                                </div>
+                                <div class="calendar-month">
+                                    <c:set var="today" value="<%=java.time.LocalDate.now()%>"/>
+                                    ${today.monthValue}월 ${today.dayOfMonth}일
+                                </div>
+<%--                            <button type="button" class="btn-add-schedule" onclick="openTodayScheduleModal();">--%>
+<%--                                <i class="fas fa-plus"></i>--%>
+<%--                            </button>--%>
+                            </div>
+
+                            <div class="hourly-schedule-list ${fn:length(todayHourlySchedules) > 5 ? 'scrollable' : ''}">
+                                <c:choose>
+                                    <c:when test="${not empty todayHourlySchedules}">
+                                        <c:forEach var="hourly" items="${todayHourlySchedules}">
+                                            <div class="hourly-schedule-item">
+                                                <div class="hourly-time">
+                                                    <c:if test="${not empty hourly.hourlySchedStartTime}">
+                                                        ${fn:substring(hourly.hourlySchedStartTime, 0, 5)}
+                                                    </c:if>
+                                                    <c:if test="${not empty hourly.hourlySchedEndTime}">
+                                                        ~ ${fn:substring(hourly.hourlySchedEndTime, 0, 5)}
+                                                    </c:if>
+                                                </div>
+                                                <div class="hourly-content">
+                                                    <div class="hourly-name">${hourly.hourlySchedName}</div>
+                                                    <c:if test="${not empty hourly.hourlySchedContent}">
+                                                        <div class="hourly-detail">${hourly.hourlySchedContent}</div>
+                                                    </c:if>
+                                                </div>
+                                            </div>
+                                        </c:forEach>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-calendar-x"></i>
+                                            <span>오늘 등록된 일정이 없습니다</span>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
                         </div>
                     </a>
                 </div>
@@ -834,33 +399,156 @@
                                     <span class="map-title-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </span>
-                                    <span>내 주변 케어 지도</span>
+                                    <span>케어 지도</span>
+
                                 </div>
-                                <div class="map-address-panel">
-                                    지도에서 사용자가 핀찍은 주소 목록
+                                <div class="map-address-panel" id="mapLocationList">
+                                    <div class="map-location-items">
+                                        <!-- 노약자 집 주소 (항상 표시, 고정) -->
+                                        <c:if test="${not empty recipient}">
+                                            <div class="map-location-item home-location" onclick="focusHomeMarker()">
+                                                <div class="location-info">
+                                                    <div class="location-name-wrapper">
+                                                        <div class="location-name" style="font-weight: 600;">
+                                                                ${recipient.recName}님의 집
+                                                        </div>
+                                                        <div class="location-category">집</div>
+                                                    </div>
+                                                </div>
+                                                <div class="location-address">
+                                                    <c:choose>
+                                                        <c:when test="${not empty recipient.recAddress && recipient.recAddress != ''}">
+                                                            ${recipient.recAddress}
+                                                        </c:when>
+                                                        <c:otherwise>
+                                                            <span style="color: #999; font-style: italic;">주소가 등록되지 않았습니다</span>
+                                                        </c:otherwise>
+                                                    </c:choose>
+                                                </div>
+                                            </div>
+
+                                            <!-- 구분선 -->
+                                            <c:if test="${not empty maps || not empty courses}">
+                                                <div class="home-location-divider"></div>
+                                            </c:if>
+                                        </c:if>
+
+                                        <!-- 저장된 장소 목록 또는 빈 상태 -->
+                                        <c:choose>
+                                            <c:when test="${empty maps}">
+                                                <div class="empty-map-list" style="padding: 20px;">
+                                                    <i class="bi bi-pin-map" style="font-size: 30px; color: #ccc; margin-bottom: 8px;"></i>
+                                                    <p style="color: #999; font-size: 13px; margin: 0;">지도를 클릭하여<br/>장소를 추가해보세요!</p>
+                                                </div>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:forEach var="map" items="${maps}">
+                                                    <div class="map-location-item" data-map-id="${map.mapId}"
+                                                         data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}"
+                                                         onclick="showLocationDetail(${map.mapId})">
+                                                        <div class="location-info">
+                                                            <div class="location-name-wrapper">
+                                                                <div class="location-name">${map.mapName}</div>
+                                                                <div class="location-category">${map.mapCategory}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="location-footer">
+                                                            <div class="location-address" data-lat="${map.mapLatitude}" data-lng="${map.mapLongitude}">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty map.mapAddress}">
+                                                                        ${map.mapAddress}
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        주소 조회 중...
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </div>
+                                                            <div class="item-actions">
+                                                                <button class="item-action-btn edit" onclick="event.stopPropagation(); openEditModal(${map.mapId});" title="수정">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                </button>
+                                                                <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteLocation(${map.mapId});" title="삭제">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:otherwise>
+                                        </c:choose>
+
+                                        <!-- 산책코스 목록 (기본 숨김) -->
+                                        <div id="courseListContainer" style="display: none;">
+                                            <c:if test="${not empty courses}">
+                                                <div class="home-location-divider"></div>
+                                                <c:forEach var="course" items="${courses}">
+                                                    <div class="map-location-item course-item" data-course-id="${course.courseId}">
+                                                        <div class="location-info" onclick="showCourseDetail(${course.courseId})">
+                                                            <div class="location-name-wrapper">
+                                                                <div class="location-name">${course.courseName}</div>
+                                                                <div class="location-category course-category">${course.courseType}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="location-footer">
+                                                             <div class="item-actions">
+                                                                <button class="item-action-btn edit" onclick="event.stopPropagation(); alert('산책 코스 수정 기능은 현재 준비 중입니다.');" title="수정">
+                                                                    <i class="bi bi-pencil-square"></i>
+                                                                </button>
+                                                                <button class="item-action-btn delete" onclick="event.stopPropagation(); deleteCourse(${course.courseId});" title="삭제">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </c:if>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- 오른쪽 : 탭 + 지도 -->
+                            <!-- 오른쪽 : 탭 + 검색 + 지도 -->
                             <div class="map-right">
-                                <div class="map-tabs">
-                                    <button type="button" class="map-tab active">
-                                        <i class="fas fa-map-marked-alt"></i>
-                                        <span>내 지도</span>
-                                    </button>
-                                    <button type="button" class="map-tab">
-                                        <i class="fas fa-route"></i>
-                                        <span>산책 코스</span>
-                                    </button>
-                                    <button type="button" class="map-tab">
-                                        <i class="fas fa-route"></i>
-                                        <span>병원</span>
-                                    </button>
-                                    <button type="submit" class="map-tab">
-                                        <i class="fas fa-route"></i>
-                                        <span><input placeholder="위치 검색" type="text" ></span>
-                                    </button>
+                                <!-- 헤더: 탭 + 검색 -->
+                                <div class="map-header">
+                                    <div class="map-tabs">
+                                        <button type="button" class="map-tab active" onclick="switchMapTab(this, 'mymap')">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                            <span>내 지도</span>
+                                        </button>
+                                        <button type="button" class="map-tab" onclick="switchMapTab(this, 'course')">
+                                            <i class="fas fa-walking"></i>
+                                            <span>산책 코스</span>
+                                        </button>
+                                        <!-- 산책코스 모드일 때만 표시되는 경로 초기화 버튼 -->
+                                        <button type="button" id="courseResetBtn" class="map-tab course-reset-btn" onclick="clearCurrentCourse()" style="display: none; margin-left: 10px; background: #ff6b6b; border-color: #ff6b6b;">
+                                            <i class="fas fa-redo"></i>
+                                            <span>경로 초기화</span>
+                                        </button>
+                                        <!-- 산책코스 모드일 때만 표시되는 저장 버튼 -->
+                                        <button type="button" id="courseSaveBtn" class="map-tab course-save-btn" onclick="saveCourse()" style="display: none; margin-left: 10px; background: #667eea; border-color: #667eea; color: white;">
+                                            <i class="fas fa-save"></i>
+                                            <span>산책코스 저장</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 검색 영역 -->
+                                    <div class="map-search-container">
+                                        <div class="map-search-wrapper">
+                                            <input type="text"
+                                                   id="mapSearchInput"
+                                                   class="map-search-input"
+                                                   placeholder="병원, 약국, 공원 등 장소를 검색하세요..."
+                                                   onkeypress="if(event.key==='Enter') searchLocation()">
+                                            <button type="button" class="map-search-btn" onclick="searchLocation()">
+                                                <i class="bi bi-search"></i>
+                                            </button>
+                                        </div>
+                                        <!-- 검색 결과 드롭다운 -->
+                                        <div id="searchResults" class="search-results"></div>
+                                    </div>
                                 </div>
+
                                 <div class="map-area">
                                     <div id="map"></div>
                                 </div>
@@ -873,38 +561,942 @@
     </div>
 </section>
 
-<!-- 카카오맵 API -->
-<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}"></script>
+<!-- 산책코스 저장 모달 -->
+<div class="map-modal-overlay" id="courseModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="fas fa-walking"></i>
+                <span>산책코스 저장</span>
+            </div>
+            <button class="map-modal-close" onclick="closeCourseModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <form id="courseForm">
+                <input type="hidden" id="courseRecId" name="recId" value="${recipient.recId}">
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        산책코스 이름<span class="required">*</span>
+                    </label>
+                    <input type="text" class="modal-form-input" id="courseName"
+                           name="courseName" placeholder="예: 아침 산책 코스" required maxlength="100">
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        코스 유형<span class="required">*</span>
+                    </label>
+                    <select class="modal-form-select" id="courseType" name="courseType" required>
+                        <option value="">선택하세요</option>
+                        <option value="산책">산책</option>
+                        <option value="운동">운동</option>
+                        <option value="병원경로">병원경로</option>
+                        <option value="쇼핑">쇼핑</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        총 거리
+                    </label>
+                    <input type="text" class="modal-form-input" id="courseTotalDistance"
+                           readonly style="background: #f5f5f5;">
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        경로 지점 수
+                    </label>
+                    <input type="text" class="modal-form-input" id="coursePointCount"
+                           readonly style="background: #f5f5f5;">
+                </div>
+            </form>
+        </div>
+        <div class="map-modal-overlay" id="locationDetailModal">
+            <div class="map-modal-footer">
+                <button type="button" class="modal-btn modal-btn-delete" onclick="deleteLocationFromModal()">삭제</button>
+                <button type="button" class="modal-btn modal-btn-save" onclick="editLocationFromModal()" style="margin-right: 5px;">수정</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLocationDetailModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 장소 추가 모달 -->
+<div class="map-modal-overlay" id="mapModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-pin-map-fill"></i>
+                <span>장소 추가</span>
+            </div>
+            <button class="map-modal-close" onclick="closeMapModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-location-info" id="modalLocationInfo">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="modalAddress">주소 조회 중...</span>
+            </div>
+            <form id="mapLocationForm">
+                <input type="hidden" id="modalLat" name="latitude">
+                <input type="hidden" id="modalLng" name="longitude">
+                <input type="hidden" id="modalRecId" name="recId" value="${recipient.recId}">
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        장소 이름<span class="required">*</span>
+                    </label>
+                    <input type="text" class="modal-form-input" id="modalMapName"
+                           name="mapName" placeholder="예: 우리 동네 병원" required maxlength="100">
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        카테고리<span class="required">*</span>
+                    </label>
+                    <select class="modal-form-select" id="modalCategory" name="mapCategory" required>
+                        <option value="">선택하세요</option>
+                        <option value="병원">병원</option>
+                        <option value="약국">약국</option>
+                        <option value="마트">마트/편의점</option>
+                        <option value="공원">공원</option>
+                        <option value="복지관">복지관</option>
+                        <option value="기타">기타</option>
+                    </select>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        메모
+                    </label>
+                    <textarea class="modal-form-textarea" id="modalContent"
+                              name="mapContent" placeholder="이 장소에 대한 메모를 남겨보세요..." maxlength="500"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeMapModal()">취소</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveMapLocation()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- 장소 상세 정보 모달 -->
+<div class="map-modal-overlay" id="locationDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>장소 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeLocationDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-location-info" id="detailLocationAddress">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span id="detailAddress">주소 조회 중...</span>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="detailLocationDistance" style="color: #667eea; font-weight: 600; font-size: 16px; margin-bottom: 10px;">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">장소 이름</label>
+                <div class="modal-form-readonly" id="detailLocationName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">카테고리</label>
+                <div class="modal-form-readonly" id="detailLocationCategory">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">메모</label>
+                <div class="modal-form-readonly" id="detailLocationContent">-</div>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-delete" onclick="deleteLocationFromModal()">삭제</button>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeLocationDetailModal()">닫기</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="viewLocationOnMap()">지도에서 보기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 산책코스 상세 정보 모달 -->
+<div class="map-modal-overlay" id="courseDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-walking"></i>
+                <span>산책코스 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeCourseDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-form-group">
+                <label class="modal-form-label">코스 이름</label>
+                <div class="modal-form-readonly" id="detailCourseName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">코스 타입</label>
+                <div class="modal-form-readonly" id="detailCourseType">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">총 거리</label>
+                <div class="modal-form-readonly" id="detailCourseDistance">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">지점 수</label>
+                <div class="modal-form-readonly" id="detailCoursePoints">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">등록일</label>
+                <div class="modal-form-readonly" id="detailCourseRegdate">-</div>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="viewCourseOnMap()">지도에서 보기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 검색 결과 상세 정보 모달 -->
+<div class="map-modal-overlay" id="searchResultDetailModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="bi bi-geo-alt-fill"></i>
+                <span>검색 장소 정보</span>
+            </div>
+            <button class="map-modal-close" onclick="closeSearchResultDetailModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <div class="modal-form-group">
+                <label class="modal-form-label">장소 이름</label>
+                <div class="modal-form-readonly" id="searchResultName">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">카테고리</label>
+                <div class="modal-form-readonly" id="searchResultCategory">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">주소</label>
+                <div class="modal-form-readonly" id="searchResultAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">집 주소</label>
+                <div class="modal-form-readonly" id="searchResultHomeAddress">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">거리</label>
+                <div class="modal-form-readonly" id="searchResultDistance" style="color: #667eea; font-weight: 600; font-size: 16px;">-</div>
+            </div>
+            <div class="modal-form-group">
+                <label class="modal-form-label">메모</label>
+                <textarea class="modal-form-input" id="searchResultMemo"
+                          placeholder="이 장소에 대한 메모를 입력하세요 (선택사항)"
+                          rows="3" style="resize: vertical;"></textarea>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-save" onclick="saveSearchResultLocation()">저장</button>
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSearchResultDetailModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<!-- 카카오맵 API (services 라이브러리 포함) -->
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoJsKey}&libraries=services"></script>
+
+<!-- SockJS & StompJS for real-time location -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<!-- Map 관련 JavaScript 파일 -->
+<script src="/js/homecenter/center.js"></script>
 <script>
-    var mapContainer = document.getElementById('map');
-    var mapOption = {
-        center: new kakao.maps.LatLng(36.789, 127.004), // 선문대학교 아산캠퍼스 중심 좌표
-        level: 3 // 지도의 확대 레벨
-    };
+    // JSP 변수 - 노약자 정보
+    var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
+    var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
+    <c:choose>
+    <c:when test="${not empty recipient.recPhotoUrl}">
+    <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+    var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+    </c:when>
+    <c:otherwise>
+    var recipientPhotoUrl = '';
+    </c:otherwise>
+    </c:choose>
+    var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
 
-    var map = new kakao.maps.Map(mapContainer, mapOption);
+    // 저장된 마커들 표시 (JSP forEach 사용)
+    function loadSavedMarkers() {
+        var savedMapsJson = '<c:out value="${not empty maps ? true : false}" escapeXml="false"/>';
+        if (savedMapsJson === 'true') {
+            var savedMaps = [];
+            <c:forEach var="mapItem" items="${maps}" varStatus="status">
+            savedMaps.push({
+                mapId: parseInt('${mapItem.mapId}'),
+                mapName: '<c:out value="${mapItem.mapName}" escapeXml="false"/>',
+                mapCategory: '<c:out value="${mapItem.mapCategory}" escapeXml="false"/>',
+                lat: parseFloat('${mapItem.mapLatitude}'),
+                lng: parseFloat('${mapItem.mapLongitude}')
+            });
+            </c:forEach>
 
-    // 마커가 표시될 위치
-    var markerPosition = new kakao.maps.LatLng(36.789, 127.004);
+            // 외부 JS 파일의 함수 호출
+            loadSavedMarkersWithData(savedMaps);
+        }
+    }
 
-    // 마커 생성
-    var marker = new kakao.maps.Marker({
-        position: markerPosition
+    // 태그 active 상태 설정 함수
+    function setActiveTag(buttonElement) {
+        // 모든 버튼에서 active 클래스 제거
+        document.querySelectorAll('.schedule-tag').forEach(function(tag) {
+            tag.classList.remove('active');
+            tag.style.background = '#fff';
+            tag.style.color = '#333';
+        });
+
+        // 클릭된 버튼에 active 클래스 추가
+        if (buttonElement) {
+            buttonElement.classList.add('active');
+            buttonElement.style.background = '#3498db';
+            buttonElement.style.color = '#fff';
+        }
+    }
+
+    // 일정 전환 함수
+    function switchSchedule(schedId, buttonElement) {
+        // 태그 active 상태 설정
+        setActiveTag(buttonElement);
+
+        // 해당 일정의 시간표만 표시
+        var allItems = document.querySelectorAll('.hourly-schedule-item');
+        var hasVisibleItem = false;
+
+        allItems.forEach(function(item) {
+            var itemSchedId = item.getAttribute('data-sched-id');
+            if (itemSchedId == schedId) {
+                item.style.display = 'flex';
+                hasVisibleItem = true;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // 일정이 없을 경우 빈 메시지 표시
+        var emptyDiv = document.querySelector('.hourly-empty');
+        if (!hasVisibleItem) {
+            if (!emptyDiv) {
+                var listDiv = document.getElementById('hourlyScheduleList');
+                listDiv.innerHTML = '<div class="hourly-empty"><i class="bi bi-calendar-x"></i><span>선택한 일정에 시간표가 없습니다</span></div>';
+            }
+        } else if (emptyDiv) {
+            emptyDiv.remove();
+        }
+    }
+
+    // 모든 시간표 표시 함수
+    function showAllSchedules() {
+        var allItems = document.querySelectorAll('.hourly-schedule-item');
+        var hasVisibleItem = false;
+
+        allItems.forEach(function(item) {
+            item.style.display = 'flex';
+            hasVisibleItem = true;
+        });
+
+        // 빈 메시지 제거
+        var emptyDiv = document.querySelector('.hourly-empty');
+        if (emptyDiv && hasVisibleItem) {
+            emptyDiv.remove();
+        }
+
+        // "전체" 태그를 active로 설정
+        var allTag = document.querySelector('.schedule-tag[data-sched-id="all"]');
+        if (allTag) {
+            setActiveTag(allTag);
+        }
+    }
+
+    // 페이지 로드 시 초기화
+    window.addEventListener('load', function() {
+        console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            initializeMap(); // 지도 초기화
+            loadHomeMarker(); // 집 마커 표시
+            loadSavedMarkers(); // 저장된 장소들 표시
+            // 집 마커가 로드된 후 노약자 위치 마커 표시
+            setTimeout(function() {
+                // 함수가 존재할 때만 실행하도록 변경
+                if (typeof loadRecipientLocationMarker === 'function') {
+                    loadRecipientLocationMarker();
+                } else {
+                    console.warn('loadRecipientLocationMarker 함수를 찾을 수 없습니다.');
+                }
+            }, 1000);
+        }
+
+        // 일정 제목 길이 제한 적용
+        if (typeof limitScheduleTitleLength === 'function') {
+            limitScheduleTitleLength();
+        }
+
+        // 식단 메뉴 이름 길이 제한 적용
+        if (typeof limitMealMenuLength === 'function') {
+            limitMealMenuLength();
+        }
+
+        // 일정 목록 스크롤 설정 (5개 이상일 때만)
+        if (typeof setupScheduleScroll === 'function') {
+            setupScheduleScroll();
+        }
+
+        // 초기 로드 시 모든 시간표 표시 (필터링하지 않음)
+        showAllSchedules();
+
+        // 여러 일정이 있을 경우에만 태그 표시 (기본적으로 모든 시간표 보여줌)
+        var scheduleTags = document.querySelectorAll('.schedule-tag');
+        if (scheduleTags.length > 1) {
+            // 여러 일정이 있을 때는 첫 번째 일정 태그를 active로 설정하되, 모든 시간표는 표시
+            var firstScheduleTag = document.querySelector('.schedule-tag.active');
+            if (firstScheduleTag) {
+                // 태그는 active 상태 유지하지만 시간표는 모두 표시
+                showAllSchedules();
+            }
+        }
+
+        // 디버깅: 시간표 개수 확인
+        var hourlyItems = document.querySelectorAll('.hourly-schedule-item');
+        console.log('시간표 개수:', hourlyItems.length);
+        hourlyItems.forEach(function(item, index) {
+            console.log('시간표 ' + index + ':', {
+                schedId: item.getAttribute('data-sched-id'),
+                name: item.querySelector('.hourly-name') ? item.querySelector('.hourly-name').textContent : 'N/A',
+                display: item.style.display || 'default'
+            });
+        });
+
+        // 저장된 장소들의 주소 가져오기
+        loadMapLocationAddresses();
+
+        // 캘린더 일정 툴팁 설정
+        setupCalendarScheduleTooltips();
     });
 
-    // 마커가 지도 위에 표시되도록 설정
-    marker.setMap(map);
+    // 캘린더 일정 툴팁 설정 함수
+    function setupCalendarScheduleTooltips() {
+        var calendarDays = document.querySelectorAll('.calendar-day[data-schedule-names]');
 
-    // 커스텀 오버레이에 표시할 내용
-    var content = '<div style="padding:5px; font-size:12px; white-space:nowrap;">선문대학교 아산캠퍼스</div>';
+        calendarDays.forEach(function(day) {
+            var scheduleNames = day.getAttribute('data-schedule-names');
+            if (!scheduleNames) return;
 
-    // 커스텀 오버레이 생성
-    var customOverlay = new kakao.maps.CustomOverlay({
-        position: markerPosition,
-        content: content,
-        yAnchor: 2
+            // 일정 이름들을 |로 분리
+            var schedules = scheduleNames.split('|');
+
+            // 마우스 오버 시 툴팁 생성
+            day.addEventListener('mouseenter', function(e) {
+                // 기존 툴팁 제거
+                var existingTooltip = day.querySelector('.calendar-schedule-tooltip');
+                if (existingTooltip) {
+                    existingTooltip.remove();
+                }
+
+                // 툴팁 생성
+                var tooltip = document.createElement('ul');
+                tooltip.className = 'calendar-schedule-tooltip';
+
+                schedules.forEach(function(scheduleName) {
+                    if (scheduleName.trim()) {
+                        var li = document.createElement('li');
+                        li.textContent = scheduleName.trim();
+                        tooltip.appendChild(li);
+                    }
+                });
+
+                day.appendChild(tooltip);
+            });
+
+            // 마우스 아웃 시 툴팁 제거
+            day.addEventListener('mouseleave', function(e) {
+                var tooltip = day.querySelector('.calendar-schedule-tooltip');
+                if (tooltip) {
+                    tooltip.remove();
+                }
+            });
+        });
+    }
+
+    // 저장된 장소들의 주소를 가져와서 표시하는 함수
+    function loadMapLocationAddresses() {
+        if (typeof kakao === 'undefined' || !kakao.maps || !kakao.maps.services) {
+            return;
+        }
+
+        var geocoder = new kakao.maps.services.Geocoder();
+        document.querySelectorAll('.map-location-item .location-address').forEach(function(element) {
+            // 주소가 이미 표시된 경우 건너뛰기
+            if (element.textContent.trim() !== '주소 조회 중...') {
+                return;
+            }
+
+            var lat = parseFloat(element.getAttribute('data-lat'));
+            var lng = parseFloat(element.getAttribute('data-lng'));
+
+            if (isNaN(lat) || isNaN(lng)) {
+                element.textContent = '주소 정보 없음';
+                return;
+            }
+
+            // 좌표를 주소로 변환
+            geocoder.coord2Address(lng, lat, function(result, status) {
+                if (status === kakao.maps.services.Status.OK) {
+                    var addr = result[0].address.address_name;
+                    element.textContent = addr;
+                } else {
+                    element.textContent = '주소 정보 없음'; // 실패 시
+                }
+            });
+        });
+    }
+
+    // [MODIFIED] 시간 선택 드롭다운 채우기 및 기본값 설정 함수
+    function populateTimeSelects(defaultHour, defaultMinute) {
+        console.log('Populating time selects with default hour:', defaultHour, 'and minute:', defaultMinute);
+
+        const selects = {
+            startHour: document.getElementById('hourlyScheduleStartHour'),
+            startMinute: document.getElementById('hourlyScheduleStartMinute'),
+            endHour: document.getElementById('hourlyScheduleEndHour'),
+            endMinute: document.getElementById('hourlyScheduleEndMinute')
+        };
+
+        if (!selects.startHour || !selects.startMinute || !selects.endHour || !selects.endMinute) {
+            console.error('Could not find one or more time select elements.');
+            return;
+        }
+
+        function populate(element, max, step, defaultValue) {
+            element.innerHTML = ''; // Clear existing options
+            const fragment = document.createDocumentFragment();
+            
+            for (let i = 0; i < max; i += step) {
+                const opt = document.createElement('option');
+                const val = String(i).padStart(2, '0');
+                opt.value = val;
+                opt.textContent = val;
+                if (val === defaultValue) {
+                    opt.selected = true;
+                }
+                fragment.appendChild(opt);
+            }
+            element.appendChild(fragment);
+            
+            // Fallback to set value if `selected` attribute didn't work
+            if (!element.value && element.options.length > 0) {
+                element.value = defaultValue;
+            }
+        }
+
+        populate(selects.startHour, 24, 1, defaultHour);
+        populate(selects.startMinute, 60, 5, defaultMinute);
+
+        // UX Improvement: Set default end time to one hour after start time
+        const endHourDefault = String((parseInt(defaultHour, 10) + 1) % 24).padStart(2, '0');
+        populate(selects.endHour, 24, 1, endHourDefault);
+        populate(selects.endMinute, 60, 5, defaultMinute);
+        
+        console.log('Finished populating time select DOM options.');
+    }
+
+    
+
+        // [NEW] 상위 일정 선택 모달 닫기
+
+        function closeSelectParentScheduleModal() {
+
+            document.getElementById('selectParentScheduleModal').classList.remove('show');
+
+        }
+
+    
+
+        // [MODIFIED] 세부 일정 추가 모달 열기 (schedId와 함께)
+
+        function openHourlyScheduleModalWithId(schedId) {
+
+            document.getElementById('hourlyScheduleModalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> <span>시간대별 일정 추가</span>';
+
+    
+
+            // 폼 필드 수동 초기화
+
+            document.getElementById('hourlyScheduleSchedId').value = '';
+
+            document.getElementById('hourlyScheduleName').value = '';
+
+            document.getElementById('hourlyScheduleContent').value = '';
+
+            // 선택된 상위 일정 ID 설정
+
+            document.getElementById('hourlyScheduleParentSchedId').value = schedId;
+
+    
+
+            // 시간 선택 드롭다운 채우기 및 기본값 설정
+
+            const now = new Date();
+
+            const currentHour = String(now.getHours()).padStart(2, '0');
+
+            const currentMinute = String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0');
+
+            
+
+            // populateTimeSelects 함수에 기본값 전달
+
+            populateTimeSelects(currentHour, currentMinute);
+
+    
+
+            document.getElementById('hourlyScheduleModal').classList.add('show');
+
+        }
+
+    // [NEW] 상위 일정 선택 후 다음 단계로 진행
+    function proceedToHourlySchedule() {
+        const select = document.getElementById('parentScheduleSelect');
+        const selectedSchedId = select.value;
+
+        if (!selectedSchedId) {
+            alert('상위 일정을 선택해주세요.');
+            return;
+        }
+
+        closeSelectParentScheduleModal();
+        openHourlyScheduleModalWithId(selectedSchedId);
+    }
+
+
+    // [MODIFIED] '오늘의 시간표'에서 '+' 버튼 클릭 시 로직 시작
+    function openTodayScheduleModal() {
+        const todaySchedules = [
+            <c:forEach var="schedule" items="${todaySchedules}">
+            { schedId: ${schedule.schedId}, schedName: "${schedule.schedName}" },
+            </c:forEach>
+        ];
+
+        const todayHourlySchedules = [
+            <c:forEach var="hourly" items="${todayHourlySchedules}">
+            { schedId: ${hourly.schedId} },
+            </c:forEach>
+        ];
+
+        if (todaySchedules.length === 0) {
+            alert('먼저 오늘 날짜의 상위 일정을 등록해야 합니다.\n(일정 관리 페이지로 이동합니다.)');
+            // 필요하다면 일정 관리 페이지로 리디렉션
+            // location.href = '/schedule';
+            return;
+        }
+
+        const parentSelect = document.getElementById('parentScheduleSelect');
+        parentSelect.innerHTML = ''; // 드롭다운 초기화
+
+        const hourlySchedIds = new Set(todayHourlySchedules.map(h => h.schedId));
+
+        todaySchedules.forEach(schedule => {
+            const option = document.createElement('option');
+            option.value = schedule.schedId;
+
+            if (hourlySchedIds.has(schedule.schedId)) {
+                option.textContent = `${schedule.schedName} (이미 세부 일정이 존재합니다)`;
+                option.disabled = true;
+            } else {
+                option.textContent = schedule.schedName;
+            }
+            parentSelect.appendChild(option);
+        });
+
+        document.getElementById('selectParentScheduleModal').classList.add('show');
+    }
+
+    // 시간대별 일정 모달 닫기
+    function closeHourlyScheduleModal() {
+        document.getElementById('hourlyScheduleModal').classList.remove('show');
+    }
+
+    // 시간대별 일정 저장 함수
+    async function saveHourlySchedule() {
+        const form = document.getElementById('hourlyScheduleForm');
+        
+        // --- DIAGNOSIS START ---
+        // Get raw values directly from the form elements to debug
+        const hourlySchedId = document.getElementById('hourlyScheduleSchedId').value;
+        const parentSchedId = document.getElementById('hourlyScheduleParentSchedId').value;
+        const name = document.getElementById('hourlyScheduleName').value; // Changed from hourlySchedName
+        const startHour = document.getElementById('hourlyScheduleStartHour').value;
+        const startMinute = document.getElementById('hourlyScheduleStartMinute').value;
+        const endHour = document.getElementById('hourlyScheduleEndHour').value;
+        const endMinute = document.getElementById('hourlyScheduleEndMinute').value;
+        const content = document.getElementById('hourlyScheduleContent').value; // Changed from hourlySchedContent
+
+        // Log the raw values to the console to see what we are getting
+        console.log("Saving schedule. Raw time values:", { startHour, startMinute, endHour, endMinute });
+        // --- DIAGNOSIS END ---
+
+        if (!form.reportValidity()) { // HTML5 유효성 검사
+            return;
+        }
+        
+        // More explicit validation check for empty time values
+        if (startHour === '' || startMinute === '' || endHour === '' || endMinute === '') {
+            alert('시간이 올바르게 선택되지 않았습니다. 시작 시간과 종료 시간을 모두 선택해주세요.');
+            return;
+        }
+
+        if (!parentSchedId) {
+            alert('상위 일정 정보가 없습니다. 다시 시도해주세요.');
+            return;
+        }
+
+        const hourlySchedStartTime = `${startHour}:${startMinute}:00`; // Added :00
+        const hourlySchedEndTime = `${endHour}:${endMinute}:00`;       // Added :00
+
+        const saveButton = document.getElementById('saveHourlyScheduleBtn');
+        saveButton.disabled = true;
+        saveButton.textContent = '저장 중...';
+
+        const payload = {
+            hourlySchedId: hourlySchedId || null, // Added as per user request
+            schedId: parentSchedId,
+            hourlySchedName: name, // Using 'name' variable
+            hourlySchedStartTime: hourlySchedStartTime,
+            hourlySchedEndTime: hourlySchedEndTime,
+            hourlySchedContent: content // Using 'content' variable
+        };
+
+        const isUpdate = hourlySchedId !== '';
+        const url = isUpdate ? `/api/hourly/${hourlySchedId}` : '/api/hourly';
+        const method = isUpdate ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert(`일정이 성공적으로 ${isUpdate ? '수정' : '추가'}되었습니다!`);
+                closeHourlyScheduleModal();
+                location.reload(); // 페이지 새로고침하여 변경사항 반영
+            } else {
+                alert(`일정 ${isUpdate ? '수정' : '추가'} 실패: ${result.message || '알 수 없는 오류'}`);
+            }
+        } catch (error) {
+            console.error('일정 저장/수정 중 오류 발생:', error);
+            alert('일정 저장/수정 중 오류가 발생했습니다.');
+        } finally {
+            saveButton.disabled = false;
+            saveButton.textContent = '저장';
+        }
+    }
+
+    // ESC 키로 모달 닫기 추가
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            if (document.getElementById('hourlyScheduleModal')?.classList.contains('show')) {
+                closeHourlyScheduleModal();
+            }
+            // 기존 맵 관련 모달 닫기 로직은 유지
+            if (document.getElementById('mapModal')?.classList.contains('show')) closeMapModal();
+            if (document.getElementById('locationDetailModal')?.classList.contains('show')) closeLocationDetailModal();
+            if (document.getElementById('searchResultDetailModal')?.classList.contains('show')) closeSearchResultDetailModal();
+        }
     });
 
-    // 커스텀 오버레이가 지도 위에 표시되도록 설정
-    customOverlay.setMap(map);
+
+
+    // --- 실시간 위치 업데이트 스크립트 ---
+    document.addEventListener('DOMContentLoaded', function() {
+        if (defaultRecId && typeof Stomp !== 'undefined') {
+            connectAndSubscribeForLocation();
+        } else {
+            console.log("실시간 위치 업데이트를 위한 사용자 정보 또는 Stomp 라이브러리를 찾을 수 없습니다.");
+        }
+    });
+
+    function connectAndSubscribeForLocation() {
+        const socket = new SockJS('/adminchat'); // 서버의 STOMP 엔드포인트
+        const stompClient = Stomp.over(socket);
+        stompClient.debug = null; // 디버그 로그 비활성화
+
+        stompClient.connect({}, function (frame) {
+            console.log('✅ Real-time location WS Connected: ' + frame);
+
+            // recipient-specific 토픽 구독
+            const topic = '/topic/location/' + defaultRecId;
+            stompClient.subscribe(topic, function (message) {
+                try {
+                    const locationData = JSON.parse(message.body);
+                    console.log('📍 Real-time Location:', locationData);
+
+                    // center.js에 정의된 마커 이동 함수 호출
+                    if (typeof updateRecipientMarker === 'function') {
+                        updateRecipientMarker(locationData.latitude, locationData.longitude);
+                    } else {
+                        // 함수가 없으면 직접 이동 (비상용)
+                        moveMarkerDirectly(locationData.latitude, locationData.longitude);
+                    }
+
+                } catch (e) {
+                    console.error('위치 데이터 파싱 오류:', e);
+                }
+            });
+        }, function(error) {
+            console.log('⚠️ 위치 정보 소켓 연결이 끊겼습니다. 5초 후 재연결합니다...');
+            setTimeout(connectAndSubscribeForLocation, 5000);
+        });
+    }
 </script>
+
+<!-- 오늘의 일정 목록 모달 -->
+<div class="map-modal-overlay" id="todayScheduleListModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="fas fa-calendar-day"></i>
+                <span>오늘의 일정 목록</span>
+            </div>
+            <button class="map-modal-close" onclick="closeTodayScheduleListModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body" id="todayScheduleListBody" style="max-height: 400px; overflow-y: auto;">
+            <div id="todayScheduleListContent">
+                <!-- 일정 목록이 여기에 동적으로 로드됩니다 -->
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeTodayScheduleListModal()">
+                <i class="fas fa-times"></i> 닫기
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 시간대별 일정 추가 모달 -->
+
+<!-- 상위 일정 선택 모달 -->
+<div class="map-modal-overlay" id="selectParentScheduleModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title">
+                <i class="fas fa-calendar-check"></i>
+                <span>상위 일정 선택</span>
+            </div>
+            <button class="map-modal-close" onclick="closeSelectParentScheduleModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <p style="margin-bottom: 15px; font-size: 14px; color: #555;">세부 일정을 추가할 상위 일정을 선택해주세요.</p>
+            <div class="modal-form-group">
+                <label class="modal-form-label">
+                    <i class="fas fa-calendar-day"></i> 오늘 일정 목록<span class="required">*</span>
+                </label>
+                <select id="parentScheduleSelect" class="modal-form-select">
+                    <!-- 옵션은 스크립트로 채워집니다. -->
+                </select>
+            </div>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeSelectParentScheduleModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button type="button" class="modal-btn modal-btn-save" onclick="proceedToHourlySchedule()">
+                <i class="fas fa-arrow-right"></i> 다음
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="map-modal-overlay" id="hourlyScheduleModal">
+    <div class="map-modal">
+        <div class="map-modal-header">
+            <div class="map-modal-title" id="hourlyScheduleModalTitle">
+                <i class="fas fa-plus-circle"></i>
+                <span>시간대별 일정 추가</span>
+            </div>
+            <button class="map-modal-close" onclick="closeHourlyScheduleModal()">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        <div class="map-modal-body">
+            <form id="hourlyScheduleForm">
+                <input type="hidden" id="hourlyScheduleSchedId">
+                <input type="hidden" id="hourlyScheduleParentSchedId">
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        <i class="fas fa-heading"></i> 제목<span class="required">*</span>
+                    </label>
+                    <input type="text" class="modal-form-input" id="hourlyScheduleName" placeholder="예: 점심 식사" required>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        <i class="fas fa-clock"></i> 시작 시간<span class="required">*</span>
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="hourlyScheduleStartHour" class="modal-form-select" style="flex: 1;" required></select>
+                        <select id="hourlyScheduleStartMinute" class="modal-form-select" style="flex: 1;" required></select>
+                    </div>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        <i class="fas fa-clock"></i> 종료 시간<span class="required">*</span>
+                    </label>
+                    <div style="display: flex; gap: 10px;">
+                        <select id="hourlyScheduleEndHour" class="modal-form-select" style="flex: 1;" required></select>
+                        <select id="hourlyScheduleEndMinute" class="modal-form-select" style="flex: 1;" required></select>
+                    </div>
+                </div>
+
+                <div class="modal-form-group">
+                    <label class="modal-form-label">
+                        <i class="fas fa-align-left"></i> 상세 내용
+                    </label>
+                    <textarea class="modal-form-textarea" id="hourlyScheduleContent" rows="3" placeholder="상세 내용을 입력하세요"></textarea>
+                </div>
+            </form>
+        </div>
+        <div class="map-modal-footer">
+            <button type="button" class="modal-btn modal-btn-cancel" onclick="closeHourlyScheduleModal()">
+                <i class="fas fa-times"></i> 취소
+            </button>
+            <button type="button" class="modal-btn modal-btn-save" id="saveHourlyScheduleBtn" onclick="saveHourlySchedule()">
+                <i class="fas fa-save"></i> 저장
+            </button>
+        </div>
+    </div>
+</div>
+

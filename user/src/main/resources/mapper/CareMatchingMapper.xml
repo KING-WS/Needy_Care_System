@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="edu.sm.app.repository.CareMatchingRepository">
+
+    <select id="getMatchedCaregiverByRecId" resultType="edu.sm.app.dto.Caregiver">
+        SELECT
+            cg.caregiver_id AS caregiverId,
+            cg.caregiver_name AS caregiverName,
+            cg.caregiver_phone AS caregiverPhone,
+            cg.caregiver_address AS caregiverAddress,
+            cg.is_deleted AS isDeleted,
+            cg.caregiver_regdate AS caregiverRegdate,
+            cg.caregiver_update AS caregiverUpdate,
+            cg.caregiver_career AS caregiverCareer,
+            cg.caregiver_certifications AS caregiverCertifications,
+            cg.caregiver_specialties AS caregiverSpecialties
+        FROM care_matching cm
+        JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id
+        WHERE cm.rec_id = #{recId} AND cm.is_deleted = 'N' AND cg.is_deleted = 'N'
+    </select>
+
+</mapper>

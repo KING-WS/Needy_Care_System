@@ -2,12 +2,33 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <!-- 마이페이지 메인 -->
-<section style="padding: 20px;">
+<style>
+    /* 컨텐츠 중앙 정렬 및 여백 조정 */
+    section > .container-fluid {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 1200px) {
+        section > .container-fluid {
+            padding: 0 30px;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        section > .container-fluid {
+            padding: 0 20px;
+        }
+    }
+</style>
+
+<section style="padding: 20px 0 100px 0;">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-12 mb-4">
-                <h1 style="font-size: 36px; font-weight: bold; color: var(--secondary-color);">
-                    <i class="fas fa-user-circle"></i> 마이페이지
+            <div class="col-12 mb-4 text-center">
+                <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
+                    <i class="fas fa-user-circle" style="color: var(--primary-color);"></i> 마이페이지
                 </h1>
                 <p style="font-size: 16px; color: #666; margin-top: 10px;">
                     ${sessionScope.loginUser.custName}님의 개인정보 관리 페이지입니다.
@@ -74,9 +95,9 @@
                             </a>
                         </li>
                         <li style="margin-bottom: 12px;">
-                            <a href="<c:url value="/mypage/settings"/>" style="text-decoration: none; color: var(--secondary-color); display: flex; align-items: center; padding: 10px; border-radius: 8px; transition: all 0.3s;">
-                                <i class="fas fa-cog" style="margin-right: 10px; color: var(--primary-color);"></i>
-                                환경 설정
+                            <a href="<c:url value="/recipient/list"/>" style="text-decoration: none; color: var(--secondary-color); display: flex; align-items: center; padding: 10px; border-radius: 8px; transition: all 0.3s;">
+                                <i class="fas bi-people-fill" style="margin-right: 10px; color: var(--primary-color);"></i>
+                                노약자 관리
                             </a>
                         </li>
                     </ul>

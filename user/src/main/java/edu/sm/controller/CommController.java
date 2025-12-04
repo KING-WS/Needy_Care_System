@@ -4,6 +4,7 @@ import edu.sm.app.dto.Cust;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/comm")
 @RequiredArgsConstructor
 public class CommController {
+
+
+    @Value("${app.url.websocketurl:https://localhost:8084}")
+    private String websocketUrl;
 
     String dir = "comm/";
 
@@ -26,7 +31,7 @@ public class CommController {
 //        }
         
         model.addAttribute("center", dir + "center");
-        model.addAttribute("left", dir + "left");
+        // left 메뉴 제거 - 상단바에서 바로 이동
         return "home";
     }
 
@@ -50,7 +55,8 @@ public class CommController {
         if (loginUser == null) {
             return "redirect:/login";
         }
-        
+
+        model.addAttribute("websocketUrl", websocketUrl);
         model.addAttribute("center", dir + "video");
         model.addAttribute("left", dir + "left");
         return "home";

@@ -1,0 +1,2140 @@
+/**
+ * Center.jsp Stylesheet
+ * 대시보드 및 지도 관련 모든 스타일
+ */
+
+/* ========================================
+   1. 대시보드 카드 스타일
+   ======================================== */
+
+.dashboard-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    height: 100%;
+}
+
+.dashboard-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    padding: 30px;
+    height: 100%;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* card-xlarge는 card-wrapper 높이만큼 채움 */
+.dashboard-card.card-xlarge {
+    height: 100% !important;
+    min-height: 0 !important; /* 최소 높이 제한 해제 */
+    max-height: none !important; /* 최대 높이 제한 해제 */
+
+    /* ... 나머지 기존 스타일은 그대로 유지 ... */
+
+    padding: 20px;
+    display: block;
+    overflow: hidden;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    cursor: pointer;
+}
+
+.dashboard-card i:not(.card-title-icon) {
+    font-size: 50px;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+/* 일정 footer 통계 이모티콘과 지도 이모티콘은 원래 크기로 복원 */
+.dashboard-card .calendar-stat-item i,
+.dashboard-card .map-tab i,
+.dashboard-card .map-search-btn i {
+    font-size: inherit !important;
+    color: inherit !important;
+    margin-bottom: 0 !important;
+}
+
+/* 지도 제목 이모지 색상 - 오늘의 일정 시간과 동일한 색상 */
+.dashboard-card .map-title-icon i {
+    font-size: 16px !important;
+    color: #3498db !important; /* 오늘의 일정 시간과 동일한 색상 */
+    margin-bottom: 0 !important;
+}
+
+.dashboard-card:hover i:not(.card-title-icon) {
+    transform: scale(1.1);
+    color: var(--accent-color);
+}
+
+.dashboard-card h3 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: var(--secondary-color);
+    font-weight: 600;
+}
+
+.dashboard-card p {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+/* 지도 큰 카드 호버 효과 */
+.dashboard-card.card-xlarge:hover {
+    box-shadow: none;
+    cursor: default;
+    transform: none;
+}
+
+.dashboard-card.card-xlarge:hover i:not(.card-title-icon) {
+    transform: none;
+    color: var(--primary-color);
+}
+
+/* ========================================
+   2. 카드 크기 설정
+   ======================================== */
+
+.card-small {
+    /* min-height: 150px; */ /* Removed to allow flexible height */
+}
+
+.card-medium {
+    min-height: 395px;
+}
+
+.card-large {
+    min-height: 560px;
+}
+
+.card-xlarge {
+    /* [수정됨]: 고정 높이 800px을 100%로 변경하여 동적 높이 지원 */
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+}
+
+/* [삭제됨]: 이전에 800px을 강제하던 중복 블록을 제거합니다.
+.dashboard-card.card-xlarge {
+    padding: 20px;
+    display: block;
+    overflow: hidden;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    border-radius: 15px;
+    box-shadow: none;
+    position: relative;
+    height: 800px !important;
+    min-height: 800px !important;
+    max-height: 800px !important;
+    transition: all 0.3s ease;
+}
+*/
+
+/* 장식용 그라디언트 원 (오늘의 일정/식단표와 유사한 스타일) */
+.dashboard-card.card-xlarge::before,
+.dashboard-card.card-xlarge::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.dashboard-card.card-xlarge::before {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15), transparent 70%);
+    top: -50px;
+    right: -50px;
+}
+
+.dashboard-card.card-xlarge::after {
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.12), transparent 70%);
+    bottom: -30px;
+    left: -30px;
+}
+
+.dashboard-card.card-xlarge::before {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.15), transparent 70%);
+    top: -50px;
+    right: -50px;
+}
+
+.dashboard-card.card-xlarge::after {
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.12), transparent 70%);
+    bottom: -30px;
+    left: -30px;
+}
+
+/* ========================================
+   3. 지도 레이아웃
+   ======================================== */
+
+.map-layout {
+    display: flex;
+    gap: 24px;
+    height: calc(100% - 36px);
+    max-height: calc(100% - 36px);
+    align-items: stretch;
+    overflow: hidden;
+}
+
+/* 왼쪽 영역 */
+.map-left {
+    width: 300px;
+    height: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    padding: 20px 20px 18px;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.map-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--secondary-color);
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.map-title-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(52, 152, 219, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #3498db;
+    font-size: 16px !important;
+}
+
+.map-title-icon i {
+    font-size: 16px !important;
+    color: #3498db;
+    margin-bottom: 0 !important;
+}
+
+.map-desc {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 20px;
+    line-height: 1.6;
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: none;
+    border: 1px solid #eee;
+}
+
+/* ========================================
+   4. 지도 장소 목록 (리스트형 스타일 수정)
+   ======================================== */
+
+.map-address-panel {
+    flex: 1;
+    min-height: 0;
+    height: 0;
+    background: #ffffff;
+    /* 테두리 제거하고 깔끔하게 변경 */
+    border-radius: 0 0 18px 18px;
+    padding: 10px 24px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.empty-map-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.map-location-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* 오늘의 일정과 동일한 간격 */
+    width: 100%;
+}
+
+/* 개별 리스트 아이템 스타일 변경 - 오늘의 일정과 동일한 디자인 */
+.map-location-item {
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    border-left: 4px solid #3498db;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 40px;
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 0;
+}
+
+.map-location-item:hover {
+    background: radial-gradient(circle at top left, #e0f2ff 0, #e8f5ff 40%, #f0f8ff 100%);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+/* 핵심: 아이콘(이모지) 숨기기 */
+.location-icon {
+    display: none !important;
+}
+
+.location-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* 장소 이름과 카테고리를 한 줄로 표시 */
+.location-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.location-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+/* 카테고리 태그 스타일 */
+.location-category {
+    font-size: 11px;
+    color: #888;
+    background: #f1f3f5;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: normal;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* 주소 스타일 - 두 번째 줄에 표시 */
+.map-location-item .location-address {
+    font-size: 12px;
+    color: #888;
+    margin-left: 0;
+    margin-top: 4px;
+    text-align: left;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 삭제 버튼 스타일 조정 */
+.location-delete-btn {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%); /* 수직 중앙 정렬 */
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    opacity: 0; /* 평소엔 숨김 */
+    transition: opacity 0.2s;
+    z-index: 10;
+}
+
+.map-location-item:hover .location-delete-btn {
+    opacity: 1;
+}
+
+.location-delete-btn:hover {
+    color: #ff6b6b;
+}
+
+/* --- [수정] 집(Home) 스타일 - 두 줄 레이아웃 (이름 한 줄, 주소 한 줄) --- */
+.home-location {
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%) !important;
+    border-left: 4px solid #ff6b6b !important; /* 오늘의 식단표와 동일한 빨간색 */
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+    margin-bottom: 0 !important;
+    min-height: 40px !important;
+    height: auto !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+}
+
+.home-location .location-info {
+    width: 100% !important;
+    margin-bottom: 0 !important;
+}
+
+.home-location .location-address {
+    font-size: 12px !important;
+    color: #888 !important;
+    margin-left: 0 !important;
+    margin-top: 4px !important;
+    text-align: left !important;
+    width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.home-location:hover {
+    background: radial-gradient(circle at top left, #e0f2ff 0, #e8f5ff 40%, #f0f8ff 100%) !important; /* 약국 객체와 동일한 호버 색상 */
+    transform: translateX(5px) !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15) !important;
+    padding-left: 12px !important;
+}
+
+/* 집 아래 구분선 */
+.home-location-divider {
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 10px 0;
+    border: none;
+}
+
+/* 집 이름 텍스트 색상 */
+.home-location .location-name {
+    color: #2c3e50 !important; /* 약국 객체와 동일한 색상 */
+}
+
+/* 집 카테고리 색상 - 날짜 객체 스타일처럼 빨간색 */
+.home-location .location-category {
+    background: #ffe0e0 !important;
+    color: #ff6b6b !important; /* 빨간색으로 구분 */
+    font-weight: 600 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+}
+
+/* 서버에 저장된 장소 카테고리 - 날짜 객체 스타일처럼 파란색 */
+.map-location-item:not(.home-location) .location-category {
+    background: #e0e7ff !important;
+    color: #3498db !important; /* 오늘의 일정 날짜 객체와 동일한 스타일 */
+    font-weight: 600 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+}
+
+/* ========================================
+   4-1. 저장된 산책코스 목록 스타일
+   ======================================== */
+
+/* 산책코스 목록 컨테이너 - 구분선 하나로 통합 (집 객체 아래 구분선과 통합) */
+.course-list-container {
+    width: 100%;
+    margin-top: 10px;
+    padding-top: 0;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* 첫 번째 산책코스 항목과 구분선 사이 간격 확보 */
+.course-list-container > .map-location-item.course-item:first-child {
+    margin-top: 10px;
+}
+
+/* 집 객체 아래 구분선 - 내 지도 모드에서 표시 */
+.home-location-divider {
+    width: 100%;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 10px 0;
+    border: none;
+}
+
+/* 산책코스 객체 - 서버 객체와 동일한 스타일 */
+.map-location-item.course-item {
+    background: radial-gradient(circle at top left, #f0f9ff 0, #f4f9ff 40%, #f8fbff 100%);
+    border-left: 4px solid #3498db;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 40px;
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    cursor: pointer;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.map-location-item.course-item:hover {
+    background: radial-gradient(circle at top left, #e0f2ff 0, #e8f5ff 40%, #f0f8ff 100%);
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+/* 산책코스 카테고리 - 날짜 객체 스타일처럼 파란색 */
+.course-category {
+    background: #e0e7ff !important;
+    color: #3498db !important;
+    font-weight: 600 !important;
+    padding: 4px 12px !important;
+    border-radius: 20px !important;
+}
+
+/* 산책코스 거리 - 주소 스타일 */
+.course-distance {
+    font-size: 12px;
+    color: #888;
+    margin-left: 0;
+    margin-top: 4px;
+    text-align: left;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 산책코스 저장 버튼 컨테이너 */
+.course-save-button-container {
+    width: 100%;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.course-save-button {
+    width: 100%;
+    padding: 12px 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+.course-save-button:hover {
+    background: #5568d3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+/* ========================================
+   5. 지도 오른쪽 영역 (탭 + 검색)
+   ======================================== */
+
+.map-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 헤더: 탭 + 검색 영역 */
+.map-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.map-tabs {
+    display: flex;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.map-tab {
+    padding: 10px 20px;
+    font-size: 14px;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    color: #666;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-tab:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.map-tab.active {
+    background: #7F7FBF;
+    color: white;
+    border-color: #7F7FBF;
+}
+
+/* 경로 초기화 버튼 스타일 (map-tab과 동일한 크기 유지) */
+.course-reset-btn {
+    background: #ff6b6b !important;
+    color: white !important;
+    border-color: #ff6b6b !important;
+}
+
+.course-reset-btn:hover {
+    background: #ff5252 !important;
+    border-color: #ff5252 !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+}
+
+/* 산책코스 저장 버튼 스타일 (map-tab과 동일한 크기 유지) */
+.course-save-btn {
+    background: #3498db !important;
+    color: white !important;
+    border-color: #3498db !important;
+}
+
+.course-save-btn:hover {
+    background: #5568d3 !important;
+    border-color: #5568d3 !important;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3) !important;
+}
+
+/* ========================================
+   6. 검색 영역
+   ======================================== */
+
+.map-search-container {
+    flex: 1;
+    max-width: 400px;
+    min-width: 300px;
+    position: relative;
+}
+
+.map-search-wrapper {
+    position: relative;
+    display: flex;
+    gap: 8px;
+}
+
+.map-search-input {
+    flex: 1;
+    padding: 11px 45px 11px 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+    background: white;
+    max-width: 400px;
+}
+
+.map-search-input:focus {
+    border-color: #3498db;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.map-search-input::placeholder {
+    color: #adb5bd;
+}
+
+.map-search-btn {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #3498db;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: white;
+    padding: 0;
+    margin: 0;
+}
+
+.map-search-btn:hover {
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.map-search-btn i {
+    font-size: 16px;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========================================
+   7. 검색 결과 드롭다운
+   ======================================== */
+
+.search-results {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.search-results.show {
+    display: block;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.search-result-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%);
+    padding-left: 25px;
+}
+
+.search-result-icon {
+    display: none !important;
+}
+
+.search-result-info {
+    flex: 1;
+}
+
+.search-result-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.search-result-address {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.search-result-category {
+    display: inline-block;
+    padding: 2px 8px;
+    background: #e8eaf6;
+    color: #3498db;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-top: 4px;
+}
+
+.search-no-result {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+}
+
+.search-no-result i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #ddd;
+}
+
+/* ========================================
+   8. 지도 영역
+   ======================================== */
+
+.map-area {
+    flex: 1;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    min-height: 600px;
+    position: relative;
+    z-index: 1;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+}
+
+/* ========================================
+   9. 레이아웃 관련
+   ======================================== */
+
+.card-wrapper {
+    margin-bottom: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-wrapper:last-child {
+    margin-bottom: 0;
+}
+
+.card-wrapper > * {
+    flex: 1;
+    width: 100%;
+}
+.col-lg-6 .card-wrapper {
+    height: 100%;
+}
+
+#user-dashboard {
+    display: flex;
+    align-items: stretch;
+}
+
+#user-dashboard .container-fluid {
+    width: 100%;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+#user-dashboard .row {
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+#user-dashboard .row > [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   10. 건강 카드 스타일
+   ======================================== */
+
+.health-card {
+    background: white;
+    color: #333;
+    text-align: left;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.health-card-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 20px;
+    align-items: start;
+    margin-top: 15px;
+}
+
+.health-card-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    background: #f8f9fa; /* Light gray background */
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.health-card-left:hover {
+    background: #eef2ff;
+}
+
+.health-card-right {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: #f8f9fa; /* Light gray background */
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+}
+
+.health-card-right:hover {
+    background: #eef2ff;
+}
+
+.recipient-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    overflow: hidden;
+    position: relative;
+}
+
+.avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.recipient-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    align-items: center;
+    text-align: center;
+}
+
+.recipient-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0;
+    color: #2c3e50;
+}
+
+.recipient-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    width: fit-content;
+}
+
+.badge-elderly {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.badge-pregnant {
+    background: #fce4ec;
+    color: #c2185b;
+}
+
+.badge-disabled {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.health-info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 5px; /* Adjust padding for inside the container */
+    border-bottom: 1px solid #f5f5f5; /* Separator */
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.health-info-item:last-child {
+    border-bottom: none;
+    padding-bottom: 5px; /* Adjust padding for last item */
+}
+
+.health-info-item:hover {
+    background-color: #fafafa;
+}
+
+.health-info-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    text-align: left;
+}
+
+.health-value-text {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    min-width: 50px;
+    text-align: right;
+}
+
+.progress-bar-wrapper {
+    flex: 1;
+    background: #e9ecef;
+    border-radius: 10px;
+    height: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.progress-blood-pressure {
+    background: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);
+}
+
+.progress-blood-sugar {
+    background: linear-gradient(90deg, #5cb85c 0%, #6fd76f 100%);
+}
+
+.progress-brightness {
+    background: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%);
+}
+
+.no-data {
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+    color: #999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.no-data i {
+    font-size: 32px;
+    color: #ccc;
+}
+
+.health-card:hover {
+    /* transform: translateY(-4px); */
+    transform: none !important;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+/* ========================================
+   11. 캘린더 카드 스타일
+   ======================================== */
+
+.calendar-card {
+    /* ... 기존 스타일 유지 ... */
+    display: flex; /* Flexbox 활성화 */
+    flex-direction: column; /* 수직 정렬 */
+
+    /* min-height를 card-large 높이로 고정 */
+    min-height: 560px !important;
+    height: 560px !important;
+    /* max-height 제거 */
+
+    background: white; /* White bg */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 30px;
+}
+
+.calendar-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e0e7ff;
+    gap: 10px;
+    position: relative;
+}
+
+.btn-add-schedule {
+    background: #3498db !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 32px !important;
+    height: 32px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.3s !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    position: relative !important;
+}
+
+.btn-add-schedule i {
+    color: white !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.btn-add-schedule:hover {
+    background: #5568d3 !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3) !important;
+}
+
+.btn-add-schedule:hover i {
+    color: white !important;
+}
+
+.calendar-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 컨테이너 왼쪽 상단에 배치되는 이모지 */
+.dashboard-card .card-title-icon {
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    color: #3498db;
+    font-size: 18px !important;
+    z-index: 1;
+    margin-bottom: 0;
+}
+
+
+.calendar-month {
+    font-size: 13px;
+    font-weight: 600;
+    color: #3498db;
+    background: #e0e7ff;
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+.calendar-grid {
+    display: grid;
+    /* 가로 7칸을 균등하게 강제 분할 */
+    grid-template-columns: repeat(7, 1fr);
+
+    /* 세로 행 높이를 자동으로 균등하게 분할 (이 부분이 핵심) */
+    grid-auto-rows: minmax(0, 1fr);
+
+    gap: 5px;
+    flex: 1; /* 남은 공간 차지 */
+    width: 100%; /* 너비 꽉 채우기 */
+    height: 100%; /* 높이 꽉 채우기 */
+    min-height: 0; /* Flexbox 내부에서 자식 요소 크기 계산 버그 방지 */
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 700;
+    color: #3498db;
+    padding: 5px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-day {
+    width: 100%;  /* 그리드 칸 너비에 맞춤 */
+    height: 100%; /* 그리드 칸 높이에 맞춤 */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px; /* 글자 크기는 필요시 vw 단위나 미디어 쿼리로 조정 가능 */
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+    background: #e0e7ff;
+}
+
+.calendar-day:hover {
+    background: #c7d2fe;
+    color: #4338ca;
+    transform: scale(1.05);
+}
+
+.calendar-day.empty {
+    cursor: default;
+    background: transparent;
+}
+
+.calendar-day.empty:hover {
+    background: transparent;
+    transform: none;
+}
+
+.calendar-day.today {
+    background: #4d5eaa;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.calendar-day.today:hover {
+    background: #4d5eaa;
+    transform: scale(1.1);
+}
+
+.calendar-day.has-event {
+    /* 배경색 제거 - 빨간색 점만 표시 */
+}
+
+.calendar-day.has-event::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #e74c3c;
+    box-shadow: 0 0 4px rgba(231, 76, 60, 0.6);
+}
+
+.calendar-day.today.has-event::after {
+    background: #e74c3c;
+    box-shadow: 0 0 6px rgba(231, 76, 60, 0.8);
+}
+
+/* 일정 툴팁 스타일 */
+.calendar-day[data-schedule-names] {
+    position: relative;
+}
+
+/* JavaScript로 생성된 툴팁 스타일 */
+.calendar-schedule-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    max-width: 200px;
+    min-width: 120px;
+    text-align: left;
+    line-height: 1.6;
+    white-space: normal;
+    word-wrap: break-word;
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.calendar-schedule-tooltip li {
+    margin: 4px 0;
+    padding-left: 12px;
+    position: relative;
+}
+
+.calendar-schedule-tooltip li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #fff;
+    font-weight: bold;
+}
+
+.calendar-schedule-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 2px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+    z-index: 1001;
+}
+
+/* JavaScript로 변환된 목록 스타일 */
+.calendar-schedule-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 8px;
+    padding: 8px 12px;
+    background: #333;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 6px;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    max-width: 200px;
+    min-width: 120px;
+    text-align: left;
+    line-height: 1.6;
+    white-space: normal;
+    word-wrap: break-word;
+    list-style: none;
+    padding-left: 20px;
+}
+
+.calendar-schedule-tooltip li {
+    margin: 4px 0;
+    padding-left: 12px;
+    position: relative;
+}
+
+.calendar-schedule-tooltip li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #fff;
+    font-weight: bold;
+}
+
+.calendar-day[data-schedule-names]:hover::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    margin-bottom: 2px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #333;
+    z-index: 1001;
+    pointer-events: none;
+}
+
+.calendar-footer {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid #e0e7ff;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.calendar-stats {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.calendar-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    color: #3498db;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.calendar-stat-item i {
+    font-size: 16px !important;
+    color: #3498db;
+}
+
+/* ========================================
+   11-1. 식단 카드 스타일
+   ======================================== */
+
+.meal-card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.meal-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.meal-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.meal-item {
+    background: #f8f9fa; /* Light gray */
+    border-left: 4px solid #ff6b6b;
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    min-height: 45px;
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+.meal-item:hover {
+    background: #eef2ff;
+    transform: translateX(3px);
+    box-shadow: none;
+}
+
+.meal-type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 4px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.meal-type.breakfast {
+    background: #ffb366; /* 단색으로 변경 */
+}
+
+.meal-type.lunch {
+    background: #ffc107; /* 점심에 어울리는 색상으로 변경 */
+}
+
+.meal-type.dinner {
+    background: #6a7ba2; /* 진한 저녁 색상으로 변경 */
+}
+
+.meal-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.meal-menu {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+}
+
+.meal-calories {
+    font-size: 11px;
+    color: #3498db;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.meal-empty-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    min-height: 40px;
+}
+
+.meal-empty {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    text-align: center;
+}
+
+/* ========================================
+   11-2. 오늘의 일정 카드 스타일
+   ======================================== */
+
+.schedule-card {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.schedule-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.hourly-schedule-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+    overflow-x: hidden;
+    width: 100%;
+}
+
+.hourly-schedule-list.scrollable {
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.hourly-schedule-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.hourly-schedule-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.hourly-schedule-list::-webkit-scrollbar-thumb {
+    background: #3498db;
+    border-radius: 10px;
+}
+
+.hourly-schedule-item {
+    background: #f8f9fa; /* Light gray */
+    border-left: 4px solid #3498db;
+    padding: 10px 15px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 45px;
+    height: auto;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.hourly-schedule-item:hover {
+    background: #eef2ff;
+    transform: translateX(5px);
+    box-shadow: none;
+}
+
+.hourly-time {
+    font-weight: 600;
+    color: #3498db;
+    font-size: 12px;
+    margin-bottom: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.hourly-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.hourly-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.hourly-detail {
+    display: none;
+}
+
+.hourly-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    color: #999;
+    gap: 8px;
+}
+
+.hourly-empty i {
+    font-size: 32px;
+    color: #ccc;
+}
+
+.hourly-empty span {
+    font-size: 13px;
+}
+
+.hourly-more {
+    text-align: center;
+    font-size: 12px;
+    color: #3498db;
+    font-weight: 600;
+    padding: 8px;
+    background: #e0e7ff;
+    border-radius: 8px;
+}
+
+/* ========================================
+   12. 장소 추가 모달
+   ======================================== */
+
+.map-modal-overlay {
+    display: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    z-index: 2000 !important;
+    animation: fadeIn 0.3s ease;
+}
+
+.map-modal-overlay.show {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.map-modal {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.map-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.map-modal-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.map-modal-title i {
+    color: #3498db;
+}
+
+.map-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #95a5a6;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.map-modal-close:hover {
+    color: #e74c3c;
+    transform: rotate(90deg);
+}
+
+.map-modal-body {
+    margin-bottom: 25px;
+}
+
+.modal-form-group {
+    margin-bottom: 20px;
+}
+
+.modal-form-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+
+.modal-form-label .required {
+    color: #e74c3c;
+    margin-left: 4px;
+}
+
+.modal-form-input,
+.modal-form-select,
+.modal-form-textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ecf0f1;
+    border-radius: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.modal-form-input:focus,
+.modal-form-select:focus,
+.modal-form-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modal-form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.map-modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.modal-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.modal-btn-cancel {
+    background: #ecf0f1;
+    color: #7f8c8d;
+}
+
+.modal-btn-cancel:hover {
+    background: #bdc3c7;
+}
+
+.modal-btn-save {
+    background: #3498db;
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.modal-btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.modal-btn-save:disabled {
+    background: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.modal-btn-delete {
+    background: #ff6b6b;
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.modal-btn-delete:hover {
+    background: #ff5252;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+}
+
+.modal-location-info {
+    background: #f8f9fa;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #7f8c8d;
+    margin-bottom: 20px;
+}
+
+.modal-location-info i {
+    color: #3498db;
+    margin-right: 5px;
+}
+
+.modal-form-readonly {
+    padding: 12px 15px;
+    border: 2px solid #ecf0f1;
+    border-radius: 10px;
+    font-size: 14px;
+    background: #f8f9fa;
+    color: #2c3e50;
+    min-height: 20px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* 1. 이름과 뱃지를 감싸는 틀: 양옆 정렬 & 위쪽 기준 정렬 */
+.location-name-wrapper {
+    display: flex;
+    justify-content: space-between; /* 이름은 왼쪽, 뱃지는 오른쪽 끝으로 */
+    align-items: flex-start;        /* 텍스트가 두 줄이 되어도 뱃지는 항상 위쪽에 고정 */
+    gap: 8px;                       /* 이름과 뱃지 사이 최소 간격 */
+    width: 100%;
+}
+
+/* 2. 장소 이름: 무조건 왼쪽 정렬 */
+.location-name {
+    text-align: left !important;    /* 강제 왼쪽 정렬 */
+    word-break: keep-all;           /* 단어 중간에 줄바꿈 되지 않도록 설정 (한글 최적화) */
+    line-height: 1.4;
+    flex-grow: 1;                   /* 공간 차지 */
+    font-size: 15px;
+    font-weight: 600;               /* 글자 두께 */
+    color: #333;               /* 글자 크기 통일 (필요시 조절) */
+}
+
+/* 3. 카테고리 뱃지(실내활동 등): 모양 고정 */
+.location-category {
+    white-space: nowrap;            /* 뱃지 안의 글자가 줄바꿈되지 않게 함 */
+    flex-shrink: 0;                 /* 이름이 길어져도 뱃지 크기가 찌그러지지 않음 */
+    font-size: 12px;                /* 뱃지 글자 크기 통일 */
+    padding: 4px 8px;               /* 내부 여백 통일 */
+    height: fit-content;            /* 높이를 내용물에 맞춤 */
+    margin-top: 2px;                /* 이름 텍스트와 시각적 높이 줄맞춤 */
+    text-align: center;             /* 뱃지 내부 글자 가운데 정렬 */
+    min-width: 40px;                /* 최소 너비 지정 (글자가 짧아도 너무 작아지지 않게) */
+}
+
+/* 1. 목록 컨테이너: 스크롤바와 내용 사이에 여백 주기 */
+.map-address-panel {
+    overflow-y: auto;          /* 세로 스크롤 허용 */
+    padding-right: 10px;       /* 스크롤바와 내용 사이 여백 (잘림 방지) */
+    box-sizing: border-box;    /* 여백 포함 크기 계산 */
+    height: 100%;              /* 높이 꽉 채우기 */
+}
+
+/* 2. (선택사항) 투박한 스크롤바를 얇고 예쁘게 변경 */
+.map-address-panel::-webkit-scrollbar {
+    width: 6px;                /* 스크롤바 너비를 얇게 (기본은 약 17px) */
+}
+
+.map-address-panel::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* 스크롤바 색상 (회색) */
+    border-radius: 3px;        /* 둥근 모서리 */
+}
+
+.map-address-panel::-webkit-scrollbar-track {
+    background-color: transparent; /* 스크롤바 배경 투명 */
+}
+
+/* 3. 리스트 아이템: 가로 폭이 넘치지 않도록 안전장치 */
+.map-location-item {
+    margin-right: 2px;         /* 혹시 모를 잘림 방지용 미세 여백 */
+    width: auto;               /* 가로 폭 자동 조절 */
+}
+
+/* [기존 center.css 내용 유지] ... */
+
+/* =========================================
+   [추가] 저장된 장소 커스텀 오버레이 스타일 (AI 추천과 유사한 디자인)
+   ========================================= */
+.place-overlay-wrap {
+    position: absolute;
+    bottom: 70px; /* [수정] 마커와 겹치지 않도록 값을 45px에서 70px로 상향 조정 */
+
+    background: transparent;
+    box-shadow: none;
+
+    overflow: hidden;
+    font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+    z-index: 1000;
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.place-overlay-header {
+    background: linear-gradient(135deg, #3498db 0%, #764ba2 100%);
+    padding: 10px 15px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.place-overlay-close {
+    cursor: pointer;
+    font-size: 18px;
+    opacity: 0.8;
+}
+.place-overlay-close:hover { opacity: 1; }
+
+.place-overlay-body {
+    padding: 15px;
+    text-align: center;
+}
+
+.place-overlay-category {
+    display: inline-block;
+    background: #f0f4ff;
+    color: #3498db;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.place-overlay-content {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.place-overlay-btn {
+    width: 100%;
+    padding: 8px 0;
+    background: #fff;
+    border: 1px solid #3498db;
+    color: #3498db;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.place-overlay-btn:hover {
+    background: #3498db;
+    color: #fff;
+}
+.ai-recommend-search {
+    max-width: 600px !important;
+}
+/* =========================================
+   [�߰�] Ŀ���� �������� ��Ÿ��
+   ========================================= */
+.custom-overlay-wrap {
+    position: absolute;
+    bottom: 50px;
+    left: -125px;
+    width: 250px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
+    font-family: 'Malgun Gothic', dotum, '����', sans-serif;
+    animation: fadeIn 0.3s ease-out;
+    z-index: 1000;
+    border: 1px solid #f0f0f0;
+}
+
+.custom-overlay-header {
+    background: #fff;
+    padding: 12px 15px;
+    color: #333;
+    font-weight: 800;
+    font-size: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.custom-overlay-close {
+    cursor: pointer;
+    color: #999;
+    font-size: 18px;
+    transition: color 0.2s;
+}
+.custom-overlay-close:hover { color: #333; }
+
+.custom-overlay-body {
+    padding: 15px;
+    text-align: center;
+    background: #fff;
+}
+
+.custom-overlay-category {
+    display: inline-block;
+    padding: 4px 12px;
+    background: #f3f0ff;
+    color: #3498db;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.btn-overlay-action {
+    display: block;
+    margin-top: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(52, 152, 219, 0.2);
+    transition: all 0.2s;
+}
+
+.btn-overlay-action:hover {
+    background: #2980b9;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
