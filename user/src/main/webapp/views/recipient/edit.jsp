@@ -384,10 +384,13 @@
         border-left: 5px solid #1976d2;
     }
 
-    .info-banner i {
-        font-size: 28px;
-    }
-</style>
+        .info-banner i {
+
+            font-size: 28px;
+
+        }
+
+    </style>
 
 <div class="edit-container">
     <div class="edit-header">
@@ -876,6 +879,203 @@
         const healthNeedsText = document.getElementById('recHealthNeeds').value.trim();
         if (healthNeedsText) {
             parseAndCheckHealthData(healthNeedsText, 'healthNeed');
+        }
+
+
+        // --- PDF/Image Drag and Drop & AI Analysis Logic ---
+        const dropArea = document.getElementById('pdfDropArea');
+        const fileInput = document.getElementById('pdfFileInput');
+        const fileList = document.getElementById('pdfFileList');
+        const analyzeBtn = document.getElementById('aiAnalyzePdfBtn');
+        let uploadedFiles = [];
+
+        if (dropArea && fileInput && fileList && analyzeBtn) {
+            // Helper function to prevent default behavior
+            const preventDefaults = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            };
+
+            // Trigger file input on click
+            dropArea.addEventListener('click', () => {
+                fileInput.click();
+            });
+            
+            // Add drag event listeners
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('highlight'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('highlight'), false);
+            });
+
+            // Handle dropped files
+            dropArea.addEventListener('drop', (e) => {
+                handleFiles(e.dataTransfer.files);
+            }, false);
+
+            // Handle file selection from input
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+                e.target.value = ''; // Reset input to allow re-uploading the same file
+            });
+
+            // Central function to process files
+            function handleFiles(files) {
+                for (const file of files) {
+                    if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+                        uploadedFiles.push(file);
+                        renderFile(file);
+                    } else {
+                        alert('이미지 또는 PDF 파일만 업로드할 수 있습니다.');
+                    }
+                }
+            }
+            
+            function renderFile(file) {
+                const listItem = document.createElement('li');
+                
+                const leftDiv = document.createElement('div');
+                leftDiv.style.display = 'flex';
+                leftDiv.style.alignItems = 'center';
+                leftDiv.style.gap = '10px';
+
+                if (file.type.startsWith('image/')) {
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.className = 'file-preview-img';
+                    leftDiv.appendChild(img);
+                } else {
+                    const pdfIcon = document.createElement('i');
+                    pdfIcon.className = 'bi bi-file-earmark-pdf-fill file-preview-icon';
+                    leftDiv.appendChild(pdfIcon);
+                }
+                
+                const fileInfo = document.createElement('span');
+                const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+                fileInfo.textContent = `${file.name} (${fileSizeMB} MB)`;
+                leftDiv.appendChild(fileInfo);
+                
+                listItem.appendChild(leftDiv);
+
+                const removeBtn = document.createElement('i');
+                removeBtn.className = 'bi bi-x-circle-fill file-remove-btn';
+                removeBtn.title = '파일 제거';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    // Remove file from array
+                    uploadedFiles = uploadedFiles.filter(f => f.name !== file.name);
+                    
+                    const preview = listItem.querySelector('.file-preview-img');
+                    if (preview) {
+                        URL.revokeObjectURL(preview.src);
+                    }
+                    listItem.remove();
+                };
+                listItem.appendChild(removeBtn);
+
+                fileList.appendChild(listItem);
+            }
+
+            // --- AI Analysis Button Click Handler ---
+            analyzeBtn.addEventListener('click', async () => {
+                if (uploadedFiles.length === 0) {
+                    alert('분석할 파일을 먼저 추가해주세요.');
+                    return;
+                }
+
+                // Show loading state
+                analyzeBtn.disabled = true;
+                analyzeBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> 분석 중...';
+
+                // Create FormData
+                const formData = new FormData();
+                uploadedFiles.forEach(file => {
+                    formData.append('files', file);
+                });
+
+                try {
+                    const response = await fetch('/api/ai/analyze-document', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || '서버 오류가 발생했습니다.');
+                    }
+                    
+                    const result = await response.json();
+                    displayAnalysisResult(result.analysis_result);
+
+                } catch (error) {
+                    alert(`분석 실패: ${error.message}`);
+                    console.error('AI Analysis Error:', error);
+                } finally {
+                    // Restore button state
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.innerHTML = '<i class="bi bi-cpu"></i> AI 분석';
+                }
+            });
+
+            function displayAnalysisResult(resultText) {
+                // Remove existing result area if any
+                const existingResult = document.getElementById('aiResultArea');
+                if (existingResult) {
+                    existingResult.remove();
+                }
+
+                const resultArea = document.createElement('div');
+                resultArea.id = 'aiResultArea';
+                resultArea.style.marginTop = '15px';
+                resultArea.style.padding = '15px';
+                resultArea.style.backgroundColor = '#e6f7ff';
+                resultArea.style.border = '1px solid #91d5ff';
+                resultArea.style.borderRadius = '8px';
+
+                const title = document.createElement('h5');
+                title.innerHTML = '<i class="bi bi-lightbulb"></i> AI 분석 결과';
+                title.style.marginBottom = '10px';
+                title.style.color = '#0056b3';
+
+                const resultPre = document.createElement('pre');
+                resultPre.textContent = resultText;
+                resultPre.style.whiteSpace = 'pre-wrap';
+                resultPre.style.fontFamily = 'inherit';
+                resultPre.style.fontSize = '14px';
+                resultPre.style.margin = '0';
+                resultPre.style.padding = '10px';
+                resultPre.style.backgroundColor = 'white';
+                resultPre.style.borderRadius = '5px';
+                
+                const saveBtn = document.createElement('button');
+                saveBtn.type = 'button';
+                saveBtn.textContent = '특이사항에 저장';
+                saveBtn.className = 'btn btn-primary';
+                saveBtn.style.marginTop = '15px';
+                saveBtn.style.width = '100%';
+
+                saveBtn.onclick = () => {
+                    const specNotesTextarea = document.getElementById('recSpecNotes');
+                    const currentNotes = specNotesTextarea.value.trim();
+                    const separator = currentNotes ? '\n\n' : '';
+                    specNotesTextarea.value = currentNotes + separator + "--- AI 분석 결과 ---\n" + resultText;
+                    alert('특이사항에 분석 결과가 추가되었습니다.');
+                    resultArea.remove(); // Remove result area after saving
+                };
+
+                resultArea.appendChild(title);
+                resultArea.appendChild(resultPre);
+                resultArea.appendChild(saveBtn);
+
+                // Insert the result area after the analyze button
+                analyzeBtn.parentNode.insertBefore(resultArea, analyzeBtn.nextSibling);
+            }
         }
     });
 

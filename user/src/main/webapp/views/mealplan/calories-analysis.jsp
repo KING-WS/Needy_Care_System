@@ -98,7 +98,7 @@
 
     /* [수정] 통계 제목: 검은색, 굵게 */
     .stat-title {
-        font-size: 16px;
+        font-size: 20px;
         color: #000000; /* [요청] 검은색 */
         font-weight: 800; /* [요청] 굵게 */
         text-transform: uppercase;
