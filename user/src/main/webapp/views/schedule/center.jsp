@@ -120,10 +120,10 @@
     .stat-item {
         background: white;
         border-radius: 15px;
-        padding: 20px;
+        padding: 22px; /* Adjusted from 25px */
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 18px; /* Adjusted from 20px */
         box-shadow: 0 5px 15px rgba(0,0,0,0.03);
         border: 1px solid rgba(0,0,0,0.03);
         transition: transform 0.3s ease;
@@ -136,13 +136,13 @@
     }
 
     .stat-icon {
-        width: 45px;
-        height: 45px;
+        width: 50px; /* Adjusted from 55px */
+        height: 50px; /* Adjusted from 55px */
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 22px; /* Adjusted from 24px */
         color: white;
         flex-shrink: 0;
     }
@@ -158,14 +158,14 @@
     }
 
     .stat-label {
-        font-size: 13px;
+        font-size: 14px; /* Adjusted from 16px */
         color: #7f8c8d;
         font-weight: 600;
-        margin-bottom: 2px;
+        margin-bottom: 5px;
     }
 
     .stat-value {
-        font-size: 24px;
+        font-size: 27px; /* Adjusted from 30px */
         font-weight: 800;
         color: var(--secondary-color);
     }
@@ -174,12 +174,12 @@
     .ai-schedule-btn {
         width: 100%;
         margin-top: 20px;
-        padding: 45px;
+        padding: 50px; /* Adjusted from 55px */
         background: var(--primary-color);
         color: white;
         border: none;
         border-radius: 15px;
-        font-size: 30px;
+        font-size: 33px; /* Adjusted from 36px */
         font-weight: 700;
         cursor: pointer;
         display: flex;
@@ -188,6 +188,11 @@
         gap: 10px;
         box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         transition: all 0.3s ease;
+    }
+
+    .ai-schedule-btn span {
+        white-space: nowrap; /* Prevent text from wrapping */
+        writing-mode: horizontal-tb; /* Explicitly set horizontal writing mode */
     }
 
     .ai-schedule-btn:hover {
@@ -377,13 +382,13 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-10">
+        <div class="col-lg-9">
             <div class="detail-content-card">
                 <div id="calendar"></div>
             </div>
         </div>
 
-        <div class="col-lg-2">
+        <div class="col-lg-3">
             <div class="stats-container">
                 <div class="stat-item">
                     <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
