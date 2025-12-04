@@ -7,10 +7,15 @@
     <title>로그인 - Needy Care System</title>
     <%@ include file="common/head.jsp" %>
     <style>
+        /* ---------------------------------------------------- */
+        /* 1. 디자인 시스템 (공통 변수 재정의) */
+        /* ---------------------------------------------------- */
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --accent-color: #e74c3c;
+            --primary-color: #3498db;      /* 통일된 주 색상 */
+            --secondary-color: #2c3e50;    /* 진한 회색 텍스트 */
+            --secondary-bg: #F0F8FF;       /* 연한 배경색 (입력창 등) */
+            --card-bg: white;
+            --danger-color: #e74c3c;
         }
 
         * {
@@ -20,8 +25,9 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: white;
+            /* 폰트 변경: Noto Sans KR이 적용되었다고 가정 */
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #f8f9fa; /* 전체 배경을 연한 회색으로 변경하여 카드 효과 강조 */
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -32,6 +38,11 @@
         .login-container {
             max-width: 400px;
             width: 100%;
+            /* 카드 스타일 적용: 둥근 모서리, 그림자 */
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
         .login-header {
@@ -40,21 +51,21 @@
         }
 
         .login-header h2 {
-            font-size: 28px;
-            font-weight: 600;
-            color: #2c3e50;
+            font-size: 32px; /* 헤더 폰트 크기 강조 */
+            font-weight: 800; /* 헤더 폰트 두께 강조 */
+            color: var(--secondary-color);
             margin-bottom: 10px;
         }
 
         .login-header p {
-            font-size: 14px;
+            font-size: 15px;
             color: #7f8c8d;
         }
 
         .login-header p a {
             color: var(--primary-color);
             text-decoration: none;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .login-header p a:hover {
@@ -66,21 +77,21 @@
         }
 
         .form-label {
-            font-weight: 500;
-            color: #555;
+            font-weight: 700; /* 폰트 두께 강조 */
+            color: var(--secondary-color); /* 색상 변경 */
             margin-bottom: 8px;
             display: block;
-            font-size: 13px;
+            font-size: 14px; /* 폰트 크기 변경 */
         }
 
         .form-control {
             width: 100%;
             padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
+            border: 1px solid transparent; /* 투명한 테두리 */
+            border-radius: 12px; /* 둥근 입력창 모서리 통일 */
+            font-size: 15px; /* 폰트 크기 변경 */
             transition: all 0.3s;
-            background: #fafafa;
+            background: var(--secondary-bg); /* 배경색 변경 */
         }
 
         .form-control:focus {
@@ -106,17 +117,20 @@
             cursor: pointer;
             color: #999;
             transition: color 0.3s;
+            font-size: 16px;
         }
 
         .toggle-password:hover {
             color: var(--primary-color);
         }
 
+        /* 알림 메시지 스타일 통일 */
         .alert {
-            padding: 12px 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 15px 20px;
+            border-radius: 12px; /* 둥근 모서리 */
+            margin-bottom: 25px;
             font-size: 14px;
+            font-weight: 500;
         }
 
         .alert-danger {
@@ -134,20 +148,22 @@
         .btn-login {
             width: 100%;
             padding: 13px;
-            background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+            background: var(--primary-color); /* 그라데이션 대신 단색 기반으로 변경 */
             color: white;
             border: none;
-            border-radius: 6px;
-            font-size: 15px;
-            font-weight: 600;
+            border-radius: 50px; /* 둥근 버튼 통일 */
+            font-size: 16px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: 15px;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         }
 
         .btn-login:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+            transform: translateY(-2px); /* 호버 효과 강조 */
+            background: #2980b9;
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
         }
 
         .btn-login:active {
@@ -158,12 +174,13 @@
             display: block;
             text-align: center;
             margin-top: 20px;
-            font-size: 13px;
-            color: var(--primary-color);
+            font-size: 14px;
+            color: var(--secondary-color); /* 색상 변경 */
             text-decoration: none;
         }
 
         .register-link:hover {
+            color: var(--primary-color);
             text-decoration: underline;
         }
 
@@ -182,11 +199,12 @@
 
         @media (max-width: 768px) {
             .login-container {
-                padding: 0;
+                padding: 30px 20px; /* 모바일에서 패딩 조정 */
+                box-shadow: none; /* 모바일에서 그림자 제거 */
             }
 
             .login-header h2 {
-                font-size: 24px;
+                font-size: 28px;
             }
         }
     </style>
@@ -195,7 +213,9 @@
     <div class="login-container">
         <div class="login-header">
             <h2>로그인</h2>
-            <p>환영합니다! 로그인하여 서비스를 이용하세요</p>
+            <p>환영합니다!
+                <a href="/register">로그인하여 서비스를 이용하세요</a>
+            </p>
         </div>
 
         <c:if test="${not empty error}">
@@ -203,7 +223,7 @@
                 ${error}
             </div>
         </c:if>
-        
+
         <c:if test="${not empty success}">
             <div class="alert alert-success">
                 ${success}
@@ -211,18 +231,16 @@
         </c:if>
 
         <form action="/login" method="post" id="loginForm">
-            <!-- 이메일 -->
             <div class="form-group">
                 <label class="form-label">이메일</label>
-                <input type="email" name="custEmail" class="form-control" 
+                <input type="email" name="custEmail" class="form-control"
                        placeholder="이메일을 입력하세요" required>
             </div>
 
-            <!-- 비밀번호 -->
             <div class="form-group">
                 <label class="form-label">비밀번호</label>
                 <div class="password-wrapper">
-                    <input type="password" name="password" id="password" 
+                    <input type="password" name="password" id="password"
                            class="form-control" placeholder="비밀번호를 입력하세요" required>
                     <i class="fas fa-eye toggle-password" onclick="togglePassword('password')"></i>
                 </div>
@@ -231,7 +249,8 @@
             <button type="submit" class="btn-login">로그인</button>
         </form>
 
-        <a href="/register" class="register-link">계정이 없으신가요? 회원가입</a>
+        <a href="/register" class="register-link">계정이 없으신가요?
+        <span style="font-weight: 600; color: var(--primary-color);">회원가입</span></a>
         <a href="/" class="btn-back">← 메인으로 돌아가기</a>
     </div>
 
@@ -240,7 +259,7 @@
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
             const icon = event.target;
-            
+
             if (field.type === 'password') {
                 field.type = 'text';
                 icon.classList.remove('fa-eye');
@@ -254,4 +273,3 @@
     </script>
 </body>
 </html>
-

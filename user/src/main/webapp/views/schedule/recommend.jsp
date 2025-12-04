@@ -30,7 +30,7 @@
         box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
     }
     .map-tab.active:hover {
-         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
+        background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
     }
 
     /* =========================================
@@ -282,6 +282,89 @@
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    /* 검색 입력 필드와 버튼 스타일 수정 */
+    .map-search-wrapper {
+        position: relative !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+    }
+    
+    .map-search-input {
+        padding-right: 130px !important; /* 버튼 3개를 위한 공간 확보 */
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+    
+    /* 검색 컨테이너 반응형 처리 - center.css의 max-width 제한 제거 */
+    .map-search-container.ai-recommend-search {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: 1 !important;
+    }
+    
+    /* 입력 필드의 텍스트가 버튼 영역을 침범하지 않도록 */
+    .map-search-input:focus {
+        padding-right: 130px !important;
+    }
+    
+    /* 검색 버튼들을 입력 필드 안에 완전히 배치 */
+    .map-search-btn {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 10 !important;
+        margin: 0 !important;
+        flex-shrink: 0 !important;
+    }
+    
+    /* 검색 버튼 (맨 오른쪽 - 돋보기 아이콘) */
+    .map-search-wrapper .search-icon-btn {
+        right: 5px !important;
+    }
+    
+    /* 음성 검색 버튼 스타일 */
+    .map-search-wrapper .voice-search-btn {
+        background: #28a745 !important;
+        right: 42px !important;
+    }
+    .map-search-wrapper .voice-search-btn:hover {
+        background: #218838 !important;
+    }
+    .map-search-wrapper .voice-search-btn.recording {
+        background: #dc3545 !important;
+        animation: pulse 1.5s infinite;
+    }
+    
+    /* AI 검색 버튼 위치 */
+    .map-search-wrapper .ai-icon-btn {
+        right: 79px !important;
+    }
+    
+    /* 반응형: 작은 화면에서 버튼 간격 조정 */
+    @media (max-width: 768px) {
+        .map-search-input {
+            padding-right: 120px !important;
+        }
+        .map-search-wrapper .voice-search-btn {
+            right: 38px !important;
+        }
+        .map-search-wrapper .ai-icon-btn {
+            right: 72px !important;
+        }
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
 </style>
 
 <section style="padding: 20px 0 100px 0; background: #f8f9fa; min-height: calc(100vh - 200px);">
@@ -383,8 +466,9 @@
                                     <div class="map-search-container ai-recommend-search d-flex align-items-center gap-2">
                                         <div class="map-search-wrapper flex-grow-1">
                                             <input type="text" id="mapSearchInput" class="map-search-input" placeholder="병원, 약국, 공원 등 장소를 검색..." onkeypress="if(event.key==='Enter') searchLocation()">
-                                            <button type="button" class="map-search-btn" onclick="searchLocation()"><i class="bi bi-search"></i></button>
-                                            <button type="button" id="aiSearchBtn" class="map-search-btn" style="right: 42px;"><i class="fas fa-robot"></i></button>
+                                            <button type="button" class="map-search-btn search-icon-btn" onclick="searchLocation()" title="검색"><i class="bi bi-search"></i></button>
+                                            <button type="button" id="voiceSearchBtn" class="map-search-btn voice-search-btn" title="음성 검색"><i class="fas fa-microphone"></i></button>
+                                            <button type="button" id="aiSearchBtn" class="map-search-btn ai-icon-btn" title="AI 검색"><i class="fas fa-robot"></i></button>
                                         </div>
                                         <button id="recommendBtn" class="btn btn-recommend-ai">
                                             맞춤 추천
@@ -731,9 +815,86 @@
                 });
         });
 
-        const aiSearchBtn = document.getElementById('aiSearchBtn');
-        aiSearchBtn.addEventListener('click', function() {
-            const keyword = document.getElementById('mapSearchInput').value;
+        // 음성 인식 기능
+        const voiceSearchBtn = document.getElementById('voiceSearchBtn');
+        const mapSearchInput = document.getElementById('mapSearchInput');
+        let recognition = null;
+        let isRecording = false;
+
+        // Web Speech API 지원 확인 및 초기화
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ko-KR'; // 한국어 설정
+            recognition.continuous = false; // 한 번만 인식
+            recognition.interimResults = false; // 최종 결과만 받기
+
+            recognition.onstart = function() {
+                isRecording = true;
+                voiceSearchBtn.classList.add('recording');
+                voiceSearchBtn.title = '음성 인식 중... (클릭하여 중지)';
+                mapSearchInput.placeholder = '말씀해주세요...';
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim();
+                mapSearchInput.value = transcript;
+                isRecording = false;
+                voiceSearchBtn.classList.remove('recording');
+                voiceSearchBtn.title = '음성 검색';
+                mapSearchInput.placeholder = '병원, 약국, 공원 등 장소를 검색...';
+                
+                // 음성 인식 후 자동으로 AI 검색 실행
+                if (transcript) {
+                    performAiSearch(transcript);
+                }
+            };
+
+            recognition.onerror = function(event) {
+                console.error('음성 인식 오류:', event.error);
+                isRecording = false;
+                voiceSearchBtn.classList.remove('recording');
+                voiceSearchBtn.title = '음성 검색';
+                mapSearchInput.placeholder = '병원, 약국, 공원 등 장소를 검색...';
+                
+                let errorMsg = '음성 인식 중 오류가 발생했습니다.';
+                if (event.error === 'no-speech') {
+                    errorMsg = '음성이 감지되지 않았습니다. 다시 시도해주세요.';
+                } else if (event.error === 'not-allowed') {
+                    errorMsg = '마이크 권한이 필요합니다. 브라우저 설정에서 마이크 권한을 허용해주세요.';
+                }
+                alert(errorMsg);
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                voiceSearchBtn.classList.remove('recording');
+                voiceSearchBtn.title = '음성 검색';
+                mapSearchInput.placeholder = '병원, 약국, 공원 등 장소를 검색...';
+            };
+
+            voiceSearchBtn.addEventListener('click', function() {
+                if (isRecording) {
+                    // 녹음 중이면 중지
+                    recognition.stop();
+                } else {
+                    // 녹음 시작
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.error('음성 인식 시작 오류:', e);
+                        alert('음성 인식을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
+                    }
+                }
+            });
+        } else {
+            // Web Speech API를 지원하지 않는 경우
+            voiceSearchBtn.style.display = 'none';
+            console.warn('이 브라우저는 음성 인식을 지원하지 않습니다.');
+        }
+
+        // AI 검색 함수 (재사용 가능하도록 분리)
+        function performAiSearch(keyword) {
             if (!keyword || keyword.trim() === '') {
                 alert("검색어를 입력해주세요.");
                 return;
@@ -750,12 +911,13 @@
             const loadingModalElement = document.getElementById('loadingModal');
             const loadingModal = new bootstrap.Modal(loadingModalElement);
             loadingModal.show();
+            const aiSearchBtn = document.getElementById('aiSearchBtn');
             aiSearchBtn.disabled = true;
 
             fetch('/schedule/ai-keyword-recommend', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ recId: parseInt(recId), keyword: keyword })
+                body: JSON.stringify({ recId: parseInt(recId), keyword: keyword.trim() })
             })
                 .then(response => response.json())
                 .then(data => {
@@ -763,7 +925,8 @@
                     loadingModal.hide();
                     aiSearchBtn.disabled = false;
                     if (!data || data.length === 0) {
-                        resultsContainer.innerHTML = `<div class="col-12 text-center py-5"><h4 class="text-muted">'\${keyword}'에 대한 AI 추천 결과가 없습니다.</h4></div>`;
+                        const keywordEscaped = keyword.replace(/'/g, "\\'");
+                        resultsContainer.innerHTML = `<div class="col-12 text-center py-5"><h4 class="text-muted">'${keywordEscaped}'에 대한 AI 추천 결과가 없습니다.</h4></div>`;
                         return;
                     }
                     displayRecommendationsOnMap(data);
@@ -780,11 +943,18 @@
                     aiSearchBtn.disabled = false;
                     resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
                 });
+        }
+
+        // AI 검색 버튼 클릭 이벤트
+        const aiSearchBtn = document.getElementById('aiSearchBtn');
+        aiSearchBtn.addEventListener('click', function() {
+            const keyword = document.getElementById('mapSearchInput').value;
+            performAiSearch(keyword);
         });
 
         function renderRecommendationCards(data) {
             resultsContainer.innerHTML = '';
-             data.forEach((item, index) => {
+            data.forEach((item, index) => {
                 const cardCol = document.createElement('div');
                 cardCol.className = 'col-lg-4 col-md-6';
                 cardCol.dataset.lat = item.y;
@@ -852,25 +1022,25 @@
                     const address = place.address && place.address.trim() !== '' ? place.address : ( (place.placeUrl && place.placeUrl.trim() !== '') || (place.x && place.y && place.x.trim() !== '' && place.y.trim() !== '') ? '' : '주소 정보 없음');
 
                     const content = `
-                        <div class="custom-overlay-wrap">
-                            <div class="custom-overlay-header">
-                                <span>\${place.mapName}</span>
-                                <div class="custom-overlay-close" onclick="event.stopPropagation(); closeRecommendOverlay(\${i})" title="닫기">×</div>
-                            </div>
-                            <div class="custom-overlay-body">
-                                <span class="custom-overlay-category">\${place.mapCategory}</span>
-                                <div style="font-size:12px; color:#666; margin-bottom:8px;">\${address}</div>
-                                <button class="btn-add-schedule-overlay" onclick="openScheduleModalFromMarker(this)"
-                                        data-mapname="\${place.mapName}" data-mapcontent="\${place.mapContent}"
-                                        data-mapcategory="\${place.mapCategory}" data-mapaddress="\${address}"
-                                        data-coursetype="\${place.courseType || 'WALK'}" data-startlat="\${place.startLat}"
-                                        data-startlng="\${place.startLng}" data-endlat="\${place.y}"
-                                        data-endlng="\${place.x}" data-distance="\${place.distance || 0}">
-                                    일정 추가
-                                </button>
-                            </div>
-                        </div>
-                        `;
+                <div class="custom-overlay-wrap">
+                    <div class="custom-overlay-header">
+                    <span>\${place.mapName}</span>
+                <div class="custom-overlay-close" onclick="event.stopPropagation(); closeRecommendOverlay(\${i})" title="닫기">×</div>
+            </div>
+                <div class="custom-overlay-body">
+                    <span class="custom-overlay-category">\${place.mapCategory}</span>
+                    <div style="font-size:12px; color:#666; margin-bottom:8px;">\${address}</div>
+                    <button class="btn-add-schedule-overlay" onclick="openScheduleModalFromMarker(this)"
+                            data-mapname="\${place.mapName}" data-mapcontent="\${place.mapContent}"
+                            data-mapcategory="\${place.mapCategory}" data-mapaddress="\${address}"
+                            data-coursetype="\${place.courseType || 'WALK'}" data-startlat="\${place.startLat}"
+                            data-startlng="\${place.startLng}" data-endlat="\${place.y}"
+                            data-endlng="\${place.x}" data-distance="\${place.distance || 0}">
+                        일정 추가
+                    </button>
+                </div>
+            </div>
+                `;
 
                     const overlay = new kakao.maps.CustomOverlay({
                         content: content,

@@ -120,10 +120,10 @@
     .stat-item {
         background: white;
         border-radius: 15px;
-        padding: 20px;
+        padding: 22px; /* Adjusted from 25px */
         display: flex;
         align-items: center;
-        gap: 15px;
+        gap: 18px; /* Adjusted from 20px */
         box-shadow: 0 5px 15px rgba(0,0,0,0.03);
         border: 1px solid rgba(0,0,0,0.03);
         transition: transform 0.3s ease;
@@ -136,13 +136,13 @@
     }
 
     .stat-icon {
-        width: 45px;
-        height: 45px;
+        width: 50px; /* Adjusted from 55px */
+        height: 50px; /* Adjusted from 55px */
         border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 20px;
+        font-size: 22px; /* Adjusted from 24px */
         color: white;
         flex-shrink: 0;
     }
@@ -158,14 +158,14 @@
     }
 
     .stat-label {
-        font-size: 13px;
+        font-size: 14px; /* Adjusted from 16px */
         color: #7f8c8d;
         font-weight: 600;
-        margin-bottom: 2px;
+        margin-bottom: 5px;
     }
 
     .stat-value {
-        font-size: 24px;
+        font-size: 27px; /* Adjusted from 30px */
         font-weight: 800;
         color: var(--secondary-color);
     }
@@ -174,12 +174,12 @@
     .ai-schedule-btn {
         width: 100%;
         margin-top: 20px;
-        padding: 15px;
+        padding: 50px; /* Adjusted from 55px */
         background: var(--primary-color);
         color: white;
         border: none;
         border-radius: 15px;
-        font-size: 16px;
+        font-size: 33px; /* Adjusted from 36px */
         font-weight: 700;
         cursor: pointer;
         display: flex;
@@ -190,11 +190,61 @@
         transition: all 0.3s ease;
     }
 
+    .ai-schedule-btn span {
+        white-space: nowrap; /* Prevent text from wrapping */
+        writing-mode: horizontal-tb; /* Explicitly set horizontal writing mode */
+    }
+
     .ai-schedule-btn:hover {
         background: #2980b9;
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
     }
+
+    /* Styling for the AI Schedule Recommendation Button to match stat-item */
+    .ai-schedule-btn {
+        width: 100%;
+        margin-top: 20px;
+        padding: 22px; /* Adjusted to match stat-item padding */
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 15px; /* Matched stat-item border-radius */
+        font-weight: 700;
+        cursor: pointer;
+        display: flex; /* Kept flex display */
+        align-items: center; /* Kept align-items */
+        gap: 18px; /* Matched stat-item gap */
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        transition: all 0.3s ease;
+        text-align: left; /* Align text to the left */
+    }
+
+    .ai-schedule-btn .ai-btn-icon {
+        width: 50px; /* Matched stat-icon width */
+        height: 50px; /* Matched stat-icon height */
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px; /* Matched stat-icon font-size */
+        color: var(--primary-color); /* Similar to stat-icon colors */
+        background: white; /* Similar to stat-icon background */
+        flex-shrink: 0;
+    }
+
+    .ai-schedule-btn .ai-btn-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ai-schedule-btn .ai-btn-label {
+        font-size: 27px; /* Matched stat-value font-size */
+        font-weight: 800; /* Matched stat-value font-weight */
+        color: white; /* Make text white as button background is primary color */
+    }
+
 
     /* ---------------------------------------------------- */
     /* 5. 모달 스타일 (공통) */
@@ -377,13 +427,13 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-10">
+        <div class="col-lg-9">
             <div class="detail-content-card">
                 <div id="calendar"></div>
             </div>
         </div>
 
-        <div class="col-lg-2">
+        <div class="col-lg-3">
             <div class="stats-container">
                 <div class="stat-item">
                     <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
@@ -410,8 +460,10 @@
                 </div>
 
                 <button class="ai-schedule-btn" onclick="openAiScheduleModal()">
-                    <i class="fas fa-magic"></i>
-                    <span>AI 일정 추천</span>
+                    <div class="stat-icon ai-btn-icon"><i class="fas fa-magic"></i></div>
+                    <div class="ai-btn-content">
+                        <div class="ai-btn-label">AI 일정 추천</div>
+                    </div>
                 </button>
             </div>
         </div>
