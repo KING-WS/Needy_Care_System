@@ -5,6 +5,53 @@
     .activity-link:hover .activity-item {
         background-color: var(--bs-light-bg-subtle);
     }
+    .care-timeline {
+        position: relative;
+        max-height: 400px; /* Adjust height as needed */
+        overflow-y: auto;
+        padding-right: 10px; /* For scrollbar spacing */
+    }
+    .timeline-item {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem 0.5rem;
+        border-bottom: 1px solid var(--bs-border-color);
+        text-decoration: none;
+        color: var(--bs-body-color);
+        transition: background-color 0.2s ease-in-out;
+    }
+    .timeline-item:hover {
+        background-color: var(--bs-light-bg-subtle);
+    }
+    .timeline-item:last-child {
+        border-bottom: none;
+    }
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+    .timeline-icon i {
+        color: #fff;
+        font-size: 1.2rem;
+    }
+    .timeline-content {
+        flex-grow: 1;
+    }
+    .timeline-content .message {
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+    .timeline-content .timestamp {
+        font-size: 0.8rem;
+        color: var(--bs-secondary-color);
+    }
 </style>
 
 <div class="container-fluid p-4 p-lg-5">
@@ -100,17 +147,13 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-8">
             <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">실시간 사용자 접속 추이</h5>
-<%--                    <div class="btn-group btn-group-sm" role="group">--%>
-<%--                        <button type="button" class="btn btn-outline-primary active">7D</button>--%>
-<%--                        <button type="button" class="btn btn-outline-primary">30D</button>--%>
-<%--                        <button type="button" class="btn btn-outline-primary">90D</button>--%>
-<%--                        <button type="button" class="btn btn-outline-primary">1Y</button>--%>
-<%--                    </div>--%>
+                <div class="card-header">
+                    <h5 class="card-title mb-0">실시간 케어 활동</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="revenueChart" height="250"></canvas>
+                    <div id="liveCareTimeline" class="care-timeline">
+                        <!-- Live activities will be inserted here by JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -241,6 +284,9 @@
 
 </div>
 
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 <script>
 // Dashboard initialization
 document.addEventListener('DOMContentLoaded', function() {
@@ -254,12 +300,15 @@ document.addEventListener('DOMContentLoaded', function() {
     initDashboardMap();
     initUserGrowthChart();
     initActivityFeed();
+    initLiveCareTimeline(); // Add new timeline initializer
 });
 
 // --- UTILITY: Relative Time Function ---
 function formatTimeAgo(date) {
     const now = new Date();
-    const seconds = Math.floor((now - new Date(date)) / 1000);
+    // In case the incoming date string is not directly parseable by new Date()
+    const itemDate = new Date(date.replace(' ', 'T'));
+    const seconds = Math.floor((now - itemDate) / 1000);
     let interval = seconds / 31536000;
     if (interval > 1) return Math.floor(interval) + "년 전";
     interval = seconds / 2592000;
@@ -271,6 +320,81 @@ function formatTimeAgo(date) {
     interval = seconds / 60;
     if (interval > 1) return Math.floor(interval) + "분 전";
     return "방금 전";
+}
+
+// --- TIMELINE: Live Care Activity ---
+function initLiveCareTimeline() {
+    const timelineContainer = document.getElementById('liveCareTimeline');
+
+    function renderTimelineItem(item, prepend = false) {
+        const timeString = formatTimeAgo(item.timestamp);
+        const itemHtml = `
+            <a href="\${(item.link && item.link !== 'false') ? item.link : '#'}" class="timeline-item">
+                <div class="timeline-icon \${item.bgClass}">
+                    <i class="bi \${item.iconClass}"></i>
+                </div>
+                <div class="timeline-content">
+                    <p class="message">\${item.message}</p>
+                    <small class="timestamp">\${timeString}</small>
+                </div>
+            </a>
+        `;
+        if (prepend) {
+            timelineContainer.insertAdjacentHTML('afterbegin', itemHtml);
+        } else {
+            timelineContainer.insertAdjacentHTML('beforeend', itemHtml);
+        }
+    }
+
+    // 1. Initial data load via REST API
+    fetch('/api/dashboard/recent-care-activities')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (!timelineContainer) return;
+            timelineContainer.innerHTML = ''; // Clear once
+
+            if (data.length === 0) {
+                timelineContainer.innerHTML = '<p class="text-muted text-center p-3">최근 케어 활동이 없습니다.</p>';
+            } else {
+                data.sort((a, b) => new Date(b.timestamp.replace(' ', 'T')) - new Date(a.timestamp.replace(' ', 'T')));
+                data.forEach(item => renderTimelineItem(item, false));
+            }
+            
+            // 2. After initial load, connect to WebSocket for live updates
+            connectWebSocket();
+        })
+        .catch(error => {
+            console.error('Error fetching recent care activities:', error);
+            if (timelineContainer) {
+                timelineContainer.innerHTML = '<p class="text-danger text-center p-3">활동을 불러오는 데 실패했습니다.</p>';
+            }
+        });
+
+    function connectWebSocket() {
+        // FIXME: The WebSocket endpoint URL needs to match the backend configuration.
+        // It's often '/ws' or similar. Check StomWebSocketConfig.java
+        const socket = new SockJS('/adminchat'); 
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected to WebSocket: ' + frame);
+            
+            // Subscribe to the public topic for timeline updates
+            stompClient.subscribe('/topic/care-timeline', function (activity) {
+                const newActivity = JSON.parse(activity.body);
+                renderTimelineItem(newActivity, true); // Prepend new items
+            });
+        }, function(error) {
+            console.error('STOMP error: ' + error);
+            // Optional: attempt to reconnect after a delay
+            setTimeout(connectWebSocket, 10000);
+        });
+    }
 }
 
 
@@ -410,4 +534,5 @@ function initDashboardMap() {
     loadKakaoMap();
 }
 </script>
+
 
