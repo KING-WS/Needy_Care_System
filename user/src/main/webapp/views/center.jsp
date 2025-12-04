@@ -518,7 +518,7 @@
                                             <i class="fas fa-map-marked-alt"></i>
                                             <span>내 지도</span>
                                         </button>
-                                        <button type="button" class="map-tab" onclick="switchMapTab(this, 'course')">
+                                        <button type="button" class="map-tab" id="courseMapTab" onclick="switchMapTab(this, 'course')">
                                             <i class="fas fa-walking"></i>
                                             <span>산책 코스</span>
                                         </button>
