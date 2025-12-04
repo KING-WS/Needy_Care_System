@@ -457,41 +457,66 @@ function initUserGrowthChart() {
 
 // --- FEED: Recent Activity ---
 function initActivityFeed() {
+    const feedContainer = document.querySelector('.activity-feed');
+
+    function renderActivityFeedItem(item, prepend = false) {
+        const itemHtml = `
+            <a href="\${item.link}" class="text-decoration-none text-body activity-link">
+                <div class="activity-item">
+                    <div class="activity-icon \${item.bgClass} bg-opacity-10 text-primary">
+                        <i class="bi \${item.iconClass}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="mb-1">\${item.message}</p>
+                        <small class="text-muted">\${formatTimeAgo(item.timestamp)}</small>
+                    </div>
+                </div>
+            </a>
+        `;
+        if (prepend) {
+            feedContainer.insertAdjacentHTML('afterbegin', itemHtml);
+        } else {
+            feedContainer.insertAdjacentHTML('beforeend', itemHtml);
+        }
+    }
+
+    // 1. Initial data load
     fetch('/api/dashboard/recent-activities')
         .then(response => response.ok ? response.json() : Promise.reject('Failed to load recent activities'))
         .then(data => {
-            const feedContainer = document.querySelector('.activity-feed');
             if (!feedContainer) return;
-            
-            feedContainer.innerHTML = ''; // Clear static content
+            feedContainer.innerHTML = '';
 
             if (data.length === 0) {
                 feedContainer.innerHTML = '<p class="text-muted text-center">최근 활동이 없습니다.</p>';
-                return;
+            } else {
+                data.forEach(item => renderActivityFeedItem(item, false));
             }
-
-            data.forEach(item => {
-                const itemHtml = `
-                    <a href="\${item.link}" class="text-decoration-none text-body activity-link">
-                        <div class="activity-item">
-                            <div class="activity-icon \${item.bgClass} bg-opacity-10 text-primary">
-                                <i class="bi \${item.iconClass}"></i>
-                            </div>
-                            <div class="activity-content">
-                                <p class="mb-1">\${item.message}</p>
-                                <small class="text-muted">\${formatTimeAgo(item.timestamp)}</small>
-                            </div>
-                        </div>
-                    </a>
-                `;
-                feedContainer.insertAdjacentHTML('beforeend', itemHtml);
-            });
+            // 2. Connect to WebSocket after initial load
+            connectWebSocket();
         })
         .catch(error => {
             console.error('Error fetching recent activity:', error);
-            const feedContainer = document.querySelector('.activity-feed');
             if(feedContainer) feedContainer.innerHTML = '<p class="text-danger text-center">활동 피드를 불러오는 데 실패했습니다.</p>';
         });
+
+    // 3. WebSocket connection logic
+    function connectWebSocket() {
+        const socket = new SockJS('/adminchat');
+        const stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected to Activity Feed WebSocket: ' + frame);
+
+            stompClient.subscribe('/topic/activity-feed', function (activity) {
+                const newActivity = JSON.parse(activity.body);
+                renderActivityFeedItem(newActivity, true); // Prepend new items
+            });
+        }, function(error) {
+            console.error('Activity Feed STOMP error: ' + error);
+            setTimeout(connectWebSocket, 15000); // Reconnect after 15 seconds
+        });
+    }
 }
 
 // --- MAP: Dashboard Map ---

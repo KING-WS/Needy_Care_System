@@ -1,10 +1,8 @@
 package edu.sm.app.service;
 
-import edu.sm.app.dto.ActivityItem;
-import edu.sm.app.dto.ActivityLogDTO;
-import edu.sm.app.dto.CareTimelineItem;
-import edu.sm.app.dto.DailyUserCountDTO;
+import edu.sm.app.dto.*;
 import edu.sm.app.repository.ActivityLogRepository;
+import edu.sm.app.repository.AlertLogRepository; // 추가
 import edu.sm.app.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +10,7 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,32 +28,18 @@ public class DashboardService {
     private final TimelineNotifierService timelineNotifierService;
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
+    private final AlertLogRepository alertLogRepository; // 추가
 
     @Autowired
-    public DashboardService(TimelineNotifierService timelineNotifierService, UserRepository userRepository, ActivityLogRepository activityLogRepository) {
+    public DashboardService(TimelineNotifierService timelineNotifierService, UserRepository userRepository, ActivityLogRepository activityLogRepository, AlertLogRepository alertLogRepository) {
         this.timelineNotifierService = timelineNotifierService;
         this.userRepository = userRepository;
         this.activityLogRepository = activityLogRepository;
+        this.alertLogRepository = alertLogRepository; // 추가
     }
 
 
-    /**
-     * (임시) 15초마다 실시간 알림을 발생시키는 테스트용 메소드
-     */
-    @PostConstruct
-    public void startMockNotification() {
-        Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-            CareTimelineItem newItem = CareTimelineItem.builder()
-                    .type("NEW_USER")
-                    .message("새로운 요양사님이 가입했습니다: " + "김요양")
-                    .timestamp(LocalDateTime.now())
-                    .iconClass("bi-person-plus-fill")
-                    .bgClass("bg-primary")
-                    .link("#")
-                    .build();
-            timelineNotifierService.notifyNewCareActivity(newItem);
-        }, 15, 15, TimeUnit.SECONDS);
-    }
+
 
     /**
      * 최근 일반 활동 로그를 가져옵니다.
@@ -88,45 +73,46 @@ public class DashboardService {
 
     /**
      * 최근 케어 활동 목록을 가져옵니다.
-     * (현재는 Mock 데이터를 반환)
+     * (AlertLog에서 실제 데이터를 조회)
      * @return CareTimelineItem 리스트
      */
     public List<CareTimelineItem> getRecentCareActivities() {
-        // TODO: 실제 데이터베이스에서 최근 활동들을 조회하는 로직으로 교체해야 합니다.
-        // (예: Alert, CareLog, Schedule 등 여러 테이블에서 데이터를 종합)
-        return Stream.of(
-                CareTimelineItem.builder()
-                        .type("CARE_START")
-                        .message("김민준 요양사님이 박영희 어르신의 오늘의 케어를 시작했습니다.")
-                        .timestamp(LocalDateTime.now().minusMinutes(5))
-                        .iconClass("bi-play-circle-fill")
-                        .bgClass("bg-success")
-                        .link("#")
-                        .build(),
-                CareTimelineItem.builder()
-                        .type("ALERT")
-                        .message("최진우 어르신, 낙상 감지! 확인이 필요합니다.")
-                        .timestamp(LocalDateTime.now().minusMinutes(15))
-                        .iconClass("bi-exclamation-triangle-fill")
-                        .bgClass("bg-danger")
-                        .link("#")
-                        .build(),
-                CareTimelineItem.builder()
-                        .type("MEAL_PLAN")
-                        .message("이지은 요양사님이 최진우 어르신의 식단 계획을 업데이트했습니다.")
-                        .timestamp(LocalDateTime.now().minusHours(1))
-                        .iconClass("bi-card-checklist")
-                        .bgClass("bg-info")
-                        .link("#")
-                        .build(),
-                CareTimelineItem.builder()
-                        .type("CARE_END")
-                        .message("김민준 요양사님이 박영희 어르신의 케어를 종료했습니다.")
-                        .timestamp(LocalDateTime.now().minusHours(2))
-                        .iconClass("bi-stop-circle-fill")
-                        .bgClass("bg-secondary")
-                        .link("#")
-                        .build()
-        ).collect(Collectors.toList());
+        // 최근 10개 알림을 가져옵니다.
+        List<AlertLog> recentAlerts = alertLogRepository.getRecentAlerts(10);
+
+        return recentAlerts.stream()
+                .map(alert -> {
+                    String message = alert.getAlertMsg();
+                    String iconClass = "bi-bell-fill"; // 기본 아이콘
+                    String bgClass = "bg-primary";    // 기본 배경색
+
+                    switch (alert.getAlertType()) {
+                        case "EMERGENCY":
+                            message = alert.getRecipientName() + " 어르신, 긴급 상황 발생! 확인이 필요합니다.";
+                            iconClass = "bi-exclamation-triangle-fill";
+                            bgClass = "bg-danger";
+                            break;
+                        case "CONTACT":
+                            message = alert.getRecipientName() + " 어르신에게서 연락 요청이 있습니다.";
+                            iconClass = "bi-person-lines-fill";
+                            bgClass = "bg-warning";
+                            break;
+                        default:
+                            // 다른 알림 타입 처리 또는 일반 메시지 제공
+                            message = alert.getRecipientName() + " 어르신 관련 알림: " + alert.getAlertMsg();
+                            break;
+                    }
+
+                    return CareTimelineItem.builder()
+                            .type(alert.getAlertType())
+                            .message(message)
+                            .timestamp(alert.getAlertRegdate())
+                            .iconClass(iconClass)
+                            .bgClass(bgClass)
+                            .link("#") // TODO: 알림 상세 페이지 링크가 있다면 연결
+                            .build();
+                })
+                .sorted((a1, a2) -> a2.getTimestamp().compareTo(a1.getTimestamp())) // 최신 순으로 정렬
+                .collect(Collectors.toList());
     }
 }
