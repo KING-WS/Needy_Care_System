@@ -201,6 +201,51 @@
         box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
     }
 
+    /* Styling for the AI Schedule Recommendation Button to match stat-item */
+    .ai-schedule-btn {
+        width: 100%;
+        margin-top: 20px;
+        padding: 22px; /* Adjusted to match stat-item padding */
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 15px; /* Matched stat-item border-radius */
+        font-weight: 700;
+        cursor: pointer;
+        display: flex; /* Kept flex display */
+        align-items: center; /* Kept align-items */
+        gap: 18px; /* Matched stat-item gap */
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        transition: all 0.3s ease;
+        text-align: left; /* Align text to the left */
+    }
+
+    .ai-schedule-btn .ai-btn-icon {
+        width: 50px; /* Matched stat-icon width */
+        height: 50px; /* Matched stat-icon height */
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px; /* Matched stat-icon font-size */
+        color: var(--primary-color); /* Similar to stat-icon colors */
+        background: white; /* Similar to stat-icon background */
+        flex-shrink: 0;
+    }
+
+    .ai-schedule-btn .ai-btn-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .ai-schedule-btn .ai-btn-label {
+        font-size: 27px; /* Matched stat-value font-size */
+        font-weight: 800; /* Matched stat-value font-weight */
+        color: white; /* Make text white as button background is primary color */
+    }
+
+
     /* ---------------------------------------------------- */
     /* 5. 모달 스타일 (공통) */
     /* ---------------------------------------------------- */
@@ -415,8 +460,10 @@
                 </div>
 
                 <button class="ai-schedule-btn" onclick="openAiScheduleModal()">
-                    <i class="fas fa-magic"></i>
-                    <span>AI 일정 추천</span>
+                    <div class="stat-icon ai-btn-icon"><i class="fas fa-magic"></i></div>
+                    <div class="ai-btn-content">
+                        <div class="ai-btn-label">AI 일정 추천</div>
+                    </div>
                 </button>
             </div>
         </div>

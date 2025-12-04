@@ -821,17 +821,17 @@
             <ul class="navbar-nav">
                 <li class="nav-item"><a class="nav-link" href="<c:url value="/home"/>"><i class="fas fa-home"></i> 홈</a></li>
                 
-                <!-- 통신 드롭다운 -->
-                <li class="nav-item">
-                    <a class="nav-link" role="button">
-                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>
-                    </ul>
-                </li>
+<%--                <!-- 통신 드롭다운 -->--%>
+<%--                <li class="nav-item">--%>
+<%--                    <a class="nav-link" role="button">--%>
+<%--                        <i class="fas fa-comments"></i> 통신 <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 5px;"></i>--%>
+<%--                    </a>--%>
+<%--                    <ul class="dropdown-menu">--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm"/>"><i class="fas fa-home"></i> 통신 메인</a></li>--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm/chat"/>"><i class="fas fa-comment-dots"></i> 채팅</a></li>--%>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/comm/video"/>"><i class="fas fa-video"></i> 화상통화</a></li>--%>
+<%--                    </ul>--%>
+<%--                </li>--%>
 
                 <!-- 식단관리 드롭다운 -->
                 <li class="nav-item">
