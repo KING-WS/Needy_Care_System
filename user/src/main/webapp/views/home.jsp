@@ -1169,7 +1169,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2024 Aventro. All Rights Reserved.</p>
+        <p>AI가 함께하여 더욱 안심되는 돌봄 서비스.</p>
     </div>
 </footer>
 
