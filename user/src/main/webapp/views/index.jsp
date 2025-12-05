@@ -69,7 +69,7 @@
         /* 왼쪽: 로고 */
         .navbar-brand {
             font-size: 28px;
-            font-weight: bold; /* 두께 강조 */
+            font-weight: 800; /* 두께 강조 */
             color: var(--primary-color) !important;
             text-decoration: none;
             order: 1;
@@ -218,7 +218,7 @@
             max-width: 100%;
             height: auto;
             /* [수정] 이미지의 최대 크기를 제한 (예시: 500px) */
-            max-width: 1000px;
+            max-width: 1500px;
             /* CSS Masking: 가장자리를 투명하게 처리 */
             -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
             mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
@@ -873,7 +873,8 @@
     <section id="about">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2>About Us</h2>
+                <h2>소개</h2>
+                <p>저희의 서비스를 소개합니다</p>
             </div>
             <div class="row align-items-center">
                 <div class="col-lg-6" data-aos="fade-right">
@@ -895,7 +896,7 @@
     <section id="services">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2>Our Services</h2>
+                <h2>서비스</h2>
                 <p>저희의 서비스를 한번 탐색해보세요</p>
             </div>
             <div class="row">

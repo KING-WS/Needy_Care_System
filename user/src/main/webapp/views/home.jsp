@@ -126,7 +126,7 @@
         /* 왼쪽: 로고 */
         .navbar-brand {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary-color) !important;
             text-decoration: none;
             order: 1;
