@@ -171,13 +171,13 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 15px;
-            box-shadow: none;
+            box-shadow: 0 0 0 transparent !important;
         }
 
         .btn-register:hover {
             transform: translateY(-2px);
             background: #2980b9;
-            box-shadow: none;
+            box-shadow: 0 0 0 transparent !important;
         }
 
         .btn-register:active {
