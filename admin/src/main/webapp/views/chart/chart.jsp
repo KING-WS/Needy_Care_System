@@ -52,14 +52,14 @@
             </div>
         </div>
         
-        <!-- 구독 등급별 고객 분포 -->
+        <!-- 알림 유형별 분포 -->
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm chart-card">
                 <div class="card-header">
-                    <h5 class="mb-0">구독 등급별 고객 분포</h5>
+                    <h5 class="mb-0">알림 유형별 분포</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="subscriptionChart" height="250"></canvas>
+                    <canvas id="alertTypeChart" height="250"></canvas>
                 </div>
             </div>
         </div>
@@ -77,7 +77,7 @@
             labels: ['음성인식', '챗봇', '추천시스템', '예측분석', '이미지인식'],
             datasets: [{
                 label: 'AI 기능 사용 빈도',
-                data: [350, 280, 240, 180, 150],
+                data: [280, 220, 190, 140, 110], // Scaled down data
                 backgroundColor: 'rgba(54, 162, 235, 0.7)',
                 borderColor: 'rgb(54, 162, 235)',
                 borderWidth: 1
@@ -95,6 +95,7 @@
             scales: {
                 x: {
                     beginAtZero: true,
+                    max: 300, // Set max to 300
                     title: {
                         display: true,
                         text: '사용 빈도 (회)'
@@ -112,13 +113,13 @@
             labels: ['1월', '2월', '3월', '4월', '5월', '6월'],
             datasets: [{
                 label: '신규가입',
-                data: [8, 12, 15, 18, 17, 10],
+                data: [3, 5, 6, 8, 7, 4],
                 backgroundColor: 'rgba(54, 162, 235, 0.7)',
                 borderColor: 'rgb(54, 162, 235)',
                 borderWidth: 1
             }, {
                 label: '이탈자',
-                data: [5, 7, 9, 8, 12, 6],
+                data: [2, 3, 4, 3, 5, 2],
                 backgroundColor: 'rgba(255, 99, 132, 0.7)',
                 borderColor: 'rgb(255, 99, 132)',
                 borderWidth: 1
@@ -135,6 +136,7 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    max: 10,
                     title: {
                         display: true,
                         text: '인원 (명)'
@@ -152,13 +154,13 @@
             labels: ['60대', '70대', '80대'],
             datasets: [{
                 label: '남성',
-                data: [320, 250, 180],
+                data: [4, 6, 8],
                 backgroundColor: 'rgba(54, 162, 235, 0.7)',
                 borderColor: 'rgb(54, 162, 235)',
                 borderWidth: 1
             }, {
                 label: '여성',
-                data: [420, 350, 280],
+                data: [5, 7, 9],
                 backgroundColor: 'rgba(255, 99, 132, 0.7)',
                 borderColor: 'rgb(255, 99, 132)',
                 borderWidth: 1
@@ -175,6 +177,7 @@
             scales: {
                 y: {
                     beginAtZero: true,
+                    max: 10,
                     title: {
                         display: true,
                         text: '인원 (명)'
@@ -190,23 +193,23 @@
         }
     });
 
-    // 4. 구독 등급별 고객 분포 (파이 차트)
-    const subscriptionCtx = document.getElementById('subscriptionChart');
-    new Chart(subscriptionCtx, {
-        type: 'pie',
+    // 4. 알림 유형별 분포 (도넛 차트)
+    const alertTypeCtx = document.getElementById('alertTypeChart');
+    new Chart(alertTypeCtx, {
+        type: 'doughnut',
         data: {
-            labels: ['프리미엄', '스탠다드', '베이직'],
+            labels: ['긴급', '연락 요청', '일반'],
             datasets: [{
-                data: [35, 45, 20],
+                data: [5, 12, 35],
                 backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)'
+                    'rgba(255, 99, 132, 0.8)',
+                    'rgba(255, 205, 86, 0.8)',
+                    'rgba(54, 162, 235, 0.8)'
                 ],
                 borderColor: [
-                    'rgb(54, 162, 235)',
-                    'rgb(75, 192, 192)',
-                    'rgb(153, 102, 255)'
+                    'rgb(255, 99, 132)',
+                    'rgb(255, 205, 86)',
+                    'rgb(54, 162, 235)'
                 ],
                 borderWidth: 2
             }]
@@ -221,6 +224,17 @@
                         padding: 20,
                         font: {
                             size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const label = context.label || '';
+                            const value = context.parsed || 0;
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                            return ` \${label}: \${value}건 (\${percentage}%)`;
                         }
                     }
                 }
