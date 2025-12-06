@@ -31908,19 +31908,7 @@ class TP {
                 o && o.classList.add("active")
             }
         }
-        document.addEventListener("click", a => {
-            const r = a.target.closest('[data-bs-toggle="collapse"]');
-            if (r) {
-                const o = r.getAttribute("data-bs-target"), l = r.getAttribute("aria-expanded") === "true";
-                localStorage.setItem(`submenu-${o}`, (!l).toString())
-            }
-        }), document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(a => {
-            const r = a.getAttribute("data-bs-target");
-            if (localStorage.getItem(`submenu-${r}`) === "true" && !i) {
-                const l = document.querySelector(r);
-                l && (l.classList.add("show"), a.setAttribute("aria-expanded", "true"))
-            }
-        })
+        
     }
 
     initAlpine() {
