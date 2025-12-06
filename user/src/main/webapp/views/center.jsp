@@ -327,8 +327,9 @@
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="meal-empty-container">
-                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+디                                        <div class="hourly-empty">
+                                            <i class="bi bi-card-checklist"></i>
+                                            <span>오늘 등록된 식단이 없습니다</span>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
