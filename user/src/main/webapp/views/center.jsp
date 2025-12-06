@@ -28,7 +28,7 @@
         background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+        box-shadow: none !important;
     }
     .map-tab.active:hover {
         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
@@ -401,7 +401,7 @@
                                     <span class="map-title-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </span>
-                                    <span>케어 지도</span>
+                                    <span>지도 목록</span>
 
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
@@ -939,6 +939,16 @@
         console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
         if (typeof kakao !== 'undefined' && kakao.maps) {
             initializeMap(); // 지도 초기화
+            
+            // 모바일에서 지도가 제대로 표시되도록 relayout 호출
+            setTimeout(function() {
+                if (typeof map !== 'undefined' && map) {
+                    map.relayout();
+                } else if (typeof resizeMap === 'function') {
+                    resizeMap();
+                }
+            }, 500);
+            
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
             // 집 마커가 로드된 후 노약자 위치 마커 표시

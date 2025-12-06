@@ -42,6 +42,14 @@
         color: var(--secondary-color);
         margin-bottom: 10px;
         text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    .register-title i {
+        color: var(--primary-color);
     }
 
     .register-subtitle {
@@ -228,7 +236,7 @@
         cursor: pointer;
         transition: all 0.3s ease;
         white-space: nowrap;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
+        box-shadow: none;
     }
 
     .btn-address-search:hover {
@@ -352,13 +360,13 @@
     .btn-primary {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
 
     .btn-primary:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-secondary {
@@ -385,7 +393,7 @@
 
 <div class="register-container">
     <div class="register-header">
-        <h1 class="register-title">돌봄 대상자 등록</h1>
+        <h1 class="register-title"><i class="bi bi-person-plus-fill"></i> 돌봄 대상자 등록</h1>
         <p class="register-subtitle">돌봄 대상자의 정보를 입력해주세요</p>
     </div>
 

@@ -280,11 +280,11 @@
     .btn-primary {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
     .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-secondary { background: #e9ecef; color: #495057; }

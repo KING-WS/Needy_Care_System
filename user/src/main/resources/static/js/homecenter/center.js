@@ -38,11 +38,34 @@ function closeAllOverlays() {
 // 지도 초기화 함수
 function initializeMap() {
     var mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        console.error('지도 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
+    
     var mapOption = {
         center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 5
     };
     map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 지도 초기화 후 relayout 호출 (모바일 대응)
+    setTimeout(function() {
+        if (map) {
+            map.relayout();
+        }
+    }, 100);
+
+    // 윈도우 리사이즈 시 지도 크기 재조정
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (map) {
+                map.relayout();
+            }
+        }, 300);
+    });
 
     kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
         if (currentMapMode === 'course') {
@@ -65,6 +88,15 @@ function initializeMap() {
         clickedPosition = latlng;
         openMapModal(latlng.getLat(), latlng.getLng());
     });
+}
+
+// 지도 크기 재조정 함수 (외부에서 호출 가능)
+function resizeMap() {
+    if (map) {
+        setTimeout(function() {
+            map.relayout();
+        }, 100);
+    }
 }
 
 // 노약자 집 마커 표시

@@ -27,7 +27,7 @@
         background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+        box-shadow: none !important;
     }
     .map-tab.active:hover {
         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
@@ -191,7 +191,7 @@
         font-size: 0.95rem;
         height: 48px;
         white-space: nowrap;
-        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        box-shadow: none;
         transition: all 0.2s ease;
         display: flex;
         align-items: center;
@@ -199,12 +199,12 @@
     }
     .btn-recommend-ai:hover {
         background-color: #5a6fd6;
-        box-shadow: 0 6px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: none;
         color: white;
     }
     .btn-recommend-ai:active {
         background-color: #4e63bb; /* Original #667eea -> hover #5a6fd6 -> active #4e63bb */
-        box-shadow: 0 2px 5px rgba(102, 126, 234, 0.2);
+        box-shadow: none;
     }
 
     /* 💡 [수정] 오버레이(상태창) 내부 일정 추가 버튼 (스타일 재정의) */

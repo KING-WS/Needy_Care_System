@@ -139,7 +139,6 @@
         border-radius: 50px;
         cursor: pointer;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -150,7 +149,6 @@
     .register-btn:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
     }
 </style>
 
