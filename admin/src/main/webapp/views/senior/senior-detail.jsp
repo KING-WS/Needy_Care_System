@@ -2,11 +2,27 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<div class="container-fluid py-4">
+<style>
+    #matching .card {
+        border-radius: 20px !important;
+    }
+    #matching .card-header {
+        border-top-left-radius: 18px !important;
+        border-top-right-radius: 18px !important;
+    }
+    #matching .card-body {
+        border-bottom-left-radius: 18px !important;
+        border-bottom-right-radius: 18px !important;
+    }
+
+</style>
+
+
+<div id="matching" class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-primary text-white ">
                     <h4 class="mb-0"><i class="bi bi-person-vcard me-2"></i>노약자 상세 정보</h4>
                 </div>
                 <div class="card-body">
