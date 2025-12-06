@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,13 +31,15 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final ActivityLogRepository activityLogRepository;
     private final AlertLogRepository alertLogRepository; // 추가
+    private final SeniorService seniorService;
 
     @Autowired
-    public DashboardService(TimelineNotifierService timelineNotifierService, UserRepository userRepository, ActivityLogRepository activityLogRepository, AlertLogRepository alertLogRepository) {
+    public DashboardService(TimelineNotifierService timelineNotifierService, UserRepository userRepository, ActivityLogRepository activityLogRepository, AlertLogRepository alertLogRepository, SeniorService seniorService) {
         this.timelineNotifierService = timelineNotifierService;
         this.userRepository = userRepository;
         this.activityLogRepository = activityLogRepository;
         this.alertLogRepository = alertLogRepository; // 추가
+        this.seniorService = seniorService;
     }
 
 
@@ -114,5 +118,55 @@ public class DashboardService {
                 })
                 .sorted((a1, a2) -> a2.getTimestamp().compareTo(a1.getTimestamp())) // 최신 순으로 정렬
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 노약자의 주소 정보를 확인하여 지역별 분포율을 계산합니다.
+     * 경기도, 충청북도, 충청남도, 전라남도, 경상북도, 경상남도만 추출합니다.
+     * 
+     * @return 지역 이름과 노약자 수를 담은 Map (지정된 6개 지역만 포함)
+     */
+    public Map<String, Long> getSeniorDistributionByProvince() {
+        List<Senior> allSeniors = seniorService.getAllSeniors();
+        
+        // 추출할 지역 목록 (긴 이름부터 우선 매칭하도록 순서 중요)
+        List<String> targetProvinces = Arrays.asList(
+            "경상남도", "경상북도", "충청남도", "충청북도", "전라남도", "경기도"
+        );
+        
+        // 약칭 매핑 (전체 이름이 매칭되지 않을 경우 사용)
+        Map<String, String> shortNameMap = new HashMap<>();
+        shortNameMap.put("경기", "경기도");
+        shortNameMap.put("충북", "충청북도");
+        shortNameMap.put("충남", "충청남도");
+        shortNameMap.put("전남", "전라남도");
+        shortNameMap.put("경북", "경상북도");
+        shortNameMap.put("경남", "경상남도");
+
+        return allSeniors.stream()
+                .map(Senior::getRecAddress)
+                .filter(address -> address != null && !address.trim().isEmpty())
+                .map(address -> {
+                    String cleanAddress = address.trim();
+                    
+                    // 1. 전체 지역명 우선 매칭 (긴 이름부터 검색)
+                    for (String province : targetProvinces) {
+                        if (cleanAddress.contains(province)) {
+                            return province;
+                        }
+                    }
+                    
+                    // 2. 약칭으로 매칭 시도
+                    for (Map.Entry<String, String> entry : shortNameMap.entrySet()) {
+                        if (cleanAddress.contains(entry.getKey())) {
+                            return entry.getValue();
+                        }
+                    }
+                    
+                    // 3. 매칭되는 지역이 없으면 null 반환 (나중에 필터링)
+                    return null;
+                })
+                .filter(province -> province != null) // 지정된 지역만 포함
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
     }
 }
