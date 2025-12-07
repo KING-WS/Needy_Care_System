@@ -610,7 +610,65 @@ async function deleteCourse(courseId) {
 
 // 산책코스 상세 정보 표시
 async function showCourseDetail(courseId) {
-    loadCourseOnMap(courseId);
+    try {
+        const response = await fetch(`/api/course/${courseId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const course = result.data;
+            currentCourseId = course.courseId; // 현재 코스 ID 저장
+
+            // 모달 내용 채우기
+            document.getElementById('detailCourseName').textContent = course.courseName || '-';
+            document.getElementById('detailCourseType').textContent = course.courseType || '-';
+
+
+            // coursePathData 파싱
+            let distanceText = '-';
+            if (course.coursePathData) {
+                try {
+                    const pathData = JSON.parse(course.coursePathData);
+                    if (pathData.totalDistance) {
+                        distanceText = pathData.totalDistance < 1000
+                            ? `${Math.round(pathData.totalDistance)}m`
+                            : `${(pathData.totalDistance / 1000).toFixed(2)}km`;
+                    }
+                } catch (e) {
+                    console.error("Course path data parsing error:", e);
+                }
+            }
+            document.getElementById('detailCourseDistance').textContent = distanceText;
+
+
+            // 모달 표시
+            document.getElementById('courseDetailModal').classList.add('show');
+
+            // 지도에 코스 로드
+            loadCourseOnMap(courseId);
+        } else {
+            alert('산책코스 정보를 불러오는 데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        alert('산책코스 정보를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+// 산책코스 상세 모달 닫기
+function closeCourseDetailModal() {
+    document.getElementById('courseDetailModal').classList.remove('show');
+    currentCourseId = null;
+    // clearCourseMode(); // 모달 닫을 때 지도 위 코스 정보도 클리어 -> 사용자가 다른 동작을 할 때까지 경로를 유지하도록 주석 처리
+}
+
+// 지도에서 산책코스 보기
+function viewCourseOnMap() {
+    if (currentCourseId) {
+        // 이미 loadCourseOnMap이 showCourseDetail에서 호출되었으므로,
+        // 여기서는 모달만 닫고 지도 중심으로 이동시키는 역할만 수행
+        closeCourseDetailModal();
+        // 지도 경계 재설정 (loadCourseOnMap에서 이미 처리됨)
+    }
 }
 
 // 위치 검색 함수

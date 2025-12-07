@@ -617,6 +617,8 @@
                     <input type="text" class="modal-form-input" id="coursePointCount"
                            readonly style="background: #f5f5f5;">
                 </div>
+
+
             </form>
         </div>
         <div class="map-modal-overlay" id="locationDetailModal">
@@ -757,14 +759,8 @@
                 <label class="modal-form-label">총 거리</label>
                 <div class="modal-form-readonly" id="detailCourseDistance">-</div>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">지점 수</label>
-                <div class="modal-form-readonly" id="detailCoursePoints">-</div>
-            </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">등록일</label>
-                <div class="modal-form-readonly" id="detailCourseRegdate">-</div>
-            </div>
+
+
         </div>
         <div class="map-modal-footer">
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
