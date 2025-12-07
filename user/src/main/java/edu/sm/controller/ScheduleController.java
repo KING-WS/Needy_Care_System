@@ -444,6 +444,12 @@ public class ScheduleController {
                         mapCourse.setCoursePathData(pathData);
                     }
                     
+                    // courseUrl 저장 (요청에서 받아온 값)
+                    String courseUrl = (String) request.get("courseUrl");
+                    if (courseUrl != null && !courseUrl.isEmpty()) {
+                        mapCourse.setCourseUrl(courseUrl);
+                    }
+                    
                     mapCourseService.registerCourse(mapCourse);
                     response.put("courseData", mapCourse);
                 }

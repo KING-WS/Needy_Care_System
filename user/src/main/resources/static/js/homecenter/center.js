@@ -639,6 +639,23 @@ async function showCourseDetail(courseId) {
             }
             document.getElementById('detailCourseDistance').textContent = distanceText;
 
+            const directionsBtn = document.getElementById('courseDirectionsBtn');
+            let url = course.courseUrl;
+
+            // courseUrl이 없는 경우, 코스 이름과 집 주소를 기반으로 URL을 동적으로 생성
+            if (!url && course.courseName && typeof recipientAddress !== 'undefined' && recipientAddress) {
+                // 시작점(집)과 도착점(코스 이름)으로 길찾기 URL 생성
+                url = `https://map.kakao.com/?sName=${encodeURIComponent(recipientAddress)}&eName=${encodeURIComponent(course.courseName)}`;
+            }
+
+            if (url) {
+                directionsBtn.href = url;
+                directionsBtn.target = '_blank'; // 새 창에서 열리도록 설정
+                directionsBtn.style.display = 'inline-block';
+            } else {
+                directionsBtn.style.display = 'none';
+            }
+
 
             // 모달 표시
             document.getElementById('courseDetailModal').classList.add('show');

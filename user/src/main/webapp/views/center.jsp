@@ -764,6 +764,9 @@
         </div>
         <div class="map-modal-footer">
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
+            <a href="#" id="courseDirectionsBtn" target="_blank" class="modal-btn modal-btn-save" style="display: none; text-decoration: none;">
+                <i class="fas fa-directions"></i> 길찾기
+            </a>
             <button type="button" class="modal-btn modal-btn-save" onclick="viewCourseOnMap()">지도에서 보기</button>
         </div>
     </div>

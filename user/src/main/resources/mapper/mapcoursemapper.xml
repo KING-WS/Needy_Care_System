@@ -12,6 +12,7 @@
             course_name AS courseName,
             course_type AS courseType,
             course_path_data AS coursePathData,
+            course_url AS courseUrl,
             is_deleted AS isDeleted,
             course_regdate AS courseRegdate,
             course_update AS courseUpdate
@@ -28,6 +29,7 @@
             course_name AS courseName,
             course_type AS courseType,
             course_path_data AS coursePathData,
+            course_url AS courseUrl,
             is_deleted AS isDeleted,
             course_regdate AS courseRegdate,
             course_update AS courseUpdate
@@ -44,6 +46,7 @@
             course_name AS courseName,
             course_type AS courseType,
             course_path_data AS coursePathData,
+            course_url AS courseUrl,
             is_deleted AS isDeleted,
             course_regdate AS courseRegdate,
             course_update AS courseUpdate
@@ -61,6 +64,7 @@
             course_name AS courseName,
             course_type AS courseType,
             course_path_data AS coursePathData,
+            course_url AS courseUrl,
             is_deleted AS isDeleted,
             course_regdate AS courseRegdate,
             course_update AS courseUpdate
@@ -77,6 +81,7 @@
             course_name,
             course_type,
             course_path_data,
+            course_url,
             is_deleted,
             course_regdate,
             course_update
@@ -86,6 +91,7 @@
             #{courseName},
             #{courseType},
             #{coursePathData},
+            #{courseUrl},
             'N',
             NOW(),
             NOW()
@@ -108,6 +114,9 @@
             <if test="coursePathData != null">
                 course_path_data = #{coursePathData},
             </if>
+            <if test="courseUrl != null">
+                course_url = #{courseUrl},
+            </if>
             <if test="isDeleted != null and isDeleted != ''">
                 is_deleted = #{isDeleted},
             </if>
@@ -124,4 +133,3 @@
     </delete>
 
 </mapper>
-
