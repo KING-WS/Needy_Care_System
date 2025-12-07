@@ -363,6 +363,7 @@ public class ScheduleController {
             }
 
             mapService.register(mapLocation);
+            response.put("mapData", mapLocation);
             
             // 3. MapCourse 저장 (산책 코스)
             try {
