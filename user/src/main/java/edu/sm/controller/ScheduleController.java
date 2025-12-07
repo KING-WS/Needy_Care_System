@@ -445,6 +445,7 @@ public class ScheduleController {
                     }
                     
                     mapCourseService.registerCourse(mapCourse);
+                    response.put("courseData", mapCourse);
                 }
             } catch (Exception e) {
                 log.error("산책 코스 저장 실패 (일정은 저장됨)", e);
