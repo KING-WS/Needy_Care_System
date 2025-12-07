@@ -327,7 +327,7 @@
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-디                                        <div class="hourly-empty">
+                                        <div class="hourly-empty">
                                             <i class="bi bi-card-checklist"></i>
                                             <span>오늘 등록된 식단이 없습니다</span>
                                         </div>
