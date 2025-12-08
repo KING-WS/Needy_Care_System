@@ -228,6 +228,30 @@ public class CareRecipientController {
     }
 
     /**
+     * 실시간 건강정보 모니터링 페이지
+     */
+    @GetMapping("/monitoring")
+    public String monitoringPage(@RequestParam("recId") Integer recId, Model model, HttpSession session) {
+        Cust loginUser = (Cust) session.getAttribute("loginUser");
+        
+        if (loginUser == null) {
+            return "redirect:/login";
+        }
+        
+        try {
+            Recipient recipient = recipientService.getRecipientById(recId);
+            model.addAttribute("recipient", recipient);
+            model.addAttribute("loginUser", loginUser);
+            model.addAttribute("left", dir + "left");
+            model.addAttribute("center", dir + "monitoring");
+            return "home";
+        } catch (Exception e) {
+            log.error("실시간 건강정보 모니터링 페이지 로드 실패", e);
+            return "redirect:/recipient/list";
+        }
+    }
+
+    /**
      * 노약자 수정 페이지
      */
     @GetMapping("/edit")
