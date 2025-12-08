@@ -1,6 +1,7 @@
 # AI 돌봄 시스템
 
-![AI 돌봄 시스템 메인 화면](https://github.com/user-attachments/assets/b01757d0-0152-42a0-be7e-3c5f22b2c869)
+![AI 돌봄 시스템 메인 화면](https://github.com/user-attachments/assets/04073ef8-756f-456b-bc3f-e5f0c354cb16)
+
 
 돌봄 대상자(**노인, 임산부, 장애인 등**)를 위한 **맞춤형 케어 서비스**를 제공하는 사용자용 웹 애플리케이션입니다. AI와 실시간 기술을 활용하여 사용자에게 직관적이고 유용한 기능을 제공합니다.
 
@@ -10,7 +11,7 @@
 
 | 이름 (포지션) | 담당 업무 | 이메일 |
 | :---: | :---: | :---: |
-| 구민우 |시스템 설계/ 통합, 총괄 |rladntijd011@naver.com|
+| 구민우 |시스템 설계/ 통합, DB설계, 프로젝트 총괄 |rnalsdn100@naver.com|
 | 김우성 |프론트엔드, 백엔드 개발, Admin 모듈 총괄|rladntjd011@naver.com|
 | 정승혁 |프론트엔드, 백엔드 개발, cctv개발|5397jsh@gmail.com|
 | 신창영 |프론트엔드, 백엔드 개발, AI개발, 프론트 총괄|toyoaki900@gmail.com|
@@ -94,7 +95,7 @@
 ## 🎥 시연 영상
 
 **준비중**
-![시연 영상 이미지](https://github.com/user-attachments/assets/b01757d0-0152-42a0-be7e-3c5f22b2c869)
+![AI 돌봄 시스템 메인 화면](https://github.com/user-attachments/assets/04073ef8-756f-456b-bc3f-e5f0c354cb16)
 
 ---
 
@@ -108,10 +109,11 @@
 ![처음 접속 화면](https://github.com/user-attachments/assets/5e6744c9-b59f-4985-80d5-41073034e62b)
 
 ### 메인 화면
-![메인 화면](https://github.com/user-attachments/assets/b01757d0-0152-42a0-be7e-3c5f22b2c869)
+![메인 화면](https://github.com/user-attachments/assets/04073ef8-756f-456b-bc3f-e5f0c354cb16)
 
 ### AI 챗봇
-![AI 챗봇 화면](https://github.com/user-attachments/assets/4d54b1fc-b770-4225-952b-88eb9aefed0f)
+![AI 챗봇 화면](https://github.com/user-attachments/assets/01013f3d-e04d-4104-b5e9-c3238268bf11)
+
 
 </details>
 
@@ -149,13 +151,13 @@
 <br/>
 
 ### 돌봄 대상자 상세 정보
-![돌봄 대상자 상세 정보 화면](https://github.com/user-attachments/assets/aa91d625-40ea-4b97-b6a2-d8bd9a3c851a)
+![돌봄 대상자 상세 정보 화면](https://github.com/user-attachments/assets/67e421f5-cda3-4a1c-a8da-bb2fb246feda)
 
 #### 테블릿 URL로 돌봄 대상자가 사용할 수 있는 화면
 ![테블릿용 돌봄 대상자 화면](https://github.com/user-attachments/assets/5fb52949-3b4c-4af3-825f-3dd5eb0422e9)
 
 ### 돌봄 대상자 실시간 건강 정보
-![돌봄 대상자 실시간 건강 정보 화면](https://github.com/user-attachments/assets/53f46dbf-204c-486d-95e4-126314dfc05c)
+![돌봄 대상자 실시간 건강 정보 화면](https://github.com/user-attachments/assets/9d7647dc-542f-4764-a304-dcf2920e3cf8)
 
 </details>
 
