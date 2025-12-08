@@ -121,7 +121,7 @@
                     <tr>
                         <th style="width: 80px;">ID</th>
                         <th style="width: 200px;">대상자</th>
-                        <th style="width: 150px;">유형</th>
+                        <th style="width: 150px;">보호자</th> <th style="width: 150px;">유형</th>
                         <th>메시지</th>
                         <th style="width: 180px;">발생 시각</th>
                         <th style="width: 120px;">상태</th>
@@ -142,6 +142,12 @@
                                         <div class="font-weight-bold">${alert.recipientName}</div>
                                         <div class="small text-gray-500">ID: <c:out value="${alert.recId}"/></div>
                                     </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <div class="font-weight-bold">${alert.protectorName != null ? alert.protectorName : '-'}</div>
+                                    <div class="small text-gray-500">${alert.protectorPhone != null ? alert.protectorPhone : ''}</div>
                                 </div>
                             </td>
                             <td>
@@ -184,7 +190,7 @@
                     </c:forEach>
                     <c:if test="${empty alerts}">
                         <tr>
-                            <td colspan="7" style="text-align: center; padding: 30px; color: #858796;">
+                            <td colspan="8" style="text-align: center; padding: 30px; color: #858796;">
                                 <i class="far fa-bell-slash fa-2x mb-3 d-block"></i>
                                 새로운 알림이 없습니다.
                             </td>
@@ -235,9 +241,10 @@
 
         const timeStr = data.time.replace('T', ' ').substring(0, 16);
 
-        // [중요] 백틱 제거하고 문자열 연결(+) 방식으로 변경
+        // [중요] 컬럼 순서: ID -> 대상자 -> 보호자 -> 유형 -> 메시지 -> 시각 -> 상태 -> 처리
         tr.innerHTML =
             '<td><strong>#' + data.alertId + '</strong></td>' +
+            // 대상자
             '<td>' +
             '<div class="d-flex align-items-center">' +
             '<div>' +
@@ -246,12 +253,24 @@
             '</div>' +
             '</div>' +
             '</td>' +
+            // [추가] 보호자 정보 (순서 맞춤)
+            '<td>' +
+            '<div>' +
+            '<div class="font-weight-bold">' + (data.protectorName ? data.protectorName : '-') + '</div>' +
+            '<div class="small text-gray-500">' + (data.protectorPhone ? data.protectorPhone : '') + '</div>' +
+            '</div>' +
+            '</td>' +
+            // 유형
             '<td>' + badgeHtml + '</td>' +
+            // 메시지
             '<td class="text-dark">' + data.message + '</td>' +
+            // 시각
             '<td class="small text-gray-600">' + timeStr + '</td>' +
+            // 상태
             '<td>' +
             '<span id="statusBadge_' + data.alertId + '" class="status-badge badge-secondary"><i class="far fa-circle"></i> 미확인</span>' +
             '</td>' +
+            // 처리 버튼
             '<td>' +
             '<div class="d-flex">' + buttonsHtml + '</div>' +
             '</td>';
@@ -352,7 +371,7 @@
                     alert('모든 알림이 확인되었습니다.');
 
 
-                    
+
                     location.reload();
 
                 } catch (error) {
