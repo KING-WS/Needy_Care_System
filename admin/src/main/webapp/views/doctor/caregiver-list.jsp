@@ -2,6 +2,19 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<style>
+    .card.shadow-sm.mb-4 { /* Target the specific card */
+        border-top-left-radius: 20px !important;
+        border-top-right-radius: 20px !important;
+        border-bottom-left-radius: 0 !important; /* Keep bottom corners sharp or default */
+        border-bottom-right-radius: 0 !important;
+    }
+    .card-header {
+        border-top-left-radius: 18px !important; /* Slightly smaller to fit inside card's radius */
+        border-top-right-radius: 18px !important;
+    }
+</style>
+
 <%-- 변수 설정 --%>
 <c:set var="currentSort" value="${sort}" />
 <c:set var="currentOrder" value="${order}" />

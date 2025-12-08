@@ -28,7 +28,7 @@
         background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+        box-shadow: none !important;
     }
     .map-tab.active:hover {
         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
@@ -327,8 +327,9 @@
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="meal-empty-container">
-                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-card-checklist"></i>
+                                            <span>오늘 등록된 식단이 없습니다</span>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -401,7 +402,7 @@
                                     <span class="map-title-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </span>
-                                    <span>케어 지도</span>
+                                    <span>지도 목록</span>
 
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
@@ -616,6 +617,8 @@
                     <input type="text" class="modal-form-input" id="coursePointCount"
                            readonly style="background: #f5f5f5;">
                 </div>
+
+
             </form>
         </div>
         <div class="map-modal-overlay" id="locationDetailModal">
@@ -756,17 +759,14 @@
                 <label class="modal-form-label">총 거리</label>
                 <div class="modal-form-readonly" id="detailCourseDistance">-</div>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">지점 수</label>
-                <div class="modal-form-readonly" id="detailCoursePoints">-</div>
-            </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">등록일</label>
-                <div class="modal-form-readonly" id="detailCourseRegdate">-</div>
-            </div>
+
+
         </div>
         <div class="map-modal-footer">
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
+            <a href="#" id="courseDirectionsBtn" target="_blank" class="modal-btn modal-btn-save" style="display: none; text-decoration: none;">
+                <i class="fas fa-directions"></i> 길찾기
+            </a>
             <button type="button" class="modal-btn modal-btn-save" onclick="viewCourseOnMap()">지도에서 보기</button>
         </div>
     </div>

@@ -1,7 +1,6 @@
 package edu.sm.controller;
 
 import edu.sm.app.dto.ChatRequest;
-import edu.sm.app.dto.ChatResponse; // ChatResponse 임포트
 import edu.sm.app.aiservice.AiChatService;   // AiChatService 임포트
 import edu.sm.app.aiservice.AiSttService;
 import edu.sm.app.service.ChatLogService;
@@ -26,7 +25,7 @@ public class ChatAiController {
     private final AiChatService aiChatService; // AiChatService 다시 추가
 
     @PostMapping("/send")
-    public ResponseEntity<Map<String, String>> sendMessage(@RequestBody ChatRequest request) {
+    public ResponseEntity<Map<String, Object>> sendMessage(@RequestBody ChatRequest request) {
         log.info("AI 채팅 메시지 수신: kioskCode={}, recId={}, message='{}'",
                 request.getKioskCode(), request.getRecId(), request.getMessage());
 
@@ -66,9 +65,15 @@ public class ChatAiController {
         chatLogService.saveChatLog(aiLog);
 
         // 6. 텍스트와 오디오가 포함된 Map을 클라이언트에 반환
-        Map<String, String> response = new java.util.HashMap<>();
+        Map<String, Object> response = new java.util.HashMap<>();
         response.put("text", textAnswer);
         response.put("audio", base64Audio);
+        
+        // 7. 식단 추천 메시지인 경우 식단 등록 가능 여부 표시
+        if (textAnswer.contains("식단을 추천해드릴게요") || textAnswer.contains("이 식단을 등록하시겠어요")) {
+            response.put("hasMealRecommendation", true);
+            response.put("recId", recId);
+        }
         
         return ResponseEntity.ok(response);
     }

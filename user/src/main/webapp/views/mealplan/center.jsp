@@ -126,24 +126,24 @@
     .btn-quick-add {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
 
     .btn-quick-add:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-ai {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        box-shadow: 0 4px 10px rgba(118, 75, 162, 0.4);
+        box-shadow: none;
     }
 
     .btn-ai:hover {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(118, 75, 162, 0.6);
+        box-shadow: none;
     }
 
     /* ---------------------------------------------------- */

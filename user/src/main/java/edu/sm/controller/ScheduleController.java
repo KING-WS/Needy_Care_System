@@ -363,6 +363,7 @@ public class ScheduleController {
             }
 
             mapService.register(mapLocation);
+            response.put("mapData", mapLocation);
             
             // 3. MapCourse 저장 (산책 코스)
             try {
@@ -443,7 +444,14 @@ public class ScheduleController {
                         mapCourse.setCoursePathData(pathData);
                     }
                     
+                    // courseUrl 저장 (요청에서 받아온 값)
+                    String courseUrl = (String) request.get("courseUrl");
+                    if (courseUrl != null && !courseUrl.isEmpty()) {
+                        mapCourse.setCourseUrl(courseUrl);
+                    }
+                    
                     mapCourseService.registerCourse(mapCourse);
+                    response.put("courseData", mapCourse);
                 }
             } catch (Exception e) {
                 log.error("산책 코스 저장 실패 (일정은 저장됨)", e);

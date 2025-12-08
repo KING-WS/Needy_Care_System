@@ -81,12 +81,12 @@
     .btn-primary-custom {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
     .btn-primary-custom:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     .btn-secondary-custom {
@@ -101,7 +101,7 @@
     .btn-danger-custom {
         background: var(--danger-color);
         color: white;
-        box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
+        box-shadow: none;
     }
     .btn-danger-custom:hover {
         background: #c0392b;

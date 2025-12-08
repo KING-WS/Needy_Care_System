@@ -95,7 +95,7 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary d-flex align-items-center" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <img src="<c:url value='/assets/images/avatar-placeholder.svg'/>" alt="User Avatar" width="24" height="24" class="rounded-circle me-2">
-                            <span class="d-none d-md-inline">John Doe</span>
+                            <span class="d-none d-md-inline">Admin</span>
                             <i class="bi bi-chevron-down ms-1"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
@@ -147,12 +147,12 @@
 <%--                        </div>--%>
 <%--                    </li>--%>
 
-                    <li class="nav-item">
-                        <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">
-                            <i class="bi bi-question-circle"></i>
-                            <span>Q&A</span>
-                        </a>
-                    </li>
+<%--                    <li class="nav-item">--%>
+<%--                        <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">--%>
+<%--                            <i class="bi bi-question-circle"></i>--%>
+<%--                            <span>Q&A</span>--%>
+<%--                        </a>--%>
+<%--                    </li>--%>
 
                     <li class="nav-item">
                         <a class="nav-link ${center == 'chart' ? 'active' : ''}" href="<c:url value='/chart'/>">

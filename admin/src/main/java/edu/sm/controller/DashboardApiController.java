@@ -2,7 +2,10 @@ package edu.sm.controller;
 
 import edu.sm.app.dto.ActivityItem;
 import edu.sm.app.dto.CareTimelineItem;
+import edu.sm.app.dto.Senior;
 import edu.sm.app.service.DashboardService;
+import edu.sm.app.service.SeniorService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +20,11 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/dashboard")
+@RequiredArgsConstructor
 public class DashboardApiController {
 
-    @Autowired
-    private DashboardService dashboardService;
+    private final DashboardService dashboardService;
+    private final SeniorService seniorService;
 
     /**
      * 최근 케어 활동 목록을 반환하는 API 엔드포인트
@@ -50,5 +54,25 @@ public class DashboardApiController {
     public ResponseEntity<List<Map<String, Object>>> getUserGrowth() {
         List<Map<String, Object>> userGrowthData = dashboardService.getUserGrowthData();
         return ResponseEntity.ok(userGrowthData);
+    }
+
+    /**
+     * 모든 노약자 목록을 반환하는 API 엔드포인트
+     * @return Senior 리스트
+     */
+    @GetMapping("/seniors")
+    public ResponseEntity<List<Senior>> getAllSeniors() {
+        List<Senior> seniors = seniorService.getAllSeniors();
+        return ResponseEntity.ok(seniors);
+    }
+
+    /**
+     * 지역별 노인 분포 데이터를 반환하는 API 엔드포인트
+     * @return 지역 이름과 노인 수를 담은 Map
+     */
+    @GetMapping("/senior-distribution")
+    public ResponseEntity<Map<String, Long>> getSeniorDistribution() {
+        Map<String, Long> distribution = dashboardService.getSeniorDistributionByProvince();
+        return ResponseEntity.ok(distribution);
     }
 }

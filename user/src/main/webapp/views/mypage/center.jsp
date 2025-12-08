@@ -272,7 +272,6 @@
         font-weight: 600;
         text-decoration: none;
         margin-top: 20px;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4);
         transition: all 0.3s;
     }
     .btn-edit:hover {

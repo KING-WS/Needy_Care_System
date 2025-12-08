@@ -33,7 +33,7 @@
         }
 
         body {
-            font-family: 'Noto Sans KR', sans-serif; /* 폰트 통일 */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             color: #333;
             overflow-x: hidden;
             display: flex;
@@ -129,14 +129,14 @@
             font-size: 15px;
             transition: all 0.3s;
             order: 3;
-            box-shadow: 0 4px 10px rgba(52, 152, 219, 0.4); /* 그림자 추가 */
+            box-shadow: none;
         }
 
         .btn-login-nav:hover {
             background: #2980b9; /* 호버 색상 변경 */
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.6);
+            box-shadow: none;
         }
 
         /* 사용 안 하는 스타일 (나중에 필요할 수 있음) */
@@ -173,14 +173,20 @@
         }
 
         /* ---------------------------------------------------- */
-        /* 3. Hero Section */
+        /* 3. Hero Section (수정됨: 높이 확장 및 정렬) */
         /* ---------------------------------------------------- */
         #hero {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #2c3e50 100%); /* 그라데이션 유지 */
-            padding: 180px 0 100px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, #2c3e50 100%);
+            /* 패딩을 줄이고 Flexbox로 중앙 정렬 */
+            padding: 0;
             color: white;
             position: relative;
             overflow: hidden;
+
+            /* [변경] 화면 꽉 차게 설정 */
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
         }
 
         #hero::before {
@@ -197,7 +203,7 @@
         }
 
         #hero h1 {
-            font-size: 52px; /* 크기 강조 */
+            font-size: 52px;
             font-weight: 800; /* 두께 강조 */
             margin-bottom: 20px;
         }
@@ -206,6 +212,22 @@
             font-size: 20px;
             margin-bottom: 30px;
         }
+
+        /* [추가] 이미지 블렌딩 효과 (가장자리 부드럽게) */
+        .hero-img-blend {
+            max-width: 100%;
+            height: auto;
+            /* [수정] 이미지의 최대 크기를 제한 (예시: 500px) */
+            max-width: 1500px;
+            /* CSS Masking: 가장자리를 투명하게 처리 */
+            -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
+            mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
+            transition: transform 0.3s ease;
+        }
+
+        /*.hero-img-blend:hover {*/
+        /*    transform: scale(1.05);*/
+        /*}*/
 
         .hero-buttons {
             display: flex;
@@ -222,14 +244,14 @@
             text-decoration: none;
             display: inline-block;
             transition: all 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: none;
         }
 
         .btn-hero:hover {
             background: var(--accent-color);
             color: white;
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: none;
         }
 
         .btn-hero-secondary {
@@ -248,7 +270,7 @@
             background: white;
             color: var(--primary-color);
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            box-shadow: none;
         }
 
         /* ---------------------------------------------------- */
@@ -449,13 +471,13 @@
             font-weight: 700;
             transition: all 0.3s;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: none;
         }
 
         .btn-submit:hover {
             background: #1565c0;
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.6);
+            box-shadow: none;
         }
 
         /* ---------------------------------------------------- */
@@ -468,6 +490,17 @@
             text-align: center;
             flex-shrink: 0;
             margin-top: auto;
+        }
+
+        .footer-social a {
+            color: white;
+            margin: 0 15px;
+            font-size: 24px;
+            transition: color 0.3s;
+        }
+
+        .footer-social a:hover {
+            color: var(--primary-color);
         }
 
         /* 모바일 햄버거 메뉴 버튼 */
@@ -606,7 +639,10 @@
 
             /* Hero 섹션 조정 */
             #hero {
-                padding: 120px 0 60px;
+                /* 모바일에서는 패딩을 줘서 100vh가 부담스럽지 않게 조정하거나 유지 */
+                padding: 100px 0 60px;
+                display: block; /* 모바일에서는 플렉스 해제하고 블록으로 */
+                min-height: auto; /* 높이 강제 해제 (컨텐츠 양에 따름) */
             }
 
             #hero h1 {
@@ -769,7 +805,6 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <!-- 모바일 햄버거 메뉴 버튼 -->
             <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="메뉴 열기">
                 <i class="fas fa-bars"></i>
             </button>
@@ -779,20 +814,19 @@
                 AI 돌봄 시스템
             </a>
 
-            <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="#hero">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-                <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
-                <li class="nav-item"><a class="nav-link" href="#team">Team</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-            </ul>
+<%--            <ul class="navbar-nav">--%>
+<%--                <li class="nav-item"><a class="nav-link" href="#hero">홈</a></li>--%>
+<%--                <li class="nav-item"><a class="nav-link" href="#about">소개</a></li>--%>
+<%--                <li class="nav-item"><a class="nav-link" href="#services">주요 서비스</a></li>--%>
+<%--                <li class="nav-item"><a class="nav-link" href="#team">팀</a></li>--%>
+<%--                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>--%>
+<%--            </ul>--%>
 
             <a href="/login" class="btn-login-nav">로그인</a>
         </div>
     </nav>
 </header>
 
-<!-- 모바일 메뉴 패널 -->
 <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
 <div class="mobile-menu-panel" id="mobileMenuPanel">
     <div class="mobile-menu-header">
@@ -809,7 +843,7 @@
             <li><a href="#about">About</a></li>
             <li><a href="#services">Services</a></li>
             <li><a href="#team">Team</a></li>
-            <li><a href="#contact">Contact</a></li>
+<%--            <li><a href="#contact">Contact</a></li>--%>
             <li style="border-top: 2px solid #e0e0e0; margin-top: 10px;">
                 <a href="/login" style="color: var(--primary-color); font-weight: 600;">로그인</a>
             </li>
@@ -829,8 +863,8 @@
                         <a href="/login" class="btn-hero-secondary">로그인</a>
                     </div>
                 </div>
-                <div class="col-lg-6" data-aos="fade-left">
-                    <img src="/img/sinear.jpg" class="img-fluid" alt="Hero">
+                <div class="col-lg-6 text-center" data-aos="fade-left">
+                    <img src="/img/sp2.png" class="hero-img-blend" alt="Hero">
                 </div>
             </div>
         </div>
@@ -839,8 +873,8 @@
     <section id="about">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2>About Us</h2>
-                <p>yea</p>
+                <h2>소개</h2>
+                <p>저희의 서비스를 소개합니다</p>
             </div>
             <div class="row align-items-center">
                 <div class="col-lg-6" data-aos="fade-right">
@@ -862,7 +896,7 @@
     <section id="services">
         <div class="container">
             <div class="section-title" data-aos="fade-up">
-                <h2>Our Services</h2>
+                <h2>서비스</h2>
                 <p>저희의 서비스를 한번 탐색해보세요</p>
             </div>
             <div class="row">
@@ -870,162 +904,168 @@
                     <div class="service-box">
                         <i class="fas fa-laptop-code"></i>
                         <h3>산책 추천 시스템</h3>
-                        <p>.ㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
+                        <p>AI가 날씨와 사용자 컨디션을 분석하여 최적의 산책 코스를 제안합니다.
+                            매일 새롭고 안전한 길을 따라 건강한 생활을 즐겨보세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-box">
                         <i class="fas fa-mobile-alt"></i>
                         <h3>식단 추천 시스템</h3>
-                        <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㄴㅁㅇㄴㅁ</p>
+                        <p>사용자의 건강 데이터와 병력, 알레르기 정보를 기반으로 맞춤형 식단을 추천합니다.
+                            균형 잡힌 영양으로 건강을 체계적으로 관리하세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-box">
                         <i class="fas fa-paint-brush"></i>
                         <h3>실시간 노약자 모니터링 시스템</h3>
-                        <p>ㅇㄴㅁㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁ</p>
+                        <p>집안에 설치된 카메라가 사용자의 낙상, 이상 행동 등 위기 상황을 실시간으로 감지합니다.
+                            응급 상황 발생 시 보호자에게 즉시 알려 빠른 조치를 돕습니다.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="100">
                     <div class="service-box">
                         <i class="fas fa-chart-line"></i>
                         <h3>AI를 통한 요양사 추천 시스템</h3>
-                        <p>ㄹㅇㅁㅇㄴㅇㅁㄴㅇㅁㄴ.</p>
+                        <p>사용자의 필요와 선호도에 가장 적합한 요양사를 AI가 매칭해 드립니다.
+                            신뢰할 수 있는 전문가와 함께 편안한 돌봄을 경험하세요.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="200">
                     <div class="service-box">
                         <i class="fas fa-camera"></i>
                         <h3>AI챗봇 시스템</h3>
-                        <p>ㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㅁㄴㅇㅁㄴㅇ</p>
+                        <p>24시간 언제든지 궁금한 점을 물어보고 답변을 받을 수 있는 AI 챗봇입니다.
+                            돌봄 서비스 정보부터 일상적인 대화까지, 똑똑한 비서가 되어드립니다.</p>
                     </div>
                 </div>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-box">
                         <i class="fas fa-bullhorn"></i>
                         <h3>AI 건강진단서 분석 시스템</h3>
-                        <p>ㄻㅇㄴㅁㅁㄴㅇㅁㄴㅇㄴㅁㅇㅁㄴㅇㄴㅁㅇㅁㄴ</p>
+                        <p>복잡한 건강진단서 내용을 AI가 쉽게 분석하고 요약해 드립니다.
+                            내 건강 상태를 한눈에 파악하고 체계적으로 관리하세요.</p>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="team">
-        <div class="container">
-            <div class="section-title" data-aos="fade-up">
-                <h2>Team</h2>
-                <p>저희와 함께하는 팀원들을 소개합니다.</p>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="100">
-                    <div class="team-member">
-                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>
-                        <h4 style="margin-top: 15px;">팀 멤버 1</h4>
-                        <span class="d-block mb-3">Placeholder</span>
-                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="200">
-                    <div class="team-member">
-                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>
-                        <h4 style="margin-top: 15px;">팀 멤버 2</h4>
-                        <span class="d-block mb-3">Placeholder</span>
-                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="300">
-                    <div class="team-member">
-                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>
-                        <h4 style="margin-top: 15px;">팀 멤버 3</h4>
-                        <span class="d-block mb-3">Placeholder</span>
-                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="400">
-                    <div class="team-member">
-                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>
-                        <h4 style="margin-top: 15px;">팀 멤버 4</h4>
-                        <span class="d-block mb-3">Placeholder</span>
-                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<%--    <section id="team">--%>
+<%--        <div class="container">--%>
+<%--            <div class="section-title" data-aos="fade-up">--%>
+<%--                <h2>Team</h2>--%>
+<%--                <p>저희와 함께하는 팀원들을 소개합니다.</p>--%>
+<%--            </div>--%>
+<%--            <div class="row">--%>
+<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="100">--%>
+<%--                    <div class="team-member">--%>
+<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+<%--                        <h4 style="margin-top: 15px;">팀 멤버 1</h4>--%>
+<%--                        <span class="d-block mb-3">Placeholder</span>--%>
+<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="200">--%>
+<%--                    <div class="team-member">--%>
+<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+<%--                        <h4 style="margin-top: 15px;">팀 멤버 2</h4>--%>
+<%--                        <span class="d-block mb-3">Placeholder</span>--%>
+<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="300">--%>
+<%--                    <div class="team-member">--%>
+<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+<%--                        <h4 style="margin-top: 15px;">팀 멤버 3</h4>--%>
+<%--                        <span class="d-block mb-3">Placeholder</span>--%>
+<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="400">--%>
+<%--                    <div class="team-member">--%>
+<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+<%--                        <h4 style="margin-top: 15px;">팀 멤버 4</h4>--%>
+<%--                        <span class="d-block mb-3">Placeholder</span>--%>
+<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </div>--%>
+<%--    </section>--%>
 
-    <section id="contact">
-        <div class="container">
-            <div class="section-title" data-aos="fade-up">
-                <h2>Contact</h2>
-                <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-            </div>
-            <div class="row">
-                <div class="col-lg-5 mb-4" data-aos="fade-right">
-                    <div class="contact-info-card">
-                        <h3>Contact Info</h3>
-                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.
-                            Vestibulum ante ipsum primis.</p>
+<%--    <section id="contact">--%>
+<%--        <div class="container">--%>
+<%--            <div class="section-title" data-aos="fade-up">--%>
+<%--                <h2>Contact</h2>--%>
+<%--                <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>--%>
+<%--            </div>--%>
+<%--            <div class="row">--%>
+<%--                <div class="col-lg-5 mb-4" data-aos="fade-right">--%>
+<%--                    <div class="contact-info-card">--%>
+<%--                        <h3>Contact Info</h3>--%>
+<%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.--%>
+<%--                            Vestibulum ante ipsum primis.</p>--%>
 
-                        <div class="contact-detail">
-                            <div class="contact-icon">
-                                <i class="fas fa-map-marker-alt"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h4>Our Location</h4>
-                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>
-                            </div>
-                        </div>
+<%--                        <div class="contact-detail">--%>
+<%--                            <div class="contact-icon">--%>
+<%--                                <i class="fas fa-map-marker-alt"></i>--%>
+<%--                            </div>--%>
+<%--                            <div class="contact-text">--%>
+<%--                                <h4>Our Location</h4>--%>
+<%--                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
 
-                        <div class="contact-detail">
-                            <div class="contact-icon">
-                                <i class="fas fa-phone"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h4>Phone Number</h4>
-                                <p>+82 10-8920-3471<br>+82 10-5734-7072</p>
-                            </div>
-                        </div>
+<%--                        <div class="contact-detail">--%>
+<%--                            <div class="contact-icon">--%>
+<%--                                <i class="fas fa-phone"></i>--%>
+<%--                            </div>--%>
+<%--                            <div class="contact-text">--%>
+<%--                                <h4>Phone Number</h4>--%>
+<%--                                <p>+82 10-8920-3471<br>+82 10-5734-7072</p>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
 
-                        <div class="contact-detail">
-                            <div class="contact-icon">
-                                <i class="fas fa-envelope"></i>
-                            </div>
-                            <div class="contact-text">
-                                <h4>Email Address</h4>
-                                <p>rnalsdn100@gmail.com<br>shinchagyoung@gmail.com</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<%--                        <div class="contact-detail">--%>
+<%--                            <div class="contact-icon">--%>
+<%--                                <i class="fas fa-envelope"></i>--%>
+<%--                            </div>--%>
+<%--                            <div class="contact-text">--%>
+<%--                                <h4>Email Address</h4>--%>
+<%--                                <p>rnalsdn100@gmail.com<br>shinchagyoung@gmail.com</p>--%>
+<%--                            </div>--%>
+<%--                        </div>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
 
-                <div class="col-lg-7 mb-4" data-aos="fade-left">
-                    <div class="contact-form-card">
-                        <h3>Get In Touch</h3>
-                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl.
-                            Vestibulum ante ipsum primis.</p>
+<%--                <div class="col-lg-7 mb-4" data-aos="fade-left">--%>
+<%--                    <div class="contact-form-card">--%>
+<%--                        <h3>Get In Touch</h3>--%>
+<%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl.--%>
+<%--                            Vestibulum ante ipsum primis.</p>--%>
 
-                        <form>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <input type="text" class="form-control" placeholder="Your Name" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <input type="email" class="form-control" placeholder="Your Email" required>
-                                </div>
-                            </div>
-                            <input type="text" class="form-control" placeholder="Subject" required>
-                            <textarea class="form-control" placeholder="Message" required></textarea>
-                            <div class="text-center">
-                                <button type="submit" class="btn-submit">Send Message</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<%--                        <form>--%>
+<%--                            <div class="row">--%>
+<%--                                <div class="col-md-6">--%>
+<%--                                    <input type="text" class="form-control" placeholder="Your Name" required>--%>
+<%--                                </div>--%>
+<%--                                <div class="col-md-6">--%>
+<%--                                    <input type="email" class="form-control" placeholder="Your Email" required>--%>
+<%--                                </div>--%>
+<%--                            </div>--%>
+<%--                            <input type="text" class="form-control" placeholder="Subject" required>--%>
+<%--                            <textarea class="form-control" placeholder="Message" required></textarea>--%>
+<%--                            <div class="text-center">--%>
+<%--                                <button type="submit" class="btn-submit">Send Message</button>--%>
+<%--                            </div>--%>
+<%--                        </form>--%>
+<%--                    </div>--%>
+<%--                </div>--%>
+<%--            </div>--%>
+<%--        </div>--%>
+<%--    </section>--%>
 </main>
 
 <footer>
@@ -1036,7 +1076,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2024 Aventro. All Rights Reserved.</p>
+        <p>AI가 함께하여 더욱 안심되는 돌봄 서비스.</p>
     </div>
 </footer>
 
@@ -1048,6 +1088,7 @@
         duration: 1000,
         once: true
     });
+
     // Smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -1064,6 +1105,7 @@
             }
         });
     });
+
     // Navbar scroll effect
     window.addEventListener('scroll', function() {
         const header = document.querySelector('header');

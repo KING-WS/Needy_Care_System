@@ -631,23 +631,31 @@ textarea.form-control {
 }
 
 .btn-cancel {
-    background: #f7fafc;
-    color: #718096;
+    background: #f1f3f5;
+    color: #495057;
+    padding: 10px 20px;
 }
 
 .btn-cancel:hover {
-    background: #e2e8f0;
+    background: #e9ecef;
 }
 
 .btn-save {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #667eea;
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: none;
+    border-radius: 12px;
+    padding: 0 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    height: 48px;
+    justify-content: center;
 }
 
 .btn-save:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: #5a6fd6;
+    transform: none;
+    box-shadow: none;
 }
 
 /* AI 식단 추천 관련 스타일 */
