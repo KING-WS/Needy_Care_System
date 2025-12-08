@@ -143,13 +143,13 @@
     .btn-primary {
         background: var(--primary-color);
         color: white;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
     }
 
     .btn-primary:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
         color: white; /* 호버 시 텍스트 색상 유지 */
     }
 

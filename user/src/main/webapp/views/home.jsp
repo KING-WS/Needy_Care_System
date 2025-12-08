@@ -126,7 +126,7 @@
         /* 왼쪽: 로고 */
         .navbar-brand {
             font-size: 28px;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary-color) !important;
             text-decoration: none;
             order: 1;
@@ -693,6 +693,50 @@
             line-height: 1.2;
         }
 
+        /* 빠른 질문 버튼 영역 */
+        .chat-quick-questions {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .quick-question-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 12px;
+            color: #495057;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .quick-question-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .quick-question-btn:active {
+            transform: translateY(0);
+        }
+
+        .quick-question-btn i {
+            font-size: 11px;
+        }
+
         .chat-input-area {
             padding: 15px;
             background: white;
@@ -768,8 +812,222 @@
             50% { opacity: 0.7; }
         }
 
+        /* 모바일 햄버거 메뉴 버튼 */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 8px;
+            order: 0;
+            z-index: 1101;
+        }
+
+        /* 모바일 메뉴 패널 */
+        .mobile-menu-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1099;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .mobile-menu-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .mobile-menu-panel {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            max-width: 85%;
+            height: 100%;
+            background: white;
+            z-index: 1100;
+            transition: left 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .mobile-menu-panel.active {
+            left: 0;
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .mobile-menu-user {
+            flex: 1;
+        }
+
+        .mobile-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .mobile-user-info i {
+            font-size: 24px;
+        }
+
+        .mobile-login-link {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .mobile-menu-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.3s;
+        }
+
+        .mobile-menu-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .mobile-menu-nav {
+            padding: 0;
+        }
+
+        .mobile-menu-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .mobile-menu-list > li {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .mobile-menu-list > li > a {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .mobile-menu-list > li > a i {
+            margin-right: 12px;
+            width: 20px;
+            color: var(--primary-color);
+        }
+
+        .mobile-menu-list > li > a:hover {
+            background: #f8f9fa;
+            color: var(--primary-color);
+            padding-left: 25px;
+        }
+
+        .mobile-menu-dropdown-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mobile-menu-dropdown-toggle .fa-chevron-down {
+            margin-left: auto;
+            margin-right: 0;
+            transition: transform 0.3s;
+        }
+
+        .mobile-menu-dropdown.active .mobile-menu-dropdown-toggle .fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .mobile-menu-dropdown-menu {
+            display: none;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            background: #f8f9fa;
+        }
+
+        .mobile-menu-dropdown.active .mobile-menu-dropdown-menu {
+            display: block;
+        }
+
+        .mobile-menu-dropdown-menu li a {
+            padding: 12px 20px 12px 52px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .mobile-menu-dropdown-menu li a:hover {
+            background: #e9ecef;
+            color: var(--primary-color);
+        }
+
+        .mobile-menu-logout {
+            margin-top: 10px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .mobile-logout-btn {
+            color: var(--accent-color) !important;
+            font-weight: 600;
+        }
+
+        .mobile-logout-btn:hover {
+            background: rgba(231, 76, 60, 0.1) !important;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
+            /* 모바일에서 햄버거 버튼 표시 */
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            /* 모바일에서 네비게이션과 사용자 정보 숨기기 */
+            .navbar-nav,
+            .user-info,
+            .btn-login-nav {
+                display: none !important;
+            }
+
+            /* 로고 크기 조정 */
+            .navbar-brand {
+                font-size: 20px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            .navbar-brand img {
+                width: 28px;
+                height: 28px;
+            }
+
+            .navbar .container {
+                padding: 0 15px;
+            }
+
             .chat-modal {
                 width: calc(100% - 40px);
                 right: 20px;
@@ -780,24 +1038,6 @@
             .floating-chat-btn {
                 bottom: 20px;
                 right: 20px;
-            }
-            
-            .navbar-nav {
-                gap: 10px;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            
-            .nav-link {
-                font-size: 13px;
-                padding: 6px 8px;
-            }
-            
-            .dropdown-menu {
-                position: static;
-                box-shadow: none;
-                border: 1px solid #e0e0e0;
-                margin-top: 0;
             }
         }
         
@@ -812,6 +1052,11 @@
 <header>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
+            <!-- 모바일 햄버거 메뉴 버튼 -->
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="메뉴 열기">
+                <i class="fas fa-bars"></i>
+            </button>
+
             <!-- 왼쪽: 로고 -->
             <a class="navbar-brand" href="/">
                 <img src="/img/favicontitle.png" alt="Aventro Logo">AI 돌봄 시스템
@@ -890,6 +1135,61 @@
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+<!-- 모바일 메뉴 패널 -->
+<div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+<div class="mobile-menu-panel" id="mobileMenuPanel">
+    <div class="mobile-menu-header">
+        <div class="mobile-menu-user">
+            <c:choose>
+                <c:when test="${sessionScope.loginUser != null}">
+                    <div class="mobile-user-info">
+                        <i class="fas fa-user-circle"></i>
+                        <span>${sessionScope.loginUser.custName}님</span>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="mobile-user-info">
+                        <a href="/login" class="mobile-login-link">로그인</a>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+        <button class="mobile-menu-close" id="mobileMenuClose" aria-label="메뉴 닫기">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <nav class="mobile-menu-nav">
+        <ul class="mobile-menu-list">
+            <li><a href="<c:url value="/home"/>"><i class="fas fa-home"></i> 홈</a></li>
+            <li class="mobile-menu-dropdown">
+                <a href="#" class="mobile-menu-dropdown-toggle">
+                    <i class="fas fa-utensils"></i> 식단관리
+                    <i class="fas fa-chevron-down"></i>
+                </a>
+                <ul class="mobile-menu-dropdown-menu">
+                    <li><a href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> AI 식단 관리</a></li>
+                    <li><a href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
+                    <li><a href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
+                    <li><a href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
+                </ul>
+            </li>
+            <li><a href="<c:url value="/schedule"/>"><i class="fas fa-calendar-alt"></i> 일정</a></li>
+            <li><a href="<c:url value="/schedule/recommend"/>"><i class="fas fa-map"></i> 장소</a></li>
+            <li><a href="<c:url value="/cctv"/>"><i class="fas fa-video"></i> CCTV</a></li>
+            <li><a href="<c:url value="/caregiver"/>"><i class="fas fa-id-card-alt"></i> 요양사</a></li>
+            <li><a href="<c:url value="/care"/>"><i class="fas fa-heartbeat"></i> 돌봄 영상</a></li>
+            <li><a href="<c:url value="/mypage"/>"><i class="fas fa-user"></i> 마이페이지</a></li>
+            <c:if test="${sessionScope.loginUser != null}">
+                <li class="mobile-menu-logout">
+                    <a href="/logout" class="mobile-logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> 로그아웃
+                    </a>
+                </li>
+            </c:if>
+        </ul>
+    </nav>
+</div>
+
 
 
 <!-- Main Content Area -->
@@ -913,7 +1213,7 @@
             <a href="#"><i class="fab fa-instagram"></i></a>
             <a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-        <p>&copy; 2024 Aventro. All Rights Reserved.</p>
+        <p>AI가 함께하여 더욱 안심되는 돌봄 서비스.</p>
     </div>
 </footer>
 
@@ -949,6 +1249,20 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="chat-quick-questions" id="chatQuickQuestions">
+        <button class="quick-question-btn" data-question="오늘의 일정 알려줘">
+            <i class="fas fa-calendar-day"></i> 오늘의 일정
+        </button>
+        <button class="quick-question-btn" data-question="오늘의 식단 추천해줘">
+            <i class="fas fa-utensils"></i> 식단 추천
+        </button>
+        <button class="quick-question-btn" data-question="오늘의 식단 알려줘">
+            <i class="fas fa-list"></i> 오늘의 식단
+        </button>
+<%--        <button class="quick-question-btn" data-question="내 건강 상태 알려줘">--%>
+<%--            <i class="fas fa-heartbeat"></i> 건강 상태--%>
+<%--        </button>--%>
     </div>
     <div class="chat-input-area">
         <button class="chat-voice-btn" id="chatVoiceBtn" title="음성 입력">
@@ -1003,6 +1317,63 @@
 
     // Sidebar Toggle Functionality
     document.addEventListener('DOMContentLoaded', function() {
+        // 모바일 메뉴 토글 기능
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const mobileMenuClose = document.getElementById('mobileMenuClose');
+        const mobileMenuPanel = document.getElementById('mobileMenuPanel');
+        const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+        if (mobileMenuToggle && mobileMenuPanel) {
+            // 햄버거 버튼 클릭 시 메뉴 열기
+            mobileMenuToggle.addEventListener('click', function() {
+                mobileMenuPanel.classList.add('active');
+                mobileMenuOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden'; // 스크롤 방지
+            });
+
+            // 닫기 버튼 클릭 시 메뉴 닫기
+            if (mobileMenuClose) {
+                mobileMenuClose.addEventListener('click', function() {
+                    mobileMenuPanel.classList.remove('active');
+                    mobileMenuOverlay.classList.remove('active');
+                    document.body.style.overflow = ''; // 스크롤 복원
+                    // 지도 크기 재조정
+                    setTimeout(function() {
+                        if (typeof resizeMap === 'function') {
+                            resizeMap();
+                        } else if (typeof map !== 'undefined' && map) {
+                            map.relayout();
+                        }
+                    }, 300);
+                });
+            }
+
+            // 오버레이 클릭 시 메뉴 닫기
+            mobileMenuOverlay.addEventListener('click', function() {
+                mobileMenuPanel.classList.remove('active');
+                mobileMenuOverlay.classList.remove('active');
+                document.body.style.overflow = ''; // 스크롤 복원
+                // 지도 크기 재조정
+                setTimeout(function() {
+                    if (typeof resizeMap === 'function') {
+                        resizeMap();
+                    } else if (typeof map !== 'undefined' && map) {
+                        map.relayout();
+                    }
+                }, 300);
+            });
+
+            // 모바일 메뉴 드롭다운 토글
+            const mobileDropdowns = document.querySelectorAll('.mobile-menu-dropdown-toggle');
+            mobileDropdowns.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = this.parentElement;
+                    dropdown.classList.toggle('active');
+                });
+            });
+        }
+
         // ... (기존 사이드바 로직 그대로 유지) ...
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
@@ -1154,13 +1525,18 @@
             initialMessageTime.textContent = now.getHours() + ':' + String(now.getMinutes()).padStart(2, '0');
         }
 
-        // Open chat modal
+        // Toggle chat modal (플로팅 버튼 클릭 시 열기/닫기 토글)
         if (floatingChatBtn) {
             floatingChatBtn.addEventListener('click', function() {
-                chatModal.classList.add('active');
-                chatInput.focus();
-                // Hide badge when chat is open
-                chatBadge.style.display = 'none';
+                // 모달이 열려있으면 닫기, 닫혀있으면 열기
+                if (chatModal.classList.contains('active')) {
+                    chatModal.classList.remove('active');
+                } else {
+                    chatModal.classList.add('active');
+                    chatInput.focus();
+                    // Hide badge when chat is open
+                    chatBadge.style.display = 'none';
+                }
             });
         }
 
@@ -1214,7 +1590,9 @@
                 .then(data => {
                     removeMessage(loadingId);
                     const responseText = data.text || '응답을 받지 못했습니다.';
-                    addMessage(responseText, 'received');
+                    // 식단 추천 메시지인 경우 등록 버튼 포함
+                    const hasMealRecommendation = data.hasMealRecommendation === true;
+                    addMessage(responseText, 'received', null, hasMealRecommendation, data.recId);
                     playAudio(data.audio); // AI 응답 음성 출력
                 })
                 .catch(error => {
@@ -1233,7 +1611,7 @@
         }
 
         // Add message to chat
-        function addMessage(text, type, messageId) {
+        function addMessage(text, type, messageId, hasMealRecommendation, recId) {
             const messageDiv = document.createElement('div');
             // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
@@ -1272,7 +1650,38 @@
             // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
-            bubble.textContent = text;
+            
+            // 텍스트를 줄바꿈 처리
+            const textLines = text.split('\n');
+            textLines.forEach((line, index) => {
+                if (line.trim()) {
+                    const lineElement = document.createElement('div');
+                    lineElement.textContent = line;
+                    if (index === 0) {
+                        lineElement.style.marginTop = '0';
+                    }
+                    bubble.appendChild(lineElement);
+                }
+            });
+
+            // 식단 추천 메시지인 경우 등록 버튼 추가
+            if (hasMealRecommendation && recId) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginTop = '12px';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '8px';
+                
+                const registerBtn = document.createElement('button');
+                registerBtn.className = 'btn btn-primary btn-sm';
+                registerBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer;';
+                registerBtn.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
+                registerBtn.onclick = function() {
+                    registerMealFromChat(recId, registerBtn);
+                };
+                
+                buttonContainer.appendChild(registerBtn);
+                bubble.appendChild(buttonContainer);
+            }
 
             // 시간
             const time = document.createElement('div');
@@ -1290,6 +1699,46 @@
 
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 챗봇에서 식단 등록하기
+        function registerMealFromChat(recId, button) {
+            if (!recId) {
+                alert('사용자 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+
+            // 식단 등록 API 호출 (MEAL_SAVE 의도로 처리)
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: '등록해줘', recId: recId })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('서버 응답 오류: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                const responseText = data.text || '식단이 등록되었습니다.';
+                addMessage(responseText, 'received');
+                playAudio(data.audio);
+                
+                // 버튼을 성공 메시지로 변경
+                button.innerHTML = '<i class="fas fa-check"></i> 등록 완료';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-success');
+                button.disabled = true;
+            })
+            .catch(error => {
+                console.error('식단 등록 중 오류 발생:', error);
+                alert('식단 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
+            });
         }
 
         // Remove message from chat
@@ -1313,6 +1762,20 @@
                 }
             });
         }
+
+        // 빠른 질문 버튼 클릭 이벤트
+        const quickQuestionButtons = document.querySelectorAll('.quick-question-btn');
+        quickQuestionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const question = this.getAttribute('data-question');
+                if (question && chatInput) {
+                    // 입력창에 질문 입력
+                    chatInput.value = question;
+                    // 자동으로 메시지 전송
+                    sendMessage();
+                }
+            });
+        });
 
         // Show notification badge (예시)
         // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출

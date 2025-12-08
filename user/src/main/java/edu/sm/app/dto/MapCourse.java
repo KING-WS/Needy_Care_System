@@ -16,6 +16,7 @@ public class MapCourse {
     private String courseName;
     private String courseType;
     private String coursePathData;
+    private String courseUrl;
     private String isDeleted;
     private LocalDateTime courseRegdate;
     private LocalDateTime courseUpdate;

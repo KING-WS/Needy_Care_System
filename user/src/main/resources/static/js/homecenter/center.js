@@ -38,11 +38,34 @@ function closeAllOverlays() {
 // 지도 초기화 함수
 function initializeMap() {
     var mapContainer = document.getElementById('map');
+    if (!mapContainer) {
+        console.error('지도 컨테이너를 찾을 수 없습니다.');
+        return;
+    }
+    
     var mapOption = {
         center: new kakao.maps.LatLng(37.5665, 126.9780),
         level: 5
     };
     map = new kakao.maps.Map(mapContainer, mapOption);
+
+    // 지도 초기화 후 relayout 호출 (모바일 대응)
+    setTimeout(function() {
+        if (map) {
+            map.relayout();
+        }
+    }, 100);
+
+    // 윈도우 리사이즈 시 지도 크기 재조정
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            if (map) {
+                map.relayout();
+            }
+        }, 300);
+    });
 
     kakao.maps.event.addListener(map, 'dblclick', function(mouseEvent) {
         if (currentMapMode === 'course') {
@@ -65,6 +88,15 @@ function initializeMap() {
         clickedPosition = latlng;
         openMapModal(latlng.getLat(), latlng.getLng());
     });
+}
+
+// 지도 크기 재조정 함수 (외부에서 호출 가능)
+function resizeMap() {
+    if (map) {
+        setTimeout(function() {
+            map.relayout();
+        }, 100);
+    }
 }
 
 // 노약자 집 마커 표시
@@ -578,7 +610,82 @@ async function deleteCourse(courseId) {
 
 // 산책코스 상세 정보 표시
 async function showCourseDetail(courseId) {
-    loadCourseOnMap(courseId);
+    try {
+        const response = await fetch(`/api/course/${courseId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            const course = result.data;
+            currentCourseId = course.courseId; // 현재 코스 ID 저장
+
+            // 모달 내용 채우기
+            document.getElementById('detailCourseName').textContent = course.courseName || '-';
+            document.getElementById('detailCourseType').textContent = course.courseType || '-';
+
+
+            // coursePathData 파싱
+            let distanceText = '-';
+            if (course.coursePathData) {
+                try {
+                    const pathData = JSON.parse(course.coursePathData);
+                    if (pathData.totalDistance) {
+                        distanceText = pathData.totalDistance < 1000
+                            ? `${Math.round(pathData.totalDistance)}m`
+                            : `${(pathData.totalDistance / 1000).toFixed(2)}km`;
+                    }
+                } catch (e) {
+                    console.error("Course path data parsing error:", e);
+                }
+            }
+            document.getElementById('detailCourseDistance').textContent = distanceText;
+
+            const directionsBtn = document.getElementById('courseDirectionsBtn');
+            let url = course.courseUrl;
+
+            // courseUrl이 없는 경우, 코스 이름과 집 주소를 기반으로 URL을 동적으로 생성
+            if (!url && course.courseName && typeof recipientAddress !== 'undefined' && recipientAddress) {
+                // 시작점(집)과 도착점(코스 이름)으로 길찾기 URL 생성
+                url = `https://map.kakao.com/?sName=${encodeURIComponent(recipientAddress)}&eName=${encodeURIComponent(course.courseName)}`;
+            }
+
+            if (url) {
+                directionsBtn.href = url;
+                directionsBtn.target = '_blank'; // 새 창에서 열리도록 설정
+                directionsBtn.style.display = 'inline-block';
+            } else {
+                directionsBtn.style.display = 'none';
+            }
+
+
+            // 모달 표시
+            document.getElementById('courseDetailModal').classList.add('show');
+
+            // 지도에 코스 로드
+            loadCourseOnMap(courseId);
+        } else {
+            alert('산책코스 정보를 불러오는 데 실패했습니다.');
+        }
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        alert('산책코스 정보를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+
+// 산책코스 상세 모달 닫기
+function closeCourseDetailModal() {
+    document.getElementById('courseDetailModal').classList.remove('show');
+    currentCourseId = null;
+    // clearCourseMode(); // 모달 닫을 때 지도 위 코스 정보도 클리어 -> 사용자가 다른 동작을 할 때까지 경로를 유지하도록 주석 처리
+}
+
+// 지도에서 산책코스 보기
+function viewCourseOnMap() {
+    if (currentCourseId) {
+        // 이미 loadCourseOnMap이 showCourseDetail에서 호출되었으므로,
+        // 여기서는 모달만 닫고 지도 중심으로 이동시키는 역할만 수행
+        closeCourseDetailModal();
+        // 지도 경계 재설정 (loadCourseOnMap에서 이미 처리됨)
+    }
 }
 
 // 위치 검색 함수

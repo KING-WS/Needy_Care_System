@@ -180,27 +180,28 @@
 
     <!-- Additional Charts Row -->
     <div class="row g-4 mb-4">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0"> 가입자 수 (일주일)</h5>
+                    <h5 class="card-title mb-0"> 돌봄 지역 분포율</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="userGrowthChart" height="200"></canvas>
+                    <canvas id="provinceDistributionChart" height="420"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-6">
+        <div class="col-lg-5">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">지도</h5>
-                </div>
+<%--                <div class="card-header">--%>
+<%--                    <h5 class="card-title mb-0">지역</h5>--%>
+<%--                </div>--%>
                 <div class="card-body">
-                    <div id="dashboard-map" style="width: 100%; height: 300px; border-radius: 8px; border: 1px solid #e0e0e0;"></div>
+                    <div id="dashboard-map" style="width: 100%; height: 450px; border-radius: 8px; border: 1px solid #e0e0e0;"></div>
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Recent Orders -->
@@ -304,7 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize map and charts
     initDashboardMap();
-    initUserGrowthChart();
+
+    initProvinceDistributionChart(); // 지역별 분포율 차트 초기화
     initActivityFeed();
     initLiveCareTimeline(); // Add new timeline initializer
 });
@@ -404,60 +406,122 @@ function initLiveCareTimeline() {
 }
 
 
-// --- CHART: User Growth ---
-function initUserGrowthChart() {
+
+
+// --- CHART: Province Distribution ---
+function initProvinceDistributionChart() {
     const chartScript = document.querySelector('script[src*="chart.js"]');
     if (chartScript) {
         // If Chart.js is already loading or loaded, just run the fetch logic
         if (typeof Chart !== 'undefined') {
-            fetchAndRenderUserChart();
+            fetchAndRenderProvinceChart();
         } else {
-            chartScript.addEventListener('load', fetchAndRenderUserChart);
+            chartScript.addEventListener('load', fetchAndRenderProvinceChart);
         }
     } else {
         // If Chart.js is not loaded, create the script tag
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-        script.onload = fetchAndRenderUserChart;
+        script.onload = fetchAndRenderProvinceChart;
         document.head.appendChild(script);
     }
-    
-    function fetchAndRenderUserChart() {
-        fetch('/api/dashboard/user-growth')
-            .then(response => response.ok ? response.json() : Promise.reject('Failed to load user growth data'))
+
+    function fetchAndRenderProvinceChart() {
+        fetch('/api/dashboard/senior-distribution')
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to load province distribution data'))
             .then(data => {
-                data.sort((a, b) => new Date(a.date) - new Date(b.date));
-                const dates = data.map(item => item.date);
-                const counts = data.map(item => item.count);
-                const ctx = document.getElementById('userGrowthChart').getContext('2d');
-                const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-                gradient.addColorStop(0, 'rgba(75, 192, 192, 0.4)');
-                gradient.addColorStop(1, 'rgba(75, 192, 192, 0)');
+                const provinces = ['경기도', '충청북도', '충청남도', '전라남도', '경상북도', '경상남도'];
+                const labels = [];
+                const values = [];
+                const colors = [
+                    'rgba(54, 162, 235, 0.8)',   // 경기도 - 파란색
+                    'rgba(75, 192, 192, 0.8)',   // 충청북도 - 청록색
+                    'rgba(153, 102, 255, 0.8)',  // 충청남도 - 보라색
+                    'rgba(255, 159, 64, 0.8)',   // 전라남도 - 주황색
+                    'rgba(255, 99, 132, 0.8)',   // 경상북도 - 분홍색
+                    'rgba(255, 205, 86, 0.8)'    // 경상남도 - 노란색
+                ];
+
+                provinces.forEach(province => {
+                    labels.push(province);
+                    values.push(data[province] || 0);
+                });
+
+                if (data['기타'] && data['기타'] > 0) {
+                    labels.push('기타');
+                    values.push(data['기타']);
+                    colors.push('rgba(201, 203, 207, 0.8)'); // 회색
+                }
+
+                const ctx = document.getElementById('provinceDistributionChart');
+                if (!ctx) {
+                    console.error('Province distribution chart canvas not found');
+                    return;
+                }
 
                 new Chart(ctx, {
-                    type: 'line',
+                    type: 'doughnut',
                     data: {
-                        labels: dates,
+                        labels: labels,
                         datasets: [{
-                            label: '일별 가입자 수',
-                            data: counts,
-                            borderColor: 'rgb(75, 192, 192)',
-                            backgroundColor: gradient,
-                            fill: true,
-                            tension: 0.4
+                            label: '노약자 수',
+                            data: values,
+                            backgroundColor: colors,
+                            borderColor: colors.map(color => color.replace('0.8', '1')),
+                            borderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            y: { beginAtZero: true, ticks: { stepSize: 1 }, title: { display: true, text: '가입자 수' }},
-                            x: { title: { display: true, text: '날짜' }}
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    },
+                                    generateLabels: function(chart) {
+                                        const data = chart.data;
+                                        if (data.labels.length && data.datasets.length) {
+                                            return data.labels.map((label, i) => {
+                                                return {
+                                                    text: label,
+                                                    fillStyle: data.datasets[0].backgroundColor[i],
+                                                    strokeStyle: data.datasets[0].borderColor[i],
+                                                    lineWidth: data.datasets[0].borderWidth,
+                                                    hidden: false,
+                                                    index: i
+                                                };
+                                            });
+                                        }
+                                        return [];
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                        return `\${label}: \${value}명 (\${percentage}%)`;
+                                    }
+                                }
+                            }
                         }
                     }
                 });
             })
-            .catch(error => console.error('Error fetching user growth data:', error));
+            .catch(error => {
+                console.error('Error fetching province distribution data:', error);
+                const ctx = document.getElementById('provinceDistributionChart');
+                if (ctx) {
+                    ctx.parentElement.innerHTML = '<p class="text-muted text-center">데이터를 불러올 수 없습니다.</p>';
+                }
+            });
     }
 }
 
@@ -530,6 +594,10 @@ function initDashboardMap() {
     const mapContainer = document.getElementById('dashboard-map');
     if (!mapContainer) return;
 
+    let map = null;
+    let geocoder = null;
+    let seniorMarkers = [];
+
     function loadKakaoMap() {
         if (typeof kakao !== 'undefined' && kakao.maps && typeof kakao.maps.LatLng === 'function') {
             createMap();
@@ -551,17 +619,151 @@ function initDashboardMap() {
 
     function createMap() {
         if (typeof kakao === 'undefined' || !kakao.maps || typeof kakao.maps.LatLng !== 'function') return;
-        const mapOption = { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 5 };
+        const mapOption = { center: new kakao.maps.LatLng(37.5665, 126.9780), level: 14 };
         try {
-            const map = new kakao.maps.Map(mapContainer, mapOption);
+            map = new kakao.maps.Map(mapContainer, mapOption);
+            geocoder = new kakao.maps.services.Geocoder();
             const mapTypeControl = new kakao.maps.MapTypeControl();
             map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
             const zoomControl = new kakao.maps.ZoomControl();
             map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+
+            loadSeniorMarkers(); // 노약자 마커 로드
         } catch (error) {
             console.error('지도 초기화 오류:', error);
         }
     }
+
+    function loadSeniorMarkers() {
+        fetch('/api/dashboard/seniors')
+            .then(response => response.ok ? response.json() : Promise.reject('Failed to load senior data'))
+            .then(seniors => {
+                if (!seniors || seniors.length === 0) {
+                    console.log('표시할 노약자 데이터가 없습니다.');
+                    return;
+                }
+
+                let bounds = new kakao.maps.LatLngBounds();
+                let processedCount = 0;
+
+                seniors.forEach(senior => {
+                    if (senior.recAddress && senior.recAddress.trim() !== '') {
+                        geocoder.addressSearch(senior.recAddress, function(result, status) {
+                            if (status === kakao.maps.services.Status.OK) {
+                                const coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+                                addSeniorMarker(senior, coords);
+                                bounds.extend(coords);
+                            }
+                            processedCount++;
+                            if (processedCount === seniors.length) {
+                                adjustMapBounds(bounds);
+                            }
+                        });
+                    } else {
+                        processedCount++;
+                         if (processedCount === seniors.length) {
+                            adjustMapBounds(bounds);
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('노약자 마커 로드 오류:', error));
+    }
+
+    function addSeniorMarker(senior, position) {
+        const recPhotoUrl = senior.recPhotoUrl;
+        if (recPhotoUrl && recPhotoUrl !== '' && recPhotoUrl !== 'null') {
+            createCircularMarkerImage(recPhotoUrl, function(dataUrl) {
+                const markerImage = dataUrl ? new kakao.maps.MarkerImage(dataUrl, new kakao.maps.Size(60, 70), {offset: new kakao.maps.Point(30, 70)}) : createDefaultSeniorMarkerImage();
+                createSeniorMarkerWithImage(markerImage, position, senior);
+            });
+        } else {
+            const defaultMarkerImage = createDefaultSeniorMarkerImage();
+            createSeniorMarkerWithImage(defaultMarkerImage, position, senior);
+        }
+    }
+
+    function createSeniorMarkerWithImage(markerImage, position, senior) {
+        const marker = new kakao.maps.Marker({
+            position: position,
+            map: map,
+            image: markerImage,
+            title: senior.recName + '님',
+            zIndex: 1000
+        });
+
+        const content = `
+            <div style="padding: 0; margin:0; width: 280px; font-family: 'Noto Sans KR', sans-serif; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 15px;">
+                    <h5 style="font-size: 16px; font-weight: 700; margin: 0;">\${senior.recName}</h5>
+                </div>
+                <div style="padding: 15px;">
+                    <p style="font-size: 14px; color: #333; margin: 0;">\${senior.recAddress}</p>
+                </div>
+            </div>`;
+
+        const infowindow = new kakao.maps.InfoWindow({ content: content, removable: true });
+
+        kakao.maps.event.addListener(marker, 'click', function() {
+            seniorMarkers.forEach(item => { if (item.infowindow) item.infowindow.close(); });
+            infowindow.open(map, marker);
+        });
+
+        seniorMarkers.push({ marker: marker, infowindow: infowindow, senior: senior });
+    }
+
+    function createCircularMarkerImage(photoUrl, callback) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 60;
+        canvas.height = 70;
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            ctx.fillStyle = '#667eea';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(30, 55);
+            ctx.lineTo(25, 65);
+            ctx.lineTo(35, 65);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(30, 30, 25, 0, 2 * Math.PI);
+            ctx.clip();
+            ctx.drawImage(img, 5, 5, 50, 50);
+            ctx.restore();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(30, 30, 25, 0, 2 * Math.PI);
+            ctx.stroke();
+            callback(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => callback(null);
+        if (photoUrl && !photoUrl.startsWith('http') && !photoUrl.startsWith('data:')) {
+            photoUrl = window.location.origin + (photoUrl.startsWith('/') ? '' : '/') + photoUrl;
+        }
+        img.src = photoUrl;
+    }
+
+    function createDefaultSeniorMarkerImage() {
+        return new kakao.maps.MarkerImage(
+            'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60" viewBox="0 0 50 60"><circle cx="25" cy="25" r="20" fill="#667eea" stroke="#fff" stroke-width="3"/><circle cx="25" cy="20" r="7" fill="#fff"/><path d="M10 45 Q25 35 40 45" fill="#fff"/><path d="M25 45 L20 55 L30 55 Z" fill="#667eea" stroke="#fff" stroke-width="2"/></svg>'),
+            new kakao.maps.Size(50, 60),
+            {offset: new kakao.maps.Point(25, 60)}
+        );
+    }
+    
+    function adjustMapBounds(bounds) {
+        if (seniorMarkers.length > 0) {
+            map.setBounds(bounds);
+        }
+    }
+
     loadKakaoMap();
 }
 </script>

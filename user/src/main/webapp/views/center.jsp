@@ -28,7 +28,7 @@
         background: #3498db !important; /* 활성 탭: 요청된 색상 */
         color: white !important;
         border-color: transparent !important;
-        box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3) !important;
+        box-shadow: none !important;
     }
     .map-tab.active:hover {
         background: #2980b9 !important; /* 활성 탭 호버: 약간 어둡게 */
@@ -84,6 +84,23 @@
         transform: none !important; /* 위치 변경 애니메이션 제거 */
         box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important; /* 기본 그림자 유지 */
     }
+
+    /* 프로필 및 건강정보 섹션 클릭 가능 표시 */
+    .health-card-left-link,
+    .health-card-right-link {
+        transition: all 0.3s ease;
+        border-radius: 12px;
+        padding: 5px;
+    }
+
+    .health-card-left-link:hover {
+        background: rgba(52, 152, 219, 0.1);
+        transform: scale(1.02);
+    }
+
+    .health-card-right-link:hover .health-card-right {
+        background: rgba(52, 152, 219, 0.1);
+    }
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
@@ -95,16 +112,11 @@
                 <!-- 작은 카드 (위) - 노약자 건강 정보 -->
                 <div class="card-wrapper">
                     <c:if test="${not empty recipient}">
-                        <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="dashboard-card-link">
-                            <div class="dashboard-card card-small health-card">
-                                <i class="bi bi-heart-pulse-fill card-title-icon"></i>
-                                    <%--                                <div class="calendar-header">--%>
-                                    <%--                                    <div class="calendar-title">--%>
-                                    <%--                                        건강 정보--%>
-                                    <%--                                    </div>--%>
-                                    <%--                                </div>--%>
-                                <div class="health-card-content">
-                                    <!-- 왼쪽: 프로필 정보 -->
+                        <div class="dashboard-card card-small health-card">
+                            <i class="bi bi-heart-pulse-fill card-title-icon"></i>
+                            <div class="health-card-content">
+                                <!-- 왼쪽: 프로필 정보 (클릭 시 상세정보로 이동) -->
+                                <a href="<c:url value="/recipient/detail?recId=${recipient.recId}"/>" class="health-card-left-link" style="text-decoration: none; color: inherit;">
                                     <div class="health-card-left">
                                         <div class="recipient-avatar">
                                             <c:choose>
@@ -134,55 +146,60 @@
                                             </c:choose>
                                         </div>
                                     </div>
+                                </a>
 
-                                    <!-- 오른쪽: 건강 데이터 섹션 -->
-                                    <%@ page import="java.time.Period" %>
-                                    <%@ page import="java.util.Random" %>
-                                    <%
-                                        int age = 0;
-                                        if (pageContext.findAttribute("recipient") != null) {
-                                            edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
-                                            if (r.getRecBirthday() != null) {
-                                                age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
-                                            }
+                                <!-- 오른쪽: 건강 데이터 섹션 (클릭 시 실시간 모니터링으로 이동) -->
+                                <%@ page import="java.time.Period" %>
+                                <%@ page import="java.util.Random" %>
+                                <%
+                                    int age = 0;
+                                    if (pageContext.findAttribute("recipient") != null) {
+                                        edu.sm.app.dto.Recipient r = (edu.sm.app.dto.Recipient) pageContext.findAttribute("recipient");
+                                        if (r.getRecBirthday() != null) {
+                                            age = Period.between(r.getRecBirthday(), LocalDate.now()).getYears();
                                         }
-                                        pageContext.setAttribute("age", age);
+                                    }
+                                    pageContext.setAttribute("age", age);
 
-                                        // Random heart rate for senior (60-90 bpm)
-                                        int heartRate = 60 + new Random().nextInt(31);
-                                        pageContext.setAttribute("heartRate", heartRate);
+                                    // Random heart rate for senior (60-90 bpm)
+                                    int heartRate = 60 + new Random().nextInt(31);
+                                    pageContext.setAttribute("heartRate", heartRate);
 
-                                        // Random blood pressure (systolic: 110-140, diastolic: 70-90)
-                                        int systolic = 110 + new Random().nextInt(31);
-                                        int diastolic = 70 + new Random().nextInt(21);
-                                        pageContext.setAttribute("systolic", systolic);
-                                        pageContext.setAttribute("diastolic", diastolic);
-                                    %>
-                                    <div class="health-card-right">
-                                        <!-- 생년월일/나이 -->
+                                    // Random blood pressure (systolic: 110-140, diastolic: 70-90)
+                                    int systolic = 110 + new Random().nextInt(31);
+                                    int diastolic = 70 + new Random().nextInt(21);
+                                    pageContext.setAttribute("systolic", systolic);
+                                    pageContext.setAttribute("diastolic", diastolic);
+                                %>
+                                <a href="<c:url value="/recipient/monitoring?recId=${recipient.recId}"/>" class="health-card-right-link" style="text-decoration: none; color: inherit;">
+                                    <div class="health-card-right" style="cursor: pointer;">
                                         <div class="health-info-item">
-                                            <div class="health-info-label">생년월일</div>
-                                            <div class="health-value-text">${recipient.recBirthday} / 만 ${age}세</div>
+                                            <div class="health-info-label">수축기 혈압</div>
+                                            <div class="health-value-text">${systolic} mmHg</div>
+<%--                                            <div class="progress-bar-wrapper">--%>
+<%--                                                <div class="progress-bar-fill progress-blood-pressure" style="width: ${(systolic - 90) / 90 * 100}%;"></div>--%>
+<%--                                            </div>--%>
                                         </div>
 
-                                        <!-- AI 한줄 건강정보 -->
+                                        <div class="health-info-item">
+                                            <div class="health-info-label">확장기 혈압</div>
+                                            <div class="health-value-text">${diastolic} mmHg</div>
+<%--                                            <div class="progress-bar-wrapper">--%>
+<%--                                                <div class="progress-bar-fill progress-blood-pressure" style="width: ${(diastolic - 60) / 50 * 100}%;"></div>--%>
+<%--                                            </div>--%>
+                                        </div>
+
                                         <div class="health-info-item">
                                             <div class="health-info-label">심박수</div>
                                             <div class="health-value-text">${heartRate} bpm</div>
-                                            <div class="progress-bar-wrapper">
-                                                <div class="progress-bar-fill progress-brightness" style="width: 75%;"></div>
-                                            </div>
-                                        </div>
-
-                                        <!-- 혈압 -->
-                                        <div class="health-info-item">
-                                            <div class="health-info-label">혈압</div>
-                                            <div class="health-value-text"> ${systolic} / ${diastolic} mmHg</div>
+<%--                                            <div class="progress-bar-wrapper">--%>
+<%--                                                <div class="progress-bar-fill progress-brightness" style="width: ${(heartRate - 50) / 70 * 100}%;"></div>--%>
+<%--                                            </div>--%>
                                         </div>
                                     </div>
-                                </div>
+                                </a>
                             </div>
-                        </a>
+                        </div>
                     </c:if>
                     <c:if test="${empty recipient}">
                         <div class="dashboard-card card-small">
@@ -327,8 +344,9 @@
                                         </c:forEach>
                                     </c:when>
                                     <c:otherwise>
-                                        <div class="meal-empty-container">
-                                            <div class="meal-empty">등록된 식단이 없습니다</div>
+                                        <div class="hourly-empty">
+                                            <i class="bi bi-card-checklist"></i>
+                                            <span>오늘 등록된 식단이 없습니다</span>
                                         </div>
                                     </c:otherwise>
                                 </c:choose>
@@ -401,7 +419,7 @@
                                     <span class="map-title-icon">
                                         <i class="fas fa-location-dot"></i>
                                     </span>
-                                    <span>케어 지도</span>
+                                    <span>지도 목록</span>
 
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
@@ -616,6 +634,8 @@
                     <input type="text" class="modal-form-input" id="coursePointCount"
                            readonly style="background: #f5f5f5;">
                 </div>
+
+
             </form>
         </div>
         <div class="map-modal-overlay" id="locationDetailModal">
@@ -756,17 +776,14 @@
                 <label class="modal-form-label">총 거리</label>
                 <div class="modal-form-readonly" id="detailCourseDistance">-</div>
             </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">지점 수</label>
-                <div class="modal-form-readonly" id="detailCoursePoints">-</div>
-            </div>
-            <div class="modal-form-group">
-                <label class="modal-form-label">등록일</label>
-                <div class="modal-form-readonly" id="detailCourseRegdate">-</div>
-            </div>
+
+
         </div>
         <div class="map-modal-footer">
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
+            <a href="#" id="courseDirectionsBtn" target="_blank" class="modal-btn modal-btn-save" style="display: none; text-decoration: none;">
+                <i class="fas fa-directions"></i> 길찾기
+            </a>
             <button type="button" class="modal-btn modal-btn-save" onclick="viewCourseOnMap()">지도에서 보기</button>
         </div>
     </div>
@@ -939,6 +956,16 @@
         console.log('페이지 로드 완료. 지도 및 기타 초기화 시작.'); // 디버깅 로그 수정
         if (typeof kakao !== 'undefined' && kakao.maps) {
             initializeMap(); // 지도 초기화
+            
+            // 모바일에서 지도가 제대로 표시되도록 relayout 호출
+            setTimeout(function() {
+                if (typeof map !== 'undefined' && map) {
+                    map.relayout();
+                } else if (typeof resizeMap === 'function') {
+                    resizeMap();
+                }
+            }, 500);
+            
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
             // 집 마커가 로드된 후 노약자 위치 마커 표시

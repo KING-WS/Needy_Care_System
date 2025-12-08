@@ -186,7 +186,7 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
         transition: all 0.3s ease;
     }
 
@@ -198,7 +198,7 @@
     .ai-schedule-btn:hover {
         background: #2980b9;
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        box-shadow: none;
     }
 
     /* Styling for the AI Schedule Recommendation Button to match stat-item */
@@ -215,7 +215,7 @@
         display: flex; /* Kept flex display */
         align-items: center; /* Kept align-items */
         gap: 18px; /* Matched stat-item gap */
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+        box-shadow: none;
         transition: all 0.3s ease;
         text-align: left; /* Align text to the left */
     }

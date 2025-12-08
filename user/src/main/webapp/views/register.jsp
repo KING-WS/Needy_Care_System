@@ -165,19 +165,19 @@
             background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 50px; /* 둥근 버튼 통일 */
+            border-radius: 50px;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
             margin-top: 15px;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+            box-shadow: 0 0 0 transparent !important;
         }
 
         .btn-register:hover {
             transform: translateY(-2px);
             background: #2980b9;
-            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+            box-shadow: 0 0 0 transparent !important;
         }
 
         .btn-register:active {

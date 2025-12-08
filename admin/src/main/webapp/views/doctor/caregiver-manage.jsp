@@ -2,6 +2,20 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<style>
+    #matching .card {
+        border-radius: 20px !important;
+    }
+    #matching .card-header {
+        border-top-left-radius: 18px !important;
+        border-top-right-radius: 18px !important;
+    }
+    #matching .card-body {
+        border-bottom-left-radius: 18px !important;
+        border-bottom-right-radius: 18px !important;
+    }
+</style>
+
 <div class="container-fluid py-4">
 
     <ul class="nav nav-tabs mb-3" id="caregiverManageTabs" role="tablist">

@@ -912,7 +912,9 @@
 
 .health-card-content {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 0.8fr 1.2fr; /* Increase width for the health-card-right section */
+
+    grid-template-columns: 130px 1fr;
     gap: 20px;
     align-items: start;
     margin-top: 15px;
@@ -1728,6 +1730,37 @@
     justify-content: center !important;
 }
 
+/* 모바일에서 모달이 헤더 위에 확실히 표시되도록 - 전역 설정 */
+@media (max-width: 768px) {
+    /* 헤더보다 모달이 위에 오도록 강제 */
+    header {
+        z-index: 1100 !important; /* 헤더는 낮게 유지 */
+    }
+
+    .map-modal-overlay {
+        z-index: 9999 !important; /* 헤더(1100)보다 훨씬 높게 */
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+
+    .map-modal-overlay.show {
+        align-items: flex-start !important;
+        padding-top: 70px !important;
+        justify-content: center !important;
+        display: flex !important;
+        z-index: 9999 !important;
+    }
+
+    .map-modal {
+        z-index: 10000 !important;
+        position: relative !important;
+        transform: translateZ(0); /* GPU 가속 */
+    }
+}
+
 .map-modal {
     background: white;
     border-radius: 20px;
@@ -1736,6 +1769,8 @@
     max-width: 500px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
     animation: slideUp 0.3s ease;
+    position: relative;
+    z-index: 2001;
 }
 
 @keyframes fadeIn {
@@ -2144,4 +2179,471 @@
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========================================
+    모바일 반응형 스타일 (768px 이하)
+   ======================================== */
+
+@media (max-width: 768px) {
+    /* 대시보드 섹션 전체 조정 */
+    #user-dashboard {
+        padding: 20px 0 !important;
+        min-height: auto !important;
+    }
+
+    /* 컨테이너 패딩 조정 */
+    #user-dashboard .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    /* Bootstrap 그리드 간격 조정 */
+    #user-dashboard .row {
+        margin-left: -7.5px;
+        margin-right: -7.5px;
+    }
+
+    #user-dashboard .row > [class*="col-"] {
+        padding-left: 7.5px;
+        padding-right: 7.5px;
+        margin-bottom: 15px;
+    }
+
+    /* 대시보드 카드 스타일 조정 */
+    .dashboard-card {
+        padding: 20px 15px;
+    }
+
+    .dashboard-card h3 {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-card p {
+        font-size: 13px;
+    }
+
+    .dashboard-card i:not(.card-title-icon) {
+        font-size: 40px;
+        margin-bottom: 15px;
+    }
+
+    /* 카드 크기 제한 해제 */
+    .card-small,
+    .card-medium,
+    .card-large {
+        min-height: auto !important;
+        height: auto !important;
+    }
+
+    .card-xlarge {
+        height: auto !important;
+        min-height: 500px !important;
+    }
+
+    /* 카드 래퍼 조정 */
+    .card-wrapper {
+        margin-bottom: 15px;
+    }
+
+    /* 건강 카드 내용 조정 */
+    .health-card-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .health-card-left {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .health-card-right {
+        width: 100%;
+    }
+
+    /* 일정 카드 조정 */
+    .schedule-card .schedule-item {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .schedule-time {
+        font-size: 12px;
+    }
+
+    /* 지도 레이아웃을 세로로 변경 */
+    .map-layout {
+        flex-direction: column;
+        gap: 15px;
+        height: auto;
+        max-height: none;
+    }
+
+    /* 왼쪽 사이드바를 상단으로 이동하고 너비 조정 */
+    .map-left {
+        width: 100%;
+        height: auto;
+        max-height: 350px;
+        order: 1;
+        padding: 15px;
+        overflow-y: auto;
+        border-radius: 15px;
+    }
+
+    /* 지도 제목 크기 조정 */
+    .map-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .map-title-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 14px !important;
+    }
+
+    /* 장소 목록 스크롤 가능하게 */
+    .map-address-panel {
+        max-height: 280px;
+        overflow-y: auto;
+    }
+
+    .map-location-item {
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+
+    .location-name {
+        font-size: 14px;
+    }
+
+    .location-address {
+        font-size: 11px;
+        margin-top: 4px;
+    }
+
+    .location-category {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    /* 오른쪽 지도 영역 */
+    .map-right {
+        order: 2;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* 헤더(탭 + 검색)를 세로로 배치 */
+    .map-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    /* 탭 버튼 크기 조정 */
+    .map-tabs {
+        width: 100%;
+        display: flex;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .map-tab {
+        flex: 1;
+        padding: 10px 8px;
+        font-size: 12px;
+        justify-content: center;
+        min-width: 0;
+    }
+
+    .map-tab span {
+        display: inline; /* 모바일에서도 텍스트 표시 */
+        font-size: 11px;
+    }
+
+    .map-tab i {
+        font-size: 14px;
+        margin-right: 4px;
+    }
+
+    /* 산책코스 관련 버튼 숨김 (공간 절약) */
+    #courseResetBtn span,
+    #courseSaveBtn span {
+        display: none;
+    }
+
+    #courseResetBtn,
+    #courseSaveBtn {
+        flex: 0 0 auto;
+        padding: 10px;
+        min-width: 40px;
+    }
+
+    /* 검색 컨테이너 조정 */
+    .map-search-container {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+    }
+
+    .map-search-wrapper {
+        width: 100%;
+    }
+
+    .map-search-input {
+        font-size: 14px;
+        padding: 10px 40px 10px 15px;
+        width: 100%;
+    }
+
+    .map-search-btn {
+        width: 32px;
+        height: 32px;
+        right: 4px;
+    }
+
+    .map-search-btn i {
+        font-size: 14px;
+    }
+
+    /* 지도 영역 높이 조정 */
+    .map-area {
+        min-height: 400px;
+        height: 400px;
+        border-radius: 15px;
+        position: relative;
+    }
+
+    /* 모바일에서 지도 컨테이너 높이 명시적 설정 */
+    #map {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 400px;
+    }
+
+    /* 검색 결과 드롭다운 조정 */
+    .search-results {
+        max-height: 300px;
+        border-radius: 12px;
+    }
+
+    .search-result-item {
+        padding: 12px;
+    }
+
+    .search-result-name {
+        font-size: 13px;
+    }
+
+    .search-result-address {
+        font-size: 11px;
+    }
+
+    /* 모달 조정 - 헤더 위에 표시되도록 */
+    .map-modal-overlay {
+        z-index: 9999 !important; /* 헤더(1100)보다 훨씬 높게 */
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        position: fixed !important;
+    }
+
+    .map-modal-overlay.show {
+        align-items: flex-start !important;
+        padding-top: 70px !important; /* 헤더 높이만큼 여백 */
+        justify-content: center !important;
+        display: flex !important;
+        z-index: 9999 !important;
+        position: fixed !important;
+    }
+
+    .map-modal {
+        width: 95% !important;
+        max-width: 95% !important;
+        margin: 0 auto !important;
+        max-height: calc(100vh - 100px) !important; /* 헤더와 하단 여백 제외 */
+        overflow-y: auto !important;
+        position: relative !important;
+        top: 0 !important;
+        z-index: 10000 !important; /* 모달 자체도 높은 z-index */
+        transform: translateZ(0); /* GPU 가속으로 레이어 분리 */
+    }
+
+    .map-modal-body {
+        padding: 20px 15px;
+    }
+
+    /* 아이템 액션 버튼 항상 표시 (모바일 터치 대응) */
+    .item-actions {
+        opacity: 1 !important;
+        position: static;
+        transform: none;
+        margin-top: 8px;
+        justify-content: flex-end;
+        background: transparent;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .item-action-btn {
+        padding: 6px 10px;
+        font-size: 16px;
+    }
+}
+
+/* 작은 모바일 (480px 이하) */
+@media (max-width: 480px) {
+    #user-dashboard {
+        padding: 15px 0 !important;
+    }
+
+    #user-dashboard .container-fluid {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    #user-dashboard .row {
+        margin-left: -5px;
+        margin-right: -5px;
+    }
+
+    #user-dashboard .row > [class*="col-"] {
+        padding-left: 5px;
+        padding-right: 5px;
+        margin-bottom: 10px;
+    }
+
+    .dashboard-card {
+        padding: 15px 12px;
+        border-radius: 15px;
+    }
+
+    .dashboard-card h3 {
+        font-size: 16px;
+    }
+
+    .dashboard-card p {
+        font-size: 12px;
+    }
+
+    .dashboard-card i:not(.card-title-icon) {
+        font-size: 35px;
+        margin-bottom: 12px;
+    }
+
+    .card-xlarge {
+        min-height: 400px !important;
+    }
+
+    .map-left {
+        padding: 12px;
+        max-height: 300px;
+        border-radius: 12px;
+    }
+
+    .map-title {
+        font-size: 18px;
+    }
+
+    .map-title-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 12px !important;
+    }
+
+    .map-tabs {
+        gap: 6px;
+    }
+
+    .map-tab {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+
+    .map-tab span {
+        font-size: 10px;
+    }
+
+    .map-tab i {
+        font-size: 12px;
+        margin-right: 3px;
+    }
+
+    .map-search-input {
+        font-size: 13px;
+        padding: 9px 38px 9px 12px;
+    }
+
+    .map-area {
+        min-height: 350px;
+        height: 350px;
+        border-radius: 12px;
+        position: relative;
+    }
+
+    #map {
+        min-height: 350px;
+    }
+
+    .map-location-item {
+        padding: 10px;
+    }
+
+    .location-name {
+        font-size: 13px;
+    }
+
+    .location-address {
+        font-size: 10px;
+    }
+
+    .map-modal-overlay {
+        z-index: 9999 !important;
+    }
+
+    .map-modal-overlay.show {
+        padding-top: 60px !important; /* 작은 화면에서는 더 작은 여백 */
+        display: flex !important;
+    }
+
+    .map-modal {
+        width: 98% !important;
+        max-width: 98% !important;
+        margin: 0 auto !important;
+        max-height: calc(100vh - 80px) !important;
+        z-index: 10000 !important;
+    }
+
+    .map-modal-body {
+        padding: 15px 12px;
+    }
+}
+
+/* 태블릿 (769px ~ 991px) */
+@media (min-width: 769px) and (max-width: 991px) {
+    #user-dashboard .container-fluid {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .map-layout {
+        gap: 20px;
+    }
+
+    .map-left {
+        width: 280px;
+    }
+
+    .card-xlarge {
+        min-height: 600px !important;
+    }
+
+    .map-area {
+        min-height: 500px;
+    }
 }
