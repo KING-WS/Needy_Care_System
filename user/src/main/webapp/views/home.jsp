@@ -1260,9 +1260,9 @@
         <button class="quick-question-btn" data-question="오늘의 식단 알려줘">
             <i class="fas fa-list"></i> 오늘의 식단
         </button>
-        <button class="quick-question-btn" data-question="내 건강 상태 알려줘">
-            <i class="fas fa-heartbeat"></i> 건강 상태
-        </button>
+<%--        <button class="quick-question-btn" data-question="내 건강 상태 알려줘">--%>
+<%--            <i class="fas fa-heartbeat"></i> 건강 상태--%>
+<%--        </button>--%>
     </div>
     <div class="chat-input-area">
         <button class="chat-voice-btn" id="chatVoiceBtn" title="음성 입력">
@@ -1762,6 +1762,20 @@
                 }
             });
         }
+
+        // 빠른 질문 버튼 클릭 이벤트
+        const quickQuestionButtons = document.querySelectorAll('.quick-question-btn');
+        quickQuestionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const question = this.getAttribute('data-question');
+                if (question && chatInput) {
+                    // 입력창에 질문 입력
+                    chatInput.value = question;
+                    // 자동으로 메시지 전송
+                    sendMessage();
+                }
+            });
+        });
 
         // Show notification badge (예시)
         // 실제로는 서버에서 새 메시지가 올 때 이 함수를 호출
