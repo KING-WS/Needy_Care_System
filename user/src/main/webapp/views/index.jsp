@@ -948,7 +948,7 @@
                     <img src="/img/sinear.jpg" class="img-fluid about-img" alt="About">
                 </div>
                 <div class="col-lg-6" data-aos="fade-left">
-                    <h3>도움이 필요하신 분들에게 즐거움을 Have Enjoy~</h3>
+                    <h3>AI 돌봄 서비스 Needy Care</h3>
                     <p>AI를 활용해 도움이 필요하신 분들에게 최상의 기능을 제공해드립니다</p>
                     <ul>
                         <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 날씨와 코스를 분석해서 추천해주는 산책경로 추천 시스템</li>
