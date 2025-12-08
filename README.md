@@ -1,4 +1,4 @@
-#AI 돌봄 시스템
+# AI 돌봄 시스템
 
 ![AI 돌봄 시스템 메인 화면](https://github.com/user-attachments/assets/b01757d0-0152-42a0-be7e-3c5f22b2c869)
 
