@@ -290,7 +290,7 @@
         max-width: 100% !important;
         min-width: 0 !important;
     }
-    
+
     .map-search-input {
         padding-right: 130px !important; /* 버튼 3개를 위한 공간 확보 */
         width: 100% !important;
@@ -301,7 +301,7 @@
         text-overflow: ellipsis !important;
         white-space: nowrap !important;
     }
-    
+
     /* 검색 컨테이너 반응형 처리 - center.css의 max-width 제한 제거 */
     .map-search-container.ai-recommend-search {
         width: 100% !important;
@@ -309,12 +309,12 @@
         min-width: 0 !important;
         flex: 1 !important;
     }
-    
+
     /* 입력 필드의 텍스트가 버튼 영역을 침범하지 않도록 */
     .map-search-input:focus {
         padding-right: 130px !important;
     }
-    
+
     /* 검색 버튼들을 입력 필드 안에 완전히 배치 */
     .map-search-btn {
         position: absolute !important;
@@ -324,12 +324,12 @@
         margin: 0 !important;
         flex-shrink: 0 !important;
     }
-    
+
     /* 검색 버튼 (맨 오른쪽 - 돋보기 아이콘) */
     .map-search-wrapper .search-icon-btn {
         right: 5px !important;
     }
-    
+
     /* 음성 검색 버튼 스타일 */
     .map-search-wrapper .voice-search-btn {
         background: #28a745 !important;
@@ -342,12 +342,12 @@
         background: #dc3545 !important;
         animation: pulse 1.5s infinite;
     }
-    
+
     /* AI 검색 버튼 위치 */
     .map-search-wrapper .ai-icon-btn {
         right: 79px !important;
     }
-    
+
     /* 반응형: 작은 화면에서 버튼 간격 조정 */
     @media (max-width: 768px) {
         .map-search-input {
@@ -360,7 +360,7 @@
             right: 72px !important;
         }
     }
-    
+
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.7; }
@@ -561,6 +561,7 @@
                 </form>
             </div>
             <div class="modal-footer">
+                <a href="#" id="modalRouteBtn" target="_blank" class="btn btn-map" style="margin-right: auto;"><i class="fas fa-directions me-1"></i> 길찾기</a>
                 <button type="button" class="btn btn-modal-cancel" data-bs-dismiss="modal"><i class="fas fa-times me-1"></i> 취소</button>
                 <button type="button" class="btn btn-modal-save" id="saveRecommendBtn"><i class="fas fa-save me-1"></i> 저장</button>
             </div>
@@ -639,8 +640,9 @@
             <div class="modal-form-group"><label class="modal-form-label">코스 이름</label><div class="modal-form-readonly" id="detailCourseName">-</div></div>
             <div class="modal-form-group"><label class="modal-form-label">코스 타입</label><div class="modal-form-readonly" id="detailCourseType">-</div></div>
             <div class="modal-form-group"><label class="modal-form-label">총 거리</label><div class="modal-form-readonly" id="detailCourseDistance">-</div></div>
-            <div class="modal-form-group"><label class="modal-form-label">지점 수</label><div class="modal-form-readonly" id="detailCoursePoints">-</div></div>
-            <div class="modal-form-group"><label class="modal-form-label">등록일</label><div class="modal-form-readonly" id="detailCourseRegdate">-</div></div>
+            <div class="modal-form-group" style="margin-top: 15px;">
+                <a href="#" id="courseDirectionsBtn" target="_blank" class="modal-btn modal-btn-save" style="display: none; text-decoration: none; width: 100%; text-align: center;"><i class="fas fa-directions me-1"></i> 길찾기</a>
+            </div>
         </div>
         <div class="map-modal-footer">
             <button type="button" class="modal-btn modal-btn-cancel" onclick="closeCourseDetailModal()">닫기</button>
@@ -746,6 +748,15 @@
             addrInput.readOnly = true;
             addrInput.style.backgroundColor = '#f8f9fa';
         }
+        
+        // 길찾기 버튼 href 설정
+        const routeBtn = document.getElementById('modalRouteBtn');
+        if (routeBtn) {
+            const startAddress = recipientAddress || '내 위치';
+            const endName = mapName || '';
+            routeBtn.href = 'https://map.kakao.com/?sName=' + encodeURIComponent(startAddress) + '&eName=' + encodeURIComponent(endName);
+        }
+        
         modal.show();
     }
 
@@ -843,7 +854,7 @@
                 voiceSearchBtn.classList.remove('recording');
                 voiceSearchBtn.title = '음성 검색';
                 mapSearchInput.placeholder = '병원, 약국, 공원 등 장소를 검색...';
-                
+
                 // 음성 인식 후 자동으로 AI 검색 실행
                 if (transcript) {
                     performAiSearch(transcript);
@@ -856,7 +867,7 @@
                 voiceSearchBtn.classList.remove('recording');
                 voiceSearchBtn.title = '음성 검색';
                 mapSearchInput.placeholder = '병원, 약국, 공원 등 장소를 검색...';
-                
+
                 let errorMsg = '음성 인식 중 오류가 발생했습니다.';
                 if (event.error === 'no-speech') {
                     errorMsg = '음성이 감지되지 않았습니다. 다시 시도해주세요.';
@@ -1132,6 +1143,15 @@
                         addrInput.readOnly = true;
                         addrInput.style.backgroundColor = '#f8f9fa';
                     }
+                    
+                    // 길찾기 버튼 href 설정
+                    const routeBtn = document.getElementById('modalRouteBtn');
+                    if (routeBtn) {
+                        const startAddress = recipientAddress || '내 위치';
+                        const endName = mapName || '';
+                        routeBtn.href = 'https://map.kakao.com/?sName=' + encodeURIComponent(startAddress) + '&eName=' + encodeURIComponent(endName);
+                    }
+                    
                     modal.show();
                 });
             });
@@ -1176,7 +1196,8 @@
                 startLng: document.getElementById('startLng').value,
                 endLat: document.getElementById('endLat').value,
                 endLng: document.getElementById('endLng').value,
-                courseDistance: document.getElementById('courseDistance').value
+                courseDistance: document.getElementById('courseDistance').value,
+                courseUrl: 'https://map.kakao.com/?sName=' + encodeURIComponent(recipientAddress || '내 위치') + '&eName=' + encodeURIComponent(document.getElementById('modalMapName').value)
             };
             if (!data.schedDate || !data.schedName || !data.mapAddress) { alert('날짜, 일정 이름, 주소는 필수 항목입니다.'); return; }
             saveBtn.disabled = true;
@@ -1215,17 +1236,21 @@
         }
     }
 
-    window.addEventListener('load', function() {
-        if (typeof kakao !== 'undefined' && kakao.maps) {
-            initializeMap();
-            loadHomeMarker();
-            loadSavedMarkers();
-            setTimeout(function() {
-                if (typeof loadRecipientLocationMarker === 'function') { loadRecipientLocationMarker(); }
-                else { console.warn('loadRecipientLocationMarker 함수를 찾을 수 없습니다.'); }
-            }, 1000);
-        }
-        loadMapLocationAddresses();
+    kakao.maps.load(function() {
+        // 카카오맵 API가 완전히 로드된 후, 지도 관련 초기화 함수들을 실행합니다.
+        initializeMap();
+        loadHomeMarker();
+        loadSavedMarkers();
+        loadMapLocationAddresses(); // 주소 변환 함수도 API 로드 후 실행
+
+        // 실시간 위치 마커 로드는 다른 스크립트가 로드될 시간을 주기 위해 약간의 지연을 둡니다.
+        setTimeout(function() {
+            if (typeof loadRecipientLocationMarker === 'function') {
+                loadRecipientLocationMarker();
+            } else {
+                console.warn('loadRecipientLocationMarker 함수를 찾을 수 없습니다.');
+            }
+        }, 500);
     });
 
     function loadMapLocationAddresses() {

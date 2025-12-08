@@ -912,7 +912,9 @@
 
 .health-card-content {
     display: grid;
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 0.8fr 1.2fr; /* Increase width for the health-card-right section */
+
+    grid-template-columns: 130px 1fr;
     gap: 20px;
     align-items: start;
     margin-top: 15px;

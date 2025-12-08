@@ -400,3 +400,6 @@ ALTER TABLE Chat_Log ADD CONSTRAINT FK_Care_Recipient_TO_Chat_Log FOREIGN KEY (r
 
 -- Alert_Log 외래키 연결
 ALTER TABLE Alert_Log ADD CONSTRAINT FK_Care_Recipient_TO_Alert_Log FOREIGN KEY (rec_id) REFERENCES Care_Recipient (rec_id);
+
+-- MAP_COURSE에 코스 url 속성 추가
+ALTER TABLE MAP_COURSE ADD course_url VARCHAR(255) NULL;

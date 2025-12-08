@@ -54,11 +54,11 @@ public class MealRecommendationService {
             Map<String, Object> result = mealPlanService.getAiRecommendedMeal(recId, specialNotes, mealType);
             
             @SuppressWarnings("unchecked")
-            Map<String, String> recommendation = (Map<String, String>) result.get("recommendation");
+            Map<String, Object> recommendation = (Map<String, Object>) result.get("recommendation");
             String basis = (String) result.get("basis");
             
             if (recommendation.containsKey("error")) {
-                return recommendation.get("error");
+                return recommendation.get("error").toString();
             }
             
             // 추천 결과를 임시 저장 (사용자가 저장을 원할 때 사용)
@@ -69,21 +69,19 @@ public class MealRecommendationService {
             savedRecommendation.put("timestamp", System.currentTimeMillis());
             recentRecommendations.put(recId, savedRecommendation);
             
+            // foodName과 totalCalories를 사용하여 메시지 생성
+            String foodName = recommendation.get("foodName") != null ? 
+                    recommendation.get("foodName").toString() : "추천 식단";
+            String totalCalories = recommendation.get("totalCalories") != null ? 
+                    recommendation.get("totalCalories").toString() : "0";
+            
             return String.format("식단을 추천해드릴게요!\n\n" +
                     "메뉴: %s\n" +
-                    "칼로리: %s\n" +
-                    "단백질: %s\n" +
-                    "탄수화물: %s\n" +
-                    "지방: %s\n" +
-                    "설명: %s\n\n" +
+                    "칼로리: %skcal\n" +
                     "추천 근거: %s\n\n" +
                     "이 식단을 등록하시겠어요? '네' 또는 '등록해줘'라고 말씀해주세요!",
-                    recommendation.get("mealName"),
-                    recommendation.get("calories"),
-                    recommendation.get("protein"),
-                    recommendation.get("carbohydrates"),
-                    recommendation.get("fats"),
-                    recommendation.get("description"),
+                    foodName,
+                    totalCalories,
                     basis);
         } catch (Exception e) {
             log.error("식단 추천 실패", e);
@@ -103,7 +101,7 @@ public class MealRecommendationService {
             }
             
             @SuppressWarnings("unchecked")
-            Map<String, String> mealData = (Map<String, String>) savedRecommendation.get("data");
+            Map<String, Object> mealData = (Map<String, Object>) savedRecommendation.get("data");
             
             // 식사 타입 결정 (저장된 추천 결과에서 가져오거나 사용자 메시지에서 추출)
             String mealType = "점심";
@@ -117,10 +115,15 @@ public class MealRecommendationService {
                 }
             }
             
-            // 칼로리 파싱
-            String caloriesStr = mealData.get("calories");
+            // foodName과 totalCalories 사용
+            String foodName = mealData.get("foodName") != null ? 
+                    mealData.get("foodName").toString() : "추천 식단";
+            
+            // 칼로리 파싱 (totalCalories 사용)
+            String caloriesStr = mealData.get("totalCalories") != null ? 
+                    mealData.get("totalCalories").toString() : "0";
             Integer calories = 0;
-            if (caloriesStr != null) {
+            if (caloriesStr != null && !caloriesStr.isEmpty()) {
                 try {
                     calories = Integer.parseInt(caloriesStr.replaceAll("[^0-9]", ""));
                 } catch (NumberFormatException e) {
@@ -133,7 +136,7 @@ public class MealRecommendationService {
                     .recId(recId)
                     .mealDate(LocalDate.now())
                     .mealType(mealType)
-                    .mealMenu(mealData.get("mealName"))
+                    .mealMenu(foodName)
                     .mealCalories(calories)
                     .isDeleted("N")
                     .build();
@@ -144,14 +147,14 @@ public class MealRecommendationService {
             recentRecommendations.remove(recId);
             
             log.info("식단 자동 저장 완료 - recId: {}, mealType: {}, menu: {}", 
-                    recId, mealType, mealData.get("mealName"));
+                    recId, mealType, foodName);
             
             return String.format("식단을 등록했어요!\n" +
                     "메뉴: %s\n" +
                     "식사: %s\n" +
                     "칼로리: %dkcal\n" +
                     "오늘 %s로 등록되었어요!",
-                    mealData.get("mealName"),
+                    foodName,
                     mealType,
                     calories,
                     LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일")));

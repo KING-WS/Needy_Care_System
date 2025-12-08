@@ -123,7 +123,8 @@
             background: var(--primary-color);
             color: white;
             padding: 10px 25px; /* 크기 조정 */
-            border-radius: 50px; /* 둥근 버튼 통일 */
+            border-radius: 50px;
+            /* 둥근 버튼 통일 */
             text-decoration: none;
             font-weight: 600;
             font-size: 15px;
@@ -133,7 +134,8 @@
         }
 
         .btn-login-nav:hover {
-            background: #2980b9; /* 호버 색상 변경 */
+            background: #2980b9;
+            /* 호버 색상 변경 */
             color: white;
             transform: translateY(-2px);
             box-shadow: none;
@@ -157,7 +159,8 @@
             background: var(--accent-color);
             color: white;
             padding: 10px 25px; /* 크기 조정 */
-            border-radius: 50px; /* 둥근 버튼 통일 */
+            border-radius: 50px;
+            /* 둥근 버튼 통일 */
             text-decoration: none;
             font-weight: 600;
             font-size: 15px;
@@ -226,7 +229,7 @@
         }
 
         /*.hero-img-blend:hover {*/
-        /*    transform: scale(1.05);*/
+        /* transform: scale(1.05);*/
         /*}*/
 
         .hero-buttons {
@@ -277,7 +280,8 @@
         /* 4. 공통 섹션 스타일 (About, Services, Contact) */
         /* ---------------------------------------------------- */
         #about {
-            padding: 100px 0; /* 패딩 조정 */
+            padding: 100px 0;
+            /* 패딩 조정 */
         }
 
         #services {
@@ -317,8 +321,10 @@
         /* 5. 서비스/팀/포트폴리오 카드 스타일 */
         /* ---------------------------------------------------- */
         .about-img {
-            border-radius: 15px; /* 둥근 모서리 통일 */
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15); /* 그림자 강조 */
+            border-radius: 15px;
+            /* 둥근 모서리 통일 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            /* 그림자 강조 */
         }
 
         /* 서비스 박스 */
@@ -337,7 +343,8 @@
         }
 
         .service-box i {
-            font-size: 52px; /* 아이콘 크기 강조 */
+            font-size: 52px;
+            /* 아이콘 크기 강조 */
             color: var(--primary-color);
             margin-bottom: 20px;
         }
@@ -355,7 +362,8 @@
             padding: 30px;
             text-align: center;
             transition: all 0.3s;
-            height: 100%; /* 팀 카드가 서비스 박스와 높이를 맞추도록 */
+            height: 100%;
+            /* 팀 카드가 서비스 박스와 높이를 맞추도록 */
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
 
@@ -642,7 +650,8 @@
                 /* 모바일에서는 패딩을 줘서 100vh가 부담스럽지 않게 조정하거나 유지 */
                 padding: 100px 0 60px;
                 display: block; /* 모바일에서는 플렉스 해제하고 블록으로 */
-                min-height: auto; /* 높이 강제 해제 (컨텐츠 양에 따름) */
+                min-height: auto;
+                /* 높이 강제 해제 (컨텐츠 양에 따름) */
             }
 
             #hero h1 {
@@ -799,6 +808,64 @@
             }
         }
 
+        /* ---------------------------------------------------- */
+        /* [추가/수정] 8. 플로팅 다운 버튼 (크기 확대) */
+        /* ---------------------------------------------------- */
+        .floating-down-btn {
+            position: fixed;
+            bottom: 40px; /* 바닥에서 조금 더 위로 */
+            right: 40px;  /* 우측에서 조금 더 안으로 */
+            /* [수정] 크기 대폭 확대 */
+            width: 70px;
+            height: 70px;
+            font-size: 28px; /* 아이콘 크기 확대 */
+
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            opacity: 1;
+            animation: floatBounce 2s infinite;
+        }
+
+        .floating-down-btn:hover {
+            background: var(--accent-color);
+            transform: translateY(-5px) scale(1.1); /* 호버 시 약간 커지는 효과 추가 */
+            color: white;
+        }
+
+        /* 바닥에 도착했을 때 숨기기 위한 클래스 */
+        .floating-down-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(20px);
+        }
+
+        /* 둥실거리는 효과 애니메이션 */
+        @keyframes floatBounce {
+            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+            40% {transform: translateY(-10px);}
+            60% {transform: translateY(-5px);}
+        }
+
+        /* 모바일에서는 버튼 위치와 크기 조정 */
+        @media (max-width: 768px) {
+            .floating-down-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 55px; /* 모바일에서도 기존보다 크게 */
+                height: 55px;
+                font-size: 22px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -814,13 +881,13 @@
                 AI 돌봄 시스템
             </a>
 
-<%--            <ul class="navbar-nav">--%>
-<%--                <li class="nav-item"><a class="nav-link" href="#hero">홈</a></li>--%>
-<%--                <li class="nav-item"><a class="nav-link" href="#about">소개</a></li>--%>
-<%--                <li class="nav-item"><a class="nav-link" href="#services">주요 서비스</a></li>--%>
-<%--                <li class="nav-item"><a class="nav-link" href="#team">팀</a></li>--%>
-<%--                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>--%>
-<%--            </ul>--%>
+            <%--            <ul class="navbar-nav">--%>
+            <%--                <li class="nav-item"><a class="nav-link" href="#hero">홈</a></li>--%>
+            <%--                <li class="nav-item"><a class="nav-link" href="#about">소개</a></li>--%>
+            <%--                <li class="nav-item"><a class="nav-link" href="#services">주요 서비스</a></li>--%>
+            <%--                <li class="nav-item"><a class="nav-link" href="#team">팀</a></li>--%>
+            <%--                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>--%>
+            <%--            </ul>--%>
 
             <a href="/login" class="btn-login-nav">로그인</a>
         </div>
@@ -843,7 +910,7 @@
             <li><a href="#about">About</a></li>
             <li><a href="#services">Services</a></li>
             <li><a href="#team">Team</a></li>
-<%--            <li><a href="#contact">Contact</a></li>--%>
+            <%--            <li><a href="#contact">Contact</a></li>--%>
             <li style="border-top: 2px solid #e0e0e0; margin-top: 10px;">
                 <a href="/login" style="color: var(--primary-color); font-weight: 600;">로그인</a>
             </li>
@@ -952,120 +1019,120 @@
         </div>
     </section>
 
-<%--    <section id="team">--%>
-<%--        <div class="container">--%>
-<%--            <div class="section-title" data-aos="fade-up">--%>
-<%--                <h2>Team</h2>--%>
-<%--                <p>저희와 함께하는 팀원들을 소개합니다.</p>--%>
-<%--            </div>--%>
-<%--            <div class="row">--%>
-<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="100">--%>
-<%--                    <div class="team-member">--%>
-<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
-<%--                        <h4 style="margin-top: 15px;">팀 멤버 1</h4>--%>
-<%--                        <span class="d-block mb-3">Placeholder</span>--%>
-<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="200">--%>
-<%--                    <div class="team-member">--%>
-<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
-<%--                        <h4 style="margin-top: 15px;">팀 멤버 2</h4>--%>
-<%--                        <span class="d-block mb-3">Placeholder</span>--%>
-<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="300">--%>
-<%--                    <div class="team-member">--%>
-<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
-<%--                        <h4 style="margin-top: 15px;">팀 멤버 3</h4>--%>
-<%--                        <span class="d-block mb-3">Placeholder</span>--%>
-<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="400">--%>
-<%--                    <div class="team-member">--%>
-<%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
-<%--                        <h4 style="margin-top: 15px;">팀 멤버 4</h4>--%>
-<%--                        <span class="d-block mb-3">Placeholder</span>--%>
-<%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--            </div>--%>
-<%--        </div>--%>
-<%--    </section>--%>
+    <%--    <section id="team">--%>
+    <%--        <div class="container">--%>
+    <%--            <div class="section-title" data-aos="fade-up">--%>
+    <%--                <h2>Team</h2>--%>
+    <%--                <p>저희와 함께하는 팀원들을 소개합니다.</p>--%>
+    <%--            </div>--%>
+    <%--            <div class="row">--%>
+    <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="100">--%>
+    <%--                    <div class="team-member">--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <h4 style="margin-top: 15px;">팀 멤버 1</h4>--%>
+    <%--                        <span class="d-block mb-3">Placeholder</span>--%>
+    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
+    <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="200">--%>
+    <%--                    <div class="team-member">--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <h4 style="margin-top: 15px;">팀 멤버 2</h4>--%>
+    <%--                        <span class="d-block mb-3">Placeholder</span>--%>
+    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
+    <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="300">--%>
+    <%--                    <div class="team-member">--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <h4 style="margin-top: 15px;">팀 멤버 3</h4>--%>
+    <%--                        <span class="d-block mb-3">Placeholder</span>--%>
+    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
+    <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="400">--%>
+    <%--                    <div class="team-member">--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <h4 style="margin-top: 15px;">팀 멤버 4</h4>--%>
+    <%--                        <span class="d-block mb-3">Placeholder</span>--%>
+    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
+    <%--            </div>--%>
+    <%--        </div>--%>
+    <%--    </section>--%>
 
-<%--    <section id="contact">--%>
-<%--        <div class="container">--%>
-<%--            <div class="section-title" data-aos="fade-up">--%>
-<%--                <h2>Contact</h2>--%>
-<%--                <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>--%>
-<%--            </div>--%>
-<%--            <div class="row">--%>
-<%--                <div class="col-lg-5 mb-4" data-aos="fade-right">--%>
-<%--                    <div class="contact-info-card">--%>
-<%--                        <h3>Contact Info</h3>--%>
-<%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.--%>
-<%--                            Vestibulum ante ipsum primis.</p>--%>
+    <%--    <section id="contact">--%>
+    <%--        <div class="container">--%>
+    <%--            <div class="section-title" data-aos="fade-up">--%>
+    <%--                <h2>Contact</h2>--%>
+    <%--                <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>--%>
+    <%--            </div>--%>
+    <%--            <div class="row">--%>
+    <%--                <div class="col-lg-5 mb-4" data-aos="fade-right">--%>
+    <%--                    <div class="contact-info-card">--%>
+    <%--                        <h3>Contact Info</h3>--%>
+    <%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisi.--%>
+    <%--                            Vestibulum ante ipsum primis.</p>--%>
 
-<%--                        <div class="contact-detail">--%>
-<%--                            <div class="contact-icon">--%>
-<%--                                <i class="fas fa-map-marker-alt"></i>--%>
-<%--                            </div>--%>
-<%--                            <div class="contact-text">--%>
-<%--                                <h4>Our Location</h4>--%>
-<%--                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
+    <%--                        <div class="contact-detail">--%>
+    <%--                            <div class="contact-icon">--%>
+    <%--                                <i class="fas fa-map-marker-alt"></i>--%>
+    <%--                            </div>--%>
+    <%--                            <div class="contact-text">--%>
+    <%--                                <h4>Our Location</h4>--%>
+    <%--                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>--%>
+    <%--                            </div>--%>
+    <%--                        </div>--%>
 
-<%--                        <div class="contact-detail">--%>
-<%--                            <div class="contact-icon">--%>
-<%--                                <i class="fas fa-phone"></i>--%>
-<%--                            </div>--%>
-<%--                            <div class="contact-text">--%>
-<%--                                <h4>Phone Number</h4>--%>
-<%--                                <p>+82 10-8920-3471<br>+82 10-5734-7072</p>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
+    <%--                        <div class="contact-detail">--%>
+    <%--                            <div class="contact-icon">--%>
+    <%--                                <i class="fas fa-phone"></i>--%>
+    <%--                            </div>--%>
+    <%--                            <div class="contact-text">--%>
+    <%--                                <h4>Phone Number</h4>--%>
+    <%--                                <p>+82 10-8920-3471<br>+82 10-5734-7072</p>--%>
+    <%--                            </div>--%>
+    <%--                        </div>--%>
 
-<%--                        <div class="contact-detail">--%>
-<%--                            <div class="contact-icon">--%>
-<%--                                <i class="fas fa-envelope"></i>--%>
-<%--                            </div>--%>
-<%--                            <div class="contact-text">--%>
-<%--                                <h4>Email Address</h4>--%>
-<%--                                <p>rnalsdn100@gmail.com<br>shinchagyoung@gmail.com</p>--%>
-<%--                            </div>--%>
-<%--                        </div>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
+    <%--                        <div class="contact-detail">--%>
+    <%--                            <div class="contact-icon">--%>
+    <%--                                <i class="fas fa-envelope"></i>--%>
+    <%--                            </div>--%>
+    <%--                            <div class="contact-text">--%>
+    <%--                                <h4>Email Address</h4>--%>
+    <%--                                <p>rnalsdn100@gmail.com<br>shinchagyoung@gmail.com</p>--%>
+    <%--                            </div>--%>
+    <%--                        </div>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
 
-<%--                <div class="col-lg-7 mb-4" data-aos="fade-left">--%>
-<%--                    <div class="contact-form-card">--%>
-<%--                        <h3>Get In Touch</h3>--%>
-<%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl.--%>
-<%--                            Vestibulum ante ipsum primis.</p>--%>
+    <%--                <div class="col-lg-7 mb-4" data-aos="fade-left">--%>
+    <%--                    <div class="contact-form-card">--%>
+    <%--                        <h3>Get In Touch</h3>--%>
+    <%--                        <p>Praesent sapien massa, convallis a pellentesque nec, egestas non nisl.--%>
+    <%--                            Vestibulum ante ipsum primis.</p>--%>
 
-<%--                        <form>--%>
-<%--                            <div class="row">--%>
-<%--                                <div class="col-md-6">--%>
-<%--                                    <input type="text" class="form-control" placeholder="Your Name" required>--%>
-<%--                                </div>--%>
-<%--                                <div class="col-md-6">--%>
-<%--                                    <input type="email" class="form-control" placeholder="Your Email" required>--%>
-<%--                                </div>--%>
-<%--                            </div>--%>
-<%--                            <input type="text" class="form-control" placeholder="Subject" required>--%>
-<%--                            <textarea class="form-control" placeholder="Message" required></textarea>--%>
-<%--                            <div class="text-center">--%>
-<%--                                <button type="submit" class="btn-submit">Send Message</button>--%>
-<%--                            </div>--%>
-<%--                        </form>--%>
-<%--                    </div>--%>
-<%--                </div>--%>
-<%--            </div>--%>
-<%--        </div>--%>
-<%--    </section>--%>
+    <%--                        <form>--%>
+    <%--                            <div class="row">--%>
+    <%--                                <div class="col-md-6">--%>
+    <%--                                    <input type="text" class="form-control" placeholder="Your Name" required>--%>
+    <%--                                </div>--%>
+    <%--                                <div class="col-md-6">--%>
+    <%--                                    <input type="email" class="form-control" placeholder="Your Email" required>--%>
+    <%--                                </div>--%>
+    <%--                            </div>--%>
+    <%--                            <input type="text" class="form-control" placeholder="Subject" required>--%>
+    <%--                            <textarea class="form-control" placeholder="Message" required></textarea>--%>
+    <%--                            <div class="text-center">--%>
+    <%--                                <button type="submit" class="btn-submit">Send Message</button>--%>
+    <%--                            </div>--%>
+    <%--                        </form>--%>
+    <%--                    </div>--%>
+    <%--                </div>--%>
+    <%--            </div>--%>
+    <%--        </div>--%>
+    <%--    </section>--%>
 </main>
 
 <footer>
@@ -1080,6 +1147,10 @@
     </div>
 </footer>
 
+<button id="scrollDownBtn" class="floating-down-btn" aria-label="다음 섹션으로 이동">
+    <i class="fas fa-arrow-down"></i>
+</button>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 <script>
@@ -1088,7 +1159,6 @@
         duration: 1000,
         once: true
     });
-
     // Smooth scrolling
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
@@ -1105,7 +1175,6 @@
             }
         });
     });
-
     // Navbar scroll effect
     window.addEventListener('scroll', function() {
         const header = document.querySelector('header');
@@ -1117,7 +1186,6 @@
             header.style.boxShadow = '0 2px 15px rgba(0,0,0,0.1)';
         }
     });
-
     // 모바일 메뉴 토글 기능
     document.addEventListener('DOMContentLoaded', function() {
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
@@ -1145,7 +1213,6 @@
             mobileMenuOverlay.addEventListener('click', function() {
                 closeMobileMenu();
             });
-
             // 모바일 메뉴 링크 클릭 시 메뉴 닫기 및 스크롤
             mobileMenuLinks.forEach(link => {
                 link.addEventListener('click', function(e) {
@@ -1175,6 +1242,71 @@
             document.body.style.overflow = '';
         }
     });
+
+    // ----------------------------------------------------
+    // [수정됨] 플로팅 다운 버튼 로직 (순차적 섹션 이동)
+    // ----------------------------------------------------
+    const scrollDownBtn = document.getElementById('scrollDownBtn');
+
+    if (scrollDownBtn) {
+        // 이동할 섹션들의 순서 정의
+        // [참고] 여기있는 ID가 실제 태그에 있어야 합니다.
+        // 현재 코드에는 hero, about, services가 있고 마지막은 footer로 이동하게 합니다.
+        const sectionIds = ['hero', 'about', 'services'];
+
+        // 1. 버튼 클릭 시 다음 섹션으로 이동
+        scrollDownBtn.addEventListener('click', function() {
+            const currentScroll = window.scrollY;
+            const headerHeight = 80; // 헤더 높이만큼 보정 (제목이 가려지지 않게)
+            let nextSection = null;
+
+            // 섹션들을 순회하며 현재 스크롤보다 아래에 있는 첫 번째 섹션을 찾음
+            // 1) 주요 섹션 확인
+            for (let id of sectionIds) {
+                const section = document.getElementById(id);
+                if (section) {
+                    // (현재 스크롤 위치 + 여유분) 보다 섹션의 시작점이 더 크면 그곳이 다음 목적지
+                    if (section.offsetTop > currentScroll + 50) {
+                        nextSection = section;
+                        break;
+                    }
+                }
+            }
+
+            // 2) 만약 다음 섹션을 못 찾았다면 (마지막 서비스 섹션까지 지났다면), Footer로 이동
+            if (!nextSection) {
+                const footer = document.querySelector('footer');
+                if (footer && footer.offsetTop > currentScroll + 50) {
+                    nextSection = footer;
+                }
+            }
+
+            // 3) 이동 실행
+            if (nextSection) {
+                const targetPosition = nextSection.offsetTop - headerHeight;
+                window.scrollTo({
+                    top: targetPosition > 0 ? targetPosition : 0,
+                    behavior: 'smooth'
+                });
+            } else {
+                // 더 이상 갈 곳이 없으면(이미 바닥이면) 그냥 맨 끝으로
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
+
+        // 2. 스크롤 위치에 따른 버튼 숨김 처리 (바닥에 닿으면 숨김)
+        window.addEventListener('scroll', function() {
+            // 문서 바닥에 거의 도달했을 때
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 50) {
+                scrollDownBtn.classList.add('hidden');
+            } else {
+                scrollDownBtn.classList.remove('hidden');
+            }
+        });
+    }
 </script>
 </body>
 </html>
