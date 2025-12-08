@@ -693,6 +693,50 @@
             line-height: 1.2;
         }
 
+        /* 빠른 질문 버튼 영역 */
+        .chat-quick-questions {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .quick-question-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 12px;
+            color: #495057;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .quick-question-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .quick-question-btn:active {
+            transform: translateY(0);
+        }
+
+        .quick-question-btn i {
+            font-size: 11px;
+        }
+
         .chat-input-area {
             padding: 15px;
             background: white;
@@ -1206,6 +1250,20 @@
             </div>
         </div>
     </div>
+    <div class="chat-quick-questions" id="chatQuickQuestions">
+        <button class="quick-question-btn" data-question="오늘의 일정 알려줘">
+            <i class="fas fa-calendar-day"></i> 오늘의 일정
+        </button>
+        <button class="quick-question-btn" data-question="오늘의 식단 추천해줘">
+            <i class="fas fa-utensils"></i> 식단 추천
+        </button>
+        <button class="quick-question-btn" data-question="오늘의 식단 알려줘">
+            <i class="fas fa-list"></i> 오늘의 식단
+        </button>
+        <button class="quick-question-btn" data-question="내 건강 상태 알려줘">
+            <i class="fas fa-heartbeat"></i> 건강 상태
+        </button>
+    </div>
     <div class="chat-input-area">
         <button class="chat-voice-btn" id="chatVoiceBtn" title="음성 입력">
             <i class="fas fa-microphone"></i>
@@ -1532,7 +1590,9 @@
                 .then(data => {
                     removeMessage(loadingId);
                     const responseText = data.text || '응답을 받지 못했습니다.';
-                    addMessage(responseText, 'received');
+                    // 식단 추천 메시지인 경우 등록 버튼 포함
+                    const hasMealRecommendation = data.hasMealRecommendation === true;
+                    addMessage(responseText, 'received', null, hasMealRecommendation, data.recId);
                     playAudio(data.audio); // AI 응답 음성 출력
                 })
                 .catch(error => {
@@ -1551,7 +1611,7 @@
         }
 
         // Add message to chat
-        function addMessage(text, type, messageId) {
+        function addMessage(text, type, messageId, hasMealRecommendation, recId) {
             const messageDiv = document.createElement('div');
             // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
@@ -1590,7 +1650,38 @@
             // 말풍선
             const bubble = document.createElement('div');
             bubble.className = 'message-bubble';
-            bubble.textContent = text;
+            
+            // 텍스트를 줄바꿈 처리
+            const textLines = text.split('\n');
+            textLines.forEach((line, index) => {
+                if (line.trim()) {
+                    const lineElement = document.createElement('div');
+                    lineElement.textContent = line;
+                    if (index === 0) {
+                        lineElement.style.marginTop = '0';
+                    }
+                    bubble.appendChild(lineElement);
+                }
+            });
+
+            // 식단 추천 메시지인 경우 등록 버튼 추가
+            if (hasMealRecommendation && recId) {
+                const buttonContainer = document.createElement('div');
+                buttonContainer.style.marginTop = '12px';
+                buttonContainer.style.display = 'flex';
+                buttonContainer.style.gap = '8px';
+                
+                const registerBtn = document.createElement('button');
+                registerBtn.className = 'btn btn-primary btn-sm';
+                registerBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer;';
+                registerBtn.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
+                registerBtn.onclick = function() {
+                    registerMealFromChat(recId, registerBtn);
+                };
+                
+                buttonContainer.appendChild(registerBtn);
+                bubble.appendChild(buttonContainer);
+            }
 
             // 시간
             const time = document.createElement('div');
@@ -1608,6 +1699,46 @@
 
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 챗봇에서 식단 등록하기
+        function registerMealFromChat(recId, button) {
+            if (!recId) {
+                alert('사용자 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+
+            // 식단 등록 API 호출 (MEAL_SAVE 의도로 처리)
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: '등록해줘', recId: recId })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('서버 응답 오류: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                const responseText = data.text || '식단이 등록되었습니다.';
+                addMessage(responseText, 'received');
+                playAudio(data.audio);
+                
+                // 버튼을 성공 메시지로 변경
+                button.innerHTML = '<i class="fas fa-check"></i> 등록 완료';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-success');
+                button.disabled = true;
+            })
+            .catch(error => {
+                console.error('식단 등록 중 오류 발생:', error);
+                alert('식단 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
+            });
         }
 
         // Remove message from chat
