@@ -421,7 +421,7 @@
                 <div class="detail-content-card">
                     <div class="info-section" style="border-bottom: none;">
                         <h3 class="section-title">
-                            <i class="bi bi-tablet"></i> 키오스크 접속 정보
+                            <i class="bi bi-tablet"></i> 테블릿 접속 정보
                         </h3>
                         <div class="kiosk-info-box">
                             <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
@@ -549,37 +549,135 @@
 
     // QR코드 모달 표시
     function showQRCode() {
-        const url = document.getElementById('kioskUrl').textContent.trim();
+        const kioskUrlElement = document.getElementById('kioskUrl');
+        if (!kioskUrlElement) {
+            alert('키오스크 URL을 찾을 수 없습니다. 키오스크 코드가 등록되어 있는지 확인해주세요.');
+            return;
+        }
+
+        const url = kioskUrlElement.textContent.trim();
+        if (!url || url === '') {
+            alert('키오스크 URL이 비어있습니다.');
+            return;
+        }
+
+        // QR코드 URL 생성
         const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+        const kioskCode = '<c:out value="${recipient.recKioskCode}" escapeXml="false"/>';
+
+        console.log('QR코드 생성 - 원본 URL:', url);
+        console.log('QR코드 생성 - QR API URL:', qrCodeUrl);
 
         const modal = document.createElement('div');
+        modal.id = 'qrCodeModal';
         modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
-        modal.innerHTML = `
-            <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
-                <h3 style="margin-bottom: 20px; color: #2c3e50;">키오스크 접속 QR코드</h3>
-                <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
-                <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
-                    노약자 분이 스마트폰으로<br>
-                    위 QR코드를 스캔하면<br>
-                    바로 키오스크 화면으로 이동합니다
-                </p>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <a href="${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
-                        <i class="bi bi-download"></i> 다운로드
-                    </a>
-                    <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: #e9ecef; color: #495057; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600;">
-                        닫기
-                    </button>
-                </div>
-            </div>
-        `;
+        
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = 'background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px; position: relative;';
+        
+        // 제목
+        const title = document.createElement('h3');
+        title.style.cssText = 'margin-bottom: 20px; color: #2c3e50; font-size: 22px; font-weight: 700;';
+        title.textContent = '키오스크 접속 QR코드';
+        modalContent.appendChild(title);
+        
+        // QR코드 컨테이너
+        const qrContainer = document.createElement('div');
+        qrContainer.id = 'qrCodeContainer';
+        qrContainer.style.cssText = 'margin-bottom: 20px;';
+        
+        // QR코드 이미지 생성
+        const qrImage = document.createElement('img');
+        qrImage.id = 'qrCodeImg';
+        qrImage.alt = 'QR Code';
+        qrImage.style.cssText = 'width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; display: block; margin: 0 auto;';
+        qrImage.src = qrCodeUrl;
+        
+        // 이미지 로드 성공
+        qrImage.onload = function() {
+            console.log('QR코드 이미지 로드 성공');
+            // 에러 메시지가 있으면 제거
+            const errorMsg = qrContainer.querySelector('.qr-error-msg');
+            if (errorMsg) {
+                errorMsg.remove();
+            }
+        };
+        
+        // 이미지 로드 실패
+        qrImage.onerror = function() {
+            console.error('QR코드 이미지 로드 실패');
+            // 기존 에러 메시지가 있으면 제거
+            const existingError = qrContainer.querySelector('.qr-error-msg');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            // 대체 방법: 다른 QR코드 API 시도
+            const alternativeUrl = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + encodeURIComponent(url);
+            qrImage.src = alternativeUrl;
+            
+            // 대체 방법도 실패하면 에러 메시지 표시
+            qrImage.onerror = function() {
+                console.error('대체 QR코드 API도 실패');
+                const errorMsg = document.createElement('div');
+                errorMsg.className = 'qr-error-msg';
+                errorMsg.style.cssText = 'color: #e74c3c; font-size: 14px; margin-top: 10px; padding: 10px; background: #ffe0e0; border-radius: 5px;';
+                errorMsg.innerHTML = '<i class="bi bi-exclamation-triangle"></i> QR코드 생성에 실패했습니다.<br>인터넷 연결을 확인하거나 나중에 다시 시도해주세요.';
+                qrContainer.appendChild(errorMsg);
+            };
+        };
+        
+        qrContainer.appendChild(qrImage);
+        modalContent.appendChild(qrContainer);
+        
+        // 안내 문구
+        const infoText = document.createElement('p');
+        infoText.style.cssText = 'color: #7f8c8d; margin-bottom: 20px; line-height: 1.6; font-size: 14px;';
+        infoText.innerHTML = '노약자 분이 스마트폰으로<br>위 QR코드를 스캔하면<br>바로 키오스크 화면으로 이동합니다';
+        modalContent.appendChild(infoText);
+        
+        // 버튼 영역
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.cssText = 'display: flex; gap: 10px; justify-content: center;';
+        
+        // 다운로드 버튼
+        const downloadLink = document.createElement('a');
+        downloadLink.href = qrCodeUrl;
+        downloadLink.download = 'kiosk_qr_' + kioskCode + '.png';
+        downloadLink.style.cssText = 'background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;';
+        downloadLink.innerHTML = '<i class="bi bi-download"></i> 다운로드';
+        buttonContainer.appendChild(downloadLink);
+        
+        // 닫기 버튼
+        const closeBtn = document.createElement('button');
+        closeBtn.id = 'closeQRModalBtn';
+        closeBtn.style.cssText = 'background: #e9ecef; color: #495057; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;';
+        closeBtn.innerHTML = '닫기';
+        buttonContainer.appendChild(closeBtn);
+        
+        modalContent.appendChild(buttonContainer);
+        modal.appendChild(modalContent);
+
+        // 닫기 버튼 이벤트
+        closeBtn.addEventListener('click', function() {
+            modal.remove();
+        });
 
         // 모달 외부 클릭 시 닫기
-        modal.addEventListener('click', (e) => {
+        modal.addEventListener('click', function(e) {
             if (e.target === modal) {
                 modal.remove();
             }
         });
+
+        // ESC 키로 닫기
+        const escHandler = function(e) {
+            if (e.key === 'Escape' && document.getElementById('qrCodeModal')) {
+                document.getElementById('qrCodeModal').remove();
+                document.removeEventListener('keydown', escHandler);
+            }
+        };
+        document.addEventListener('keydown', escHandler);
 
         document.body.appendChild(modal);
     }
