@@ -147,12 +147,12 @@
 <%--                        </div>--%>
 <%--                    </li>--%>
 
-                    <li class="nav-item">
-                        <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">
-                            <i class="bi bi-question-circle"></i>
-                            <span>Q&A</span>
-                        </a>
-                    </li>
+<%--                    <li class="nav-item">--%>
+<%--                        <a class="nav-link ${center == 'qna' ? 'active' : ''}" href="<c:url value='/qna'/>">--%>
+<%--                            <i class="bi bi-question-circle"></i>--%>
+<%--                            <span>Q&A</span>--%>
+<%--                        </a>--%>
+<%--                    </li>--%>
 
                     <li class="nav-item">
                         <a class="nav-link ${center == 'chart' ? 'active' : ''}" href="<c:url value='/chart'/>">
