@@ -11,7 +11,7 @@ body, html {
     background-color: #f8f9fa;
     /* 기본 폰트: 가독성을 위해 시스템 폰트 우선 적용 */
     font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-    overflow: hidden; /* 전체 페이지 스크롤 방지 (키오스크 모드) */
+    overflow: hidden; /* 전체 페이지 스크롤 방지 (태블릿 모드) */
     box-sizing: border-box;
 
     /* [반응형 기준점] rem 단위의 기준이 되는 폰트 크기 (1rem = 10px) */

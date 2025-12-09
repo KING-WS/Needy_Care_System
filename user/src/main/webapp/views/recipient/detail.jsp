@@ -192,7 +192,7 @@
     }
 
     /* ---------------------------------------------------- */
-    /* 6. 키오스크 정보 스타일 */
+    /* 6. 태블릿 정보 스타일 */
     /* ---------------------------------------------------- */
     .kiosk-info-box {
         background: linear-gradient(135deg, #7b88fa 0%, var(--primary-color) 100%);
@@ -421,7 +421,7 @@
                         <div class="detail-content-card">
                             <div class="info-section" style="border-bottom: none;">
                                 <h3 class="section-title">
-                                    <i class="bi bi-tablet"></i> 키오스크 접속 정보
+                                    <i class="bi bi-tablet"></i> 태블릿 접속 정보
                                 </h3>
                                 <div class="kiosk-info-box">
                                     <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
@@ -543,7 +543,7 @@
                         }
                     }
                     
-                    // 키오스크 URL 복사
+                    // 태블릿 URL 복사
                     function copyKioskUrl() {
                         const url = document.getElementById('kioskUrl').textContent.trim();
                         navigator.clipboard.writeText(url).then(() => {
@@ -563,12 +563,12 @@
                         modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
                         modal.innerHTML = `
                             <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
-                                <h3 style="margin-bottom: 20px; color: #2c3e50;">키오스크 접속 QR코드</h3>
+                                <h3 style="margin-bottom: 20px; color: #2c3e50;">태블릿 접속 QR코드</h3>
                                 <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
                                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
                                     노약자 분이 스마트폰으로<br>
                                     위 QR코드를 스캔하면<br>
-                                    바로 키오스크 화면으로 이동합니다
+                                    바로 태블릿 화면으로 이동합니다
                                 </p>
                                 <div style="display: flex; gap: 10px; justify-content: center;">
                                     <a href="${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">

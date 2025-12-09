@@ -45,7 +45,7 @@ public class ChatAiController {
                     recId = recipient.getRecId();
                 } else {
                     // [수정 1] "text" -> "reply"
-                    return ResponseEntity.badRequest().body(Map.of("reply", "오류: 유효하지 않은 키오스크 코드입니다."));
+                    return ResponseEntity.badRequest().body(Map.of("reply", "오류: 유효하지 않은 태블릿 코드입니다."));
                 }
             } else {
                 // [수정 2] "text" -> "reply"
