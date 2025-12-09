@@ -970,7 +970,7 @@ public class AiChatService {
                 sb.append(String.format("%d. %s\n   시간: %s ~ %s\n\n", index++, name, start, end));
             }
 
-            sb.append("이 일정으로 등록하시겠어요? '네' 또는 '등록해줘'라고 말씀해주세요!");
+            sb.append("이 일정으로 등록하시겠어요?");
 
             return sb.toString();
         } catch (Exception e) {
