@@ -18,9 +18,10 @@
             a.check_status AS checkStatus,
             a.alert_regdate AS alertRegdate,
             r.rec_name AS recipientName,
-            r.rec_kiosk_code AS kioskCode
-        FROM Alert_Log a  LEFT JOIN care_recipient r ON a.rec_id = r.rec_id
-        ORDER BY a.alert_regdate DESC
+            r.rec_kiosk_code AS kioskCode,
+            c.cust_name AS protectorName,   c.cust_phone AS protectorPhone  FROM Alert_Log a
+                                                                                     LEFT JOIN Care_Recipient r ON a.rec_id = r.rec_id
+                                                                                     LEFT JOIN Cust c ON r.cust_id = c.cust_id  ORDER BY a.alert_regdate DESC
     </select>
 
     <select id="getRecentAlerts" resultType="edu.sm.app.dto.AlertLog">
@@ -32,10 +33,13 @@
             a.check_status AS checkStatus,
             a.alert_regdate AS alertRegdate,
             r.rec_name AS recipientName,
-            r.rec_kiosk_code AS kioskCode
-        FROM Alert_Log a LEFT JOIN care_recipient r ON a.rec_id = r.rec_id
-        ORDER BY a.alert_regdate DESC
-        LIMIT #{limit}
+            r.rec_kiosk_code AS kioskCode,
+            c.cust_name AS protectorName,
+            c.cust_phone AS protectorPhone
+        FROM Alert_Log a
+                 LEFT JOIN Care_Recipient r ON a.rec_id = r.rec_id
+                 LEFT JOIN Cust c ON r.cust_id = c.cust_id  ORDER BY a.alert_regdate DESC
+            LIMIT #{limit}
     </select>
 
     <update id="updateCheckStatus">

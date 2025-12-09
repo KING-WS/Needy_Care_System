@@ -92,4 +92,17 @@
         SELECT COUNT(*) FROM Care_Recipient WHERE is_deleted = 'N'
     </select>
 
+    <select id="getCallDetail" parameterType="String" resultType="map">
+        SELECT
+            cr.rec_name AS r_name,
+            TIMESTAMPDIFF(YEAR, cr.rec_birthday, CURDATE()) AS r_age,
+            cr.rec_spec_notes AS r_condition,
+            cg.caregiver_name AS c_name,
+            cg.caregiver_phone AS c_phone
+        FROM Care_Recipient cr
+                 LEFT JOIN care_matching cm ON cr.rec_id = cm.rec_id AND cm.is_deleted = 'N'
+                 LEFT JOIN caregiver cg ON cm.caregiver_id = cg.caregiver_id AND cg.is_deleted = 'N'
+        WHERE cr.rec_kiosk_code = #{roomId}
+    </select>
+
 </mapper>

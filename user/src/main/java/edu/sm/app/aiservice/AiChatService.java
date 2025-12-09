@@ -182,7 +182,25 @@ public class AiChatService {
     private String generateNaturalResponse(Integer recId, String userMessage, ChatIntent intent, String functionResult) {
         try {
             List<Message> messages = new ArrayList<>();
-            messages.add(new SystemMessage(SYSTEM_PROMPT));
+
+            // [수정 1] 사용자 정보 조회 (이름을 알기 위해)
+            Recipient recipient = recipientService.getRecipientById(recId);
+            String userName = (recipient != null) ? recipient.getRecName() : "어르신";
+
+            // [수정 2] 시스템 프롬프트에 사용자 이름과 페르소나(성격) 주입
+            String personalizedPrompt = SYSTEM_PROMPT + String.format("""
+                
+                [현재 사용자 정보]
+                - 이름: %s
+                
+                [대화 페르소나 지침]
+                - 당신의 이름은 '마음이'입니다.
+                - 사용자를 항상 '%s 님' 또는 상황에 따라 다정하게 '어르신'이라고 부르세요.
+                - 손자/손녀처럼 예의 바르면서도 애교 있고 싹싹한 말투를 사용하세요.
+                - "시스템상 확인 불가" 같은 기계적인 답변은 하지 말고, 모르는 것이 있으면 다정하게 되물어보세요.
+                """, userName, userName);
+
+            messages.add(new SystemMessage(personalizedPrompt));
 
             // 이전 대화 기록 추가
             List<ChatLog> chatHistory = chatLogService.getChatLogsByRecId(recId, 10);
@@ -196,7 +214,7 @@ public class AiChatService {
             // 사용자 메시지와 함수 실행 결과를 함께 전달
             String contextMessage = userMessage;
             if (functionResult != null && !functionResult.isEmpty()) {
-                contextMessage += "\n\n[시스템 정보]\n" + functionResult;
+                contextMessage += "\n\n[시스템 정보 (참고하여 답변하세요)]\n" + functionResult;
             }
             messages.add(new UserMessage(contextMessage));
 
