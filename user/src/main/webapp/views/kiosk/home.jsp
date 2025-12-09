@@ -288,6 +288,8 @@
 
     // [호출 버튼]
     function sendRequest(btn, type, text) {
+        // 혹시라도 비활성화된 상태에서 클릭되면 무시
+        if (btn.disabled) return;
         const feedback = btn.querySelector('.button-feedback');
         const content = btn.querySelector('.button-content');
 
@@ -302,21 +304,24 @@
                 kioskCode: KIOSK_CODE
             }));
 
-            // 👇 [추가] 긴급 호출이면 즉시 영상통화 화면(내 얼굴) 띄우기
             if (type === 'emergency') {
                 console.log("🚨 긴급 호출: 영상통화 대기 모드 진입");
-                // 방 번호는 kioskCode와 동일하게 사용
-                // startVideoCall(KIOSK_CODE);
+
+                // [추가] 긴급 호출 음성 안내
+                speakText("긴급 호출을 보냈습니다. 관리자가 곧 연결할 것입니다.");
+            } else {
+                // [추가] 일반 연락 요청 음성 안내 (여기가 핵심!)
+                speakText("보호자에게 연락 요청을 보냈습니다. 잠시만 기다려주세요.");
             }
 
-            // [추가] 전송 성공 UI 처리 (1초 뒤 복구)
+            // [추가] 전송 성공 UI 처리
             setTimeout(() => {
                 feedback.textContent = '호출 완료!';
                 setTimeout(() => {
                     content.style.opacity = '1';
                     feedback.style.opacity = '0';
                     btn.disabled = false;
-                }, 2000);
+                }, 5000);
             }, 1000);
 
         } else {
