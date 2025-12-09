@@ -40,9 +40,9 @@ public class RecipientService {
         return recipientRepository.selectRecipientById(recId);
     }
 
-    // 키오스크 코드로 돌봄 대상자 조회
+    // 태블릿 코드로 돌봄 대상자 조회
     public Recipient getRecipientByKioskCode(String kioskCode) {
-        log.info("돌봄 대상자 조회 (키오스크) - kioskCode: {}", kioskCode);
+        log.info("돌봄 대상자 조회 (태블릿) - kioskCode: {}", kioskCode);
         return recipientRepository.selectRecipientByKioskCode(kioskCode);
     }
 
@@ -50,11 +50,11 @@ public class RecipientService {
     public void registerRecipient(Recipient recipient) {
         log.info("돌봄 대상자 등록 - recName: {}, custId: {}", recipient.getRecName(), recipient.getCustId());
 
-        // 키오스크 코드가 없으면 자동 생성
+        // 태블릿 코드가 없으면 자동 생성
         if (recipient.getRecKioskCode() == null || recipient.getRecKioskCode().isEmpty()) {
             String kioskCode = generateKioskCode();
             recipient.setRecKioskCode(kioskCode);
-            log.info("키오스크 코드 자동 생성: {}", kioskCode);
+            log.info("태블릿 코드 자동 생성: {}", kioskCode);
         }
 
         int result = recipientRepository.insertRecipient(recipient);
@@ -64,7 +64,7 @@ public class RecipientService {
     }
 
     /**
-     * 키오스크 접속용 고유 코드 생성
+     * 태블릿 접속용 고유 코드 생성
      * 형식: XXXX-XXXX-XXXX (12자리, 대문자+숫자)
      */
     private String generateKioskCode() {

@@ -53,7 +53,7 @@
           AND is_deleted = 'N'
     </select>
 
-    <!-- 키오스크 코드로 돌봄 대상자 조회 -->
+    <!-- 태블릿 코드로 돌봄 대상자 조회 -->
     <select id="selectRecipientByKioskCode" resultType="edu.sm.app.dto.Recipient">
         SELECT
             rec_id AS recId,

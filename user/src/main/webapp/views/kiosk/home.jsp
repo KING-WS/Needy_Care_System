@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>테블릿 돌봄 시스템</title>
+    <title>태블릿 돌봄 시스템</title>
     <link rel="stylesheet" href="/css/kiosk.css">
     <style>
         /* 추가: 영상 통화 오버레이 스타일 */
