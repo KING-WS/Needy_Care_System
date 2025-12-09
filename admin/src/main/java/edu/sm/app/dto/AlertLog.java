@@ -18,6 +18,10 @@ public class AlertLog {
     private String alertMsg;
     private String checkStatus; // N: 미확인, Y: 확인됨
     private LocalDateTime alertRegdate;
-    private String recipientName; // 수신자 이름 추가 (조회용)
+    private String recipientName; // 수신자 이름 (조회용)
     private String kioskCode;
+
+    // [추가된 필드] 보호자 정보 (조회용)
+    private String protectorName;
+    private String protectorPhone;
 }
