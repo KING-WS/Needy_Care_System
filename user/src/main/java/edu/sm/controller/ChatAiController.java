@@ -100,13 +100,24 @@ public class ChatAiController {
         ChatLog aiLog = new ChatLog(null, recId, "AI", textAnswer, null, "N", null);
         chatLogService.saveChatLog(aiLog);
 
+        // 4. TTS 음성 생성
+        String base64Audio = null;
+        try {
+            Map<String, String> ttsResult = aiSttService.tts2(textAnswer);
+            base64Audio = ttsResult.get("audio");
+            log.debug("TTS 음성 생성 완료 - 길이: {}", base64Audio != null ? base64Audio.length() : 0);
+        } catch (Exception e) {
+            log.error("TTS 음성 생성 중 오류 발생", e);
+            // TTS 실패해도 텍스트 응답은 정상 반환
+        }
+
         // 응답 생성
         Map<String, Object> response = new HashMap<>();
 
         // [핵심 수정] "text" -> "reply" 로 변경!
         response.put("reply", textAnswer);
 
-        response.put("audio", null);
+        response.put("audio", base64Audio);
         
         // recId는 항상 포함 (클라이언트에서 버튼 생성 시 필요)
         response.put("recId", recId);
