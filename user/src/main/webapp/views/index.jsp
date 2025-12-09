@@ -141,42 +141,8 @@
             box-shadow: none;
         }
 
-        /* 사용 안 하는 스타일 (나중에 필요할 수 있음) */
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-left: 20px;
-        }
-
-        .user-name {
-            color: var(--primary-color);
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .btn-logout {
-            background: var(--accent-color);
-            color: white;
-            padding: 10px 25px; /* 크기 조정 */
-            border-radius: 50px;
-            /* 둥근 버튼 통일 */
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 15px;
-            transition: all 0.3s;
-            border: none;
-            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.4);
-        }
-
-        .btn-logout:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(231, 76, 60, 0.6);
-        }
-
         /* ---------------------------------------------------- */
-        /* 3. Hero Section (수정됨: 높이 확장 및 정렬) */
+        /* 3. Hero Section (수정됨: 텍스트, 버튼, 이미지 크기 확대) */
         /* ---------------------------------------------------- */
         #hero {
             background: linear-gradient(135deg, var(--primary-color) 0%, #2c3e50 100%);
@@ -205,22 +171,28 @@
             opacity: 0.3;
         }
 
+        /* [수정] 메인 제목 크기 확대 */
         #hero h1 {
-            font-size: 52px;
+            font-size: 70px; /* 52px -> 70px */
             font-weight: 800; /* 두께 강조 */
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            line-height: 1.2;
         }
 
+        /* [수정] 부제목 크기 확대 */
         #hero p {
-            font-size: 20px;
-            margin-bottom: 30px;
+            font-size: 26px; /* 20px -> 26px */
+            margin-bottom: 45px;
+            opacity: 0.9;
         }
 
-        /* [추가] 이미지 블렌딩 효과 (가장자리 부드럽게) */
+        /* [수정] 이미지 크기 및 효과 */
         .hero-img-blend {
             max-width: 100%;
             height: auto;
-            /* [수정] 이미지의 최대 크기를 제한 (예시: 500px) */
+            /* [수정] 이미지 자체를 1.2배 확대 */
+            transform: scale(1.2);
+            /* 이미지의 최대 크기를 제한 */
             max-width: 1500px;
             /* CSS Masking: 가장자리를 투명하게 처리 */
             -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 100%);
@@ -228,20 +200,18 @@
             transition: transform 0.3s ease;
         }
 
-        /*.hero-img-blend:hover {*/
-        /* transform: scale(1.05);*/
-        /*}*/
-
         .hero-buttons {
             display: flex;
-            gap: 15px;
+            gap: 20px; /* 버튼 사이 간격도 조금 늘림 */
             flex-wrap: wrap;
         }
 
+        /* [수정] 가입하기 버튼 크기 확대 */
         .btn-hero {
             background: white;
             color: var(--primary-color);
-            padding: 14px 40px; /* 크기 조정 */
+            padding: 18px 50px; /* 14px 40px -> 18px 50px */
+            font-size: 20px; /* 폰트 사이즈 추가 */
             border-radius: 50px;
             font-weight: 700;
             text-decoration: none;
@@ -257,11 +227,13 @@
             box-shadow: none;
         }
 
+        /* [수정] 로그인 버튼 크기 확대 */
         .btn-hero-secondary {
             background: transparent;
             color: white;
             border: 2px solid white;
-            padding: 14px 40px; /* 크기 조정 */
+            padding: 18px 50px; /* 14px 40px -> 18px 50px */
+            font-size: 20px; /* 폰트 사이즈 추가 */
             border-radius: 50px;
             font-weight: 700;
             text-decoration: none;
@@ -645,7 +617,7 @@
                 height: 28px;
             }
 
-            /* Hero 섹션 조정 */
+            /* Hero 섹션 조정 (모바일) */
             #hero {
                 /* 모바일에서는 패딩을 줘서 100vh가 부담스럽지 않게 조정하거나 유지 */
                 padding: 100px 0 60px;
@@ -655,25 +627,31 @@
             }
 
             #hero h1 {
-                font-size: 32px;
+                font-size: 42px; /* 모바일에서도 크게 */
                 margin-bottom: 15px;
             }
 
             #hero p {
-                font-size: 16px;
+                font-size: 18px;
                 margin-bottom: 25px;
             }
 
             .hero-buttons {
                 flex-direction: column;
-                gap: 10px;
+                gap: 15px;
             }
 
             .btn-hero,
             .btn-hero-secondary {
                 width: 100%;
                 text-align: center;
-                padding: 12px 30px;
+                padding: 15px 30px;
+                font-size: 18px;
+            }
+
+            .hero-img-blend {
+                transform: none; /* 모바일에서는 확대 효과 제거하거나 축소 */
+                margin-top: 30px;
             }
 
             /* 섹션 패딩 조정 */
@@ -775,11 +753,11 @@
         /* 작은 모바일 (480px 이하) */
         @media (max-width: 480px) {
             #hero h1 {
-                font-size: 26px;
+                font-size: 32px;
             }
 
             #hero p {
-                font-size: 14px;
+                font-size: 16px;
             }
 
             .section-title h2 {
@@ -814,7 +792,8 @@
         .floating-down-btn {
             position: fixed;
             bottom: 40px; /* 바닥에서 조금 더 위로 */
-            right: 40px;  /* 우측에서 조금 더 안으로 */
+            right: 40px;
+            /* 우측에서 조금 더 안으로 */
             /* [수정] 크기 대폭 확대 */
             width: 70px;
             height: 70px;
@@ -911,8 +890,10 @@
             <li><a href="#services">Services</a></li>
             <li><a href="#team">Team</a></li>
             <%--            <li><a href="#contact">Contact</a></li>--%>
-            <li style="border-top: 2px solid #e0e0e0; margin-top: 10px;">
-                <a href="/login" style="color: var(--primary-color); font-weight: 600;">로그인</a>
+            <li style="border-top: 2px solid #e0e0e0;
+margin-top: 10px;">
+                <a href="/login" style="color: var(--primary-color);
+font-weight: 600;">로그인</a>
             </li>
         </ul>
     </nav>
@@ -1036,26 +1017,32 @@
     <%--                </div>--%>
     <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="200">--%>
     <%--                    <div class="team-member">--%>
-    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px;
+color: #ccc;"></i>--%>
     <%--                        <h4 style="margin-top: 15px;">팀 멤버 2</h4>--%>
     <%--                        <span class="d-block mb-3">Placeholder</span>--%>
-    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                        <p style="font-size: 14px;
+color: #666; margin-top: 10px;">준비 중</p>--%>
     <%--                    </div>--%>
     <%--                </div>--%>
     <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="300">--%>
     <%--                    <div class="team-member">--%>
-    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px;
+color: #ccc;"></i>--%>
     <%--                        <h4 style="margin-top: 15px;">팀 멤버 3</h4>--%>
     <%--                        <span class="d-block mb-3">Placeholder</span>--%>
-    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                        <p style="font-size: 14px;
+color: #666; margin-top: 10px;">준비 중</p>--%>
     <%--                    </div>--%>
     <%--                </div>--%>
     <%--                <div class="col-lg-3 col-md-6 mb-4 text-center" data-aos="fade-up" data-aos-delay="400">--%>
     <%--                    <div class="team-member">--%>
-    <%--                        <i class="fas fa-users" style="font-size: 50px; color: #ccc;"></i>--%>
+    <%--                        <i class="fas fa-users" style="font-size: 50px;
+color: #ccc;"></i>--%>
     <%--                        <h4 style="margin-top: 15px;">팀 멤버 4</h4>--%>
     <%--                        <span class="d-block mb-3">Placeholder</span>--%>
-    <%--                        <p style="font-size: 14px; color: #666; margin-top: 10px;">준비 중</p>--%>
+    <%--                        <p style="font-size: 14px;
+color: #666; margin-top: 10px;">준비 중</p>--%>
     <%--                    </div>--%>
     <%--                </div>--%>
     <%--            </div>--%>
@@ -1081,7 +1068,8 @@
     <%--                            </div>--%>
     <%--                            <div class="contact-text">--%>
     <%--                                <h4>Our Location</h4>--%>
-    <%--                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로 119-4</p>--%>
+    <%--                                <p>비체크리스탈 6동 301호<br>충남 아산시 탕정면 탕정면로
+119-4</p>--%>
     <%--                            </div>--%>
     <%--                        </div>--%>
 
@@ -1091,7 +1079,8 @@
     <%--                            </div>--%>
     <%--                            <div class="contact-text">--%>
     <%--                                <h4>Phone Number</h4>--%>
-    <%--                                <p>+82 10-8920-3471<br>+82 10-5734-7072</p>--%>
+    <%--                                <p>+82 10-8920-3471<br>+82
+10-5734-7072</p>--%>
     <%--                            </div>--%>
     <%--                        </div>--%>
 
@@ -1247,13 +1236,11 @@
     // [수정됨] 플로팅 다운 버튼 로직 (순차적 섹션 이동)
     // ----------------------------------------------------
     const scrollDownBtn = document.getElementById('scrollDownBtn');
-
     if (scrollDownBtn) {
         // 이동할 섹션들의 순서 정의
         // [참고] 여기있는 ID가 실제 태그에 있어야 합니다.
         // 현재 코드에는 hero, about, services가 있고 마지막은 footer로 이동하게 합니다.
         const sectionIds = ['hero', 'about', 'services'];
-
         // 1. 버튼 클릭 시 다음 섹션으로 이동
         scrollDownBtn.addEventListener('click', function() {
             const currentScroll = window.scrollY;
@@ -1296,7 +1283,6 @@
                 });
             }
         });
-
         // 2. 스크롤 위치에 따른 버튼 숨김 처리 (바닥에 닿으면 숨김)
         window.addEventListener('scroll', function() {
             // 문서 바닥에 거의 도달했을 때
