@@ -107,11 +107,26 @@ public class ChatAiController {
         response.put("reply", textAnswer);
 
         response.put("audio", null);
+        
+        // recId는 항상 포함 (클라이언트에서 버튼 생성 시 필요)
+        response.put("recId", recId);
 
-        // 식단 추천 플래그
-        if (textAnswer.contains("식단을 추천해드릴게요") || textAnswer.contains("이 식단을 등록하시겠어요")) {
+        // 식단 추천 플래그 (더 유연한 감지 - 느낌표 포함 버전도 체크)
+        if (textAnswer.contains("식단을 추천해드릴게요") || 
+            textAnswer.contains("식단을 추천해드릴게요!") ||
+            textAnswer.contains("이 식단을 등록하시겠어요") ||
+            (textAnswer.contains("식단을 추천") && textAnswer.contains("등록"))) {
             response.put("hasMealRecommendation", true);
-            response.put("recId", recId);
+            log.info("식단 추천 플래그 설정됨 - recId: {}, 응답 일부: {}", recId, textAnswer.substring(0, Math.min(50, textAnswer.length())));
+        }
+
+        // 일정 추천 플래그 (더 유연한 감지 - 느낌표, 공백 등 무시)
+        if (textAnswer.contains("일정을 추천해드릴게요") || 
+            textAnswer.contains("일정을 추천해드릴게요!") ||
+            textAnswer.contains("이 일정으로 등록하시겠어요") ||
+            (textAnswer.contains("일정을 추천") && textAnswer.contains("등록"))) {
+            response.put("hasScheduleRecommendation", true);
+            log.info("일정 추천 플래그 설정됨 - recId: {}, 응답 일부: {}", recId, textAnswer.substring(0, Math.min(50, textAnswer.length())));
         }
 
         return ResponseEntity.ok(response);
