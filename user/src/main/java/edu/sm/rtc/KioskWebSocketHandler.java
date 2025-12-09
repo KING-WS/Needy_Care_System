@@ -49,7 +49,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
         this.messagingTemplate = messagingTemplate;
     }
 
-    // Kiosk Code를 키로, WebSocketSession을 값으로 저장 (온라인 키오스크 관리)
+    // Kiosk Code를 키로, WebSocketSession을 값으로 저장 (온라인 태블릿 관리)
     private final Map<String, WebSocketSession> kioskSessions = new ConcurrentHashMap<>();
     // WebSocketSession ID를 키로, Kiosk Code를 값으로 저장 (세션 종료 시 kioskCode 찾기 위함)
     private final Map<String, String> sessionToKioskCode = new ConcurrentHashMap<>();
@@ -58,7 +58,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         log.info("[Kiosk WS] New connection established: {}", session.getId());
-        // 키오스크 코드는 연결 직후 'kiosk_connect' 메시지로 받음
+        // 태블릿 코드는 연결 직후 'kiosk_connect' 메시지로 받음
     }
 
     @Override
@@ -95,7 +95,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
         }
     }
 
-    // 키오스크 연결 시, 상태 업데이트
+    // 태블릿 연결 시, 상태 업데이트
     private void handleKioskConnect(WebSocketSession session, String kioskCode) {
         kioskSessions.put(kioskCode, session);
         sessionToKioskCode.put(session.getId(), kioskCode);
@@ -132,7 +132,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
 
             if ("emergency".equalsIgnoreCase(type)) {
                 dbType = "EMERGENCY";
-                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
+                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 태블릿에서 '긴급 호출' 버튼을 눌렀습니다!";
                 iconClass = "bi-exclamation-triangle-fill";
                 bgClass = "bg-danger";
             } else if ("danger".equalsIgnoreCase(type)) {
@@ -212,7 +212,7 @@ public class KioskWebSocketHandler extends TextWebSocketHandler {
         log.info("[Kiosk WS] Client {} disconnected. Status: {}", session.getId(), status);
         String kioskCode = sessionToKioskCode.remove(session.getId()); // 세션 맵에서 제거
         if (kioskCode != null) {
-            kioskSessions.remove(kioskCode); // 키오스크 맵에서도 제거
+            kioskSessions.remove(kioskCode); // 태블릿 맵에서도 제거
             try {
                 Recipient recipient = recipientService.getRecipientByKioskCode(kioskCode);
                 if (recipient != null) {
