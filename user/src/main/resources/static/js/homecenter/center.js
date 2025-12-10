@@ -172,8 +172,8 @@ function getMarkerImageByCategory(category) {
         '</g></svg>';
 
     var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-    var imageSize = new kakao.maps.Size(50, 45);
-    var imageOption = {offset: new kakao.maps.Point(15, 43)};
+    var imageSize = new kakao.maps.Size(24, 35);
+    var imageOption = {offset: new kakao.maps.Point(12, 35)};
     var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
     return markerImage;
@@ -977,8 +977,8 @@ function getSearchMarkerImage() {
         '</g></svg>';
 
     var imageSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgString)));
-    var imageSize = new kakao.maps.Size(50, 45); // Adjust size as needed
-    var imageOption = {offset: new kakao.maps.Point(15, 43)}; // Adjust offset as needed
+    var imageSize = new kakao.maps.Size(24, 35); // Adjust size as needed
+    var imageOption = {offset: new kakao.maps.Point(12, 35)}; // Adjust offset as needed
     var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
 
     return markerImage;

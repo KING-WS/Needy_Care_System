@@ -375,6 +375,24 @@
                 <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
                     <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 장소 추천
                 </h1>
+                <br>
+                <h5 style="color: #7f8c8d; font-size: 16px; font-weight: 400; margin-bottom: 20px;">
+                    AI가 돌봄 대상자의 건강 상태와 주소를 기반으로 최적의 장소를 추천해줍니다
+                </h5>
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-robot" style="color: var(--primary-color); font-size: 14px;"></i>
+                        <span style="color: #7f8c8d; font-size: 14px;">AI 검색: 키워드 기반 맞춤형 장소 추천</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-magic" style="color: #667eea; font-size: 14px;"></i>
+                        <span style="color: #7f8c8d; font-size: 14px;">맞춤 추천: 건강 상태 기반 자동 장소 추천</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <i class="bi bi-search" style="color: var(--primary-color); font-size: 14px;"></i>
+                        <span style="color: #7f8c8d; font-size: 14px;">일반 검색: 키워드로 장소 직접 검색</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -748,7 +766,7 @@
             addrInput.readOnly = true;
             addrInput.style.backgroundColor = '#f8f9fa';
         }
-        
+
         // 길찾기 버튼 href 설정
         const routeBtn = document.getElementById('modalRouteBtn');
         if (routeBtn) {
@@ -756,7 +774,7 @@
             const endName = mapName || '';
             routeBtn.href = 'https://map.kakao.com/?sName=' + encodeURIComponent(startAddress) + '&eName=' + encodeURIComponent(endName);
         }
-        
+
         modal.show();
     }
 
@@ -775,6 +793,129 @@
             recommendOverlays[index].setMap(null);
         }
     }
+
+    // [Override] center.js의 모든 오버레이 닫기 함수 재정의
+    // 이유: 검색 결과도 CustomOverlay를 사용하게 되면서 닫는 로직 통일 필요
+    window.closeAllOverlays = function() {
+        // 1. 저장된 장소 오버레이 닫기
+        if (typeof overlays !== 'undefined') {
+            overlays.forEach(overlay => overlay.setMap(null));
+        }
+        // 2. 집 오버레이 닫기
+        if (typeof homeOverlay !== 'undefined' && homeOverlay) {
+            homeOverlay.setMap(null);
+        }
+        // 3. AI 추천 오버레이 닫기
+        closeAllRecommendOverlays();
+
+        // 4. 검색 결과 오버레이 닫기 (CustomOverlay 및 InfoWindow 모두 대응)
+        if (typeof searchMarkers !== 'undefined') {
+            searchMarkers.forEach(item => {
+                if (item.overlay) item.overlay.setMap(null);
+                if (item.infowindow) item.infowindow.close();
+            });
+        }
+    };
+
+    // [Override] center.js의 검색 결과 표시 함수 재정의 (CustomOverlay 사용)
+    window.displaySearchResults = function(places) {
+        var resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '';
+
+        // 기존 마커 및 오버레이 제거
+        closeAllOverlays();
+        if (typeof searchMarkers !== 'undefined') {
+            searchMarkers.forEach(item => {
+                item.marker && item.marker.setMap(null);
+            });
+        }
+        searchMarkers = [];
+
+        var markerImage = getSearchMarkerImage(); // center.js 함수
+
+        places.forEach((place, index) => {
+            // 1. 리스트 아이템 생성
+            var item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.onclick = () => selectSearchResult(place);
+            var icon = getCategoryIcon(place.category_name); // center.js 함수
+            item.innerHTML = `<div class="search-result-icon"><i class="\${icon}"></i></div>
+                              <div class="search-result-info">
+                                  <div class="search-result-name">\${place.place_name}</div>
+                                  <div class="search-result-address">\${place.address_name}</div>
+                                  <span class="search-result-category">\${getCategoryText(place.category_name)}</span>
+                              </div>`;
+            resultsContainer.appendChild(item);
+
+            // 2. 마커 생성
+            var markerPosition = new kakao.maps.LatLng(place.y, place.x);
+            var marker = new kakao.maps.Marker({
+                position: markerPosition,
+                map: map,
+                image: markerImage
+            });
+
+            // 3. 커스텀 오버레이 생성
+            // 버튼 클릭 시 center.js의 openAddPlaceModalFromSearch 호출
+            // place 객체를 문자열로 안전하게 변환
+            const placeStr = JSON.stringify(place).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+
+            var content = `
+                <div class="custom-overlay-wrap">
+                    <div class="custom-overlay-header">
+                        <span>\${place.place_name}</span>
+                        <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+                    </div>
+                    <div class="custom-overlay-body">
+                        <span class="custom-overlay-category">\${getCategoryText(place.category_name)}</span>
+                        <div style="font-size:12px; color:#666; margin-bottom:8px;">\${place.address_name}</div>
+                        <button class="btn-add-schedule-overlay" onclick='openAddPlaceModalFromSearch(\${JSON.stringify(place)})'>
+                            장소 추가
+                        </button>
+                    </div>
+                </div>`;
+
+            var overlay = new kakao.maps.CustomOverlay({
+                content: content,
+                position: marker.getPosition(),
+                map: null,
+                zIndex: 100
+            });
+
+            // 4. 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+                closeAllOverlays(); // 다른 모든 오버레이 닫기
+                overlay.setMap(map); // 현재 오버레이 열기
+                map.panTo(marker.getPosition());
+            });
+
+            searchMarkers.push({ marker: marker, overlay: overlay, place: place });
+        });
+
+        resultsContainer.classList.add('show');
+        if (places.length > 0) {
+            map.setCenter(new kakao.maps.LatLng(places[0].y, places[0].x));
+            map.setLevel(4);
+        }
+    };
+
+    // [Override] 리스트 선택 시 동작 재정의
+    window.selectSearchResult = function(place) {
+        var position = new kakao.maps.LatLng(place.y, place.x);
+        map.setCenter(position);
+        map.setLevel(3);
+        document.getElementById('searchResults').classList.remove('show');
+
+        closeAllOverlays();
+
+        searchMarkers.forEach(item => {
+            var markerPos = item.marker.getPosition();
+            // 좌표 비교 (부동소수점 오차 고려)
+            if (Math.abs(markerPos.getLat() - place.y) < 0.0001 && Math.abs(markerPos.getLng() - place.x) < 0.0001) {
+                if (item.overlay) item.overlay.setMap(map);
+            }
+        });
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
         const recommendBtn = document.getElementById('recommendBtn');
