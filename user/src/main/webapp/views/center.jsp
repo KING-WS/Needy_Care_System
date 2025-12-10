@@ -101,7 +101,6 @@
     .health-card-right-link:hover .health-card-right {
         background: rgba(52, 152, 219, 0.1);
     }
-
     /* 상태바 색상 강제 적용 - 최고 우선순위 */
     .health-card-right .progress-bar-wrapper .progress-bar-fill.progress-blood-pressure {
         background: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%) !important;
@@ -127,6 +126,7 @@
     .health-card-right .progress-bar-wrapper {
         background-color: #e9ecef !important;
     }
+
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
@@ -224,15 +224,18 @@
                                                 <div class="progress-bar-fill progress-blood-pressure" 
                                                      style="width: ${systolicPercent}%; min-width: 2px; background: #4a90e2; background-image: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);"></div>
                                             </div>
+
                                         </div>
 
                                         <div class="health-info-item">
                                             <div class="health-info-label">확장기 혈압</div>
                                             <div class="health-value-text">${diastolic} mmHg</div>
+
                                             <div class="progress-bar-wrapper">
                                                 <div class="progress-bar-fill progress-blood-pressure" 
                                                      style="width: ${diastolicPercent}%; min-width: 2px; background: #4a90e2; background-image: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);"></div>
                                             </div>
+
                                         </div>
 
                                         <div class="health-info-item">
@@ -242,6 +245,7 @@
                                                 <div class="progress-bar-fill progress-brightness" 
                                                      style="width: ${heartRatePercent}%; min-width: 2px; background: #ff9f43; background-image: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%);"></div>
                                             </div>
+
                                         </div>
                                     </div>
                                 </a>
