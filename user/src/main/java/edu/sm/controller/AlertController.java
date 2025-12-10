@@ -43,11 +43,9 @@ public class AlertController {
 
             if ("emergency".equalsIgnoreCase(type)) {
                 dbType = "EMERGENCY";
-                // 예: "🚨 [김말년]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!"
-                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 키오스크에서 '긴급 호출' 버튼을 눌렀습니다!";
+                autoMessage = "🚨 [" + recipient.getRecName() + "]님이 태블릿에서 '긴급 호출' 버튼을 눌렀습니다!";
             } else {
                 dbType = "CONTACT";
-                // 예: "📞 [김말년]님이 '연락 요청'을 하셨습니다."
                 autoMessage = "📞 [" + recipient.getRecName() + "]님이 보호자의 연락을 기다립니다.";
             }
 
