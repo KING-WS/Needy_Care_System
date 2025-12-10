@@ -190,6 +190,33 @@ function handleEditButtonClick(mapId, event) {
 
 // 지도에 마커 추가
 function addMarkerToMap(mapData) {
+    // 기존 마커가 있는지 확인 (같은 mapId)
+    var existingMarkerIndex = -1;
+    if (typeof markers !== 'undefined') {
+        for (var i = 0; i < markers.length; i++) {
+            if (markers[i].mapId === mapData.mapId) {
+                existingMarkerIndex = i;
+                break;
+            }
+        }
+    }
+    
+    // 기존 마커가 있으면 제거
+    if (existingMarkerIndex >= 0) {
+        if (markers[existingMarkerIndex].marker) {
+            markers[existingMarkerIndex].marker.setMap(null);
+        }
+        if (markers[existingMarkerIndex].overlay) {
+            markers[existingMarkerIndex].overlay.setMap(null);
+        }
+        // overlays 배열에서도 제거
+        var overlayIndex = overlays.indexOf(markers[existingMarkerIndex].overlay);
+        if (overlayIndex >= 0) {
+            overlays.splice(overlayIndex, 1);
+        }
+        markers.splice(existingMarkerIndex, 1);
+    }
+    
     var position = new kakao.maps.LatLng(mapData.lat, mapData.lng);
     var markerImage = getMarkerImageByCategory(mapData.mapCategory);
     var marker = new kakao.maps.Marker({ position: position, map: map, image: markerImage, title: mapData.mapName });
@@ -225,6 +252,8 @@ function addMarkerToMap(mapData) {
 
 // 모달 열기
 function openMapModal(lat, lng) {
+    // 새로 추가하는 모달이므로 currentLocationId 초기화
+    currentLocationId = null;
     document.querySelector('#mapModal .map-modal-title span').textContent = '장소 추가';
     document.getElementById('modalLat').value = lat;
     document.getElementById('modalLng').value = lng;
@@ -244,6 +273,9 @@ function openAddPlaceModalFromSearch(place) {
     // 모든 InfoWindow 닫기
     closeAllOverlays();
 
+    // 새로 추가하는 모달이므로 currentLocationId 초기화
+    currentLocationId = null;
+    
     const lat = place.y;
     const lng = place.x;
 
@@ -277,6 +309,13 @@ function closeMapModal() {
         tempMarker.setMap(null);
         tempMarker = null;
     }
+    // 수정 모달이었던 경우 currentLocationId 초기화
+    currentLocationId = null;
+    // 모달 제목도 원래대로 복원
+    var titleElement = document.querySelector('#mapModal .map-modal-title span');
+    if (titleElement) {
+        titleElement.textContent = '장소 추가';
+    }
 }
 
 // 장소 저장
@@ -298,11 +337,17 @@ async function saveMapLocation() {
         mapLongitude: parseFloat(document.getElementById('modalLng').value),
         mapAddress: document.getElementById('modalAddress').textContent.trim()
     };
+    
+    // currentLocationId가 있으면 수정, 없으면 등록
+    var isEdit = currentLocationId !== null && currentLocationId !== undefined;
+    var url = isEdit ? `/api/map/${currentLocationId}` : '/api/map';
+    var method = isEdit ? 'PUT' : 'POST';
+    
     try {
-        const response = await fetch('/api/map', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData) });
+        const response = await fetch(url, { method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(formData) });
         const result = await response.json();
         if (result.success) {
-            alert('장소가 성공적으로 저장되었습니다!');
+            alert(isEdit ? '장소가 성공적으로 수정되었습니다!' : '장소가 성공적으로 저장되었습니다!');
             closeMapModal();
             location.reload();
         } else {

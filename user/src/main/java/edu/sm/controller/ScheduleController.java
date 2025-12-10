@@ -347,22 +347,52 @@ public class ScheduleController {
             schedule.setSchedEndTime("11:00");   // 기본값
             scheduleService.createSchedule(schedule);
 
-            // 2. MapLocation 저장
-            MapLocation mapLocation = new MapLocation();
-            mapLocation.setRecId(recId);
-            mapLocation.setMapName(mapName);
-            mapLocation.setMapAddress(mapAddress);
-            mapLocation.setMapContent(mapContent); // 기존 mapContent는 그대로 저장
-            mapLocation.setMapCategory(mapCategory);
-            
-            // 좌표 정보 구하기 (사용자가 입력한 주소 기반)
-            if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
-                 Map<String, String> coords = kakaoMapService.getCoordinates(mapAddress);
-                 if(coords.containsKey("y")) mapLocation.setMapLatitude(new BigDecimal(coords.get("y")));
-                 if(coords.containsKey("x")) mapLocation.setMapLongitude(new BigDecimal(coords.get("x")));
+            // 2. MapLocation 저장 또는 수정
+            // 기존 장소가 있는지 확인 (이름과 주소로 중복 체크)
+            MapLocation existingLocation = null;
+            if (mapName != null && mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
+                try {
+                    existingLocation = mapService.getByRecIdAndNameAndAddress(recId, mapName, mapAddress);
+                } catch (Exception e) {
+                    log.warn("기존 장소 조회 중 오류 발생 (무시하고 새로 생성): {}", e.getMessage());
+                }
             }
+            
+            MapLocation mapLocation;
+            if (existingLocation != null) {
+                // 기존 장소가 있으면 수정
+                mapLocation = existingLocation;
+                mapLocation.setMapContent(mapContent); // 내용 업데이트
+                mapLocation.setMapCategory(mapCategory); // 카테고리 업데이트
+                
+                // 좌표 정보 업데이트 (주소가 변경되었을 수 있음)
+                if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
+                    Map<String, String> coords = kakaoMapService.getCoordinates(mapAddress);
+                    if(coords.containsKey("y")) mapLocation.setMapLatitude(new BigDecimal(coords.get("y")));
+                    if(coords.containsKey("x")) mapLocation.setMapLongitude(new BigDecimal(coords.get("x")));
+                }
+                
+                mapService.modify(mapLocation);
+                log.info("기존 장소 수정 완료 - mapId: {}, 이름: {}", mapLocation.getMapId(), mapLocation.getMapName());
+            } else {
+                // 기존 장소가 없으면 새로 등록
+                mapLocation = new MapLocation();
+                mapLocation.setRecId(recId);
+                mapLocation.setMapName(mapName);
+                mapLocation.setMapAddress(mapAddress);
+                mapLocation.setMapContent(mapContent);
+                mapLocation.setMapCategory(mapCategory);
+                
+                // 좌표 정보 구하기 (사용자가 입력한 주소 기반)
+                if (mapAddress != null && !mapAddress.isEmpty() && !mapAddress.equals("주소 정보 없음")) {
+                     Map<String, String> coords = kakaoMapService.getCoordinates(mapAddress);
+                     if(coords.containsKey("y")) mapLocation.setMapLatitude(new BigDecimal(coords.get("y")));
+                     if(coords.containsKey("x")) mapLocation.setMapLongitude(new BigDecimal(coords.get("x")));
+                }
 
-            mapService.register(mapLocation);
+                mapService.register(mapLocation);
+                log.info("새 장소 등록 완료 - 이름: {}", mapLocation.getMapName());
+            }
             response.put("mapData", mapLocation);
             
             // 3. MapCourse 저장 (산책 코스)
