@@ -28,7 +28,7 @@
 
 ## 🏗️ 시스템 아키텍처
 
-![시스템 아키텍처 다이어그램](https://github.com/user-attachments/assets/554e8c42-2a0e-4124-9623-fddb9cb9fae2)
+![시스템 아키텍처 다이어그램](https://github.com/user-attachments/assets/9129d4fe-d7e3-42cc-9246-e47cf6124225)
 
 ---
 
