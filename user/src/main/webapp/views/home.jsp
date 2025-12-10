@@ -1085,8 +1085,8 @@
                     </a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" href="<c:url value="/mealplan"/>"><i class="fas fa-utensils"></i> AI 식단 관리</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>
-                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI식단 메뉴</a></li>
+<%--                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-check"/>"><i class="fas fa-shield-alt"></i> AI 식단 안전성 검사</a></li>--%>
+                        <li><a class="dropdown-item" href="<c:url value="/mealplan/ai-menu"/>"><i class="fas fa-robot"></i> AI 레시피 추천 및 안전성 검사</a></li>
                         <li><a class="dropdown-item" href="<c:url value="/mealplan/calories-analysis"/>"><i class="fas fa-chart-line"></i> 칼로리 분석</a></li>
                     </ul>
                 </li>
