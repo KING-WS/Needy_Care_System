@@ -1589,10 +1589,27 @@
                 })
                 .then(data => {
                     removeMessage(loadingId);
-                    const responseText = data.text || '응답을 받지 못했습니다.';
+                    const responseText = data.reply || data.text || '응답을 받지 못했습니다.';
                     // 식단 추천 메시지인 경우 등록 버튼 포함
                     const hasMealRecommendation = data.hasMealRecommendation === true;
-                    addMessage(responseText, 'received', null, hasMealRecommendation, data.recId);
+                    const hasScheduleRecommendation = data.hasScheduleRecommendation === true;
+                    
+                    // recId는 클라이언트에서 이미 가지고 있는 것을 사용 (서버 응답의 recId는 플래그가 있을 때만 포함됨)
+                    const responseRecId = data.recId || recId;
+                    
+                    // 디버깅: 전체 응답 데이터 확인
+                    console.log('AI 응답 전체 데이터:', data);
+                    console.log('AI 응답 요약:', {
+                        hasMealRecommendation: hasMealRecommendation,
+                        hasScheduleRecommendation: hasScheduleRecommendation,
+                        recId: responseRecId,
+                        clientRecId: recId,
+                        hasAudio: !!data.audio,
+                        audioLength: data.audio ? data.audio.length : 0,
+                        responseText: responseText.substring(0, 150)
+                    });
+                    
+                    addMessage(responseText, 'received', null, hasMealRecommendation, hasScheduleRecommendation, responseRecId);
                     playAudio(data.audio); // AI 응답 음성 출력
                 })
                 .catch(error => {
@@ -1605,13 +1622,32 @@
         // 챗봇 응답을 음성으로 변환하는 함수 (TTS)
         function playAudio(base64Audio) {
             if (base64Audio) {
-                const audio = new Audio("data:audio/mp3;base64," + base64Audio);
-                audio.play().catch(e => console.error("음성 재생 오류:", e));
+                try {
+                    const audio = new Audio("data:audio/mp3;base64," + base64Audio);
+                    audio.onerror = function(e) {
+                        console.error("오디오 로드 오류:", e);
+                    };
+                    audio.oncanplaythrough = function() {
+                        console.log("TTS 오디오 재생 시작");
+                    };
+                    audio.play().catch(e => {
+                        console.error("음성 재생 오류:", e);
+                        // 브라우저 자동 재생 정책으로 인한 오류일 수 있음
+                        console.warn("자동 재생이 차단되었을 수 있습니다. 사용자 상호작용 후 재생을 시도하세요.");
+                    });
+                } catch (error) {
+                    console.error("TTS 오디오 생성 오류:", error);
+                }
+            } else {
+                console.log("TTS 오디오 데이터가 없습니다.");
             }
         }
 
         // Add message to chat
-        function addMessage(text, type, messageId, hasMealRecommendation, recId) {
+        function addMessage(text, type, messageId, hasMealRecommendation, hasScheduleRecommendation, recId) {
+            // 기본값 설정
+            if (hasMealRecommendation === undefined) hasMealRecommendation = false;
+            if (hasScheduleRecommendation === undefined) hasScheduleRecommendation = false;
             const messageDiv = document.createElement('div');
             // classList를 사용하여 클래스 추가 (더 확실함)
             messageDiv.classList.add('chat-message');
@@ -1664,8 +1700,14 @@
                 }
             });
 
-            // 식단 추천 메시지인 경우 등록 버튼 추가
-            if (hasMealRecommendation && recId) {
+            // 식단 추천 또는 일정 추천 메시지인 경우 등록/취소 버튼 추가
+            if ((hasMealRecommendation || hasScheduleRecommendation) && recId) {
+                console.log('버튼 생성 중:', {
+                    hasMealRecommendation: hasMealRecommendation,
+                    hasScheduleRecommendation: hasScheduleRecommendation,
+                    recId: recId
+                });
+                
                 const buttonContainer = document.createElement('div');
                 buttonContainer.style.marginTop = '12px';
                 buttonContainer.style.display = 'flex';
@@ -1674,13 +1716,40 @@
                 const registerBtn = document.createElement('button');
                 registerBtn.className = 'btn btn-primary btn-sm';
                 registerBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer;';
-                registerBtn.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
-                registerBtn.onclick = function() {
-                    registerMealFromChat(recId, registerBtn);
+                
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'btn btn-secondary btn-sm';
+                cancelBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; border-radius: 6px; cursor: pointer;';
+                cancelBtn.innerHTML = '<i class="fas fa-times"></i> 취소';
+                
+                if (hasMealRecommendation) {
+                    registerBtn.innerHTML = '<i class="fas fa-save"></i> 등록하기';
+                    registerBtn.onclick = function() {
+                        registerMealFromChat(recId, registerBtn, buttonContainer);
+                    };
+                } else if (hasScheduleRecommendation) {
+                    registerBtn.innerHTML = '<i class="fas fa-calendar-check"></i> 등록하기';
+                    registerBtn.onclick = function() {
+                        registerScheduleFromChat(recId, registerBtn, buttonContainer);
+                    };
+                }
+                
+                cancelBtn.onclick = function() {
+                    buttonContainer.style.display = 'none';
+                    addMessage('알겠습니다. 다른 도움이 필요하시면 말씀해주세요.', 'received');
                 };
                 
                 buttonContainer.appendChild(registerBtn);
+                buttonContainer.appendChild(cancelBtn);
                 bubble.appendChild(buttonContainer);
+                
+                console.log('버튼 생성 완료');
+            } else {
+                console.log('버튼 생성 조건 불만족:', {
+                    hasMealRecommendation: hasMealRecommendation,
+                    hasScheduleRecommendation: hasScheduleRecommendation,
+                    recId: recId
+                });
             }
 
             // 시간
@@ -1702,7 +1771,7 @@
         }
 
         // 챗봇에서 식단 등록하기
-        function registerMealFromChat(recId, button) {
+        function registerMealFromChat(recId, button, buttonContainer) {
             if (!recId) {
                 alert('사용자 정보를 찾을 수 없습니다.');
                 return;
@@ -1711,6 +1780,10 @@
             // 버튼 비활성화
             button.disabled = true;
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+            if (buttonContainer) {
+                const cancelBtn = buttonContainer.querySelector('.btn-secondary');
+                if (cancelBtn) cancelBtn.disabled = true;
+            }
 
             // 식단 등록 API 호출 (MEAL_SAVE 의도로 처리)
             fetch('/api/chat/ai/send', {
@@ -1723,7 +1796,7 @@
                 return response.json();
             })
             .then(data => {
-                const responseText = data.text || '식단이 등록되었습니다.';
+                const responseText = data.reply || data.text || '식단이 등록되었습니다.';
                 addMessage(responseText, 'received');
                 playAudio(data.audio);
                 
@@ -1732,12 +1805,70 @@
                 button.classList.remove('btn-primary');
                 button.classList.add('btn-success');
                 button.disabled = true;
+                if (buttonContainer) {
+                    buttonContainer.style.display = 'none';
+                }
             })
             .catch(error => {
                 console.error('식단 등록 중 오류 발생:', error);
                 alert('식단 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
                 button.disabled = false;
-                button.innerHTML = '<i class="fas fa-save"></i> 식단 등록하기';
+                button.innerHTML = '<i class="fas fa-save"></i> 등록하기';
+                if (buttonContainer) {
+                    const cancelBtn = buttonContainer.querySelector('.btn-secondary');
+                    if (cancelBtn) cancelBtn.disabled = false;
+                }
+            });
+        }
+
+        // 챗봇에서 일정 등록하기
+        function registerScheduleFromChat(recId, button, buttonContainer) {
+            if (!recId) {
+                alert('사용자 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 등록 중...';
+            if (buttonContainer) {
+                const cancelBtn = buttonContainer.querySelector('.btn-secondary');
+                if (cancelBtn) cancelBtn.disabled = true;
+            }
+
+            // 일정 등록 API 호출 (SCHEDULE_SAVE 의도로 처리)
+            fetch('/api/chat/ai/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: '등록해줘', recId: recId })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('서버 응답 오류: ' + response.status);
+                return response.json();
+            })
+            .then(data => {
+                const responseText = data.reply || data.text || '일정이 등록되었습니다.';
+                addMessage(responseText, 'received');
+                playAudio(data.audio);
+                
+                // 버튼을 성공 메시지로 변경
+                button.innerHTML = '<i class="fas fa-check"></i> 등록 완료';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-success');
+                button.disabled = true;
+                if (buttonContainer) {
+                    buttonContainer.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('일정 등록 중 오류 발생:', error);
+                alert('일정 등록 중 오류가 발생했습니다. 다시 시도해주세요.');
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-calendar-check"></i> 등록하기';
+                if (buttonContainer) {
+                    const cancelBtn = buttonContainer.querySelector('.btn-secondary');
+                    if (cancelBtn) cancelBtn.disabled = false;
+                }
             });
         }
 
