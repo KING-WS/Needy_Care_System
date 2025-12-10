@@ -63,7 +63,7 @@ public class CCTVController {
                     log.info("CCTV 접속 - 보호자: {}, 대상자: {}", loginUser.getCustId(), recipient.getRecName());
                 }
             } catch (Exception e) {
-                log.error("대상 키오스크 조회 실패", e);
+                log.error("대상 태블릿 조회 실패", e);
             }
         } else {
             // 로그인 안 했을 때 테스트용
