@@ -101,6 +101,32 @@
     .health-card-right-link:hover .health-card-right {
         background: rgba(52, 152, 219, 0.1);
     }
+    /* 상태바 색상 강제 적용 - 최고 우선순위 */
+    .health-card-right .progress-bar-wrapper .progress-bar-fill.progress-blood-pressure {
+        background: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%) !important;
+        background-color: #4a90e2 !important;
+        background-image: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%) !important;
+    }
+
+    .health-card-right .progress-bar-wrapper .progress-bar-fill.progress-brightness {
+        background: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%) !important;
+        background-color: #ff9f43 !important;
+        background-image: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%) !important;
+    }
+    
+    /* 모든 progress-bar-fill에 최소 너비 보장 */
+    .health-card-right .progress-bar-fill {
+        min-width: 2px !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* 디버깅용 - 상태바가 보이도록 */
+    .health-card-right .progress-bar-wrapper {
+        background-color: #e9ecef !important;
+    }
+
 </style>
 
 <!-- User Dashboard - 기본 메인 페이지 -->
@@ -173,28 +199,53 @@
                                 %>
                                 <a href="<c:url value="/recipient/monitoring?recId=${recipient.recId}"/>" class="health-card-right-link" style="text-decoration: none; color: inherit;">
                                     <div class="health-card-right" style="cursor: pointer;">
+                                        <%
+                                            // 상태바 width 계산 (0-100% 범위로 제한)
+                                            double systolicPercent = ((systolic - 90) / 70.0) * 100;
+                                            if (systolicPercent < 0) systolicPercent = 0;
+                                            if (systolicPercent > 100) systolicPercent = 100;
+                                            
+                                            double diastolicPercent = ((diastolic - 60) / 50.0) * 100;
+                                            if (diastolicPercent < 0) diastolicPercent = 0;
+                                            if (diastolicPercent > 100) diastolicPercent = 100;
+                                            
+                                            double heartRatePercent = ((heartRate - 50) / 70.0) * 100;
+                                            if (heartRatePercent < 0) heartRatePercent = 0;
+                                            if (heartRatePercent > 100) heartRatePercent = 100;
+                                            
+                                            pageContext.setAttribute("systolicPercent", systolicPercent);
+                                            pageContext.setAttribute("diastolicPercent", diastolicPercent);
+                                            pageContext.setAttribute("heartRatePercent", heartRatePercent);
+                                        %>
                                         <div class="health-info-item">
                                             <div class="health-info-label">수축기 혈압</div>
                                             <div class="health-value-text">${systolic} mmHg</div>
-<%--                                            <div class="progress-bar-wrapper">--%>
-<%--                                                <div class="progress-bar-fill progress-blood-pressure" style="width: ${(systolic - 90) / 90 * 100}%;"></div>--%>
-<%--                                            </div>--%>
+                                            <div class="progress-bar-wrapper">
+                                                <div class="progress-bar-fill progress-blood-pressure" 
+                                                     style="width: ${systolicPercent}%; min-width: 2px; background: #4a90e2; background-image: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);"></div>
+                                            </div>
+
                                         </div>
 
                                         <div class="health-info-item">
                                             <div class="health-info-label">확장기 혈압</div>
                                             <div class="health-value-text">${diastolic} mmHg</div>
-<%--                                            <div class="progress-bar-wrapper">--%>
-<%--                                                <div class="progress-bar-fill progress-blood-pressure" style="width: ${(diastolic - 60) / 50 * 100}%;"></div>--%>
-<%--                                            </div>--%>
+
+                                            <div class="progress-bar-wrapper">
+                                                <div class="progress-bar-fill progress-blood-pressure" 
+                                                     style="width: ${diastolicPercent}%; min-width: 2px; background: #4a90e2; background-image: linear-gradient(90deg, #4a90e2 0%, #5ba3f5 100%);"></div>
+                                            </div>
+
                                         </div>
 
                                         <div class="health-info-item">
                                             <div class="health-info-label">심박수</div>
                                             <div class="health-value-text">${heartRate} bpm</div>
-<%--                                            <div class="progress-bar-wrapper">--%>
-<%--                                                <div class="progress-bar-fill progress-brightness" style="width: ${(heartRate - 50) / 70 * 100}%;"></div>--%>
-<%--                                            </div>--%>
+                                            <div class="progress-bar-wrapper">
+                                                <div class="progress-bar-fill progress-brightness" 
+                                                     style="width: ${heartRatePercent}%; min-width: 2px; background: #ff9f43; background-image: linear-gradient(90deg, #ff9f43 0%, #ffb66d 100%);"></div>
+                                            </div>
+
                                         </div>
                                     </div>
                                 </a>

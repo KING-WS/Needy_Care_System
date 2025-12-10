@@ -79,7 +79,7 @@ public class MealRecommendationService {
                     "메뉴: %s\n" +
                     "칼로리: %skcal\n" +
                     "추천 근거: %s\n\n" +
-                    "이 식단을 등록하시겠어요? '네' 또는 '등록해줘'라고 말씀해주세요!",
+                    "이 식단을 등록하시겠어요?",
                     foodName,
                     totalCalories,
                     basis);

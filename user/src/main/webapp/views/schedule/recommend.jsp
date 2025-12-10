@@ -525,7 +525,7 @@
                             <span id="displayMapContent"></span>
                         </div>
                     </div>
-                    <input type="hidden" id="modalMapName">
+                    <input type="hidden" id="recommendMapName">
                     <input type="hidden" id="modalMapContent">
                     <input type="hidden" id="modalMapCategory">
                     <div class="mb-4">
@@ -579,7 +579,7 @@
             <div class="modal-location-info" id="modalLocationInfo"><i class="bi bi-geo-alt-fill"></i><span id="modalAddress">주소 조회 중...</span></div>
             <form id="mapLocationForm">
                 <input type="hidden" id="modalLat" name="latitude"><input type="hidden" id="modalLng" name="longitude">
-                <input type="hidden" id="modalRecId" name="recId" value="${recipient.recId}">
+                <input type="hidden" id="modalRecId" name="recId" value="${selectedRecipient.recId}">
                 <div class="modal-form-group">
                     <label class="modal-form-label">장소 이름<span class="required">*</span></label>
                     <input type="text" class="modal-form-input" id="modalMapName" name="mapName" placeholder="예: 우리 동네 병원" required maxlength="100">
@@ -721,7 +721,7 @@
         const startLng = button.dataset.startlng;
         const endLat = button.dataset.endlat;
         const endLng = button.dataset.endlng;
-        document.getElementById('modalMapName').value = mapName;
+        document.getElementById('recommendMapName').value = mapName;
         document.getElementById('modalMapContent').value = mapContent;
         document.getElementById('modalMapCategory').value = mapCategory;
         document.getElementById('displayMapName').textContent = mapName;
@@ -1116,7 +1116,7 @@
                     const endLat = this.dataset.endlat;
                     const endLng = this.dataset.endlng;
 
-                    document.getElementById('modalMapName').value = mapName;
+                    document.getElementById('recommendMapName').value = mapName;
                     document.getElementById('modalMapContent').value = mapContent;
                     document.getElementById('modalMapCategory').value = mapCategory;
                     document.getElementById('displayMapName').textContent = mapName;
@@ -1187,7 +1187,7 @@
                 schedDate: document.getElementById('schedDate').value,
                 schedName: document.getElementById('schedName').value,
                 mapAddress: document.getElementById('mapAddress').value,
-                mapName: document.getElementById('modalMapName').value,
+                mapName: document.getElementById('recommendMapName').value,
                 mapContent: document.getElementById('modalMapContent').value,
                 mapCategory: document.getElementById('modalMapCategory').value,
                 courseName: document.getElementById('courseName').value,
@@ -1197,7 +1197,7 @@
                 endLat: document.getElementById('endLat').value,
                 endLng: document.getElementById('endLng').value,
                 courseDistance: document.getElementById('courseDistance').value,
-                courseUrl: 'https://map.kakao.com/?sName=' + encodeURIComponent(recipientAddress || '내 위치') + '&eName=' + encodeURIComponent(document.getElementById('modalMapName').value)
+                courseUrl: 'https://map.kakao.com/?sName=' + encodeURIComponent(recipientAddress || '내 위치') + '&eName=' + encodeURIComponent(document.getElementById('recommendMapName').value)
             };
             if (!data.schedDate || !data.schedName || !data.mapAddress) { alert('날짜, 일정 이름, 주소는 필수 항목입니다.'); return; }
             saveBtn.disabled = true;
