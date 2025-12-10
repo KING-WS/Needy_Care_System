@@ -38,7 +38,7 @@ public class KioskController {
 
     /**
      * 태블릿 메인 페이지 접속
-     * * @param kioskCode 노약자 고유 접속 코드 (URL 경로 변수)
+     * * @param kioskCode 돌봄대상자 고유 접속 코드 (URL 경로 변수)
      * @param model 화면에 데이터를 전달할 객체
      * @param session 사용자 정보를 유지할 HTTP 세션
      * @return 태블릿 메인 화면 (kiosk/home) 또는 에러 페이지
@@ -51,7 +51,7 @@ public class KioskController {
         log.info("[Kiosk Connect] 접속 요청 코드: {}", kioskCode);
 
         try {
-            // 1. 태블릿 코드로 노약자 정보 조회
+            // 1. 태블릿 코드로 돌봄대상자 정보 조회
             Recipient recipient = recipientService.getRecipientByKioskCode(kioskCode);
 
             // 2. 유효하지 않은 코드일 경우 에러 처리
@@ -68,7 +68,7 @@ public class KioskController {
 
             log.info("[Kiosk Connect] 성공 - 대상자: {}(ID:{})", recipient.getRecName(), recipient.getRecId());
 
-            // 4. 화면에 필요한 데이터 전달 (노약자 정보)
+            // 4. 화면에 필요한 데이터 전달 (돌봄대상자 정보)
             model.addAttribute("recipient", recipient);
             model.addAttribute("websocketUrl", websocketUrl);
 

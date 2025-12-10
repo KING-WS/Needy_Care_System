@@ -687,7 +687,7 @@
 <script src="<c:url value='/js/mealplan.js'/>"></script>
 
 <script>
-    // 현재 선택된 노약자 ID
+    // 현재 선택된 돌봄대상자 ID
     const currentRecId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
 
     // 페이지 로드 시 초기화
@@ -703,7 +703,7 @@
         }
     });
 
-    // 노약자 변경
+    // 돌봄대상자 변경
     function changeRecipient() {
         const recId = document.getElementById('recipientSelect').value;
         window.location.href = '/mealplan?recId=' + recId;

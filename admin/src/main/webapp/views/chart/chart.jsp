@@ -40,11 +40,11 @@
     </div>
     
     <div class="row">
-        <!-- 등록된 노약자의 연령대 및 성별 분포 -->
+        <!-- 등록된 돌봄대상자의 연령대 및 성별 분포 -->
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm chart-card">
                 <div class="card-header">
-                    <h5 class="mb-0">등록된 노약자의 연령대 및 성별 분포</h5>
+                    <h5 class="mb-0">등록된 돌봄대상자의 연령대 및 성별 분포</h5>
                 </div>
                 <div class="card-body">
                     <canvas id="ageGenderChart" height="250"></canvas>
@@ -146,7 +146,7 @@
         }
     });
 
-    // 3. 등록된 노약자의 연령대 및 성별 분포 (그룹 바 차트)
+    // 3. 등록된 돌봄대상자의 연령대 및 성별 분포 (그룹 바 차트)
     const ageGenderCtx = document.getElementById('ageGenderChart');
     new Chart(ageGenderCtx, {
         type: 'bar',

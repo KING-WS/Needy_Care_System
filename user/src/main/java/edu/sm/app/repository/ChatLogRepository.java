@@ -17,16 +17,16 @@ public interface ChatLogRepository {
     int insertChatLog(ChatLog chatLog);
 
     /**
-     * 특정 노약자(recId)의 채팅 로그를 조회합니다.
-     * @param recId 노약자 식별자
+     * 특정 돌봄대상자(recId)의 채팅 로그를 조회합니다.
+     * @param recId 돌봄대상자 식별자
      * @param limit 조회할 로그의 최대 개수 (최신순)
      * @return ChatLog 리스트
      */
     List<ChatLog> selectChatLogsByRecId(@Param("recId") Integer recId, @Param("limit") int limit);
     
     /**
-     * 특정 노약자(recId)의 모든 채팅 로그를 조회합니다.
-     * @param recId 노약자 식별자
+     * 특정 돌봄대상자(recId)의 모든 채팅 로그를 조회합니다.
+     * @param recId 돌봄대상자 식별자
      * @return ChatLog 리스트 (최신순)
      */
     List<ChatLog> selectAllChatLogsByRecId(@Param("recId") Integer recId);

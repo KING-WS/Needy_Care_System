@@ -38,7 +38,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
      */
     @Override
     public void register(MealPlan mealPlan) throws Exception {
-        log.info("식단 등록 - 노약자ID: {}, 날짜: {}, 구분: {}",
+        log.info("식단 등록 - 돌봄대상자ID: {}, 날짜: {}, 구분: {}",
                 mealPlan.getRecId(), mealPlan.getMealDate(), mealPlan.getMealType());
         mealPlanRepository.insert(mealPlan);
     }
@@ -86,12 +86,12 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자별 식단 목록 조회
-     * @param recId 노약자 ID
-     * @return 해당 노약자의 식단 목록
+     * 돌봄대상자별 식단 목록 조회
+     * @param recId 돌봄대상자 ID
+     * @return 해당 돌봄대상자의 식단 목록
      */
     public List<MealPlan> getByRecId(Integer recId) throws Exception {
-        log.debug("노약자별 식단 조회 - recId: {}", recId);
+        log.debug("돌봄대상자별 식단 조회 - recId: {}", recId);
         return mealPlanRepository.selectByRecId(recId);
     }
 
@@ -106,13 +106,13 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자 ID와 날짜로 식단 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID와 날짜로 식단 조회
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
-     * @return 해당 노약자의 특정 날짜 식단 목록
+     * @return 해당 돌봄대상자의 특정 날짜 식단 목록
      */
     public List<MealPlan> getByRecIdAndDate(Integer recId, LocalDate mealDate) throws Exception {
-        log.debug("노약자별 날짜 식단 조회 - recId: {}, date: {}", recId, mealDate);
+        log.debug("돌봄대상자별 날짜 식단 조회 - recId: {}, date: {}", recId, mealDate);
         return mealPlanRepository.selectByRecIdAndDate(recId, mealDate);
     }
 
@@ -127,8 +127,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자 ID, 날짜, 식사 구분으로 특정 식단 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID, 날짜, 식사 구분으로 특정 식단 조회
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
      * @param mealType 식사 구분
      * @return 해당하는 식단 정보
@@ -140,7 +140,7 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
 
     /**
      * 특정 기간의 식단 조회
-     * @param recId 노약자 ID
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 해당 기간의 식단 목록
@@ -151,8 +151,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 총 칼로리 합계 조회 (특정 날짜)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 총 칼로리 합계 조회 (특정 날짜)
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
      * @return 총 칼로리
      */
@@ -163,8 +163,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 총 칼로리 합계 조회 (특정 기간)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 총 칼로리 합계 조회 (특정 기간)
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 총 칼로리
@@ -176,8 +176,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 오늘 총 칼로리 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자의 오늘 총 칼로리 조회
+     * @param recId 돌봄대상자 ID
      * @return 오늘 총 칼로리
      */
     public Integer getTodayTotalCalories(Integer recId) throws Exception {
@@ -186,8 +186,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 이번주 총 칼로리 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자의 이번주 총 칼로리 조회
+     * @param recId 돌봄대상자 ID
      * @return 이번주 총 칼로리
      */
     public Integer getThisWeekTotalCalories(Integer recId) throws Exception {
@@ -197,8 +197,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 이번달 총 칼로리 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자의 이번달 총 칼로리 조회
+     * @param recId 돌봄대상자 ID
      * @return 이번달 총 칼로리
      */
     public Integer getThisMonthTotalCalories(Integer recId) throws Exception {
@@ -208,8 +208,8 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
     }
 
     /**
-     * 노약자의 일별 칼로리 데이터 조회 (차트용)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 일별 칼로리 데이터 조회 (차트용)
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 날짜별 칼로리 맵 리스트
@@ -221,17 +221,17 @@ public class MealPlanService implements SmService<MealPlan, Integer> {
 
     /**
      * AI 기반 식단 추천
-     * @param recId 노약자 ID
+     * @param recId 돌봄대상자 ID
      * @param specialNotes 식단 추천을 위한 사용자 특이사항
      * @return AI가 추천하는 식단 정보와 추천 근거
      */
     public Map<String, Object> getAiRecommendedMeal(Integer recId, String specialNotes, String mealType) throws Exception {
         log.info("AI 식단 추천 요청 - recId: {}, 특이사항: {}, 식사종류: {}", recId, specialNotes, mealType);
 
-        // 1. recId로 노약자 정보 조회
+        // 1. recId로 돌봄대상자 정보 조회
         Recipient recipient = recipientService.getRecipientById(recId);
         if (recipient == null) {
-            throw new Exception("ID " + recId + "에 해당하는 노약자 정보가 없습니다.");
+            throw new Exception("ID " + recId + "에 해당하는 돌봄대상자 정보가 없습니다.");
         }
 
         // 2. AI에게 보낼 프롬프트 및 사용자에게 보여줄 추천 근거 생성

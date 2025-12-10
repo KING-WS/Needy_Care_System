@@ -16,9 +16,9 @@ import java.util.List;
 public interface MapRepository extends SmRepository<MapLocation, Integer> {
     
     /**
-     * 노약자 ID로 장소 목록 조회
-     * @param recId 노약자 ID
-     * @return 해당 노약자의 장소 목록
+     * 돌봄대상자 ID로 장소 목록 조회
+     * @param recId 돌봄대상자 ID
+     * @return 해당 돌봄대상자의 장소 목록
      */
     List<MapLocation> selectByRecId(Integer recId) throws Exception;
     
@@ -45,10 +45,10 @@ public interface MapRepository extends SmRepository<MapLocation, Integer> {
     ) throws Exception;
     
     /**
-     * 노약자 ID와 카테고리로 장소 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID와 카테고리로 장소 조회
+     * @param recId 돌봄대상자 ID
      * @param category 카테고리
-     * @return 해당 노약자의 특정 카테고리 장소 목록
+     * @return 해당 돌봄대상자의 특정 카테고리 장소 목록
      */
     List<MapLocation> selectByRecIdAndCategory(Integer recId, String category) throws Exception;
 }

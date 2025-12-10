@@ -23,7 +23,7 @@
         <div class="col-12">
             <div class="card shadow-sm mb-4 add-card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>노약자 등록</h4>
+                    <h4 class="mb-0"><i class="bi bi-person-plus me-2"></i>돌봄대상자 등록</h4>
                 </div>
                 <div class="card-body">
                     <form action="<c:url value='/senior/addimpl'/>" method="post">

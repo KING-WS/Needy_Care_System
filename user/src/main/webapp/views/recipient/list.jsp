@@ -430,7 +430,7 @@
         return `\${year}년 \${month}월 \${day}일`;
     }
 
-    // 노약자 선택 (홈 화면으로 이동)
+    // 돌봄대상자 선택 (홈 화면으로 이동)
     function selectRecipient(recId) {
         location.href = '<c:url value="/home"/>?recId=' + recId;
     }

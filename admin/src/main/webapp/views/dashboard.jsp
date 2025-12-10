@@ -95,7 +95,7 @@
                             </div>
                         </div>
                         <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-0 text-muted">노약자</h6>
+                            <h6 class="mb-0 text-muted">돌봄대상자</h6>
                             <h3 class="mb-0">${seniorCount}명</h3>
 <%--                            <small class="text-success">--%>
 <%--                                <i class="bi bi-people"></i> +8.2%--%>
@@ -464,7 +464,7 @@ function initProvinceDistributionChart() {
                     data: {
                         labels: labels,
                         datasets: [{
-                            label: '노약자 수',
+                            label: '돌봄대상자 수',
                             data: values,
                             backgroundColor: colors,
                             borderColor: colors.map(color => color.replace('0.8', '1')),
@@ -628,7 +628,7 @@ function initDashboardMap() {
             const zoomControl = new kakao.maps.ZoomControl();
             map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
 
-            loadSeniorMarkers(); // 노약자 마커 로드
+            loadSeniorMarkers(); // 돌봄대상자 마커 로드
         } catch (error) {
             console.error('지도 초기화 오류:', error);
         }
@@ -639,7 +639,7 @@ function initDashboardMap() {
             .then(response => response.ok ? response.json() : Promise.reject('Failed to load senior data'))
             .then(seniors => {
                 if (!seniors || seniors.length === 0) {
-                    console.log('표시할 노약자 데이터가 없습니다.');
+                    console.log('표시할 돌봄대상자 데이터가 없습니다.');
                     return;
                 }
 
@@ -667,7 +667,7 @@ function initDashboardMap() {
                     }
                 });
             })
-            .catch(error => console.error('노약자 마커 로드 오류:', error));
+            .catch(error => console.error('돌봄대상자 마커 로드 오류:', error));
     }
 
     function addSeniorMarker(senior, position) {

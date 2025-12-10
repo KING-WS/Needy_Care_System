@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * MapLocation(지도 장소) 테이블 DTO
- * 노약자 주변의 주요 장소 정보를 저장
+ * 돌봄대상자 주변의 주요 장소 정보를 저장
  */
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 public class MapLocation {
     private Integer mapId;              // 장소ID (PK)
-    private Integer recId;              // 노약자ID (FK)
+    private Integer recId;              // 돌봄대상자ID (FK)
     private String mapName;             // 장소이름
     private String mapAddress;          // 주소
     private String mapContent;          // 내용

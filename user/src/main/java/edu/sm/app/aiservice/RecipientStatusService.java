@@ -9,7 +9,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 노약자 상태 조회 서비스
+ * 돌봄대상자 상태 조회 서비스
  */
 @Service
 @Slf4j
@@ -22,7 +22,7 @@ public class RecipientStatusService {
     }
     
     /**
-     * 사용자 메시지에서 노약자 이름 추출
+     * 사용자 메시지에서 돌봄대상자 이름 추출
      */
     public String extractRecipientName(String userMessage) {
         // "신창영의 상태", "김철수 건강", "이영희는", "홍길동 상태" 등의 패턴 매칭
@@ -37,11 +37,11 @@ public class RecipientStatusService {
     }
     
     /**
-     * 노약자 상태 조회
+     * 돌봄대상자 상태 조회
      */
     public String getRecipientStatus(Integer recId, String userMessage) {
         try {
-            // 1. 현재 recId로 노약자 정보 조회하여 custId 얻기
+            // 1. 현재 recId로 돌봄대상자 정보 조회하여 custId 얻기
             Recipient currentRecipient = recipientService.getRecipientById(recId);
             if (currentRecipient == null) {
                 return "사용자 정보를 찾을 수 없어요.";
@@ -49,19 +49,19 @@ public class RecipientStatusService {
             
             Integer custId = currentRecipient.getCustId();
             
-            // 2. 사용자 메시지에서 노약자 이름 추출
+            // 2. 사용자 메시지에서 돌봄대상자 이름 추출
             String recipientName = extractRecipientName(userMessage);
             if (recipientName == null || recipientName.isEmpty()) {
                 return "어떤 분의 상태를 확인하고 싶으신가요? 이름을 알려주세요. (예: '신창영 상태 어때?')";
             }
             
-            // 3. custId로 등록된 모든 노약자 목록 조회
+            // 3. custId로 등록된 모든 돌봄대상자 목록 조회
             java.util.List<Recipient> recipients = recipientService.getRecipientsByCustId(custId);
             if (recipients == null || recipients.isEmpty()) {
-                return "등록된 노약자가 없어요.";
+                return "등록된 돌봄대상자가 없어요.";
             }
             
-            // 4. 이름으로 노약자 찾기 (부분 일치)
+            // 4. 이름으로 돌봄대상자 찾기 (부분 일치)
             Recipient foundRecipient = null;
             for (Recipient recipient : recipients) {
                 if (recipient.getRecName() != null && 
@@ -75,7 +75,7 @@ public class RecipientStatusService {
                 // 정확히 일치하는 것이 없으면 이름 목록 제공
                 StringBuilder nameList = new StringBuilder();
                 nameList.append("'").append(recipientName).append("'님을 찾을 수 없어요.\n\n");
-                nameList.append("등록된 노약자 목록:\n");
+                nameList.append("등록된 돌봄대상자 목록:\n");
                 for (Recipient r : recipients) {
                     nameList.append("- ").append(r.getRecName()).append("\n");
                 }
@@ -83,7 +83,7 @@ public class RecipientStatusService {
                 return nameList.toString();
             }
             
-            // 5. 노약자의 건강정보 조회 및 포맷팅
+            // 5. 돌봄대상자의 건강정보 조회 및 포맷팅
             StringBuilder statusInfo = new StringBuilder();
             statusInfo.append(String.format("'%s'님의 건강 상태 정보예요:\n\n", foundRecipient.getRecName()));
             
@@ -129,8 +129,8 @@ public class RecipientStatusService {
             return statusInfo.toString();
             
         } catch (Exception e) {
-            log.error("노약자 상태 조회 실패", e);
-            return "노약자 상태를 조회하는 중 문제가 발생했어요.";
+            log.error("돌봄대상자 상태 조회 실패", e);
+            return "돌봄대상자 상태를 조회하는 중 문제가 발생했어요.";
         }
     }
 }

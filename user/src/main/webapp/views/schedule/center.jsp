@@ -661,7 +661,7 @@
     // ✅ 수정: Controller에서 model로 전달받은 selectedRecipient 사용
     let currentRecId = ${not empty selectedRecipient ? selectedRecipient.recId : 0};
 
-    // 노약자 변경 함수 (URL 수정)
+    // 돌봄대상자 변경 함수 (URL 수정)
     function changeRecipient() {
         const recId = document.getElementById('recipientSelect').value;
         if (recId) {
@@ -1192,7 +1192,7 @@
         if (selectedMode === 'custom') {
             specialNotesRequired.style.display = 'inline';
             specialNotesInput.placeholder = '원하는 활동을 입력하세요 (예: 공원에 가고 싶어요, 도서관 방문, 친구 만나기, 쇼핑몰 가기 등)';
-            specialNotesHint.textContent = '맞춤형 모드: 입력한 활동을 중심으로 노약자의 건강 상태를 고려하여 시간표를 추천합니다.';
+            specialNotesHint.textContent = '맞춤형 모드: 입력한 활동을 중심으로 돌봄대상자의 건강 상태를 고려하여 시간표를 추천합니다.';
             specialNotesHint.style.color = '#e74c3c';
         } else {
             specialNotesRequired.style.display = 'none';

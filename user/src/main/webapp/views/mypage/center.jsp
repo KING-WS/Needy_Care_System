@@ -385,7 +385,7 @@
 
                 <a href="<c:url value="/recipient/list"/>" class="menu-link">
                     <div class="menu-item">
-                        <i class="bi bi-people-fill"></i> 노약자 관리
+                        <i class="bi bi-people-fill"></i> 돌봄대상자 관리
                     </div>
                 </a>
             </div>

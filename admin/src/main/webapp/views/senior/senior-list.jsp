@@ -50,9 +50,9 @@
         <div class="col-12">
             <div class="card shadow-sm mb-4 senior-card">
                 <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h4 class="mb-0"><i class="bi bi-person-wheelchair me-2"></i>노약자 목록</h4>
+                    <h4 class="mb-0"><i class="bi bi-person-wheelchair me-2"></i>돌봄대상자 목록</h4>
                     <a href="<c:url value='/senior/add'/>" class="btn btn-light senior-btn">
-                        <i class="bi bi-person-plus me-1"></i>노약자 등록
+                        <i class="bi bi-person-plus me-1"></i>돌봄대상자 등록
                     </a>
                 </div>
                 <div class="card-body">
@@ -95,7 +95,7 @@
                             </c:forEach>
                             <c:if test="${empty seniorList}">
                                 <tr>
-                                    <td colspan="9" class="text-center">등록된 노약자가 없습니다.</td>
+                                    <td colspan="9" class="text-center">등록된 돌봄대상자가 없습니다.</td>
                                 </tr>
                             </c:if>
                             </tbody>

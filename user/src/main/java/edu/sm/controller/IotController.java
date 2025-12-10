@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * IoT 기반 노약자 위치 관리 컨트롤러
+ * IoT 기반 돌봄대상자 위치 관리 컨트롤러
  * 실시간 위치 조회 및 업데이트 API를 제공합니다.
  */
 @RestController
@@ -23,7 +23,7 @@ public class IotController {
     private final IotLocationService iotLocationService;
 
     /**
-     * 노약자의 현재 위치를 조회합니다.
+     * 돌봄대상자의 현재 위치를 조회합니다.
      * GET /api/iot/location/{recId}
      */
     @GetMapping("/location/{recId}")
@@ -52,7 +52,7 @@ public class IotController {
     }
 
     /**
-     * 노약자의 위치를 업데이트합니다 (시뮬레이션)
+     * 돌봄대상자의 위치를 업데이트합니다 (시뮬레이션)
      * POST /api/iot/location/{recId}/update
      */
     @PostMapping("/location/{recId}/update")
@@ -81,7 +81,7 @@ public class IotController {
     }
 
     /**
-     * IoT 디바이스에서 노약자의 위치를 전송합니다.
+     * IoT 디바이스에서 돌봄대상자의 위치를 전송합니다.
      * POST /api/iot/location/{recId}/set
      */
     @PostMapping("/location/{recId}/set")
@@ -122,7 +122,7 @@ public class IotController {
     }
 
     /**
-     * 노약자의 집 위치를 설정합니다.
+     * 돌봄대상자의 집 위치를 설정합니다.
      * POST /api/iot/location/{recId}/home
      */
     @PostMapping("/location/{recId}/home")

@@ -82,7 +82,7 @@ public class AiChatService {
     }
 
     private static final String SYSTEM_PROMPT = """
-            당신은 노약자 돌봄 시스템의 AI 어시스턴트입니다.
+            당신은 돌봄대상자 돌봄 시스템의 AI 어시스턴트입니다.
             보호자가 사용하는 시스템이므로 정확하고 실용적인 정보를 제공하세요.
             
             [대화 원칙]

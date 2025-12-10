@@ -425,7 +425,7 @@
                                 </h3>
                                 <div class="kiosk-info-box">
                                     <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
-                                        <i class="bi bi-info-circle"></i> 노약자 전용 간편 접속 링크
+                                        <i class="bi bi-info-circle"></i> 돌봄대상자 전용 간편 접속 링크
                                     </div>
                                     <div class="kiosk-code-display">
                                         <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 코드:</div>
@@ -449,7 +449,7 @@
                                     </div>
                                     <div style="font-size: 13px; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
                                         <i class="bi bi-lightbulb"></i> <strong>사용 방법:</strong><br>
-                                        • 위 링크를 노약자 분께 전달하세요<br>
+                                        • 위 링크를 돌봄대상자 분께 전달하세요<br>
                                         • QR코드를 스캔하면 바로 접속됩니다<br>
                                         • 별도의 로그인 없이 간편하게 이용 가능합니다
                                     </div>
@@ -547,7 +547,7 @@
                     function copyKioskUrl() {
                         const url = document.getElementById('kioskUrl').textContent.trim();
                         navigator.clipboard.writeText(url).then(() => {
-                            alert('✅ 태블릿 링크가 복사되었습니다!\n\n노약자 분께 전달해주세요.');
+                            alert('✅ 태블릿 링크가 복사되었습니다!\n\n돌봄대상자 분께 전달해주세요.');
                         }).catch(err => {
                             console.error('복사 실패:', err);
                             alert('링크 복사에 실패했습니다.');
@@ -566,7 +566,7 @@
                                 <h3 style="margin-bottom: 20px; color: #2c3e50;">태블릿 접속 QR코드</h3>
                                 <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
                                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
-                                    노약자 분이 스마트폰으로<br>
+                                    돌봄대상자 분이 스마트폰으로<br>
                                     위 QR코드를 스캔하면<br>
                                     바로 태블릿 화면으로 이동합니다
                                 </p>

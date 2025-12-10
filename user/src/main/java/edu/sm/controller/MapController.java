@@ -72,7 +72,7 @@ public class MapController {
     }
 
     /**
-     * 노약자별 장소 목록 조회
+     * 돌봄대상자별 장소 목록 조회
      * GET /api/map/recipient/{recId}
      */
     @GetMapping("/recipient/{recId}")
@@ -85,7 +85,7 @@ public class MapController {
             response.put("count", maps.size());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            log.error("노약자별 장소 조회 실패 - recId: {}", recId, e);
+            log.error("돌봄대상자별 장소 조회 실패 - recId: {}", recId, e);
             response.put("success", false);
             response.put("message", "장소 목록 조회 중 오류가 발생했습니다.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

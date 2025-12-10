@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 /**
- * 노약자 관리 컨트롤러
+ * 돌봄대상자 관리 컨트롤러
  * senior/ 폴더의 JSP 파일들을 처리
  */
 @Controller
@@ -40,7 +40,7 @@ public class SeniorController {
             model.addAttribute("seniorList", pageInfo.getList());
         } catch (Exception e) {
             log.error("Error fetching senior list", e);
-            model.addAttribute("errorMessage", "노약자 목록을 불러오는 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "돌봄대상자 목록을 불러오는 중 오류가 발생했습니다.");
         }
         model.addAttribute("center", "senior/senior-list");
         return "index";
@@ -54,7 +54,7 @@ public class SeniorController {
             model.addAttribute("senior", senior);
         } catch (Exception e) {
             log.error("Error fetching senior details", e);
-            model.addAttribute("errorMessage", "노약자 정보를 불러오는 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "돌봄대상자 정보를 불러오는 중 오류가 발생했습니다.");
         }
         model.addAttribute("center", "senior/senior-detail");
         return "index";
@@ -68,7 +68,7 @@ public class SeniorController {
             model.addAttribute("senior", senior);
         } catch (Exception e) {
             log.error("Error fetching senior for editing", e);
-            model.addAttribute("errorMessage", "노약자 정보를 불러오는 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "돌봄대상자 정보를 불러오는 중 오류가 발생했습니다.");
         }
         model.addAttribute("center", "senior/senior-edit");
         return "index";
@@ -82,7 +82,7 @@ public class SeniorController {
             log.info("Senior update successful");
         } catch (Exception e) {
             log.error("Error updating senior", e);
-            model.addAttribute("errorMessage", "노약자 정보 수정 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "돌봄대상자 정보 수정 중 오류가 발생했습니다.");
         }
         return "redirect:/senior/detail/" + senior.getRecId();
     }
@@ -102,7 +102,7 @@ public class SeniorController {
             log.info("Senior registration successful");
         } catch (Exception e) {
             log.error("Error registering senior", e);
-            model.addAttribute("errorMessage", "노약자 등록 중 오류가 발생했습니다.");
+            model.addAttribute("errorMessage", "돌봄대상자 등록 중 오류가 발생했습니다.");
         }
         return "redirect:/senior/list";
     }
@@ -115,7 +115,7 @@ public class SeniorController {
     }
 
     /**
-     * 노약자 목록 조회 (API) - 지도용
+     * 돌봄대상자 목록 조회 (API) - 지도용
      */
     @GetMapping("/api/list")
     @ResponseBody

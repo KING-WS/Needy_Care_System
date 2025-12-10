@@ -333,7 +333,7 @@ CREATE TABLE QnA_Answers (
 -- [20] Chat_Log (AI 대화 기록)
 CREATE TABLE Chat_Log (
                           log_id INT NOT NULL AUTO_INCREMENT,
-                          rec_id INT NOT NULL COMMENT '대화한 노약자 식별자',
+                          rec_id INT NOT NULL COMMENT '대화한 돌봄대상자 식별자',
                           sender_type VARCHAR(10) NOT NULL COMMENT '발화자 구분: USER(환자) / AI(챗봇)',
                           message_content TEXT NOT NULL COMMENT '실제 대화 내용',
                           sentiment_type VARCHAR(20) COMMENT '감정 분석 결과 (예: HAPPY, SAD, DEPRESSED, ANGRY, NEUTRAL)',
@@ -345,7 +345,7 @@ CREATE TABLE Chat_Log (
 -- [21] Alert_Log (긴급 호출 및 알림 기록)
 CREATE TABLE Alert_Log (
                            alert_id INT NOT NULL AUTO_INCREMENT,
-                           rec_id INT NOT NULL COMMENT '호출한 노약자',
+                           rec_id INT NOT NULL COMMENT '호출한 돌봄대상자',
                            alert_type VARCHAR(20) NOT NULL COMMENT '유형: EMERGENCY(긴급), CONTACT(연락)',
                            alert_msg TEXT COMMENT '전달 메시지 (예: 화장실에서 긴급 호출)',
                            check_status CHAR(1) NOT NULL DEFAULT 'N' COMMENT '관리자/보호자 확인 여부 (Y/N)',

@@ -22,7 +22,7 @@ public class MealPlan {
     private Integer mealId;
     
     /**
-     * 노약자 ID (Foreign Key)
+     * 돌봄대상자 ID (Foreign Key)
      */
     private Integer recId;
     

@@ -121,10 +121,10 @@ public class DashboardService {
     }
 
     /**
-     * 노약자의 주소 정보를 확인하여 지역별 분포율을 계산합니다.
+     * 돌봄대상자의 주소 정보를 확인하여 지역별 분포율을 계산합니다.
      * 경기도, 충청북도, 충청남도, 전라남도, 경상북도, 경상남도만 추출합니다.
      * 
-     * @return 지역 이름과 노약자 수를 담은 Map (지정된 6개 지역만 포함)
+     * @return 지역 이름과 돌봄대상자 수를 담은 Map (지정된 6개 지역만 포함)
      */
     public Map<String, Long> getSeniorDistributionByProvince() {
         List<Senior> allSeniors = seniorService.getAllSeniors();

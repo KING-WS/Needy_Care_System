@@ -15,7 +15,7 @@ import java.util.ArrayList;
 
 /**
  * 돌봄 콘텐츠 추천 AI 서비스
- * 노약자의 상태를 분석하여 필요한 영상 및 블로그 키워드를 추천합니다.
+ * 돌봄대상자의 상태를 분석하여 필요한 영상 및 블로그 키워드를 추천합니다.
  */
 @Service
 @Slf4j
@@ -25,13 +25,13 @@ public class AiCareContentService {
     private final AiUtilService aiUtilService;
 
     private static final String CARE_CONTENT_PROMPT = """
-            당신은 노인 돌봄 전문가입니다. 주어진 노약자의 정보를 바탕으로 현재 돌봄에 가장 필요한 교육 영상과 정보를 찾기 위한 검색 키워드를 추천해주세요.
+            당신은 노인 돌봄 전문가입니다. 주어진 돌봄대상자의 정보를 바탕으로 현재 돌봄에 가장 필요한 교육 영상과 정보를 찾기 위한 검색 키워드를 추천해주세요.
             
-            [노약자 정보]
+            [돌봄대상자 정보]
             - 이름: %s
             - 나이: %d세
             - 성별: %s
-            - 노약자 유형 코드: %s
+            - 돌봄대상자 유형 코드: %s
             - 병력: %s
             - 알레르기: %s
             - 특이사항: %s
@@ -75,9 +75,9 @@ public class AiCareContentService {
             """;
 
     private static final String PLACE_RECOMMEND_PROMPT = """
-            당신은 노인 여가 및 건강 전문가입니다. 주어진 노약자 정보를 바탕으로, 해당 어르신에게 도움이 될 만한 **장소(Places)**를 추천해주세요.
+            당신은 노인 여가 및 건강 전문가입니다. 주어진 돌봄대상자 정보를 바탕으로, 해당 어르신에게 도움이 될 만한 **장소(Places)**를 추천해주세요.
 
-            [노약자 정보]
+            [돌봄대상자 정보]
             - 이름: %s
             - 나이: %d세
             - 성별: %s
@@ -106,9 +106,9 @@ public class AiCareContentService {
             """;
             
     private static final String PLACE_RECOMMEND_BY_KEYWORD_PROMPT = """
-            당신은 노인 여가 및 건강 전문가입니다. 주어진 노약자 정보와 특정 '검색 키워드'를 바탕으로, 해당 어르신에게 도움이 될 만한 **장소(Places)**를 추천해주세요.
+            당신은 노인 여가 및 건강 전문가입니다. 주어진 돌봄대상자 정보와 특정 '검색 키워드'를 바탕으로, 해당 어르신에게 도움이 될 만한 **장소(Places)**를 추천해주세요.
 
-            [노약자 정보]
+            [돌봄대상자 정보]
             - 이름: %s
             - 나이: %d세
             - 성별: %s
@@ -171,8 +171,8 @@ public class AiCareContentService {
     }
 
     /**
-     * 노약자 상태 분석 및 콘텐츠 키워드 추천
-     * @param recipient 노약자 정보
+     * 돌봄대상자 상태 분석 및 콘텐츠 키워드 추천
+     * @param recipient 돌봄대상자 정보
      * @return 분석 결과 및 키워드
      */
     public Map<String, Object> analyzeAndRecommend(Recipient recipient) {
@@ -240,8 +240,8 @@ public class AiCareContentService {
     }
 
     /**
-     * 노약자 맞춤 장소/행사 추천
-     * @param recipient 노약자 정보
+     * 돌봄대상자 맞춤 장소/행사 추천
+     * @param recipient 돌봄대상자 정보
      * @return 추천 장소 리스트
      */
     public List<Map<String, Object>> recommendPlaces(Recipient recipient) {
@@ -286,8 +286,8 @@ public class AiCareContentService {
     }
 
     /**
-     * 노약자 맞춤 장소/행사 추천 (키워드 기반)
-     * @param recipient 노약자 정보
+     * 돌봄대상자 맞춤 장소/행사 추천 (키워드 기반)
+     * @param recipient 돌봄대상자 정보
      * @param keyword 사용자가 입력한 검색 키워드
      * @return 추천 장소 리스트
      */

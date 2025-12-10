@@ -18,9 +18,9 @@ import java.util.Map;
 public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     
     /**
-     * 노약자 ID로 식단 목록 조회
-     * @param recId 노약자 ID
-     * @return 해당 노약자의 식단 목록
+     * 돌봄대상자 ID로 식단 목록 조회
+     * @param recId 돌봄대상자 ID
+     * @return 해당 돌봄대상자의 식단 목록
      */
     List<MealPlan> selectByRecId(Integer recId) throws Exception;
     
@@ -32,10 +32,10 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     List<MealPlan> selectByDate(LocalDate mealDate) throws Exception;
     
     /**
-     * 노약자 ID와 날짜로 식단 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID와 날짜로 식단 조회
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
-     * @return 해당 노약자의 특정 날짜 식단 목록
+     * @return 해당 돌봄대상자의 특정 날짜 식단 목록
      */
     List<MealPlan> selectByRecIdAndDate(Integer recId, LocalDate mealDate) throws Exception;
     
@@ -47,8 +47,8 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     List<MealPlan> selectByMealType(String mealType) throws Exception;
     
     /**
-     * 노약자 ID, 날짜, 식사 구분으로 특정 식단 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID, 날짜, 식사 구분으로 특정 식단 조회
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
      * @param mealType 식사 구분
      * @return 해당하는 식단 정보
@@ -57,7 +57,7 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     
     /**
      * 특정 기간의 식단 조회
-     * @param recId 노약자 ID
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 해당 기간의 식단 목록
@@ -65,16 +65,16 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     List<MealPlan> selectByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception;
     
     /**
-     * 노약자의 총 칼로리 합계 조회 (특정 날짜)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 총 칼로리 합계 조회 (특정 날짜)
+     * @param recId 돌봄대상자 ID
      * @param mealDate 식단 날짜
      * @return 총 칼로리
      */
     Integer selectTotalCaloriesByDate(Integer recId, LocalDate mealDate) throws Exception;
     
     /**
-     * 노약자의 총 칼로리 합계 조회 (특정 기간)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 총 칼로리 합계 조회 (특정 기간)
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 총 칼로리
@@ -82,8 +82,8 @@ public interface MealPlanRepository extends SmRepository<MealPlan, Integer> {
     Integer selectTotalCaloriesByDateRange(Integer recId, LocalDate startDate, LocalDate endDate) throws Exception;
     
     /**
-     * 노약자의 일별 칼로리 데이터 조회 (차트용)
-     * @param recId 노약자 ID
+     * 돌봄대상자의 일별 칼로리 데이터 조회 (차트용)
+     * @param recId 돌봄대상자 ID
      * @param startDate 시작 날짜
      * @param endDate 종료 날짜
      * @return 날짜별 칼로리 맵 (날짜, 칼로리)
