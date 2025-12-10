@@ -1604,8 +1604,6 @@
                         hasScheduleRecommendation: hasScheduleRecommendation,
                         recId: responseRecId,
                         clientRecId: recId,
-                        hasAudio: !!data.audio,
-                        audioLength: data.audio ? data.audio.length : 0,
                         responseText: responseText.substring(0, 150)
                     });
                     
@@ -1622,24 +1620,8 @@
         // 챗봇 응답을 음성으로 변환하는 함수 (TTS)
         function playAudio(base64Audio) {
             if (base64Audio) {
-                try {
-                    const audio = new Audio("data:audio/mp3;base64," + base64Audio);
-                    audio.onerror = function(e) {
-                        console.error("오디오 로드 오류:", e);
-                    };
-                    audio.oncanplaythrough = function() {
-                        console.log("TTS 오디오 재생 시작");
-                    };
-                    audio.play().catch(e => {
-                        console.error("음성 재생 오류:", e);
-                        // 브라우저 자동 재생 정책으로 인한 오류일 수 있음
-                        console.warn("자동 재생이 차단되었을 수 있습니다. 사용자 상호작용 후 재생을 시도하세요.");
-                    });
-                } catch (error) {
-                    console.error("TTS 오디오 생성 오류:", error);
-                }
-            } else {
-                console.log("TTS 오디오 데이터가 없습니다.");
+                const audio = new Audio("data:audio/mp3;base64," + base64Audio);
+                audio.play().catch(e => console.error("음성 재생 오류:", e));
             }
         }
 
