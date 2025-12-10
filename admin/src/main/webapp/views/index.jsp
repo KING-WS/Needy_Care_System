@@ -175,9 +175,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item mt-4">
-                        <small class="text-muted px-3 text-uppercase fw-bold">ADMIN MENU</small>
-                    </li>
 
                     <li class="nav-item">
                         <a class="nav-link collapsed" data-bs-toggle="collapse" href="#customerSubmenu" role="button" aria-expanded="false" aria-controls="customerSubmenu">
@@ -199,12 +196,12 @@
                                         <span>고객 등록</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'customer-search' ? 'active' : ''}" href="<c:url value='/customer/search'/>">
-                                        <i class="bi bi-search"></i>
-                                        <span>고객 검색</span>
-                                    </a>
-                                </li>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'customer-search' ? 'active' : ''}" href="<c:url value='/customer/search'/>">--%>
+<%--                                        <i class="bi bi-search"></i>--%>
+<%--                                        <span>고객 검색</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
                             </ul>
                         </div>
                     </li>
@@ -212,7 +209,7 @@
                     <li class="nav-item">
                         <a class="nav-link collapsed" data-bs-toggle="collapse" href="#seniorSubmenu" role="button" aria-expanded="false" aria-controls="seniorSubmenu">
                             <i class="bi bi-person-wheelchair"></i>
-                            <span>노약자</span>
+                            <span>돌봄대상자</span>
                             <i class="bi bi-chevron-right ms-auto submenu-arrow"></i>
                         </a>
                         <div class="collapse" id="seniorSubmenu">
@@ -220,21 +217,21 @@
                                 <li class="nav-item">
                                     <a class="nav-link ${center == 'senior-list' ? 'active' : ''}" href="<c:url value='/senior/list'/>">
                                         <i class="bi bi-list"></i>
-                                        <span>노약자 목록</span>
+                                        <span>돌봄대상자 목록</span>
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link ${center == 'senior-add' ? 'active' : ''}" href="<c:url value='/senior/add'/>">
                                         <i class="bi bi-person-plus"></i>
-                                        <span>노약자 등록</span>
+                                        <span>돌봄대상자 등록</span>
                                     </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link ${center == 'senior-care' ? 'active' : ''}" href="<c:url value='/senior/care'/>">
-                                        <i class="bi bi-heart-pulse"></i>
-                                        <span>케어 관리</span>
-                                    </a>
-                                </li>
+<%--                                <li class="nav-item">--%>
+<%--                                    <a class="nav-link ${center == 'senior-care' ? 'active' : ''}" href="<c:url value='/senior/care'/>">--%>
+<%--                                        <i class="bi bi-heart-pulse"></i>--%>
+<%--                                        <span>케어 관리</span>--%>
+<%--                                    </a>--%>
+<%--                                </li>--%>
                             </ul>
                         </div>
                     </li>

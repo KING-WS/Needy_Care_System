@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  * 식단 관리 컨트롤러
- * 노약자의 식단 등록, 조회, 수정, 삭제 기능 제공
+ * 돌봄대상자의 식단 등록, 조회, 수정, 삭제 기능 제공
  */
 @Controller
 @Slf4j
@@ -279,7 +279,7 @@ public class MealPlanController {
 
             if (recId == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                        Map.of("success", false, "message", "돌봄대상자 정보가 필요합니다.")
                 );
             }
             if (mealType == null || mealType.isEmpty()) {
@@ -354,7 +354,7 @@ public class MealPlanController {
 
             if (recId == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                        Map.of("success", false, "message", "돌봄대상자 정보가 필요합니다.")
                 );
             }
 
@@ -682,11 +682,11 @@ public class MealPlanController {
                 );
             }
             
-            // 노약자 정보 조회
+            // 돌봄대상자 정보 조회
             Recipient recipient = recipientService.getRecipientById(recId);
             if (recipient == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보를 찾을 수 없습니다.")
+                        Map.of("success", false, "message", "돌봄대상자 정보를 찾을 수 없습니다.")
                 );
             }
             

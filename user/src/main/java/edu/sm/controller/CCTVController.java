@@ -47,7 +47,7 @@ public class CCTVController {
 
         if (loginUser != null) {
             try {
-                // [DB 연동] 보호자 ID로 노약자 정보 조회
+                // [DB 연동] 보호자 ID로 돌봄대상자 정보 조회
                 Recipient recipient = recipientService.getRecipientByCustId(loginUser.getCustId());
 
                 if (recipient != null) {

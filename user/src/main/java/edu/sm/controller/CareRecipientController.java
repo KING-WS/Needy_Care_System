@@ -27,7 +27,7 @@ public class CareRecipientController {
     private final String dir = "recipient/";
 
     /**
-     * 노약자 등록 유도 페이지
+     * 돌봄대상자 등록 유도 페이지
      */
     @GetMapping("/prompt")
     public String prompt(Model model, HttpSession session) {
@@ -44,7 +44,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 등록 페이지
+     * 돌봄대상자 등록 페이지
      */
     @GetMapping("/register")
     public String registerForm(Model model, HttpSession session) {
@@ -62,7 +62,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 등록 처리
+     * 돌봄대상자 등록 처리
      */
     @PostMapping("/register")
     public String register(
@@ -121,13 +121,13 @@ public class CareRecipientController {
             // DB에 저장
             recipientService.registerRecipient(recipient);
             
-            log.info("노약자 등록 성공: {} (고객ID: {})", recName, loginUser.getCustId());
+            log.info("돌봄대상자 등록 성공: {} (고객ID: {})", recName, loginUser.getCustId());
             
             // 등록 후 목록 페이지로 리다이렉트
             return "redirect:/recipient/list";
             
         } catch (Exception e) {
-            log.error("노약자 등록 실패", e);
+            log.error("돌봄대상자 등록 실패", e);
             model.addAttribute("error", "등록 중 오류가 발생했습니다.");
             model.addAttribute("left", dir + "left");
             model.addAttribute("center", dir + "register");
@@ -136,7 +136,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 목록 페이지
+     * 돌봄대상자 목록 페이지
      */
     @GetMapping("/list")
     public String listPage(Model model, HttpSession session) {
@@ -154,7 +154,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 목록 조회 (API)
+     * 돌봄대상자 목록 조회 (API)
      */
     @GetMapping("/api/list")
     @ResponseBody
@@ -168,13 +168,13 @@ public class CareRecipientController {
         try {
             return recipientService.getRecipientsByCustId(loginUser.getCustId());
         } catch (Exception e) {
-            log.error("노약자 목록 조회 실패", e);
+            log.error("돌봄대상자 목록 조회 실패", e);
             return null;
         }
     }
 
     /**
-     * 노약자 삭제 (API)
+     * 돌봄대상자 삭제 (API)
      */
     @DeleteMapping("/api/delete")
     @ResponseBody
@@ -193,9 +193,9 @@ public class CareRecipientController {
         try {
             recipientService.deleteRecipient(recId);
             result.put("success", true);
-            log.info("노약자 삭제 성공: recId={}, custId={}", recId, loginUser.getCustId());
+            log.info("돌봄대상자 삭제 성공: recId={}, custId={}", recId, loginUser.getCustId());
         } catch (Exception e) {
-            log.error("노약자 삭제 실패", e);
+            log.error("돌봄대상자 삭제 실패", e);
             result.put("success", false);
             result.put("message", e.getMessage());
         }
@@ -204,7 +204,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 상세보기 페이지
+     * 돌봄대상자 상세보기 페이지
      */
     @GetMapping("/detail")
     public String detailPage(@RequestParam("recId") Integer recId, Model model, HttpSession session) {
@@ -222,7 +222,7 @@ public class CareRecipientController {
             model.addAttribute("center", dir + "detail");
             return "home";
         } catch (Exception e) {
-            log.error("노약자 상세정보 조회 실패", e);
+            log.error("돌봄대상자 상세정보 조회 실패", e);
             return "redirect:/recipient/list";
         }
     }
@@ -252,7 +252,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 수정 페이지
+     * 돌봄대상자 수정 페이지
      */
     @GetMapping("/edit")
     public String editPage(@RequestParam("recId") Integer recId, Model model, HttpSession session) {
@@ -270,13 +270,13 @@ public class CareRecipientController {
             model.addAttribute("center", dir + "edit");
             return "home";
         } catch (Exception e) {
-            log.error("노약자 수정 페이지 로드 실패", e);
+            log.error("돌봄대상자 수정 페이지 로드 실패", e);
             return "redirect:/recipient/list";
         }
     }
 
     /**
-     * 노약자 수정 처리
+     * 돌봄대상자 수정 처리
      */
     @PostMapping("/edit")
     public String edit(
@@ -348,7 +348,7 @@ public class CareRecipientController {
             // DB 업데이트
             recipientService.updateRecipient(recipient);
             
-            // 세션에 저장된 selectedRecipient가 수정된 노약자와 같다면 최신 정보로 업데이트
+            // 세션에 저장된 selectedRecipient가 수정된 돌봄대상자와 같다면 최신 정보로 업데이트
             Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
             if (sessionRecipient != null && sessionRecipient.getRecId().equals(recId)) {
                 // DB에서 최신 정보를 다시 조회하여 세션에 업데이트
@@ -359,13 +359,13 @@ public class CareRecipientController {
                 }
             }
             
-            log.info("노약자 수정 성공: recId={}, recName={}", recId, recName);
+            log.info("돌봄대상자 수정 성공: recId={}, recName={}", recId, recName);
             
             // 수정 후 상세 페이지로 리다이렉트
             return "redirect:/recipient/detail?recId=" + recId;
             
         } catch (Exception e) {
-            log.error("노약자 수정 실패", e);
+            log.error("돌봄대상자 수정 실패", e);
             model.addAttribute("error", "수정 중 오류가 발생했습니다.");
             model.addAttribute("left", dir + "left");
             model.addAttribute("center", dir + "edit");
@@ -391,7 +391,7 @@ public class CareRecipientController {
     }
 
     /**
-     * 노약자 실시간 위치 지도 페이지
+     * 돌봄대상자 실시간 위치 지도 페이지
      */
     @GetMapping("/map")
     public String mapPage(Model model, HttpSession session) {

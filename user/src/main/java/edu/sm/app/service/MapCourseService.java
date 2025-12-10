@@ -39,12 +39,12 @@ public class MapCourseService {
     }
 
     /**
-     * 노약자별 산책코스 목록 조회
-     * @param recId 노약자 ID
-     * @return 해당 노약자의 산책코스 목록
+     * 돌봄대상자별 산책코스 목록 조회
+     * @param recId 돌봄대상자 ID
+     * @return 해당 돌봄대상자의 산책코스 목록
      */
     public List<MapCourse> getCoursesByRecId(Integer recId) {
-        log.info("노약자별 산책코스 목록 조회 - recId: {}", recId);
+        log.info("돌봄대상자별 산책코스 목록 조회 - recId: {}", recId);
         return mapCourseRepository.selectByRecId(recId);
     }
 

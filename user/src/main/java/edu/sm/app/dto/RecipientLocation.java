@@ -7,14 +7,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 /**
- * 노약자 실시간 위치 정보 DTO
+ * 돌봄대상자 실시간 위치 정보 DTO
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class RecipientLocation {
-    private Integer recId;           // 노약자 ID
+    private Integer recId;           // 돌봄대상자 ID
     private Double latitude;         // 위도
     private Double longitude;        // 경도
     private LocalDateTime updateTime; // 위치 업데이트 시간

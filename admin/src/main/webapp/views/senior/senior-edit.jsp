@@ -24,7 +24,7 @@
         <div class="col-12">
             <div class="card shadow-sm mb-4 edit-card">
                 <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>노약자 정보 수정</h4>
+                    <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>돌봄대상자 정보 수정</h4>
                 </div>
                 <div class="card-body">
                     <form action="<c:url value='/senior/editimpl'/>" method="post">

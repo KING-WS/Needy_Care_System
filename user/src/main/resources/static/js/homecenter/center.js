@@ -7,8 +7,8 @@ var tempMarker = null;
 var clickedPosition = null;
 var homeMarker = null; // 집 마커
 var homeOverlay = null; // 집 커스텀 오버레이
-var recipientLocationMarker = null; // 노약자 실시간 위치 마커
-var homePosition = null; // 집 위치 (노약자 위치 업데이트용)
+var recipientLocationMarker = null; // 돌봄대상자 실시간 위치 마커
+var homePosition = null; // 집 위치 (돌봄대상자 위치 업데이트용)
 
 // 산책코스 모드 관련 변수
 var currentMapMode = 'mymap'; // 'mymap' 또는 'course'
@@ -99,7 +99,7 @@ function resizeMap() {
     }
 }
 
-// 노약자 집 마커 표시
+// 돌봄대상자 집 마커 표시
 function loadHomeMarker() {
     if (!recipientAddress || recipientAddress === '' || recipientAddress === 'null') return;
     var cleanAddress = recipientAddress.split(',')[0].split('(')[0].trim();
@@ -923,7 +923,7 @@ async function setHomeLocationToIot(latitude, longitude) {
     }
 }
 
-// IoT 서비스에서 노약자 위치 가져오기
+// IoT 서비스에서 돌봄대상자 위치 가져오기
 async function getRecipientLocationFromIot() {
     if (!defaultRecId) return null;
     try {
@@ -936,7 +936,7 @@ async function getRecipientLocationFromIot() {
     }
 }
 
-// 실시간 노약자 위치 추적
+// 실시간 돌봄대상자 위치 추적
 function updateRecipientMarker(lat, lng) {
     if (!map || typeof kakao === 'undefined') return;
     var moveLatLon = new kakao.maps.LatLng(lat, lng);
@@ -1033,7 +1033,7 @@ function createCircularMarkerImageForRealtime(photoUrl, callback) {
 
 // 지도에 마커 생성
 function createRecipientMarkerOnMap(position, markerImage) {
-    var recipientNameDisplay = (typeof recipientName !== 'undefined' && recipientName) ? recipientName : '노약자';
+    var recipientNameDisplay = (typeof recipientName !== 'undefined' && recipientName) ? recipientName : '돌봄대상자';
     recipientLocationMarker = new kakao.maps.Marker({ position: position, map: map, image: markerImage, zIndex: 999, title: `${recipientNameDisplay}님의 현재 위치` });
     var infowindow = new kakao.maps.InfoWindow({ content: `<div style="padding:10px; text-align:center; min-width:150px;"><div style="font-weight:700; color:#667eea; margin-bottom:5px;"><i class="bi bi-person-walking"></i> ${recipientNameDisplay}님</div><div style="font-size:11px; color:#666;">실시간 위치</div></div>`, removable: false });
     kakao.maps.event.addListener(recipientLocationMarker, 'click', () => {

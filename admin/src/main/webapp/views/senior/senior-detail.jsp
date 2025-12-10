@@ -23,7 +23,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white ">
-                    <h4 class="mb-0"><i class="bi bi-person-vcard me-2"></i>노약자 상세 정보</h4>
+                    <h4 class="mb-0"><i class="bi bi-person-vcard me-2"></i>돌봄대상자 상세 정보</h4>
                 </div>
                 <div class="card-body">
                     <c:if test="${not empty senior}">
@@ -31,7 +31,7 @@
                             <div class="col-md-3 text-center">
                                 <c:choose>
                                     <c:when test="${not empty senior.recPhotoUrl}">
-                                        <img src="${senior.recPhotoUrl}" class="img-fluid rounded-circle mb-3" alt="노약자 사진" style="width: 150px; height: 150px; object-fit: cover;">
+                                        <img src="${senior.recPhotoUrl}" class="img-fluid rounded-circle mb-3" alt="돌봄대상자 사진" style="width: 150px; height: 150px; object-fit: cover;">
                                     </c:when>
                                     <c:otherwise>
                                         <img src="<c:url value='/assets/images/avatar-placeholder.svg'/>" class="img-fluid rounded-circle mb-3" alt="기본 사진" style="width: 150px; height: 150px; object-fit: cover;">
@@ -77,7 +77,7 @@
                         </div>
                     </c:if>
                     <c:if test="${empty senior}">
-                        <p class="text-center">해당하는 노약자 정보가 없습니다.</p>
+                        <p class="text-center">해당하는 돌봄대상자 정보가 없습니다.</p>
                     </c:if>
                 </div>
             </div>

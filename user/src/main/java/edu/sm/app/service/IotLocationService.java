@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Random;
 
 /**
- * IoT 기반 노약자 위치 시뮬레이션 서비스
- * 노약자의 실시간 위치를 시뮬레이션하고 관리합니다.
+ * IoT 기반 돌봄대상자 위치 시뮬레이션 서비스
+ * 돌봄대상자의 실시간 위치를 시뮬레이션하고 관리합니다.
  */
 @Service
 @Slf4j
@@ -22,16 +22,16 @@ public class IotLocationService {
 
     private final RecipientService recipientService;
     
-    // 노약자별 위치 정보를 메모리에 저장 (실제 운영 시에는 Redis 등 사용 권장)
+    // 돌봄대상자별 위치 정보를 메모리에 저장 (실제 운영 시에는 Redis 등 사용 권장)
     private final Map<Integer, RecipientLocation> locationCache = new ConcurrentHashMap<>();
     
-    // 노약자별 집 위치 정보 저장
+    // 돌봄대상자별 집 위치 정보 저장
     private final Map<Integer, RecipientLocation> homeLocationCache = new ConcurrentHashMap<>();
     
     private final Random random = new Random();
 
     /**
-     * 노약자의 현재 위치를 가져옵니다.
+     * 돌봄대상자의 현재 위치를 가져옵니다.
      * 위치가 없으면 집 위치를 기반으로 초기 위치를 생성합니다.
      */
     public RecipientLocation getCurrentLocation(Integer recId) {
@@ -46,13 +46,13 @@ public class IotLocationService {
     }
 
     /**
-     * 노약자의 위치를 초기화합니다 (집 위치 기반)
+     * 돌봄대상자의 위치를 초기화합니다 (집 위치 기반)
      */
     public RecipientLocation initializeLocation(Integer recId) {
         Recipient recipient = recipientService.getRecipientById(recId);
         
         if (recipient == null || recipient.getRecAddress() == null) {
-            log.warn("노약자 정보 또는 주소가 없습니다. recId: {}", recId);
+            log.warn("돌봄대상자 정보 또는 주소가 없습니다. recId: {}", recId);
             return null;
         }
         
@@ -97,13 +97,13 @@ public class IotLocationService {
         
         locationCache.put(recId, currentLocation);
         
-        log.info("노약자 위치 초기화 완료. recId: {}, lat: {}, lng: {}", recId, defaultLat, defaultLng);
+        log.info("돌봄대상자 위치 초기화 완료. recId: {}, lat: {}, lng: {}", recId, defaultLat, defaultLng);
         
         return currentLocation;
     }
 
     /**
-     * 노약자의 집 위치를 설정합니다.
+     * 돌봄대상자의 집 위치를 설정합니다.
      * 주소를 좌표로 변환하여 저장합니다.
      */
     public void setHomeLocation(Integer recId, Double latitude, Double longitude) {
@@ -116,11 +116,11 @@ public class IotLocationService {
                 .build();
         
         homeLocationCache.put(recId, homeLocation);
-        log.info("노약자 집 위치 설정 완료. recId: {}, lat: {}, lng: {}", recId, latitude, longitude);
+        log.info("돌봄대상자 집 위치 설정 완료. recId: {}, lat: {}, lng: {}", recId, latitude, longitude);
     }
 
     /**
-     * 노약자의 위치를 업데이트합니다 (집 주변 랜덤 이동)
+     * 돌봄대상자의 위치를 업데이트합니다 (집 주변 랜덤 이동)
      * IoT 디바이스에서 호출하거나, 시뮬레이션을 위해 주기적으로 호출됩니다.
      */
     public RecipientLocation updateLocation(Integer recId) {
@@ -165,13 +165,13 @@ public class IotLocationService {
         
         locationCache.put(recId, newLocation);
         
-        log.debug("노약자 위치 업데이트. recId: {}, lat: {}, lng: {}", recId, newLat, newLng);
+        log.debug("돌봄대상자 위치 업데이트. recId: {}, lat: {}, lng: {}", recId, newLat, newLng);
         
         return newLocation;
     }
 
     /**
-     * 노약자의 위치를 수동으로 설정합니다 (실제 IoT 디바이스에서 전송된 위치)
+     * 돌봄대상자의 위치를 수동으로 설정합니다 (실제 IoT 디바이스에서 전송된 위치)
      */
     public void setLocation(Integer recId, Double latitude, Double longitude) {
         RecipientLocation location = RecipientLocation.builder()
@@ -183,16 +183,16 @@ public class IotLocationService {
                 .build();
         
         locationCache.put(recId, location);
-        log.info("노약자 위치 수동 설정. recId: {}, lat: {}, lng: {}", recId, latitude, longitude);
+        log.info("돌봄대상자 위치 수동 설정. recId: {}, lat: {}, lng: {}", recId, latitude, longitude);
     }
 
     /**
-     * 노약자의 위치 정보를 삭제합니다.
+     * 돌봄대상자의 위치 정보를 삭제합니다.
      */
     public void removeLocation(Integer recId) {
         locationCache.remove(recId);
         homeLocationCache.remove(recId);
-        log.info("노약자 위치 정보 삭제. recId: {}", recId);
+        log.info("돌봄대상자 위치 정보 삭제. recId: {}", recId);
     }
 }
 

@@ -40,7 +40,7 @@
     let map = null;
     let markers = [];
     let geocoder = null;
-    let seniorMarkers = []; // 노약자 마커 배열
+    let seniorMarkers = []; // 돌봄대상자 마커 배열
 
     function initMap() {
         const mapContainer = document.getElementById('admin-map');
@@ -121,7 +121,7 @@
             }
         });
         
-        // 노약자 마커 로드
+        // 돌봄대상자 마커 로드
         loadSeniorMarkers();
     }
 
@@ -200,7 +200,7 @@
             markers = [];
             window.adminMapMarkers = [];
             seniorMarkers = [];
-            // 노약자 마커 다시 로드
+            // 돌봄대상자 마커 다시 로드
             loadSeniorMarkers();
         }
     }
@@ -403,7 +403,7 @@
         img.src = photoUrl;
     }
 
-    // 기본 노약자 마커 이미지 생성
+    // 기본 돌봄대상자 마커 이미지 생성
     function createDefaultSeniorMarkerImage() {
         return new kakao.maps.MarkerImage(
             'data:image/svg+xml;base64,' + btoa(
@@ -419,7 +419,7 @@
         );
     }
 
-    // 노약자 마커 추가
+    // 돌봄대상자 마커 추가
     function addSeniorMarker(senior, position) {
         const currentMap = map || window.adminMap;
         if (!currentMap) {
@@ -427,7 +427,7 @@
             return;
         }
 
-        const recName = senior.recName || '노약자';
+        const recName = senior.recName || '돌봄대상자';
         const recPhotoUrl = senior.recPhotoUrl;
         
         // 사진이 있으면 원형 마커 생성, 없으면 기본 마커 사용
@@ -453,13 +453,13 @@
         }
     }
 
-    // 노약자 마커 생성 (이미지가 준비된 후)
+    // 돌봄대상자 마커 생성 (이미지가 준비된 후)
     function createSeniorMarkerWithImage(markerImage, position, senior) {
         const currentMap = map || window.adminMap;
-        const recName = senior.recName || '노약자';
+        const recName = senior.recName || '돌봄대상자';
         const recAddress = senior.recAddress || '주소 정보 없음';
         
-        // 노약자 마커 생성
+        // 돌봄대상자 마커 생성
         const marker = new kakao.maps.Marker({
             position: position,
             map: currentMap,
@@ -514,20 +514,20 @@
         });
     }
 
-    // 노약자 목록 로드 및 마커 표시
+    // 돌봄대상자 목록 로드 및 마커 표시
     function loadSeniorMarkers() {
         fetch('<c:url value="/senior/api/list"/>')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('노약자 목록을 불러오는데 실패했습니다.');
+                    throw new Error('돌봄대상자 목록을 불러오는데 실패했습니다.');
                 }
                 return response.json();
             })
             .then(seniors => {
-                console.log('노약자 목록 로드 완료:', seniors);
+                console.log('돌봄대상자 목록 로드 완료:', seniors);
                 
                 if (!seniors || seniors.length === 0) {
-                    console.log('등록된 노약자가 없습니다.');
+                    console.log('등록된 돌봄대상자가 없습니다.');
                     return;
                 }
 
@@ -537,7 +537,7 @@
                     return;
                 }
 
-                // 모든 노약자의 주소를 좌표로 변환하여 마커 표시
+                // 모든 돌봄대상자의 주소를 좌표로 변환하여 마커 표시
                 let processedCount = 0;
                 const totalCount = seniors.length;
                 let bounds = new kakao.maps.LatLngBounds();
@@ -563,7 +563,7 @@
                             console.warn('주소 검색 실패:', senior.recName, senior.recAddress);
                         }
 
-                        // 모든 노약자 처리 완료 시 지도 범위 조정
+                        // 모든 돌봄대상자 처리 완료 시 지도 범위 조정
                         if (processedCount === totalCount) {
                             adjustMapBounds(bounds);
                         }
@@ -571,7 +571,7 @@
                 });
             })
             .catch(error => {
-                console.error('노약자 목록 로드 오류:', error);
+                console.error('돌봄대상자 목록 로드 오류:', error);
             });
     }
 

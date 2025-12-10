@@ -4,7 +4,7 @@
 
 <mapper namespace="edu.sm.app.repository.SeniorRepository">
 
-    <!-- 모든 노약자 정보와 담당 요양사 이름을 함께 조회 -->
+    <!-- 모든 돌봄대상자 정보와 담당 요양사 이름을 함께 조회 -->
     <select id="selectAllSeniors" resultType="edu.sm.app.dto.Senior">
         SELECT
             cr.rec_id AS recId,

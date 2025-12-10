@@ -30,7 +30,7 @@ public class AiMealSafetyService {
 
     /**
      * 식단 안전성 검사
-     * @param recId 노약자 ID
+     * @param recId 돌봄대상자 ID
      * @param imageBase64 이미지 Base64 인코딩 문자열 (선택사항)
      * @param mealDescription 음식 설명 (이미지가 없을 경우)
      * @return 안전성 검사 결과
@@ -39,17 +39,17 @@ public class AiMealSafetyService {
         log.info("AI 식단 안전성 검사 시작 - recId: {}", recId);
 
         try {
-            // 노약자 정보 조회
+            // 돌봄대상자 정보 조회
             Recipient recipient = recipientService.getRecipientById(recId);
             if (recipient == null) {
-                return Map.of("success", false, "message", "노약자 정보를 찾을 수 없습니다.");
+                return Map.of("success", false, "message", "돌봄대상자 정보를 찾을 수 없습니다.");
             }
 
             // AI 프롬프트 생성
             StringBuilder prompt = new StringBuilder();
-            prompt.append("당신은 노약자 돌봄 전문가입니다. 다음 정보를 바탕으로 음식의 안전성을 검사해주세요.\n\n");
+            prompt.append("당신은 돌봄대상자 돌봄 전문가입니다. 다음 정보를 바탕으로 음식의 안전성을 검사해주세요.\n\n");
             
-            prompt.append("[노약자 정보]\n");
+            prompt.append("[돌봄대상자 정보]\n");
             prompt.append("이름: ").append(recipient.getRecName()).append("\n");
             
             if (StringUtils.hasText(recipient.getRecAllergies())) {
@@ -77,7 +77,7 @@ public class AiMealSafetyService {
                     StringBuilder imagePrompt = new StringBuilder();
                     imagePrompt.append("이 이미지에 있는 음식을 식별하고 분석해주세요.\n\n");
                     imagePrompt.append(prompt.toString());
-                    imagePrompt.append("\n\n위의 노약자 정보를 바탕으로 이 음식이 안전한지 검사해주세요.");
+                    imagePrompt.append("\n\n위의 돌봄대상자 정보를 바탕으로 이 음식이 안전한지 검사해주세요.");
                     
                     // AiImageService를 사용하여 이미지 분석
                     String imageAnalysisResult = aiImageService.imageAnalysis2(
@@ -97,7 +97,7 @@ public class AiMealSafetyService {
                         이미지 분석 결과:
                         %s
                         
-                        노약자 정보:
+                        돌봄대상자 정보:
                         %s
                         
                         %s
@@ -176,7 +176,7 @@ public class AiMealSafetyService {
                 1. 알레르기 유발 성분 포함 여부
                 2. 병력에 따른 금기 음식 여부
                 3. 건강 요구사항에 맞는지 여부
-                4. 노약자에게 적합한 음식인지 여부
+                4. 돌봄대상자에게 적합한 음식인지 여부
                 
                 [응답 형식]
                 반드시 다음 JSON 형식으로만 응답해주세요:

@@ -30,8 +30,8 @@ public class ChatLogService {
     }
 
     /**
-     * 특정 노약자(recId)의 최신 채팅 로그를 조회합니다.
-     * @param recId 노약자 식별자
+     * 특정 돌봄대상자(recId)의 최신 채팅 로그를 조회합니다.
+     * @param recId 돌봄대상자 식별자
      * @param limit 조회할 로그의 최대 개수
      * @return ChatLog 리스트 (최신순)
      */
@@ -41,8 +41,8 @@ public class ChatLogService {
     }
 
     /**
-     * 특정 노약자(recId)의 모든 채팅 로그를 조회합니다.
-     * @param recId 노약자 식별자
+     * 특정 돌봄대상자(recId)의 모든 채팅 로그를 조회합니다.
+     * @param recId 돌봄대상자 식별자
      * @return ChatLog 리스트 (오래된 순)
      */
     public List<ChatLog> getAllChatLogsByRecId(Integer recId) {
