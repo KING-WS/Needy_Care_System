@@ -4,14 +4,12 @@ import edu.sm.app.dto.Caregiver;
 import edu.sm.app.dto.Cust;
 import edu.sm.app.dto.HealthData;
 import edu.sm.app.dto.HourlySchedule;
-import edu.sm.app.dto.MapCourse;
 import edu.sm.app.dto.MapLocation;
 import edu.sm.app.dto.MealPlan;
 import edu.sm.app.dto.Recipient;
 import edu.sm.app.dto.Schedule;
 import edu.sm.app.service.CareMatchingService;
 import edu.sm.app.service.HealthDataService;
-import edu.sm.app.service.MapCourseService;
 import edu.sm.app.service.MapService;
 import edu.sm.app.service.MealPlanService;
 import edu.sm.app.service.RecipientService;
@@ -36,7 +34,6 @@ public class HomeController {
     private final HealthDataService healthDataService;
     private final ScheduleService scheduleService;
     private final MapService mapService;
-    private final MapCourseService mapCourseService;
     private final MealPlanService mealPlanService;
     private final CareMatchingService careMatchingService;
     
@@ -271,27 +268,6 @@ public class HomeController {
                 } catch (Exception e) {
                     log.error("배정된 요양사 조회 중 오류", e);
                 }
-                
-                // center.jsp에서 사용하는 courses와 maps는 항상 초기화 (빈 리스트라도)
-                // center가 null이 아닐 때도 center.jsp가 로드될 수 있으므로
-                if (!model.containsAttribute("courses")) {
-                    try {
-                        List<MapCourse> courses = mapCourseService.getCoursesByRecId(selectedRecipient.getRecId());
-                        model.addAttribute("courses", courses != null ? courses : new java.util.ArrayList<>());
-                    } catch (Exception e) {
-                        log.warn("산책코스 조회 실패 (빈 리스트로 초기화)", e);
-                        model.addAttribute("courses", new java.util.ArrayList<>());
-                    }
-                }
-                if (!model.containsAttribute("maps")) {
-                    try {
-                        List<MapLocation> maps = mapService.getByRecId(selectedRecipient.getRecId());
-                        model.addAttribute("maps", maps != null ? maps : new java.util.ArrayList<>());
-                    } catch (Exception e) {
-                        log.warn("지도 장소 조회 실패 (빈 리스트로 초기화)", e);
-                        model.addAttribute("maps", new java.util.ArrayList<>());
-                    }
-                }
             }
         } catch (Exception e) {
             log.error("돌봄대상자 조회 중 오류", e);
@@ -381,14 +357,6 @@ public class HomeController {
                 model.addAttribute("maps", maps);
             } catch (Exception e) {
                 log.warn("지도 장소 조회 실패", e);
-            }
-
-            // 산책코스 조회
-            try {
-                List<MapCourse> courses = mapCourseService.getCoursesByRecId(selectedRecipient.getRecId());
-                model.addAttribute("courses", courses);
-            } catch (Exception e) {
-                log.warn("산책코스 조회 실패", e);
             }
         }
 

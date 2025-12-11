@@ -378,42 +378,39 @@
                     <button class="btn btn-primary" onclick="location.href='<c:url value='/recipient/edit?recId=${recipient.recId}'/>'">
                         <i class="bi bi-pencil-fill"></i> 정보 수정
                     </button>
-                        <button class="btn btn-danger" onclick="deleteRecipient('${recipient.recId}', '${recipient.recName}')">
-                            <i class="bi bi-trash-fill"></i> 삭제
-                        </button>
-                    </div>
-                    </div>
-                    
-                    <div class="detail-content-card">
-                        <div class="info-section" style="border-bottom: none;">
-                            <h3 class="section-title">
-                                <i class="bi bi-clock-history"></i> 시스템 정보
-                            </h3>
-                    
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <div class="info-label">등록 번호</div>
-                                    <div class="info-value">#${recipient.recId}</div>
-                                </div>
-                                <c:if test="${recipient.recRegdate != null}">
-                                    <div class="info-item">
-                                        <div class="info-label">등록일</div>
-                                        <div class="info-value">
-                                                ${recipient.recRegdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recRegdate.hour, recipient.recRegdate.minute)}
-                                        </div>
-                                    </div>
-                                </c:if>
-                                <c:if test="${recipient.recUpdate != null}">
-                                    <div class="info-item">
-                                        <div class="info-label">최종 수정일</div>
-                                        <div class="info-value">
-                                                ${recipient.recUpdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recUpdate.hour, recipient.recUpdate.minute)}
-                                        </div>
-                                    </div>
-                                </c:if>
-                            </div>
+                    <button class="btn btn-danger" onclick="deleteRecipient('${recipient.recId}', '${recipient.recName}')">
+                        <i class="bi bi-trash-fill"></i> 삭제
+                    </button>
+                </div>
+            </div>
+
+            <div class="detail-content-card">
+                <div class="info-section" style="border-bottom: none;">
+                    <h3 class="section-title">
+                        <i class="bi bi-clock-history"></i> 시스템 정보
+                    </h3>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">등록 번호</div>
+                            <div class="info-value">#${recipient.recId}</div>
                         </div>
-                    </div>
+                        <c:if test="${recipient.recRegdate != null}">
+                            <div class="info-item">
+                                <div class="info-label">등록일</div>
+                                <div class="info-value">
+                                        ${recipient.recRegdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recRegdate.hour, recipient.recRegdate.minute)}
+                                </div>
+                            </div>
+                        </c:if>
+                        <c:if test="${recipient.recUpdate != null}">
+                            <div class="info-item">
+                                <div class="info-label">최종 수정일</div>
+                                <div class="info-value">
+                                        ${recipient.recUpdate.toLocalDate()} ${String.format('%02d:%02d', recipient.recUpdate.hour, recipient.recUpdate.minute)}
+                                </div>
+                            </div>
+                        </c:if>
                     </div>
                     
                     <div>
@@ -455,92 +452,98 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </c:if>
-                    
-                    <div class="detail-content-card">
-                        <div class="info-section">
-                            <h3 class="section-title">
-                                <i class="bi bi-heart-pulse"></i> 건강 정보
-                            </h3>
-                    
-                            <div class="info-label">병력 (Medical History)</div>
-                            <div class="info-textarea">
-                                <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
-                                <div class="info-value ${empty recipient.recMedHistory ? 'empty-value' : ''}">${empty recipient.recMedHistory ? '등록된 병력 정보가 없습니다.' : recipient.recMedHistory}</div>
+                            <div class="kiosk-url-display">
+                                <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 URL:</div>
+                                <div id="kioskUrl" style="font-size: 14px; font-weight: 500; font-family: 'Courier New', monospace;">
+                                        ${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/kiosk/${recipient.recKioskCode}
+                                </div>
                             </div>
-                    
-                            <div class="info-label" style="margin-top: 20px;">알레르기 (Allergies)</div>
-                            <div class="info-textarea">
-                                <div class="info-value ${empty recipient.recAllergies ? 'empty-value' : ''}">${empty recipient.recAllergies ? '등록된 알레르기 정보가 없습니다.' : recipient.recAllergies}</div>
+                            <div class="kiosk-button-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button onclick="copyKioskUrl()">
+                                    <i class="bi bi-clipboard"></i> 링크 복사
+                                </button>
+                                <button onclick="showQRCode()">
+                                    <i class="bi bi-qr-code"></i> QR코드 보기
+                                </button>
                             </div>
-                    
-                            <div class="info-label" style="margin-top: 20px;">건강 요구사항 (Health Needs)</div>
-                            <div class="info-textarea">
-                                <div class="info-value ${empty recipient.recHealthNeeds ? 'empty-value' : ''}">${empty recipient.recHealthNeeds ? '등록된 건강 요구사항이 없습니다.' : recipient.recHealthNeeds}</div>
+                            <div style="font-size: 13px; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
+                                <i class="bi bi-lightbulb"></i> <strong>사용 방법:</strong><br>
+                                • 위 링크를 노약자 분께 전달하세요<br>
+                                • QR코드를 스캔하면 바로 접속됩니다<br>
+                                • 별도의 로그인 없이 간편하게 이용 가능합니다
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="detail-content-card">
-                        <div class="info-section" style="border-bottom: none;">
-                            <h3 class="section-title">
-                                <i class="bi bi-info-circle"></i> 추가 정보
-                            </h3>
-                    
-                            <div class="info-label">특이사항 (Special Notes)</div>
-                            <div class="info-textarea">
-                                <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
-                                <div class="info-value ${empty recipient.recSpecNotes ? 'empty-value' : ''}">${empty recipient.recSpecNotes ? '등록된 특이사항이 없습니다.' : recipient.recSpecNotes}</div>
-                            </div>
-                        </div>
+                </div>
+            </c:if>
+
+            <div class="detail-content-card">
+                <div class="info-section">
+                    <h3 class="section-title">
+                        <i class="bi bi-heart-pulse"></i> 건강 정보
+                    </h3>
+
+                    <div class="info-label">병력 (Medical History)</div>
+                    <div class="info-textarea">
+                        <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
+                        <div class="info-value ${empty recipient.recMedHistory ? 'empty-value' : ''}">${empty recipient.recMedHistory ? '등록된 병력 정보가 없습니다.' : recipient.recMedHistory}</div>
                     </div>
+
+                    <div class="info-label" style="margin-top: 20px;">알레르기 (Allergies)</div>
+                    <div class="info-textarea">
+                        <div class="info-value ${empty recipient.recAllergies ? 'empty-value' : ''}">${empty recipient.recAllergies ? '등록된 알레르기 정보가 없습니다.' : recipient.recAllergies}</div>
                     </div>
+
+                    <div class="info-label" style="margin-top: 20px;">건강 요구사항 (Health Needs)</div>
+                    <div class="info-textarea">
+                        <div class="info-value ${empty recipient.recHealthNeeds ? 'empty-value' : ''}">${empty recipient.recHealthNeeds ? '등록된 건강 요구사항이 없습니다.' : recipient.recHealthNeeds}</div>
                     </div>
+                </div>
+            </div>
+
+            <div class="detail-content-card">
+                <div class="info-section" style="border-bottom: none;">
+                    <h3 class="section-title">
+                        <i class="bi bi-info-circle"></i> 추가 정보
+                    </h3>
+
+                    <div class="info-label">특이사항 (Special Notes)</div>
+                    <div class="info-textarea">
+                        <%-- 공백 문제 해결: 태그 사이의 줄바꿈과 공백 제거 --%>
+                        <div class="info-value ${empty recipient.recSpecNotes ? 'empty-value' : ''}">${empty recipient.recSpecNotes ? '등록된 특이사항이 없습니다.' : recipient.recSpecNotes}</div>
                     </div>
-                    
-                    <script src="/js/homecenter/center.js"></script>
-                    <script>
-                    // 나이 계산
-                    document.addEventListener('DOMContentLoaded', function() {
-                        <c:set var="birthday" value="${recipient.recBirthday}"/>
-                        const birthday = new Date(${birthday.year}, ${birthday.monthValue - 1}, ${birthday.dayOfMonth});
-                        const today = new Date();
-                        let age = today.getFullYear() - birthday.getFullYear();
-                        const monthDiff = today.getMonth() - birthday.getMonth();
-                        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
-                            age--;
-                        }
-                        document.getElementById('age').textContent = age;
-                    });
-                    
-                    // 삭제 기능
-                    // 삭제 기능
-                    function deleteRecipient(recId, recName) {
-                        if (confirm(`'${recName}' 대상자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
-                            fetch('<c:url value="/recipient/api/delete"/>?recId=' + recId, {
-                                method: 'DELETE'
-                            })
-                                .then(response => {
-                                    // 응답 상태가 200번대가 아니면 에러 처리 (선택 사항)
-                                    if (!response.ok) {
-                                        throw new Error('Network response was not ok');
-                                    }
-                                    return response.json();
-                                })
-                                .then(data => {
-                                    if (data.success) { // 서버에서 success: true를 보내준다고 가정
-                                        alert('삭제되었습니다.');
-                                        location.href = '<c:url value="/recipient/list"/>';
-                                    } else {
-                                        alert('삭제 실패: ' + (data.message || '알 수 없는 오류'));
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                    alert('삭제 중 오류가 발생했습니다.');
-                                });
-                        }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/js/homecenter/center.js"></script>
+<script>
+    // 나이 계산
+    document.addEventListener('DOMContentLoaded', function() {
+        <c:set var="birthday" value="${recipient.recBirthday}"/>
+        const birthday = new Date(${birthday.year}, ${birthday.monthValue - 1}, ${birthday.dayOfMonth});
+        const today = new Date();
+        let age = today.getFullYear() - birthday.getFullYear();
+        const monthDiff = today.getMonth() - birthday.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
+            age--;
+        }
+        document.getElementById('age').textContent = age;
+    });
+
+    // 삭제 기능
+    // 삭제 기능
+    function deleteRecipient(recId, recName) {
+        if (confirm(`'${recName}' 대상자를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+            fetch('<c:url value="/recipient/api/delete"/>?recId=' + recId, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    // 응답 상태가 200번대가 아니면 에러 처리 (선택 사항)
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
                     
                     // 태블릿 URL 복사
@@ -553,25 +556,50 @@
                             alert('링크 복사에 실패했습니다.');
                         });
                     }
-                    
-                    // QR코드 모달 표시
-                    function showQRCode() {
-                        const url = document.getElementById('kioskUrl').textContent.trim();
-                        const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
-                    
-                        const modal = document.createElement('div');
-                        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
-                        modal.innerHTML = `
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('삭제 중 오류가 발생했습니다.');
+                });
+        }
+    }
+
+    // 태블릿 URL 복사
+    function copyKioskUrl() {
+        const url = document.getElementById('kioskUrl').textContent.trim();
+        navigator.clipboard.writeText(url).then(() => {
+            alert('✅ 태블릿 링크가 복사되었습니다!\n\n노약자 분께 전달해주세요.');
+        }).catch(err => {
+            console.error('복사 실패:', err);
+            alert('링크 복사에 실패했습니다.');
+        });
+    }
+
+    // QR코드 모달 표시
+    function showQRCode() {
+        const url = document.getElementById('kioskUrl').textContent.trim();
+        // API 호출 URL 생성
+        const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
+
+        const modal = document.createElement('div');
+
+        // [수정 1] 줄바꿈 없이 한 줄로 작성 (또는 백틱 ` 사용)
+        modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+
+
+        modal.innerHTML = `
                             <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
                                 <h3 style="margin-bottom: 20px; color: #2c3e50;">태블릿 접속 QR코드</h3>
-                                <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
+
+                                <img src="` + qrCodeUrl + `" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
+
                                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
                                     돌봄대상자 분이 스마트폰으로<br>
                                     위 QR코드를 스캔하면<br>
                                     바로 태블릿 화면으로 이동합니다
                                 </p>
                                 <div style="display: flex; gap: 10px; justify-content: center;">
-                                    <a href="${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                                    <a href="` + qrCodeUrl + `" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
                                         <i class="bi bi-download"></i> 다운로드
                                     </a>
                                     <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: #e9ecef; color: #495057; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600;">
@@ -580,36 +608,36 @@
                                 </div>
                             </div>
                         `;
-                    
-                        // 모달 외부 클릭 시 닫기
-                        modal.addEventListener('click', (e) => {
-                            if (e.target === modal) {
-                                modal.remove();
-                            }
-                        });
-                    
-                        document.body.appendChild(modal);
-                    }
-                    
-                    // JSP 변수를 JavaScript 변수로 설정
-                    var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
-                    var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
-                    <c:choose>
-                    <c:when test="${not empty recipient.recPhotoUrl}">
-                    <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
-                    var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
-                    </c:when>
-                    <c:otherwise>
-                    var recipientPhotoUrl = '';
-                    </c:otherwise>
-                    </c:choose>
-                    var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
-                    
-                    // 페이지 로드 시 지도 초기화
-                    window.addEventListener('load', function() {
-                        if (typeof kakao !== 'undefined' && kakao.maps) {
-                            initializeMap();
-                            loadHomeMarker();
-                        }
-                    });
-                    </script>
+
+        // 모달 외부 클릭 시 닫기
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+
+        document.body.appendChild(modal);
+    }
+
+    // JSP 변수를 JavaScript 변수로 설정
+    var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
+    var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
+    <c:choose>
+    <c:when test="${not empty recipient.recPhotoUrl}">
+    <c:set var="jsPhotoUrl" value="${recipient.recPhotoUrl}${fn:contains(recipient.recPhotoUrl, '?') ? '&' : '?'}v=${recipient.recId}"/>
+    var recipientPhotoUrl = '<c:out value="${jsPhotoUrl}" escapeXml="false"/>';
+    </c:when>
+    <c:otherwise>
+    var recipientPhotoUrl = '';
+    </c:otherwise>
+    </c:choose>
+    var defaultRecId = <c:choose><c:when test="${not empty recipient}">${recipient.recId}</c:when><c:otherwise>null</c:otherwise></c:choose>;
+
+    // 페이지 로드 시 지도 초기화
+    window.addEventListener('load', function() {
+        if (typeof kakao !== 'undefined' && kakao.maps) {
+            initializeMap();
+            loadHomeMarker();
+        }
+    });
+</script>

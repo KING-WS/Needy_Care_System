@@ -51,5 +51,14 @@ public interface MapRepository extends SmRepository<MapLocation, Integer> {
      * @return 해당 돌봄대상자의 특정 카테고리 장소 목록
      */
     List<MapLocation> selectByRecIdAndCategory(Integer recId, String category) throws Exception;
+    
+    /**
+     * 노약자 ID, 이름, 주소로 기존 장소 조회 (중복 체크용)
+     * @param recId 노약자 ID
+     * @param mapName 장소 이름
+     * @param mapAddress 장소 주소
+     * @return 기존 장소 정보 (없으면 null)
+     */
+    MapLocation selectByRecIdAndNameAndAddress(Integer recId, String mapName, String mapAddress) throws Exception;
 }
 

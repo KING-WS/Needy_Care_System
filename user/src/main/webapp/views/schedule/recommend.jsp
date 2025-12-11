@@ -292,7 +292,7 @@
     }
 
     .map-search-input {
-        padding-right: 130px !important; /* 버튼 3개를 위한 공간 확보 */
+        padding-right: 90px !important; /* 버튼 2개를 위한 공간 확보 */
         width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
@@ -312,7 +312,7 @@
 
     /* 입력 필드의 텍스트가 버튼 영역을 침범하지 않도록 */
     .map-search-input:focus {
-        padding-right: 130px !important;
+        padding-right: 90px !important;
     }
 
     /* 검색 버튼들을 입력 필드 안에 완전히 배치 */
@@ -343,21 +343,13 @@
         animation: pulse 1.5s infinite;
     }
 
-    /* AI 검색 버튼 위치 */
-    .map-search-wrapper .ai-icon-btn {
-        right: 79px !important;
-    }
-
     /* 반응형: 작은 화면에서 버튼 간격 조정 */
     @media (max-width: 768px) {
         .map-search-input {
-            padding-right: 120px !important;
+            padding-right: 85px !important;
         }
         .map-search-wrapper .voice-search-btn {
             right: 38px !important;
-        }
-        .map-search-wrapper .ai-icon-btn {
-            right: 72px !important;
         }
     }
 
@@ -375,6 +367,15 @@
                 <h1 style="font-size: 38px; font-weight: 800; color: var(--secondary-color); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);">
                     <i class="fas fa-robot" style="color: var(--primary-color);"></i> AI 장소 추천
                 </h1>
+                <br>
+                <h5 style="color: #000000; font-size: 20px; font-weight: 800; margin-bottom: 20px;">
+                    AI가 돌봄 대상자의 건강 상태와 주소를 기반으로 최적의 장소를 추천해줍니다
+                </h5>
+                <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-top: 15px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #000000; font-size: 20px; font-weight: 800;">맞춤 추천: 건강 상태 기반 자동 장소 추천 / 일반 검색: 키워드로 장소 직접 검색</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -468,7 +469,6 @@
                                             <input type="text" id="mapSearchInput" class="map-search-input" placeholder="병원, 약국, 공원 등 장소를 검색..." onkeypress="if(event.key==='Enter') searchLocation()">
                                             <button type="button" class="map-search-btn search-icon-btn" onclick="searchLocation()" title="검색"><i class="bi bi-search"></i></button>
                                             <button type="button" id="voiceSearchBtn" class="map-search-btn voice-search-btn" title="음성 검색"><i class="fas fa-microphone"></i></button>
-                                            <button type="button" id="aiSearchBtn" class="map-search-btn ai-icon-btn" title="AI 검색"><i class="fas fa-robot"></i></button>
                                         </div>
                                         <button id="recommendBtn" class="btn btn-recommend-ai">
                                             맞춤 추천
@@ -510,7 +510,7 @@
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-plus-circle title-icon"></i> 일정 추가</h5>
+                <h5 class="modal-title"><i class="fas fa-plus-circle title-icon"></i> 장소/산책코스 추가</h5>
                 <button type="button" class="btn-close btn-close-custom" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -748,7 +748,7 @@
             addrInput.readOnly = true;
             addrInput.style.backgroundColor = '#f8f9fa';
         }
-        
+
         // 길찾기 버튼 href 설정
         const routeBtn = document.getElementById('modalRouteBtn');
         if (routeBtn) {
@@ -756,7 +756,7 @@
             const endName = mapName || '';
             routeBtn.href = 'https://map.kakao.com/?sName=' + encodeURIComponent(startAddress) + '&eName=' + encodeURIComponent(endName);
         }
-        
+
         modal.show();
     }
 
@@ -776,6 +776,129 @@
         }
     }
 
+    // [Override] center.js의 모든 오버레이 닫기 함수 재정의
+    // 이유: 검색 결과도 CustomOverlay를 사용하게 되면서 닫는 로직 통일 필요
+    window.closeAllOverlays = function() {
+        // 1. 저장된 장소 오버레이 닫기
+        if (typeof overlays !== 'undefined') {
+            overlays.forEach(overlay => overlay.setMap(null));
+        }
+        // 2. 집 오버레이 닫기
+        if (typeof homeOverlay !== 'undefined' && homeOverlay) {
+            homeOverlay.setMap(null);
+        }
+        // 3. AI 추천 오버레이 닫기
+        closeAllRecommendOverlays();
+
+        // 4. 검색 결과 오버레이 닫기 (CustomOverlay 및 InfoWindow 모두 대응)
+        if (typeof searchMarkers !== 'undefined') {
+            searchMarkers.forEach(item => {
+                if (item.overlay) item.overlay.setMap(null);
+                if (item.infowindow) item.infowindow.close();
+            });
+        }
+    };
+
+    // [Override] center.js의 검색 결과 표시 함수 재정의 (CustomOverlay 사용)
+    window.displaySearchResults = function(places) {
+        var resultsContainer = document.getElementById('searchResults');
+        resultsContainer.innerHTML = '';
+
+        // 기존 마커 및 오버레이 제거
+        closeAllOverlays();
+        if (typeof searchMarkers !== 'undefined') {
+            searchMarkers.forEach(item => {
+                item.marker && item.marker.setMap(null);
+            });
+        }
+        searchMarkers = [];
+
+        var markerImage = getSearchMarkerImage(); // center.js 함수
+
+        places.forEach((place, index) => {
+            // 1. 리스트 아이템 생성
+            var item = document.createElement('div');
+            item.className = 'search-result-item';
+            item.onclick = () => selectSearchResult(place);
+            var icon = getCategoryIcon(place.category_name); // center.js 함수
+            item.innerHTML = `<div class="search-result-icon"><i class="\${icon}"></i></div>
+                              <div class="search-result-info">
+                                  <div class="search-result-name">\${place.place_name}</div>
+                                  <div class="search-result-address">\${place.address_name}</div>
+                                  <span class="search-result-category">\${getCategoryText(place.category_name)}</span>
+                              </div>`;
+            resultsContainer.appendChild(item);
+
+            // 2. 마커 생성
+            var markerPosition = new kakao.maps.LatLng(place.y, place.x);
+            var marker = new kakao.maps.Marker({
+                position: markerPosition,
+                map: map,
+                image: markerImage
+            });
+
+            // 3. 커스텀 오버레이 생성
+            // 버튼 클릭 시 center.js의 openAddPlaceModalFromSearch 호출
+            // place 객체를 문자열로 안전하게 변환
+            const placeStr = JSON.stringify(place).replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+
+            var content = `
+                <div class="custom-overlay-wrap">
+                    <div class="custom-overlay-header">
+                        <span>\${place.place_name}</span>
+                        <div class="custom-overlay-close" onclick="closeAllOverlays()" title="닫기">×</div>
+                    </div>
+                    <div class="custom-overlay-body">
+                        <span class="custom-overlay-category">\${getCategoryText(place.category_name)}</span>
+                        <div style="font-size:12px; color:#666; margin-bottom:8px;">\${place.address_name}</div>
+                        <button class="btn-add-schedule-overlay" onclick='openAddPlaceModalFromSearch(\${JSON.stringify(place)})'>
+                            장소 추가
+                        </button>
+                    </div>
+                </div>`;
+
+            var overlay = new kakao.maps.CustomOverlay({
+                content: content,
+                position: marker.getPosition(),
+                map: null,
+                zIndex: 100
+            });
+
+            // 4. 클릭 이벤트
+            kakao.maps.event.addListener(marker, 'click', function() {
+                closeAllOverlays(); // 다른 모든 오버레이 닫기
+                overlay.setMap(map); // 현재 오버레이 열기
+                map.panTo(marker.getPosition());
+            });
+
+            searchMarkers.push({ marker: marker, overlay: overlay, place: place });
+        });
+
+        resultsContainer.classList.add('show');
+        if (places.length > 0) {
+            map.setCenter(new kakao.maps.LatLng(places[0].y, places[0].x));
+            map.setLevel(4);
+        }
+    };
+
+    // [Override] 리스트 선택 시 동작 재정의
+    window.selectSearchResult = function(place) {
+        var position = new kakao.maps.LatLng(place.y, place.x);
+        map.setCenter(position);
+        map.setLevel(3);
+        document.getElementById('searchResults').classList.remove('show');
+
+        closeAllOverlays();
+
+        searchMarkers.forEach(item => {
+            var markerPos = item.marker.getPosition();
+            // 좌표 비교 (부동소수점 오차 고려)
+            if (Math.abs(markerPos.getLat() - place.y) < 0.0001 && Math.abs(markerPos.getLng() - place.x) < 0.0001) {
+                if (item.overlay) item.overlay.setMap(map);
+            }
+        });
+    };
+
     document.addEventListener('DOMContentLoaded', function() {
         const recommendBtn = document.getElementById('recommendBtn');
         const resultsContainer = document.getElementById('recommendation-results');
@@ -788,6 +911,10 @@
         recommendBtn.addEventListener('click', function() {
             const recId = ${not empty selectedRecipient ? selectedRecipient.recId : 'null'};
             if (!recId) { alert("추천을 위한 대상자 정보가 없습니다."); return; }
+
+            // 키워드 확인
+            const keyword = document.getElementById('mapSearchInput').value.trim();
+
             resultsContainer.innerHTML = '';
 
             // 로딩 모달 표시
@@ -796,10 +923,16 @@
             loadingModal.show();
             recommendBtn.disabled = true;
 
-            fetch('/schedule/ai-recommend', {
+            // 키워드가 있으면 키워드 기반 맞춤 추천, 없으면 건강 상태 기반 맞춤 추천
+            const url = keyword ? '/schedule/ai-keyword-recommend' : '/schedule/ai-recommend';
+            const body = keyword ?
+                JSON.stringify({ recId: parseInt(recId), keyword: keyword }) :
+                JSON.stringify({ recId: parseInt(recId) });
+
+            fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ recId: parseInt(recId) })
+                body: body
             })
                 .then(response => response.json())
                 .then(data => {
@@ -807,7 +940,8 @@
                     loadingModal.hide();
                     recommendBtn.disabled = false;
                     if (!data || data.length === 0) {
-                        resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-muted">추천 결과가 없습니다.</h4></div>';
+                        const keywordMsg = keyword ? `'${keyword}'에 대한 ` : '';
+                        resultsContainer.innerHTML = `<div class="col-12 text-center py-5"><h4 class="text-muted">${keywordMsg}추천 결과가 없습니다.</h4></div>`;
                         return;
                     }
                     displayRecommendationsOnMap(data);
@@ -922,8 +1056,6 @@
             const loadingModalElement = document.getElementById('loadingModal');
             const loadingModal = new bootstrap.Modal(loadingModalElement);
             loadingModal.show();
-            const aiSearchBtn = document.getElementById('aiSearchBtn');
-            aiSearchBtn.disabled = true;
 
             fetch('/schedule/ai-keyword-recommend', {
                 method: 'POST',
@@ -934,7 +1066,6 @@
                 .then(data => {
                     // 로딩 모달 닫기
                     loadingModal.hide();
-                    aiSearchBtn.disabled = false;
                     if (!data || data.length === 0) {
                         const keywordEscaped = keyword.replace(/'/g, "\\'");
                         resultsContainer.innerHTML = `<div class="col-12 text-center py-5"><h4 class="text-muted">'${keywordEscaped}'에 대한 AI 추천 결과가 없습니다.</h4></div>`;
@@ -951,17 +1082,9 @@
                     if (loadingModal) {
                         loadingModal.hide();
                     }
-                    aiSearchBtn.disabled = false;
                     resultsContainer.innerHTML = '<div class="col-12 text-center py-5"><h4 class="text-danger">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</h4></div>';
                 });
         }
-
-        // AI 검색 버튼 클릭 이벤트
-        const aiSearchBtn = document.getElementById('aiSearchBtn');
-        aiSearchBtn.addEventListener('click', function() {
-            const keyword = document.getElementById('mapSearchInput').value;
-            performAiSearch(keyword);
-        });
 
         function renderRecommendationCards(data) {
             resultsContainer.innerHTML = '';
@@ -987,13 +1110,9 @@
                     <strong><i class="fas fa-robot text-primary"></i> AI 추천 이유:</strong><br>\${item.mapContent}
             </div>
                 <div class="d-flex flex-column" style="gap: 10px;">
-                    <div class="d-flex w-100" style="gap: 10px;">
-                        <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map flex-grow-1"><i class="fas fa-directions"></i> 길찾기</a>
-                        <a href="https://map.kakao.com/link/search/\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-outline-secondary flex-grow-1">
-                            <i class="fas fa-search"></i> 검색
-                        </a>                            </div>
+                    <a href="https://map.kakao.com/?sName=\${encodeURIComponent(item.startAddress || '내 위치')}&eName=\${encodeURIComponent(item.mapName)}" target="_blank" class="btn btn-map w-100"><i class="fas fa-directions"></i> 길찾기</a>
                     <button class="btn btn-primary w-100 btn-add-schedule" data-mapname="\${item.mapName}" data-mapcontent="\${item.mapContent}" data-mapcategory="\${item.mapCategory}" data-mapaddress="\${address}" data-coursetype="\${item.courseType || 'WALK'}" data-startlat="\${item.startLat}" data-startlng="\${item.startLng}" data-endlat="\${item.y}" data-endlng="\${item.x}" data-distance="\${item.distance || 0}">
-                        <i class="fas fa-plus"></i> 일정 추가
+                        <i class="fas fa-plus"></i> 장소/산책코스 추가
                     </button>
                 </div>
             </div>
@@ -1047,7 +1166,7 @@
                             data-coursetype="\${place.courseType || 'WALK'}" data-startlat="\${place.startLat}"
                             data-startlng="\${place.startLng}" data-endlat="\${place.y}"
                             data-endlng="\${place.x}" data-distance="\${place.distance || 0}">
-                        일정 추가
+                        장소/산책코스 추가
                     </button>
                 </div>
             </div>
@@ -1143,7 +1262,7 @@
                         addrInput.readOnly = true;
                         addrInput.style.backgroundColor = '#f8f9fa';
                     }
-                    
+
                     // 길찾기 버튼 href 설정
                     const routeBtn = document.getElementById('modalRouteBtn');
                     if (routeBtn) {
@@ -1151,7 +1270,7 @@
                         const endName = mapName || '';
                         routeBtn.href = 'https://map.kakao.com/?sName=' + encodeURIComponent(startAddress) + '&eName=' + encodeURIComponent(endName);
                     }
-                    
+
                     modal.show();
                 });
             });
@@ -1162,6 +1281,21 @@
             if (!listContainer) return;
             const emptyList = listContainer.querySelector('.empty-map-list');
             if (emptyList) { emptyList.remove(); }
+
+            // 기존 항목이 있는지 확인 (같은 mapId)
+            const existingItem = listContainer.querySelector('.map-location-item[data-map-id="' + mapData.mapId + '"]');
+
+            if (existingItem) {
+                // 기존 항목이 있으면 업데이트
+                existingItem.dataset.lat = mapData.mapLatitude;
+                existingItem.dataset.lng = mapData.mapLongitude;
+                existingItem.setAttribute('onclick', `showLocationDetail(\${mapData.mapId})`);
+                existingItem.innerHTML = `<div class="location-info"><div class="location-name-wrapper"><div class="location-name">\${mapData.mapName}</div><div class="location-category">\${mapData.mapCategory}</div></div></div><div class="location-address" data-lat="\${mapData.mapLatitude}" data-lng="\${mapData.mapLongitude}">주소 조회 중...</div><button class="location-delete-btn" onclick="event.stopPropagation(); deleteLocation(\${mapData.mapId})"><i class="bi bi-x-circle"></i></button>`;
+                loadMapLocationAddresses();
+                return;
+            }
+
+            // 기존 항목이 없으면 새로 추가
             if (!listContainer.querySelector('.home-location-divider')) {
                 const divider = document.createElement('div');
                 divider.className = 'home-location-divider';
