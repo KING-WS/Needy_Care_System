@@ -73,12 +73,12 @@ public class MapService implements SmService<MapLocation, Integer> {
     }
 
     /**
-     * 노약자별 장소 목록 조회
-     * @param recId 노약자 ID
-     * @return 해당 노약자의 장소 목록
+     * 돌봄대상자별 장소 목록 조회
+     * @param recId 돌봄대상자 ID
+     * @return 해당 돌봄대상자의 장소 목록
      */
     public List<MapLocation> getByRecId(Integer recId) throws Exception {
-        log.debug("노약자별 장소 조회 - recId: {}", recId);
+        log.debug("돌봄대상자별 장소 조회 - recId: {}", recId);
         return mapRepository.selectByRecId(recId);
     }
 
@@ -112,13 +112,13 @@ public class MapService implements SmService<MapLocation, Integer> {
     }
 
     /**
-     * 노약자 ID와 카테고리로 장소 조회
-     * @param recId 노약자 ID
+     * 돌봄대상자 ID와 카테고리로 장소 조회
+     * @param recId 돌봄대상자 ID
      * @param category 카테고리
-     * @return 해당 노약자의 특정 카테고리 장소 목록
+     * @return 해당 돌봄대상자의 특정 카테고리 장소 목록
      */
     public List<MapLocation> getByRecIdAndCategory(Integer recId, String category) throws Exception {
-        log.debug("노약자별 카테고리 장소 조회 - recId: {}, category: {}", recId, category);
+        log.debug("돌봄대상자별 카테고리 장소 조회 - recId: {}, category: {}", recId, category);
         return mapRepository.selectByRecIdAndCategory(recId, category);
     }
 

@@ -50,11 +50,11 @@ public class UserService implements SmService<User, Integer> {
         return custRepository.searchCustList(custSearch);
     }
     public Page<User> getPage(int pageNo) throws Exception {
-        PageHelper.startPage(pageNo, 3); // 3: 한화면에 출력되는 개수
+        PageHelper.startPage(pageNo, 5); // 3: 한화면에 출력되는 개수
         return custRepository.getpage();
     }
     public Page<User> getPageSearch(int pageNo, UserSearch custSearch) throws Exception {
-        PageHelper.startPage(pageNo, 3); // 3: 한화면에 출력되는 개수
+        PageHelper.startPage(pageNo, 5); // 3: 한화면에 출력되는 개수
         return custRepository.getpageSearch(custSearch);
     }
 

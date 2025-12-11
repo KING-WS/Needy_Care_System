@@ -270,7 +270,7 @@
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <h5 class="mt-3 text-muted">AI가 노약자분의 건강 상태를 분석하여<br>최적의 돌봄 콘텐츠를 찾고 있습니다...</h5>
+        <h5 class="mt-3 text-muted">AI가 돌봄대상자분의 건강 상태를 분석하여<br>최적의 돌봄 콘텐츠를 찾고 있습니다...</h5>
     </div>
 
     <div id="contentArea" style="display: none;">
@@ -306,7 +306,7 @@
         <div class="care-card" data-aos="fade-up" data-aos-delay="300">
             <div class="section-header">
                 <i class="fas fa-hand-holding-heart text-warning"></i>
-                <h3>노약자 혜택 인사이트</h3>
+                <h3>돌봄대상자 혜택 인사이트</h3>
             </div>
             <div id="benefitList" class="blog-list">
             </div>

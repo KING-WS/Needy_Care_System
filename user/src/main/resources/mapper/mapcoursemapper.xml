@@ -38,7 +38,7 @@
           AND is_deleted = 'N'
     </select>
 
-    <!-- 노약자별 산책코스 목록 조회 (rec_id로) -->
+    <!-- 돌봄대상자별 산책코스 목록 조회 (rec_id로) -->
     <select id="selectByRecId" resultType="edu.sm.app.dto.MapCourse">
         SELECT
             course_id AS courseId,

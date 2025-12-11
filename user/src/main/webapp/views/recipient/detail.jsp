@@ -412,25 +412,44 @@
                             </div>
                         </c:if>
                     </div>
-                </div>
-            </div>
-        </div>
-
-        <div>
-            <c:if test="${not empty recipient.recKioskCode}">
-                <div class="detail-content-card">
-                    <div class="info-section" style="border-bottom: none;">
-                        <h3 class="section-title">
-                            <i class="bi bi-tablet"></i> 태블릿 접속 정보
-                        </h3>
-                        <div class="kiosk-info-box">
-                            <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
-                                <i class="bi bi-info-circle"></i> 노약자 전용 간편 접속 링크
-                            </div>
-                            <div class="kiosk-code-display">
-                                <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 코드:</div>
-                                <div class="kiosk-code-value">
-                                        ${recipient.recKioskCode}
+                    
+                    <div>
+                    <c:if test="${not empty recipient.recKioskCode}">
+                        <div class="detail-content-card">
+                            <div class="info-section" style="border-bottom: none;">
+                                <h3 class="section-title">
+                                    <i class="bi bi-tablet"></i> 태블릿 접속 정보
+                                </h3>
+                                <div class="kiosk-info-box">
+                                    <div style="font-size: 14px; margin-bottom: 10px; opacity: 0.9;">
+                                        <i class="bi bi-info-circle"></i> 돌봄대상자 전용 간편 접속 링크
+                                    </div>
+                                    <div class="kiosk-code-display">
+                                        <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 코드:</div>
+                                        <div class="kiosk-code-value">
+                                                ${recipient.recKioskCode}
+                                        </div>
+                                    </div>
+                                    <div class="kiosk-url-display">
+                                        <div style="font-size: 12px; margin-bottom: 8px; opacity: 0.9;">접속 URL:</div>
+                                        <div id="kioskUrl" style="font-size: 14px; font-weight: 500; font-family: 'Courier New', monospace;">
+                                                ${pageContext.request.scheme}://${pageContext.request.serverName}:${pageContext.request.serverPort}${pageContext.request.contextPath}/kiosk/${recipient.recKioskCode}
+                                        </div>
+                                    </div>
+                                    <div class="kiosk-button-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                        <button onclick="copyKioskUrl()">
+                                            <i class="bi bi-clipboard"></i> 링크 복사
+                                        </button>
+                                        <button onclick="showQRCode()">
+                                            <i class="bi bi-qr-code"></i> QR코드 보기
+                                        </button>
+                                    </div>
+                                    <div style="font-size: 13px; margin-top: 15px; opacity: 0.85; line-height: 1.6;">
+                                        <i class="bi bi-lightbulb"></i> <strong>사용 방법:</strong><br>
+                                        • 위 링크를 돌봄대상자 분께 전달하세요<br>
+                                        • QR코드를 스캔하면 바로 접속됩니다<br>
+                                        • 별도의 로그인 없이 간편하게 이용 가능합니다
+                                    </div>
                                 </div>
                             </div>
                             <div class="kiosk-url-display">
@@ -526,14 +545,16 @@
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) { // 서버에서 success: true를 보내준다고 가정
-                        alert('삭제되었습니다.');
-                        location.href = '<c:url value="/recipient/list"/>';
-                    } else {
-                        alert('삭제 실패: ' + (data.message || '알 수 없는 오류'));
+                    
+                    // 태블릿 URL 복사
+                    function copyKioskUrl() {
+                        const url = document.getElementById('kioskUrl').textContent.trim();
+                        navigator.clipboard.writeText(url).then(() => {
+                            alert('✅ 태블릿 링크가 복사되었습니다!\n\n돌봄대상자 분께 전달해주세요.');
+                        }).catch(err => {
+                            console.error('복사 실패:', err);
+                            alert('링크 복사에 실패했습니다.');
+                        });
                     }
                 })
                 .catch(error => {
@@ -573,7 +594,7 @@
                                 <img src="` + qrCodeUrl + `" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
 
                                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
-                                    노약자 분이 스마트폰으로<br>
+                                    돌봄대상자 분이 스마트폰으로<br>
                                     위 QR코드를 스캔하면<br>
                                     바로 태블릿 화면으로 이동합니다
                                 </p>

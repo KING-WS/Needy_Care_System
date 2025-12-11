@@ -69,7 +69,7 @@ public class AiMealRecipeService {
                 반드시 다음 JSON 형식으로만 응답해주세요:
                 {
                   "foodName": "음식 이름",
-                  "aiGuide": "이 음식이 노약자에게 왜 좋은지, 어떤 영양소가 풍부하며, 섭취 시 어떤 점을 주의해야 하는지에 대한 간단한 설명 (2~3문장)",
+                  "aiGuide": "이 음식이 돌봄대상자에게 왜 좋은지, 어떤 영양소가 풍부하며, 섭취 시 어떤 점을 주의해야 하는지에 대한 간단한 설명 (2~3문장)",
                   "totalCalories": "총 예상 칼로리 (kcal 단위 숫자)",
                   "ingredients": [
                     {
@@ -95,7 +95,7 @@ public class AiMealRecipeService {
                 }
                 
                 - foodName: 식별된 음식의 정확한 이름
-                - aiGuide: 노약자를 위한 맞춤 영양 정보 및 주의사항을 반드시 포함해주세요.
+                - aiGuide: 돌봄대상자를 위한 맞춤 영양 정보 및 주의사항을 반드시 포함해주세요.
                 - totalCalories: 모든 재료의 칼로리를 합산한 총 예상 칼로리
                 - ingredients: 각 재료의 이름(name), 양(amount), 칼로리(calories)를 포함하는 객체 배열
                 - cookingTime: 예상 조리 시간
@@ -159,7 +159,7 @@ public class AiMealRecipeService {
                 반드시 다음 JSON 형식으로만 응답해주세요:
                 {
                   "foodName": "음식 이름",
-                  "aiGuide": "이 음식이 노약자에게 왜 좋은지, 어떤 영양소가 풍부하며, 섭취 시 어떤 점을 주의해야 하는지에 대한 간단한 설명 (2~3문장)",
+                  "aiGuide": "이 음식이 돌봄대상자에게 왜 좋은지, 어떤 영양소가 풍부하며, 섭취 시 어떤 점을 주의해야 하는지에 대한 간단한 설명 (2~3문장)",
                   "totalCalories": "총 예상 칼로리 (kcal 단위 숫자)",
                   "ingredients": [
                     {
@@ -185,7 +185,7 @@ public class AiMealRecipeService {
                 }
                 
                 - foodName: 입력된 음식의 정확한 이름
-                - aiGuide: 노약자를 위한 맞춤 영양 정보 및 주의사항을 반드시 포함해주세요.
+                - aiGuide: 돌봄대상자를 위한 맞춤 영양 정보 및 주의사항을 반드시 포함해주세요.
                 - totalCalories: 모든 재료의 칼로리를 합산한 총 예상 칼로리
                 - ingredients: 각 재료의 이름(name), 양(amount), 칼로리(calories)를 포함하는 객체 배열
                 - cookingTime: 예상 조리 시간
@@ -193,7 +193,7 @@ public class AiMealRecipeService {
                 - steps: 조리 단계 (순서대로, 최소 3단계 이상, 각 단계는 자세하게)
                 - tips: 조리 시 유용한 팁
                 
-                한국 음식의 경우 전통적인 조리법을 따르되, 노약자도 쉽게 만들 수 있도록 설명해주세요.
+                한국 음식의 경우 전통적인 조리법을 따르되, 돌봄대상자도 쉽게 만들 수 있도록 설명해주세요.
                 """, foodName.trim());
 
             @SuppressWarnings("null")

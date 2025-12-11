@@ -35,13 +35,18 @@
                     <h4 class="mb-0"><i class="bi bi-people me-2"></i>고객 목록</h4>
                 </div>
                 <div class="card-body">
-                    <div class="mb-4">
+                    <div class="d-flex align-items-center mb-4">
+                        <form action="<c:url value="/customer/list"/>" method="get" class="me-3">
+                            <div class="input-group" style="max-width: 300px;">
+                                <input type="text" name="searchKeyword" class="form-control" placeholder="고객명으로 검색" value="${searchKeyword}">
+                                <button type="submit" class="btn btn-outline-secondary">
+                                    <i class="bi bi-search"></i> 검색
+                                </button>
+                            </div>
+                        </form>
                         <a href="<c:url value="/customer/add"/>" class="btn btn-primary customer-btn">
                             <i class="bi bi-person-plus me-2"></i>고객 등록
                         </a>
-                        <button class="btn btn-outline-secondary ms-2 customer-btn">
-                            <i class="bi bi-download me-2"></i>엑셀 다운로드
-                        </button>
                     </div>
                     
                     <div class="table-responsive">

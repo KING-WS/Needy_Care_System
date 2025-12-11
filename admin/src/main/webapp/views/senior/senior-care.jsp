@@ -27,11 +27,11 @@
 
 <div class="container-fluid py-4">
     <div class="row">
-        <!-- 좌측: 노약자 정보 -->
+        <!-- 좌측: 돌봄대상자 정보 -->
         <div class="col-md-4 mb-4">
             <div class="card shadow-sm care-card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>노약자 정보</h5>
+                    <h5 class="mb-0"><i class="bi bi-person me-2"></i>돌봄대상자 정보</h5>
                 </div>
                 <div class="card-body">
                     <div class="text-center mb-3">

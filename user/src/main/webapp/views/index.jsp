@@ -933,7 +933,7 @@ font-weight: 600;">로그인</a>
                     <p>AI를 활용해 도움이 필요하신 분들에게 최상의 기능을 제공해드립니다</p>
                     <ul>
                         <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 날씨와 코스를 분석해서 추천해주는 산책경로 추천 시스템</li>
-                        <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 노약자분들의 건강 상태에 따른 최적의 식단 추천 시스템</li>
+                        <li><i class="fas fa-check-circle text-primary"></i> AI가 직접 돌봄대상자분들의 건강 상태에 따른 최적의 식단 추천 시스템</li>
                         <li><i class="fas fa-check-circle text-primary"></i> AI가 실시간으로 화면을 분석해 낙상,이상행동 등의 위기신호 감지 시스템</li>
                     </ul>
                 </div>
@@ -967,7 +967,7 @@ font-weight: 600;">로그인</a>
                 <div class="col-lg-4 col-md-6 mb-4" data-aos="fade-up" data-aos-delay="300">
                     <div class="service-box">
                         <i class="fas fa-paint-brush"></i>
-                        <h3>실시간 노약자 모니터링 시스템</h3>
+                        <h3>실시간 돌봄대상자 모니터링 시스템</h3>
                         <p>집안에 설치된 카메라가 사용자의 낙상, 이상 행동 등 위기 상황을 실시간으로 감지합니다.
                             응급 상황 발생 시 보호자에게 즉시 알려 빠른 조치를 돕습니다.</p>
                     </div>

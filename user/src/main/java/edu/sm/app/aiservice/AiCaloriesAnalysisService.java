@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * 칼로리 분석 AI 서비스
- * 노약자의 칼로리 섭취 데이터를 분석하여 상태 평가 및 조절 방안을 제시합니다.
+ * 돌봄대상자의 칼로리 섭취 데이터를 분석하여 상태 평가 및 조절 방안을 제시합니다.
  */
 @Service
 @Slf4j
@@ -26,7 +26,7 @@ public class AiCaloriesAnalysisService {
     private final AiUtilService aiUtilService;
     
     private static final String CALORIES_ANALYSIS_PROMPT = """
-            당신은 전문 영양사입니다. 노약자의 칼로리 섭취 데이터를 분석하여 건강 상태를 평가하고 조절 방안을 제시해주세요.
+            당신은 전문 영양사입니다. 돌봄대상자의 칼로리 섭취 데이터를 분석하여 건강 상태를 평가하고 조절 방안을 제시해주세요.
             
             [분석 대상자 정보]
             - 이름: %s
@@ -58,7 +58,7 @@ public class AiCaloriesAnalysisService {
             
             중요:
             - aiAnalysis는 사용자가 가장 먼저 보게 될 핵심 요약 정보입니다. 긍정적이고 이해하기 쉬운 어조로 작성해주세요.
-            - 노약자의 경우 일반 성인보다 칼로리 요구량이 낮을 수 있으므로 이를 고려해주세요.
+            - 돌봄대상자의 경우 일반 성인보다 칼로리 요구량이 낮을 수 있으므로 이를 고려해주세요.
             - 병력이나 건강 요구사항이 있으면 이를 반영해주세요.
             - 모든 텍스트는 한글로 작성해주세요.
             """;
@@ -74,7 +74,7 @@ public class AiCaloriesAnalysisService {
     
     /**
      * 칼로리 분석 수행
-     * @param recipient 노약자 정보
+     * @param recipient 돌봄대상자 정보
      * @param todayCalories 오늘 칼로리
      * @param weekAvgCalories 최근 7일 평균 칼로리
      * @param monthAvgCalories 최근 30일 평균 칼로리

@@ -57,7 +57,7 @@ public class DashboardApiController {
     }
 
     /**
-     * 모든 노약자 목록을 반환하는 API 엔드포인트
+     * 모든 돌봄대상자 목록을 반환하는 API 엔드포인트
      * @return Senior 리스트
      */
     @GetMapping("/seniors")

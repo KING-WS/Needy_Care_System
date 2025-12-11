@@ -135,7 +135,7 @@
         <div class="row">
             <!-- 왼쪽 열 - 2개의 카드 -->
             <div class="col-lg-3 col-md-6">
-                <!-- 작은 카드 (위) - 노약자 건강 정보 -->
+                <!-- 작은 카드 (위) - 돌봄대상자 건강 정보 -->
                 <div class="card-wrapper">
                     <c:if test="${not empty recipient}">
                         <div class="dashboard-card card-small health-card">
@@ -256,7 +256,7 @@
                         <div class="dashboard-card card-small">
                             <div class="no-data">
                                 <i class="bi bi-person-x"></i>
-                                <span>등록된 노약자가 없습니다</span>
+                                <span>등록된 돌봄대상자가 없습니다</span>
                             </div>
                         </div>
                     </c:if>
@@ -475,7 +475,7 @@
                                 </div>
                                 <div class="map-address-panel" id="mapLocationList">
                                     <div class="map-location-items">
-                                        <!-- 노약자 집 주소 (항상 표시, 고정) -->
+                                        <!-- 돌봄대상자 집 주소 (항상 표시, 고정) -->
                                         <c:if test="${not empty recipient}">
                                             <div class="map-location-item home-location" onclick="focusHomeMarker()">
                                                 <div class="location-info">
@@ -897,7 +897,7 @@
 <!-- Map 관련 JavaScript 파일 -->
 <script src="/js/homecenter/center.js"></script>
 <script>
-    // JSP 변수 - 노약자 정보
+    // JSP 변수 - 돌봄대상자 정보
     var recipientAddress = '<c:out value="${recipient.recAddress}" escapeXml="false"/>';
     var recipientName = '<c:out value="${recipient.recName}" escapeXml="false"/>';
     <c:choose>
@@ -1019,7 +1019,7 @@
             
             loadHomeMarker(); // 집 마커 표시
             loadSavedMarkers(); // 저장된 장소들 표시
-            // 집 마커가 로드된 후 노약자 위치 마커 표시
+            // 집 마커가 로드된 후 돌봄대상자 위치 마커 표시
             setTimeout(function() {
                 // 함수가 존재할 때만 실행하도록 변경
                 if (typeof loadRecipientLocationMarker === 'function') {

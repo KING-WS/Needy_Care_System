@@ -3,6 +3,7 @@ package edu.sm.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import edu.sm.app.dto.User;
+import edu.sm.app.dto.UserSearch;
 import edu.sm.app.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +23,22 @@ public class UserController {
     private final UserService userService;
 
     @RequestMapping("/list")
-    public String customerList(@RequestParam(defaultValue = "1") int pageNo, Model model) {
-        log.info("Customer list page accessed, pageNo: {}", pageNo);
+    public String customerList(@RequestParam(defaultValue = "1") int pageNo,
+                               @RequestParam(required = false) String searchKeyword,
+                               Model model) {
+        log.info("Customer list page accessed, pageNo: {}, searchKeyword: {}", pageNo, searchKeyword);
         try {
-            Page<User> page = userService.getPage(pageNo);
-            PageInfo<User> pageInfo = new PageInfo<>(page);
+            Page<User> page;
+            PageInfo<User> pageInfo;
+
+            if (searchKeyword != null && !searchKeyword.trim().isEmpty()) {
+                UserSearch userSearch = UserSearch.builder().custName(searchKeyword.trim()).build();
+                page = userService.getPageSearch(pageNo, userSearch);
+                model.addAttribute("searchKeyword", searchKeyword); // Add searchKeyword to model to retain its value
+            } else {
+                page = userService.getPage(pageNo);
+            }
+            pageInfo = new PageInfo<>(page);
             model.addAttribute("page", pageInfo);
             model.addAttribute("users", pageInfo.getList());
         } catch (Exception e) {

@@ -51,21 +51,21 @@ public class HomeController {
         if (loginUser != null) {
             log.info("로그인된 사용자 접속: {}", loginUser.getCustName());
             
-            // 노약자 등록 여부 체크
+            // 돌봄대상자 등록 여부 체크
             try {
                 List<Recipient> recipients = recipientService.getRecipientsByCustId(loginUser.getCustId());
                 if (recipients == null || recipients.isEmpty()) {
-                    log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
+                    log.info("등록된 돌봄대상자가 없음 - 등록 유도 페이지로 이동");
                     return "redirect:/recipient/prompt";
                 }
-                log.info("등록된 노약자 수: {}", recipients.size());
+                log.info("등록된 돌봄대상자 수: {}", recipients.size());
                 
-                // 선택된 노약자 결정
+                // 선택된 돌봄대상자 결정
                 Recipient selectedRecipient = null;
                 
-                // 1. 세션에 저장된 노약자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
+                // 1. 세션에 저장된 돌봄대상자가 있으면 사용 (하지만 항상 DB에서 최신 정보를 다시 조회)
                 Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
-                // 세션의 노약자가 현재 사용자의 노약자인지 확인
+                // 세션의 돌봄대상자가 현재 사용자의 돌봄대상자인지 확인
                 if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
                     // 세션에 저장된 recipient의 recId로 DB에서 최신 정보를 다시 조회
                     selectedRecipient = recipientService.getRecipientById(sessionRecipient.getRecId());
@@ -75,14 +75,14 @@ public class HomeController {
                     }
                 }
                 
-                // 2. 세션에도 없으면 첫 번째 노약자 사용
+                // 2. 세션에도 없으면 첫 번째 돌봄대상자 사용
                 if (selectedRecipient == null && !recipients.isEmpty()) {
                     selectedRecipient = recipients.get(0);
                     // 세션에 저장
                     session.setAttribute("selectedRecipient", selectedRecipient);
                 }
                 
-                // 선택된 노약자의 정보와 건강 데이터 조회
+                // 선택된 돌봄대상자의 정보와 건강 데이터 조회
                 if (selectedRecipient != null) {
                     model.addAttribute("recipient", selectedRecipient);
                     
@@ -188,7 +188,7 @@ public class HomeController {
                     }
                 }
             } catch (Exception e) {
-                log.error("노약자 조회 중 오류", e);
+                log.error("돌봄대상자 조회 중 오류", e);
             }
             
             model.addAttribute("loginUser", loginUser);
@@ -217,23 +217,23 @@ public class HomeController {
         try {
             List<Recipient> recipients = recipientService.getRecipientsByCustId(loginUser.getCustId());
             if (recipients == null || recipients.isEmpty()) {
-                log.info("등록된 노약자가 없음 - 등록 유도 페이지로 이동");
+                log.info("등록된 돌봄대상자가 없음 - 등록 유도 페이지로 이동");
                 return "redirect:/recipient/prompt";
             }
 
-            // 1. recId 파라미터가 있으면 해당 노약자 사용
+            // 1. recId 파라미터가 있으면 해당 돌봄대상자 사용
             if (recId != null && recId > 0) {
                 selectedRecipient = recipientService.getRecipientById(recId);
-                // 해당 노약자가 현재 사용자의 노약자인지 확인
+                // 해당 돌봄대상자가 현재 사용자의 돌봄대상자인지 확인
                 if (selectedRecipient != null && selectedRecipient.getCustId().equals(loginUser.getCustId())) {
                     session.setAttribute("selectedRecipient", selectedRecipient);
-                    log.info("노약자 선택됨 - recId: {}, recName: {}", selectedRecipient.getRecId(), selectedRecipient.getRecName());
+                    log.info("돌봄대상자 선택됨 - recId: {}, recName: {}", selectedRecipient.getRecId(), selectedRecipient.getRecName());
                 } else {
                     selectedRecipient = null;
                 }
             }
 
-            // 2. 세션에 저장된 노약자가 있으면 사용 (항상 DB 최신 정보 갱신)
+            // 2. 세션에 저장된 돌봄대상자가 있으면 사용 (항상 DB 최신 정보 갱신)
             if (selectedRecipient == null) {
                 Recipient sessionRecipient = (Recipient) session.getAttribute("selectedRecipient");
                 if (sessionRecipient != null && sessionRecipient.getCustId().equals(loginUser.getCustId())) {
@@ -244,7 +244,7 @@ public class HomeController {
                 }
             }
 
-            // 3. 세션에도 없으면 첫 번째 노약자 사용
+            // 3. 세션에도 없으면 첫 번째 돌봄대상자 사용
             if (selectedRecipient == null && !recipients.isEmpty()) {
                 selectedRecipient = recipients.get(0);
                 session.setAttribute("selectedRecipient", selectedRecipient);
@@ -270,7 +270,7 @@ public class HomeController {
                 }
             }
         } catch (Exception e) {
-            log.error("노약자 조회 중 오류", e);
+            log.error("돌봄대상자 조회 중 오류", e);
         }
 
         // ==========================================

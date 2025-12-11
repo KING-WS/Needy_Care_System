@@ -20,7 +20,7 @@
 
             SELECT
                 'SENIOR_REG' as type,
-                CONCAT('어르신 ''', IFNULL(rec_name, '이름없음'), ''' 님이 등록되었습니다.') as message,
+                CONCAT('돌봄대상자 ''', IFNULL(rec_name, '이름없음'), ''' 님이 등록되었습니다.') as message,
                 rec_regdate as timestamp,
                 'bi-person-wheelchair' as iconClass,
                 'bg-info' as bgClass,

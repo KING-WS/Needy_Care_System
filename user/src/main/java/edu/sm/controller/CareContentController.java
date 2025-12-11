@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * 돌봄 콘텐츠 컨트롤러
- * 노약자 맞춤형 돌봄 영상 및 정보 추천 기능 제공
+ * 돌봄대상자 맞춤형 돌봄 영상 및 정보 추천 기능 제공
  */
 @Controller
 @Slf4j
@@ -97,14 +97,14 @@ public class CareContentController {
 
             if (recId == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보가 필요합니다.")
+                        Map.of("success", false, "message", "돌봄대상자 정보가 필요합니다.")
                 );
             }
 
             Recipient recipient = recipientService.getRecipientById(recId);
             if (recipient == null) {
                 return ResponseEntity.badRequest().body(
-                        Map.of("success", false, "message", "노약자 정보를 찾을 수 없습니다.")
+                        Map.of("success", false, "message", "돌봄대상자 정보를 찾을 수 없습니다.")
                 );
             }
 
