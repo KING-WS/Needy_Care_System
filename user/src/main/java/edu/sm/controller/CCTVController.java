@@ -97,7 +97,7 @@ public class CCTVController {
             Example for a dangerous situation:
             {
               "status": "DANGER",
-              "description": "노인이 바닥에 쓰러져 움직이지 않습니다. 즉각적인 조치가 필요해 보입니다.",
+              "description": "침대나 의자에서 떨어져 바닥에 쓰러져 있거나, 위험한 자세로 넘어져 있습니다.",
               "confidence": 0.95
             }
             
