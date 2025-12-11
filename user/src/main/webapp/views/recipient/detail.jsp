@@ -553,25 +553,32 @@
                             alert('링크 복사에 실패했습니다.');
                         });
                     }
-                    
+
                     // QR코드 모달 표시
                     function showQRCode() {
                         const url = document.getElementById('kioskUrl').textContent.trim();
+                        // API 호출 URL 생성
                         const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(url);
-                    
+
                         const modal = document.createElement('div');
+
+                        // [수정 1] 줄바꿈 없이 한 줄로 작성 (또는 백틱 ` 사용)
                         modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+
+
                         modal.innerHTML = `
                             <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 500px;">
                                 <h3 style="margin-bottom: 20px; color: #2c3e50;">태블릿 접속 QR코드</h3>
-                                <img src="${qrCodeUrl}" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
+
+                                <img src="` + qrCodeUrl + `" alt="QR Code" style="width: 300px; height: 300px; border: 3px solid var(--primary-color); border-radius: 15px; margin-bottom: 20px;">
+
                                 <p style="color: #7f8c8d; margin-bottom: 20px; line-height: 1.6;">
                                     노약자 분이 스마트폰으로<br>
                                     위 QR코드를 스캔하면<br>
                                     바로 태블릿 화면으로 이동합니다
                                 </p>
                                 <div style="display: flex; gap: 10px; justify-content: center;">
-                                    <a href="${qrCodeUrl}" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
+                                    <a href="` + qrCodeUrl + `" download="kiosk_qr_${recipient.recKioskCode}.png" style="background: var(--primary-color); color: white; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: 600;">
                                         <i class="bi bi-download"></i> 다운로드
                                     </a>
                                     <button onclick="this.closest('div').parentElement.parentElement.remove()" style="background: #e9ecef; color: #495057; padding: 12px 24px; border-radius: 25px; border: none; cursor: pointer; font-weight: 600;">
@@ -580,14 +587,14 @@
                                 </div>
                             </div>
                         `;
-                    
+
                         // 모달 외부 클릭 시 닫기
                         modal.addEventListener('click', (e) => {
                             if (e.target === modal) {
                                 modal.remove();
                             }
                         });
-                    
+
                         document.body.appendChild(modal);
                     }
                     
