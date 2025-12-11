@@ -139,21 +139,7 @@
         border: 2px solid #555; /* 테두리 강조 */
     }
 
-    /* CCTV 스캔라인 오버레이 효과 유지 [cite: 35, 36, 37, 38] */
-    .video-wrapper::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.15) 0px,
-                rgba(0, 0, 0, 0.15) 1px,
-                transparent 1px,
-                transparent 3px
-        );
-        pointer-events: none;
-        z-index: 2;
-    }
+
 </style>
 
 <section style="padding: 20px 0;">
