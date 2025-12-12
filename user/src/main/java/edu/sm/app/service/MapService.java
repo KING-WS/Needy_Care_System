@@ -121,5 +121,17 @@ public class MapService implements SmService<MapLocation, Integer> {
         log.debug("돌봄대상자별 카테고리 장소 조회 - recId: {}, category: {}", recId, category);
         return mapRepository.selectByRecIdAndCategory(recId, category);
     }
+
+    /**
+     * 노약자 ID, 이름, 주소로 기존 장소 조회 (중복 체크용)
+     * @param recId 노약자 ID
+     * @param mapName 장소 이름
+     * @param mapAddress 장소 주소
+     * @return 기존 장소 정보 (없으면 null)
+     */
+    public MapLocation getByRecIdAndNameAndAddress(Integer recId, String mapName, String mapAddress) throws Exception {
+        log.debug("기존 장소 조회 - recId: {}, 이름: {}, 주소: {}", recId, mapName, mapAddress);
+        return mapRepository.selectByRecIdAndNameAndAddress(recId, mapName, mapAddress);
+    }
 }
 
