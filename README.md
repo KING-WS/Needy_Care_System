@@ -112,7 +112,7 @@
 ---
 
 ## 🎥 시연 영상
-
+이미지를 클릭하세요
 [![AI 돌봄 시스템 시연 영상](https://github.com/user-attachments/assets/62982f89-faf5-42cc-8102-3e4ca18bd0f6)](https://www.youtube.com/watch?v=0o1INV1-I_Y)
 
 ---
@@ -219,7 +219,6 @@
 ![요양사 화면](https://github.com/user-attachments/assets/f48d9eba-4ed3-4042-adb3-964847151cdf)
 
 ### 돌봄 영상
-이미지를 크릭하세요
 ![돌봄 영상 화면](https://github.com/user-attachments/assets/39e83f43-3f61-471b-b3cc-d242ad146df8)
 
 </details>
