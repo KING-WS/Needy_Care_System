@@ -113,7 +113,7 @@
 
 ## 🎥 시연 영상
 
-[![AI 돌봄 시스템 시연 영상](https://github.com/user-attachments/assets/04073ef8-756f-456b-bc3f-e5f0c354cb16)](https://www.youtube.com/watch?v=0o1INV1-I_Y)
+[![AI 돌봄 시스템 시연 영상](https://github.com/user-attachments/assets/62982f89-faf5-42cc-8102-3e4ca18bd0f6)](https://www.youtube.com/watch?v=0o1INV1-I_Y)
 
 ---
 
